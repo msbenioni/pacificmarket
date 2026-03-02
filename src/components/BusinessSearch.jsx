@@ -1,0 +1,88 @@
+import { useState, useEffect } from "react";
+import { pacificMarket } from "@/lib/pacificMarketClient";
+import { AlertCircle } from "lucide-react";
+
+export default function BusinessSearch({ onSelect, onError, placeholder = "Search business name..." }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [results, setResults] = useState([]);
+  const [selectedResult, setSelectedResult] = useState(null);
+  const [error, setError] = useState("");
+  const [allBusinesses, setAllBusinesses] = useState([]);
+
+  useEffect(() => {
+    pacificMarket.entities.Business.list().then(setAllBusinesses);
+  }, []);
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setError("");
+    setResults([]);
+    setSelectedResult(null);
+
+    if (!value.trim()) return;
+
+    const matches = allBusinesses.filter(b => 
+      b.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setResults(matches);
+
+    if (matches.length === 0) {
+      setError("Business not found");
+      onError?.("Business not found");
+    }
+  };
+
+  const handleSelectResult = (result) => {
+    setSelectedResult(result);
+    setSearchTerm("");
+    setResults([]);
+    setError("");
+    onSelect(result);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Business Name</label>
+        <input
+          value={searchTerm}
+          onChange={e => handleSearch(e.target.value)}
+          placeholder={placeholder}
+          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white"
+        />
+      </div>
+
+      {error && (
+        <div className="flex items-center gap-2 bg-red-50 text-red-700 text-sm px-4 py-3 rounded-xl">
+          <AlertCircle className="w-4 h-4" /> {error}
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white max-h-64 overflow-y-auto">
+          {results.map(result => (
+            <button
+              key={result.id}
+              onClick={() => handleSelectResult(result)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+            >
+              <p className="font-semibold text-[#0a1628] text-sm">{result.name}</p>
+              <p className="text-gray-600 text-xs mt-0.5">
+                {result.city ? `${result.city}, ` : ""}{result.country} · {result.category}
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {selectedResult && (
+        <div className="bg-[#0d4f4f]/5 border border-[#0d4f4f]/20 rounded-xl p-4">
+          <p className="font-semibold text-[#0a1628] text-sm">{selectedResult.name}</p>
+          <p className="text-gray-600 text-xs mt-1">
+            {selectedResult.city ? `${selectedResult.city}, ` : ""}{selectedResult.country} · {selectedResult.category}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
