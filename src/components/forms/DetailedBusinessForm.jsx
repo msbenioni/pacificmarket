@@ -2,6 +2,7 @@ import { useState } from "react";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "../formConstants";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
+import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 
 const STEPS = [
   { id: 1, label: "Business Identity" },
@@ -261,11 +262,11 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
           )}
           {!excludeFields.includes("cultural_identity") && (
             <div>
-              <label className={labelCls}>Cultural Identity</label>
-              <select value={form.cultural_identity} onChange={e => set("cultural_identity", e.target.value)} className={inputCls}>
-                <option value="">Select Pacific identity</option>
-                {IDENTITIES.map(i => <option key={i} value={i}>{i}</option>)}
-              </select>
+              <CulturalIdentitySelect
+                value={form.cultural_identity}
+                onChange={(value) => set("cultural_identity", value)}
+                required={true}
+              />
             </div>
           )}
           {!excludeFields.includes("languages") && (

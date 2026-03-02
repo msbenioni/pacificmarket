@@ -7,6 +7,9 @@ export const IDENTITY_TO_CODE = {
   "Australia (Aboriginal & Torres Strait Islander)": "AU",
   "New Zealand": "NZ",
   "New Zealand (Māori)": "NZ",
+  "New Zealand (Maori)": "NZ",
+  "New Zealand Maori": "NZ",
+  "New Zealand Māori": "NZ",
   "Fiji": "FJ",
   "Samoa": "WS",
   "American Samoa": "AS",
@@ -35,6 +38,39 @@ export const IDENTITY_TO_CODE = {
 export const GLOBE_IDENTITIES = ["Mixed Pacific", "Other"];
 
 export default function FlagIcon({ identity, size = 24, className = "" }) {
+  if (!identity) return null;
+
+  // Handle different data formats
+  let identities = [];
+  
+  if (Array.isArray(identity)) {
+    identities = identity;
+  } else if (typeof identity === 'string') {
+    // Split comma-separated strings, but keep "Mixed Pacific" and "Other" as single items
+    if (identity.includes(',')) {
+      identities = identity.split(',').map(id => id.trim()).filter(Boolean);
+    } else {
+      identities = [identity];
+    }
+  }
+
+  if (identities.length === 0) return null;
+  if (identities.length === 1) return <SingleFlagIcon identity={identities[0]} size={size} className={className} />;
+  
+  // Multiple flags - show them side by side
+  return (
+    <div className={`flex items-center gap-1 ${className}`}>
+      {identities.slice(0, 3).map((id, index) => (
+        <SingleFlagIcon key={id} identity={id} size={Math.min(size, 16)} />
+      ))}
+      {identities.length > 3 && (
+        <span className="text-xs text-gray-500 ml-1">+{identities.length - 3}</span>
+      )}
+    </div>
+  );
+}
+
+function SingleFlagIcon({ identity, size = 24, className = "" }) {
   if (!identity) return null;
 
   if (GLOBE_IDENTITIES.includes(identity)) {

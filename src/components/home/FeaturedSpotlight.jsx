@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft } from "lucide-react";
+import FlagIcon from "@/components/shared/FlagIcon";
 
 const WINDOW_SIZE = 6;
 
@@ -27,6 +28,10 @@ function FeaturedBadge() {
 }
 
 function BusinessMiniCard({ b, active, onSelect }) {
+  const languages = b.languages_spoken?.length > 0
+    ? b.languages_spoken.join(", ")
+    : null;
+
   return (
     <button
       type="button"
@@ -35,13 +40,14 @@ function BusinessMiniCard({ b, active, onSelect }) {
       className={[
         "group w-full text-left rounded-2xl border bg-white transition-all",
         "hover:-translate-y-0.5 hover:shadow-xl",
+        "h-full flex flex-col", // Ensure consistent height
         active
           ? "border-[#c9a84c]/70 shadow-lg ring-2 ring-[#c9a84c]/20"
           : "border-gray-200 shadow-sm",
       ].join(" ")}
     >
       {/* Banner */}
-      <div className="relative h-[84px] rounded-t-2xl overflow-hidden bg-[#0d4f4f]">
+      <div className="relative h-[84px] rounded-t-2xl overflow-hidden bg-[#0d4f4f] flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
 
         {b.banner_url && (
@@ -55,8 +61,8 @@ function BusinessMiniCard({ b, active, onSelect }) {
         )}
       </div>
 
-      <div className="p-4">
-        {/* Logo positioned on top of banner */}
+      <div className="p-4 flex-1 flex flex-col">
+        {/* Logo positioned to overlap banner without pushing content */}
         <div className="relative -mt-8 mb-3">
           <div className="w-16 h-16 rounded-2xl border-3 border-white shadow-lg overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
             {b.logo_url ? (
@@ -67,33 +73,44 @@ function BusinessMiniCard({ b, active, onSelect }) {
           </div>
         </div>
 
-        {/* Name and location */}
+        {/* Name and verification - moved below logo */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="font-extrabold text-[#0a1628] text-sm leading-tight">
             {b.name}
           </h3>
-          {b.verified && (
-            <CheckCircle className="w-4 h-4 text-[#00c4cc] shrink-0 mt-0.5" />
-          )}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            {b.cultural_identity && <FlagIcon identity={b.cultural_identity} size={16} />}
+            {b.verified && <CheckCircle className="w-4 h-4 text-[#00c4cc] shrink-0" />}
+          </div>
         </div>
 
-        <div className="flex items-center gap-1 text-xs text-slate-500 mb-3">
-          <MapPin className="w-3 h-3" />
+        {/* Location */}
+        <div className="flex items-center gap-1 text-xs text-slate-500 mb-2">
+          <MapPin className="w-3 h-3 flex-shrink-0" />
           <span className="truncate">
             {b.city ? `${b.city}, ` : ""}{b.country}
           </span>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+        {/* Languages */}
+        {languages && (
+          <div className="text-xs text-slate-400 mb-2">
+            🗣 {languages}
+          </div>
+        )}
+
+        {/* Tagline - flex-grow to push footer down */}
+        {b.short_description && (
+          <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 mb-3 flex-1">
+            {b.short_description}
+          </p>
+        )}
+
+        {/* Footer - always at bottom */}
+        <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100 mt-auto">
           <span className="text-[11px] text-slate-500 bg-slate-50 px-2 py-1 rounded-md truncate">
-            {b.category || "Enterprise"}
+            {b.industry || "Industry"}
           </span>
-          {b.cultural_identity && (
-            <span className="text-[11px] font-semibold text-[#0d4f4f] truncate">
-              {b.cultural_identity}
-            </span>
-          )}
         </div>
       </div>
     </button>
@@ -196,9 +213,9 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                 <MapPin className="w-4 h-4" />
                 {b?.city ? `${b.city}, ` : ""}{b?.country}
               </span>
-              {b?.category && (
+              {b?.industry && (
                 <span className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg">
-                  {b.category}
+                  {b.industry}
                 </span>
               )}
               {b?.cultural_identity && (

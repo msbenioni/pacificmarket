@@ -53,7 +53,7 @@ export default function BusinessCard({ business, view = "grid" }) {
           </div>
           <div className="flex items-center gap-3 text-xs text-gray-400">
             <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{business.city ? `${business.city}, ` : ""}{business.country}</span>
-            <span className="flex items-center gap-1"><Tag className="w-3 h-3" />{business.category}</span>
+            <span className="flex items-center gap-1"><Tag className="w-3 h-3" />{business.industry}</span>
             {languages && <span className="text-gray-300">· {languages}</span>}
           </div>
         </div>
@@ -107,12 +107,18 @@ export default function BusinessCard({ business, view = "grid" }) {
           </div>
         )}
 
-        <p className="text-xs text-gray-500 leading-relaxed flex-1 line-clamp-2 mb-3 mt-1">
-          {business.tagline || business.description || "Pacific-owned enterprise registered in the Pacific Market Registry."}
+        <p className="text-xs text-gray-500 leading-relaxed flex-1 line-clamp-3 mb-3 mt-1">
+          {business.tagline || business.short_description || "Pacific-owned enterprise registered in the Pacific Market Registry."}
+          {business.description && business.description !== business.tagline && business.description !== business.short_description && (
+            <>
+              <br />
+              <span className="text-gray-400">{business.description}</span>
+            </>
+          )}
         </p>
 
         <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-          <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-md">{business.category}</span>
+          <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-md">{business.industry}</span>
         </div>
       </div>
     </Link>

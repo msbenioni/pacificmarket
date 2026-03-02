@@ -3,6 +3,7 @@ import { pacificMarket } from "@/lib/pacificMarketClient";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { CheckCircle, ChevronRight, ChevronLeft, AlertCircle } from "lucide-react";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
+import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 
 const SIMPLE_STEPS = [
   { id: 1, label: "Business Info" },
@@ -297,11 +298,11 @@ export default function ApplyListing() {
                 <textarea value={form.description} onChange={e => set("description", e.target.value)} rows={5} placeholder="Describe your products or services, your story, and your connection to the Pacific community..." className={`${inputCls} resize-none`} />
               </div>
               <div>
-                <label className={labelCls}>Cultural Identity *</label>
-                <select value={form.cultural_identity} onChange={e => set("cultural_identity", e.target.value)} className={inputCls}>
-                  <option value="">Select Pacific identity</option>
-                  {IDENTITIES.map(i => <option key={i} value={i}>{i}</option>)}
-                </select>
+                <CulturalIdentitySelect
+                  value={form.cultural_identity}
+                  onChange={(value) => setForm(f => ({ ...f, cultural_identity: value }))}
+                  required={true}
+                />
               </div>
               <div>
                 <label className={labelCls}>Website</label>

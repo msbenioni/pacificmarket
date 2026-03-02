@@ -6,6 +6,7 @@ import { CheckCircle, XCircle, Clock, Building2, Shield, Star, AlertTriangle, Ed
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
 import ProcessFlow from "@/components/admin/ProcessFlow";
+import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 
 const TABS = [
   { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600" },
@@ -377,11 +378,10 @@ export default function AdminDashboard() {
               {/* Pacific Identity */}
               <h4 className="font-semibold text-[#0a1628] text-sm mt-4">Pacific Identity</h4>
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Cultural Identity</label>
-                <select value={editingBusiness.cultural_identity||""} onChange={e => setEditingBusiness(p => ({...p, cultural_identity: e.target.value}))} className={inputCls}>
-                  <option value="">Select identity</option>
-                  {IDENTITIES.map(id => <option key={id} value={id}>{id}</option>)}
-                </select>
+                <CulturalIdentitySelect
+                  value={editingBusiness.cultural_identity || ""}
+                  onChange={(value) => setEditingBusiness(p => ({ ...p, cultural_identity: value }))}
+                />
               </div>
               
               {/* Status & Tier */}

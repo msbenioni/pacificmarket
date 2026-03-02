@@ -151,7 +151,7 @@ export default function BusinessProfile() {
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
                     <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{business.city ? `${business.city}, ` : ""}{business.country}</span>
-                    <span className="flex items-center gap-1"><FlagIcon identity={business.cultural_identity} size={14} />{business.category}</span>
+                    <span className="flex items-center gap-1"><FlagIcon identity={business.cultural_identity} size={14} />{business.industry}</span>
                   </div>
                 </div>
               </div>
