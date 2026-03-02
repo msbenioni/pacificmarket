@@ -4,6 +4,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { CheckCircle, ChevronRight, ChevronLeft, AlertCircle } from "lucide-react";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
+import HeroRegistry from "@/components/shared/HeroRegistry";
 
 const SIMPLE_STEPS = [
   { id: 1, label: "Business Info" },
@@ -199,13 +200,12 @@ export default function ApplyListing() {
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
       {/* Header */}
-      <div className="bg-[#0a1628] text-white py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#00c4cc] mb-2 block">Registry Application</span>
-          <h1 className="text-2xl font-bold mb-1">Submit a Business</h1>
-          <p className="text-gray-400 text-sm">Complete all sections to submit your application for registry review.</p>
-        </div>
-      </div>
+      <HeroRegistry
+        badge="Registry Application"
+        title="Submit a Business"
+        subtitle=""
+        description="Complete all sections to submit your application for registry review."
+      />
 
       {/* Progress */}
       <div className="bg-white border-b border-gray-100 sticky top-16 z-10">

@@ -7,6 +7,7 @@ import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
 import ProcessFlow from "@/components/admin/ProcessFlow";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
+import HeroRegistry from "@/components/shared/HeroRegistry";
 
 const TABS = [
   { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600" },
@@ -138,33 +139,24 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
       {/* Header */}
-      <div className="bg-[#0a1628] text-white py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#00c4cc] mb-1 block">Admin · Governance Portal</span>
-            <h1 className="text-2xl font-bold">Registry Dashboard</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={exportCSV} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all">
-              <Download className="w-4 h-4" /> Export CSV
-            </button>
-          </div>
-        </div>
-        {/* Stats */}
-        <div className="max-w-7xl mx-auto mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: "Total Businesses", value: businesses.length, color: "text-[#00c4cc]" },
-            { label: "Pending Review", value: pendingCount, color: "text-yellow-400" },
-            { label: "Verified", value: businesses.filter(b => b.verified).length, color: "text-green-400" },
-            { label: "Pending Claims", value: pendingClaimsCount, color: "text-blue-400" },
-          ].map(s => (
-            <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl px-4 py-3">
-              <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
-              <div className="text-gray-400 text-xs">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <HeroRegistry
+        badge="Admin · Governance Portal"
+        title="Registry Dashboard"
+        subtitle=""
+        description=""
+        showStats={true}
+        stats={[
+          { label: "Total Businesses", value: businesses.length, color: "text-[#00c4cc]" },
+          { label: "Pending Review", value: pendingCount, color: "text-yellow-400" },
+          { label: "Verified", value: businesses.filter(b => b.verified).length, color: "text-green-400" },
+          { label: "Pending Claims", value: pendingClaimsCount, color: "text-blue-400" },
+        ]}
+        actions={
+          <button onClick={exportCSV} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all">
+            <Download className="w-4 h-4" /> Export CSV
+          </button>
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Create Business Button + Tabs */}

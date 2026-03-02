@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { Shield, Globe, CheckCircle, BookOpen, Users, ArrowRight, FileText, Search, Award } from "lucide-react";
 import WaveStrip from "../components/home/WaveStrip";
+import HeroRegistry from "../components/shared/HeroRegistry";
 
 export default function About() {
   const steps = [
@@ -14,41 +15,12 @@ export default function About() {
   return (
     <div className="bg-[#f8f9fc]">
       {/* Hero */}
-      <section className="relative overflow-hidden min-h-[720px]">
-        <div className="absolute inset-0">
-          <img
-            src="/hero.png"
-            alt="Pacific Ocean horizon"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-black/0 to-black/0" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/90 border border-white/40 rounded-full px-3 py-1.5 shadow-sm backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
-              <span className="text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
-                Connecting Pacific Enterprises Worldwide
-              </span>
-            </div>
-
-            <div className="mt-5 bg-[#0a1628]/62 backdrop-blur-md border border-white/10 rounded-2xl p-7 shadow-xl">
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-[1.02]">
-                A Registry Built on{" "}
-                <span className="text-[#00c4cc]">Data Integrity</span>{" "}
-                <span className="text-[#c9a84c]">& Cultural Pride</span>
-              </h1>
-
-              <div className="mt-4 h-[3px] w-44 rounded-full bg-gradient-to-r from-[#00c4cc] via-[#c9a84c] to-transparent" />
-
-              <p className="mt-4 text-base sm:text-lg text-white/90">
-                Pacific Market Registry exists to create a structured, authoritative record of Pacific-owned enterprises — preserving cultural identity through rigorous data governance.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroRegistry
+        badge="About"
+        title="A Registry Built on Data Integrity & Cultural Pride"
+        subtitle=""
+        description="Pacific Market Registry exists to create a structured, authoritative record of Pacific-owned businesses — preserving cultural identity through rigorous data governance."
+      />
 
       {/* Mission */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -70,7 +42,7 @@ export default function About() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 { icon: Shield, title: "Governance Framework", desc: "Data standards aligned with international business registry practices.", color: "text-[#00c4cc]" },
-                { icon: Globe, title: "Global Visibility", desc: "Pacific enterprises discoverable by investors and partners worldwide.", color: "text-[#c9a84c]" },
+                { icon: Globe, title: "Global Visibility", desc: "Pacific businesses discoverable by investors and partners worldwide.", color: "text-[#c9a84c]" },
                 { icon: Users, title: "Community Owned", desc: "Built by Pacific people, for Pacific people and their allies.", color: "text-[#00c4cc]" },
                 { icon: BookOpen, title: "Living Record", desc: "Continuously updated, verified, and maintained by our governance team.", color: "text-[#c9a84c]" },
               ].map((item, i) => (
@@ -121,7 +93,7 @@ export default function About() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-[#0a1628] mb-4">Ready to Register Your Business?</h2>
-          <p className="text-gray-500 mb-8">Join the growing registry of Pacific-owned enterprises and ensure your business is part of the permanent record.</p>
+          <p className="text-gray-500 mb-8">Join the growing registry of Pacific-owned businesses and ensure your business is part of the permanent record.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href={createPageUrl("ApplyListing")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-5 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
               Submit a Business <ArrowRight className="w-4 h-4" />

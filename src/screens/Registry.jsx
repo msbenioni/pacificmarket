@@ -4,6 +4,7 @@ import { BUSINESS_STATUS } from "@/constants/business";
 import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
 import BusinessCard from "../components/registry/BusinessCard";
 import RegistryFilters from "../components/registry/RegistryFilters";
+import HeroRegistry from "../components/shared/HeroRegistry";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
@@ -54,15 +55,12 @@ export default function Registry() {
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
       {/* Hero — scrolls away with the page */}
-      <div className="bg-[#0a1628] text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#00c4cc] mb-2 block pt-4">Pacific Market Registry</span>
-          <h1 className="text-3xl font-bold mb-2 pt-2">Business Registry</h1>
-          <p className="text-gray-400 text-sm">
-            {loading ? "Loading..." : `${businesses.length} enterprise${businesses.length !== 1 ? "s" : ""} registered`}
-          </p>
-        </div>
-      </div>
+      <HeroRegistry
+        badge="Pacific Market Registry"
+        title="Business Registry"
+        subtitle={loading ? "Loading..." : `${businesses.length} business${businesses.length !== 1 ? "es" : ""} registered`}
+        description=""
+      />
 
       {/* Sticky toolbar */}
       <div className="sticky top-16 z-30 bg-[#f8f9fc]">

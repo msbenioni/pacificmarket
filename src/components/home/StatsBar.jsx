@@ -19,7 +19,7 @@ export default function StatsBar() {
   }, []);
 
   const items = [
-    { icon: Building2, label: "Registered Enterprises", value: stats.total, color: "text-[#00c4cc]" },
+    { icon: Building2, label: "Listed Businesses", value: stats.total, color: "text-[#00c4cc]" },
     { icon: Globe, label: "Countries Represented", value: stats.countries, color: "text-[#c9a84c]" },
     { icon: LayoutGrid, label: "Industry Categories", value: stats.categories, color: "text-[#00c4cc]" },
     { icon: CheckCircle, label: "Verified Records", value: stats.verified, color: "text-[#c9a84c]" },

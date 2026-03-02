@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
-import { BarChart2, Globe, Users, ShieldCheck, TrendingUp, Building2 } from "lucide-react";
+import { Building2, Users, ShieldCheck, Globe, TrendingUp } from "lucide-react";
 import { BUSINESS_STATUS } from "@/constants/business";
+import HeroRegistry from "../components/shared/HeroRegistry";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import InsightStatCard from "../components/insights/InsightStatCard";
 import HorizontalBar from "../components/insights/HorizontalBar";
@@ -63,26 +64,21 @@ export default function Insights() {
   return (
     <div className="min-h-screen bg-[#eef0f5]">
       {/* Hero */}
-      <div className="bg-[#0a1628] text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#00c4cc] mb-2 block pt-4">Pacific Market Registry</span>
-          <h1 className="text-3xl font-bold mb-2 pt-2">Registry Insights</h1>
-          <p className="text-gray-400 text-sm max-w-xl">
-            Data and analytics on Pacific-owned enterprises across the globe — supporting research, policy, and investment decisions.
-          </p>
-        </div>
-      </div>
+      <HeroRegistry
+        badge="Pacific Market Registry"
+        title="Registry Insights"
+        subtitle=""
+        description="Data and analytics on Pacific-owned businesses across the globe — supporting research, policy, and investment decisions."
+        showStats={true}
+        stats={[
+          { label: "Listed Businesses", value: total, color: "text-white" },
+          { label: "Countries Represented", value: countries, color: "text-white" },
+          { label: "Verified Businesses", value: verified, color: "text-white" },
+          { label: "Cultural Identities", value: identities, color: "text-white" },
+        ]}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-
-        {/* Stat Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <InsightStatCard label="Registered Enterprises" value={total} sub="Approved listings" icon={Building2} color="#0d4f4f" />
-          <InsightStatCard label="Countries Represented" value={countries} sub="Across the Pacific & beyond" icon={Globe} color="#00c4cc" />
-          <InsightStatCard label="Verified Businesses" value={verified} sub={`${total ? Math.round((verified/total)*100) : 0}% of all listings`} icon={ShieldCheck} color="#c9a84c" />
-          <InsightStatCard label="Cultural Identities" value={identities} sub="Distinct Pacific identities" icon={Users} color="#0a1628" />
-        </div>
-
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {/* Monthly registrations chart */}
         {monthlyData.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md">

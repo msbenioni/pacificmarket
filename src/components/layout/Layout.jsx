@@ -209,7 +209,7 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-                The authoritative global registry for Pacific-owned enterprises. Preserving cultural integrity through structured data governance.
+                The authoritative global registry for Pacific-owned businesses. Preserving cultural integrity through structured data governance.
               </p>
             </div>
             <div>

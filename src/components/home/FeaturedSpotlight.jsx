@@ -242,7 +242,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
 
           {!b?.short_description && !b?.description && (
             <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-white/80 flex-1">
-              Featured Pacific-owned enterprise in the Pacific Market Registry.
+              Featured Pacific-owned business in the Pacific Market Registry.
             </p>
           )}
 

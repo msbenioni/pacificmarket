@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { CheckCircle, X, Star, Shield, Zap, ArrowRight } from "lucide-react";
 import ChevronStrip from "../components/home/ChevronStrip";
+import HeroRegistry from "../components/shared/HeroRegistry";
 
 const plans = [
   {
@@ -60,7 +61,7 @@ const plans = [
     name: "Featured+",
     price: "$29",
     period: "/month",
-    description: "Maximum visibility, business tools, and homepage spotlight for growing Pacific enterprises.",
+    description: "Maximum visibility, business tools, and homepage spotlight for growing Pacific businesses.",
     color: "border-[#c9a84c]",
     headerBg: "bg-gradient-to-br from-[#c9a84c] to-[#b8973b]",
     badge: "Most Popular",
@@ -87,41 +88,12 @@ export default function Pricing() {
   return (
     <div className="bg-[#f8f9fc]">
       {/* Hero */}
-      <section className="relative overflow-hidden min-h-[720px]">
-        <div className="absolute inset-0">
-          <img
-            src="/hero.png"
-            alt="Pacific Ocean horizon"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-black/0 to-black/0" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/90 border border-white/40 rounded-full px-3 py-1.5 shadow-sm backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
-              <span className="text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
-                Connecting Pacific Enterprises Worldwide
-              </span>
-            </div>
-
-            <div className="mt-5 bg-[#0a1628]/62 backdrop-blur-md border border-white/10 rounded-2xl p-7 shadow-xl">
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-[1.02]">
-                Invest in Your{" "}
-                <span className="text-[#00c4cc]">Pacific Business</span>{" "}
-                <span className="text-[#c9a84c]">Identity</span>
-              </h1>
-
-              <div className="mt-4 h-[3px] w-44 rounded-full bg-gradient-to-r from-[#00c4cc] via-[#c9a84c] to-transparent" />
-
-              <p className="mt-4 text-base sm:text-lg text-white/90">
-                Choose the plan that reflects your commitment to professional Pacific business representation.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroRegistry
+        badge="Pricing Plans"
+        title="Invest in Your Pacific Business Identity"
+        subtitle=""
+        description="Choose the right tier for your business - from our FREE listing to Verified or Featured+ with premium presence. There's a plan for everyone!"
+      />
 
       {/* Plans */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">

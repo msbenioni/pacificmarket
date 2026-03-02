@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, LogOut, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users } from "lucide-react";
+import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
+import HeroRegistry from "@/components/shared/HeroRegistry";
 import { TIER_BENEFITS, COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
 import BusinessSearch from "@/components/BusinessSearch";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
@@ -142,18 +144,17 @@ export default function CustomerPortal() {
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
       {/* Header */}
-      <div className="bg-[#0a1628] text-white py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#00c4cc] mb-1 block">Business Owner Portal</span>
-            <h1 className="text-2xl font-bold">Welcome, {user?.full_name?.split(" ")[0] || "Owner"}</h1>
-            <p className="text-gray-400 text-sm mt-1">{user?.email}</p>
-          </div>
+      <HeroRegistry
+        badge="Business Owner Portal"
+        title={`Welcome, ${user?.full_name?.split(" ")[0] || "Owner"}`}
+        subtitle={user?.email}
+        description=""
+        actions={
           <button onClick={() => pacificMarket.auth.logout()} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors">
             <LogOut className="w-4 h-4" /> Sign Out
           </button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
@@ -228,7 +229,7 @@ export default function CustomerPortal() {
             {businesses.length === 0 ? (
               <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
                 <Building2 className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                <h3 className="font-semibold text-gray-500 mb-2">No businesses registered</h3>
+                <h3 className="font-semibold text-gray-500 mb-2">No businesses listed</h3>
                 <p className="text-gray-400 text-sm mb-4">Submit your first Pacific business to the registry.</p>
                 <Link href={createPageUrl("ApplyListing")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#122040]">
                   <Plus className="w-4 h-4" /> Submit a Business
