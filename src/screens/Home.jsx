@@ -6,7 +6,7 @@ import { ArrowRight, CheckCircle, Globe, Shield, Star, BookOpen, Search, Award, 
 import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
 import StatsBar from "../components/home/StatsBar";
 import BusinessCard from "../components/registry/BusinessCard";
-import FeaturedSpotlight from "../components/home/FeaturedSpotlight";
+import FeaturedSpotlight from "@/components/home/FeaturedSpotlight";
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
@@ -14,8 +14,7 @@ export default function Home() {
   useEffect(() => {
     pacificMarket.entities.Business.filter(
       { status: BUSINESS_STATUS.ACTIVE, subscription_tier: BUSINESS_TIER.FEATURED_PLUS },
-      "-created_date",
-      6
+      "-created_date"
     )
       .then(setFeatured)
       .catch(() => {});

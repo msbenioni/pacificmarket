@@ -70,13 +70,12 @@ export default function BusinessCard({ business, view = "grid" }) {
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:border-[#0d4f4f]/30 transition-all group flex flex-col">
       {/* Banner */}
       <div className="h-32 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] relative overflow-hidden">
-        {business.banner_url && <img src={business.banner_url} alt="" className="w-full h-full object-cover" />}
+        {business.banner_url && <img src={business.banner_url} alt="" className="w-full h-full object-cover" style={{ objectPosition: "center top" }} />}
         {tierBadge && (
           <span className={`absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full font-medium ${tierBadge.cls}`}>
             {tierBadge.label === "Featured+" ? <><Star className="w-3 h-3 inline mr-1" />Featured</> : tierBadge.label}
           </span>
         )}
-
       </div>
 
       <div className="px-5 pb-5 flex-1 flex flex-col">

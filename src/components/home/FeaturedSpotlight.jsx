@@ -1,235 +1,379 @@
-"use client";
+'use client';
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  motion,
-  useMotionValue,
-  useAnimationFrame,
-  useReducedMotion,
-} from "framer-motion";
-import { ChevronLeft, ChevronRight, CheckCircle, MapPin, Star } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft } from "lucide-react";
 
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
+const WINDOW_SIZE = 6;
+
+function hourKeyUTC() {
+  return Math.floor(Date.now() / (1000 * 60 * 60));
 }
 
-function mod(n, m) {
-  return ((n % m) + m) % m;
+function clampText(s, max = 140) {
+  if (!s) return "";
+  const clean = String(s).replace(/\s+/g, " ").trim();
+  return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
 }
 
-export default function FeaturedSpotlight({ businesses }) {
-  const n = businesses?.length || 0;
-  const reduceMotion = useReducedMotion();
-  const CARD_W = 480;
-  const GAP = 56;
-  const STEP = CARD_W + GAP;
-  const SPEED = 48;
-  const [containerW, setContainerW] = useState(1200);
-  const wrapRef = useRef(null);
-  const x = useMotionValue(0);
-  const pausedRef = useRef(false);
-
-  useEffect(() => {
-    if (!wrapRef.current) return;
-
-    const el = wrapRef.current;
-    const ro = new ResizeObserver(() => {
-      setContainerW(el.clientWidth || 1200);
-    });
-    ro.observe(el);
-    setContainerW(el.clientWidth || 1200);
-
-    return () => ro.disconnect();
-  }, []);
-
-  const loopItems = useMemo(() => {
-    if (!n) return [];
-    const copies = n < 6 ? 4 : 3;
-    const out = [];
-    for (let c = 0; c < copies; c++) {
-      for (let i = 0; i < n; i++) {
-        out.push({ ...businesses[i], __k: `${c}-${businesses[i].id || i}` });
-      }
-    }
-    return out;
-  }, [businesses, n]);
-
-  const total = loopItems.length;
-  const trackLen = total * STEP;
-
-  useAnimationFrame((t, delta) => {
-    if (!n || reduceMotion) return;
-    if (pausedRef.current) return;
-
-    const dt = delta / 1000;
-    const next = x.get() - SPEED * dt;
-    const wrapped = -mod(-next, trackLen);
-    x.set(wrapped);
-  });
-
-  if (!n) return null;
-
-  const centerX = containerW / 2;
-
-  const focusStyle = (cardLeftPx) => {
-    const cardCenter = cardLeftPx + CARD_W / 2;
-    const dist = Math.abs(cardCenter - centerX);
-    const maxDist = STEP * 2.2;
-    const t = clamp(dist / maxDist, 0, 1);
-    const ease = 1 - (1 - t) * (1 - t);
-
-    const scale = 1.08 - 0.22 * ease;
-    const opacity = 1 - 0.45 * ease;
-    // No blur
-    const y = -10 + 18 * ease;
-
-    return { scale, opacity, y };
-  };
-
-  const nudge = (dir) => {
-    const next = x.get() + dir * STEP;
-    const wrapped = -mod(-next, trackLen);
-    x.set(wrapped);
-  };
-
+function FeaturedBadge() {
   return (
-    <div className="relative select-none">
-      <div
-        ref={wrapRef}
-        className="relative min-h-[400px] overflow-hidden"
-        onMouseEnter={() => (pausedRef.current = true)}
-        onMouseLeave={() => (pausedRef.current = false)}
-      >
+    <div className="inline-flex items-center gap-1 rounded-full bg-[#c9a84c] text-[#0a1628] px-2.5 py-1 text-[11px] font-extrabold shadow-sm">
+      <Star className="w-3.5 h-3.5" />
+      Featured+
+    </div>
+  );
+}
 
-        <motion.div
-          className="absolute left-1/2 top-1/2"
-          style={{
-            x,
-            y: "-50%",
-            translateX: "-50%",
-            display: "flex",
-            gap: `${GAP}px`,
-            willChange: "transform",
-            transformOrigin: "center",
-          }}
-        >
-          {loopItems.map((business, i) => {
-            const cardLeft = i * STEP + x.get();
-            const { scale, opacity, y } = focusStyle(cardLeft);
-            const isCenter = scale > 1.01;
-            const key = business.__k || `${i}`;
+function BusinessMiniCard({ b, active, onSelect }) {
+  return (
+    <button
+      type="button"
+      onFocus={onSelect}
+      onClick={onSelect}
+      className={[
+        "group w-full text-left rounded-2xl border bg-white transition-all",
+        "hover:-translate-y-0.5 hover:shadow-xl",
+        active
+          ? "border-[#c9a84c]/70 shadow-lg ring-2 ring-[#c9a84c]/20"
+          : "border-gray-200 shadow-sm",
+      ].join(" ")}
+    >
+      {/* Banner */}
+      <div className="relative h-[84px] rounded-t-2xl overflow-hidden bg-[#0d4f4f]">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
 
-            return (
-              <motion.div
-                key={key}
-                style={{
-                  width: `${CARD_W}px`,
-                  opacity,
-                  transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                  willChange: "transform, opacity",
-                }}
-              >
-                <SpotlightCard business={business} isCenter={isCenter} />
-              </motion.div>
-            );
-          })}
-        </motion.div>
+        {b.banner_url && (
+          <img
+            src={b.banner_url}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: "center top" }}
+          />
+        )}
+      </div>
 
+      <div className="p-4">
+        {/* Logo positioned on top of banner */}
+        <div className="relative -mt-8 mb-3">
+          <div className="w-16 h-16 rounded-2xl border-3 border-white shadow-lg overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
+            {b.logo_url ? (
+              <img src={b.logo_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+            ) : (
+              <span className="text-white font-bold text-xl">{b.name?.[0] || "P"}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Name and location */}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="font-extrabold text-[#0a1628] text-sm leading-tight">
+            {b.name}
+          </h3>
+          {b.verified && (
+            <CheckCircle className="w-4 h-4 text-[#00c4cc] shrink-0 mt-0.5" />
+          )}
+        </div>
+
+        <div className="flex items-center gap-1 text-xs text-slate-500 mb-3">
+          <MapPin className="w-3 h-3" />
+          <span className="truncate">
+            {b.city ? `${b.city}, ` : ""}{b.country}
+          </span>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+          <span className="text-[11px] text-slate-500 bg-slate-50 px-2 py-1 rounded-md truncate">
+            {b.category || "Enterprise"}
+          </span>
+          {b.cultural_identity && (
+            <span className="text-[11px] font-semibold text-[#0d4f4f] truncate">
+              {b.cultural_identity}
+            </span>
+          )}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function SpotlightPanel({ b, index, total, onPrev, onNext }) {
+  // key forces clean fade/scale on change
+  return (
+    <div
+      key={b?.id || b?.handle || index}
+      className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0a1628] h-full flex flex-col animate-fadeIn"
+      style={{ transformOrigin: "center" }}
+    >
+      {/* Premium glow */}
+      <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#00c4cc]/20 blur-3xl" />
+      <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a84c]/15 blur-3xl" />
+
+      {/* Banner */}
+      <div className="relative h-[220px] sm:h-[260px] overflow-hidden bg-[#0a1628]">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
+
+        {b?.banner_url && (
+          <img
+            src={b.banner_url}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: "center top" }}
+          />
+        )}
+
+        {/* Spotlight chevrons */}
         <button
-          onClick={() => nudge(1)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-[#0a1628] hover:bg-[#0a1628] hover:text-white transition-all"
-          aria-label="Previous"
+          type="button"
+          onClick={onPrev}
+          aria-label="Previous featured business"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20
+                     w-11 h-11 rounded-full
+                     bg-white/10 hover:bg-white/15
+                     border border-white/15
+                     backdrop-blur-md
+                     flex items-center justify-center
+                     text-white transition"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
+
         <button
-          onClick={() => nudge(-1)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-[#0a1628] hover:bg-[#0a1628] hover:text-white transition-all"
-          aria-label="Next"
+          type="button"
+          onClick={onNext}
+          aria-label="Next featured business"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20
+                     w-11 h-11 rounded-full
+                     bg-white/10 hover:bg-white/15
+                     border border-white/15
+                     backdrop-blur-md
+                     flex items-center justify-center
+                     text-white transition"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
+
+        <div className="absolute top-5 left-5 flex items-center gap-3">
+          <FeaturedBadge />
+          <div className="text-[11px] text-white/70 font-semibold">
+            {index + 1} / {total}
+          </div>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="p-6 sm:p-7 flex-1 flex flex-col">
+        {/* Logo positioned on top of banner */}
+        <div className="relative -mt-12 mb-4">
+          <div className="w-20 h-20 rounded-3xl border-3 border-white/80 shadow-2xl overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
+            {b?.logo_url ? (
+              <img src={b.logo_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white font-black text-2xl">{b?.name?.[0] || "P"}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-white font-black text-xl sm:text-2xl leading-tight">
+                {b?.name}
+              </h3>
+              {b?.verified && (
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/10 text-white px-3 py-1 text-xs font-bold border border-white/10">
+                  <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
+                  Verified
+                </div>
+              )}
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/75">
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                {b?.city ? `${b.city}, ` : ""}{b?.country}
+              </span>
+              {b?.category && (
+                <span className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg">
+                  {b.category}
+                </span>
+              )}
+              {b?.cultural_identity && (
+                <span className="text-xs bg-[#00c4cc]/10 border border-[#00c4cc]/20 text-white px-2 py-1 rounded-lg">
+                  {b.cultural_identity}
+                </span>
+              )}
+            </div>
+
+            {(b?.short_description || b?.description) && (
+            <div className="mt-4 space-y-3 flex-1">
+              {b?.short_description && (
+                <p className="text-sm sm:text-[15px] leading-relaxed text-white/90 font-medium">
+                  {b.short_description}
+                </p>
+              )}
+              {b?.description && b?.description !== b?.short_description && (
+                <p className="text-sm sm:text-[15px] leading-relaxed text-white/80">
+                  {clampText(b.description, 300)}
+                </p>
+              )}
+            </div>
+          )}
+
+          {!b?.short_description && !b?.description && (
+            <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-white/80 flex-1">
+              Featured Pacific-owned enterprise in the Pacific Market Registry.
+            </p>
+          )}
+
+            <div className="mt-5 flex flex-col sm:flex-row gap-3">
+              <Link
+                href={createPageUrl("BusinessProfile") + `?handle=${b?.handle || b?.id}`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-extrabold px-5 py-3 transition-all"
+              >
+                View Profile <ChevronRight className="w-4 h-4" />
+              </Link>
+
+              <Link
+                href={createPageUrl("Registry")}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 text-white hover:bg-white/10 font-semibold px-5 py-3 transition-all"
+              >
+                Explore Registry
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Subtle footer line */}
+        <div className="mt-6 h-px w-full bg-gradient-to-r from-white/0 via-white/15 to-white/0" />
       </div>
     </div>
   );
 }
 
-function SpotlightCard({ business, isCenter }) {
-  return (
-    <Link
-      href={createPageUrl("BusinessProfile") + `?handle=${business.handle || business.id}`}
-      className="block"
-    >
-      <div
-        className={[
-          "bg-white rounded-3xl overflow-hidden border",
-          isCenter
-            ? "shadow-[0_28px_70px_rgba(10,22,40,0.18)] border-[#c9a84c]/60"
-            : "shadow-[0_12px_34px_rgba(10,22,40,0.10)] border-gray-200",
-        ].join(" ")}
-      >
-        <div className="relative overflow-hidden">
-          {business.banner_url && (
-            <img
-              src={business.banner_url}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          )}
+export default function FeaturedSpotlight({ businesses = [] }) {
+  const list = businesses.filter(Boolean);
+  const total = list.length;
+  const windows = Math.ceil(total / WINDOW_SIZE);
 
-          <div className="relative">
-            <div className={isCenter ? "h-[160px]" : "h-[120px]"} />
-            {isCenter && (
-              <div className="absolute top-4 left-4 inline-flex items-center gap-1 bg-[#c9a84c]/95 text-[#0a1628] text-xs font-bold px-3 py-1.5 rounded-full">
-                <Star className="w-3.5 h-3.5" /> Featured+
-              </div>
-            )}
-          </div>
+  // Defer hour calculation to client-side to avoid hydration mismatch
+  const [hourlyWindowIndex, setHourlyWindowIndex] = useState(null);
+
+  useEffect(() => {
+    // Calculate hour only on client
+    const hourKey = Math.floor(Date.now() / (1000 * 60 * 60));
+    setHourlyWindowIndex(hourKey % windows);
+  }, [windows]);
+
+  const [windowIndex, setWindowIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // When hour changes → reset window & spotlight
+  useEffect(() => {
+    if (hourlyWindowIndex !== null) {
+      setWindowIndex(hourlyWindowIndex);
+      setSelectedIndex(0);
+    }
+  }, [hourlyWindowIndex]);
+
+  // Build the current 6 window
+  const ordered = useMemo(() => {
+    return [...list].sort((a, b) => {
+      const ad = a.created_date ? new Date(a.created_date).getTime() : 0;
+      const bd = b.created_date ? new Date(b.created_date).getTime() : 0;
+      return ad - bd;
+    });
+  }, [list]);
+
+  const gridItems = useMemo(() => {
+  if (!ordered.length) return [];
+
+  const start = windowIndex * WINDOW_SIZE;
+  const items = [];
+
+  for (let i = 0; i < WINDOW_SIZE; i++) {
+    const idx = (start + i) % ordered.length;
+    items.push(ordered[idx]);
+  }
+
+  return items;
+}, [ordered, windowIndex]);
+  const currentActive = gridItems[selectedIndex] || gridItems[0];
+
+  if (!total || hourlyWindowIndex === null) return null;
+
+  return (
+    <div className="grid lg:grid-cols-12 gap-6 items-stretch">
+      {/* Left: grid */}
+      <div className="lg:col-span-7">
+        <div className="grid sm:grid-cols-2 gap-4 h-full">
+          {gridItems.map((b, i) => {
+            const isActive = i === selectedIndex;
+            return (
+              <BusinessMiniCard
+                key={b.id || b.handle}
+                b={b}
+                active={isActive}
+                onSelect={() => {
+                  setSelectedIndex(i);
+                }}
+              />
+            );
+          })}
         </div>
 
-        <div className="px-6 pb-6">
-          <div className="-mt-6 mb-4 w-14 h-14 rounded-2xl border-2 border-white shadow-md bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] overflow-hidden flex items-center justify-center">
-            {business.logo_url ? (
-              <img src={business.logo_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-white font-bold text-lg">{business.name?.[0]}</span>
-            )}
+        {/* Window navigation */}
+        {windows > 1 && (
+          <div className="mt-6 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => {
+                setWindowIndex((w) => (w - 1 + windows) % windows);
+                setSelectedIndex(0);
+              }}
+              className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous 6
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setWindowIndex((w) => (w + 1) % windows);
+                setSelectedIndex(0);
+              }}
+              className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all"
+            >
+              Next 6
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
+        )}
 
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-extrabold text-[#0a1628] leading-tight text-base">
-              {business.name}
-            </h3>
-            {business.verified && (
-              <CheckCircle className="w-5 h-5 text-[#00c4cc] flex-shrink-0 mt-0.5" />
-            )}
-          </div>
+        {/* Mobile hint */}
+        <div className="mt-3 text-xs text-slate-500 lg:hidden">
+          Tap a card to preview the Featured+ spotlight.
+        </div>
+      </div>
 
-          <div className="flex items-center gap-1 text-sm text-slate-500 mb-3">
-            <MapPin className="w-4 h-4" />
-            <span>{business.city ? `${business.city}, ` : ""}{business.country}</span>
-          </div>
-
-          {isCenter && (
-            <p className="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-4">
-              {business.short_description || business.description || "Pacific-owned enterprise in the Pacific Market Registry."}
-            </p>
-          )}
-
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <span className="text-xs text-slate-500 bg-slate-50 px-2.5 py-1 rounded-md">
-              {business.category}
-            </span>
-            {business.cultural_identity && (
-              <span className="text-xs text-[#0d4f4f] font-semibold">
-                {business.cultural_identity}
-              </span>
-            )}
+      {/* Right: spotlight */}
+      <div className="lg:col-span-5">
+        <div className="h-full flex flex-col">
+          <div className="flex-1">
+            <SpotlightPanel
+              b={currentActive}
+              index={selectedIndex}
+              total={gridItems.length}
+              onPrev={() => setSelectedIndex((i) => (i - 1 + gridItems.length) % gridItems.length)}
+              onNext={() => setSelectedIndex((i) => (i + 1) % gridItems.length)}
+            />
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
