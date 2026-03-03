@@ -48,33 +48,49 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import About from './screens/About';
+import Accessibility from './screens/Accessibility';
 import AdminDashboard from './screens/AdminDashboard';
 import ApplyListing from './screens/ApplyListing';
 import BusinessProfile from './screens/BusinessProfile';
 import Contact from './screens/Contact';
+import Cookies from './screens/Cookies';
 import CustomerPortal from './screens/CustomerPortal';
+import Data from './screens/Data';
+import FAQ from './screens/FAQ';
+import Guidelines from './screens/Guidelines';
+import Help from './screens/Help';
 import Home from './screens/Home';
 import Insights from './screens/Insights';
 import InvoiceGenerator from './screens/InvoiceGenerator';
 import Pricing from './screens/Pricing';
+import Privacy from './screens/Privacy';
 import QRCodeGenerator from './screens/QRCodeGenerator';
 import Registry from './screens/Registry';
+import Terms from './screens/Terms';
 import __Layout from './components/layout/Layout.jsx';
 
 
 export const PAGES = {
     "About": About,
+    "Accessibility": Accessibility,
     "AdminDashboard": AdminDashboard,
     "ApplyListing": ApplyListing,
     "BusinessProfile": BusinessProfile,
     "Contact": Contact,
+    "Cookies": Cookies,
     "CustomerPortal": CustomerPortal,
+    "Data": Data,
+    "FAQ": FAQ,
+    "Guidelines": Guidelines,
+    "Help": Help,
     "Home": Home,
     "Insights": Insights,
     "InvoiceGenerator": InvoiceGenerator,
     "Pricing": Pricing,
+    "Privacy": Privacy,
     "QRCodeGenerator": QRCodeGenerator,
     "Registry": Registry,
+    "Terms": Terms,
 }
 
 export const pagesConfig = {

@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
-import { Search, User, Menu, X, ChevronDown, LogOut, Settings, CreditCard, AlertCircle, AlertTriangle, Home } from "lucide-react";
+import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
+import CookieConsent from "../shared/CookieConsent";
+import { User, LogOut, Settings, CreditCard, AlertCircle, AlertTriangle, Home } from "lucide-react";
 import * as AuthContext from "@/lib/AuthContext";
 
 export default function Layout({ children, currentPageName }) {
@@ -251,6 +254,9 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
       </footer>
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent />
     </div>
   );
 }

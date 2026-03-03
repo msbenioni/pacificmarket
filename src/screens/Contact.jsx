@@ -8,7 +8,9 @@ export default function Contact() {
     email: "",
     subject: "",
     message: "",
-    inquiryType: "general"
+    inquiryType: "general",
+    consent: false,
+    marketingConsent: false
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,6 +30,13 @@ export default function Contact() {
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    // GDPR consent validation
+    if (!formData.consent) {
+      setError("Please consent to the processing of your personal data under GDPR.");
       setLoading(false);
       return;
     }
@@ -221,6 +230,56 @@ export default function Contact() {
                       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f] resize-none"
                       required
                     />
+                  </div>
+
+                  {/* GDPR Consent Section */}
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 p-4 rounded-xl">
+                      <h4 className="font-semibold text-[#0a1628] mb-3">Data Processing Consent (GDPR)</h4>
+                      <div className="space-y-3">
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="consent"
+                            checked={formData.consent}
+                            onChange={handleChange}
+                            className="mt-1 rounded"
+                            required
+                          />
+                          <span className="text-sm text-gray-600">
+                            I consent to the processing of my personal data for the purpose of responding to my inquiry. 
+                            I understand that my data will be processed in accordance with the 
+                            <a href="/Privacy" className="text-[#0d4f4f] hover:underline"> Privacy Policy</a> and that I have 
+                            the right to withdraw this consent at any time.
+                          </span>
+                        </label>
+                        
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="marketingConsent"
+                            checked={formData.marketingConsent}
+                            onChange={handleChange}
+                            className="mt-1 rounded"
+                          />
+                          <span className="text-sm text-gray-600">
+                            I agree to receive marketing communications and updates about Pacific Market Registry. 
+                            (Optional - you can unsubscribe at any time)
+                          </span>
+                        </label>
+                      </div>
+                      
+                      <div className="mt-3 text-xs text-gray-500">
+                        <p>Your rights under GDPR:</p>
+                        <ul className="list-disc pl-5 mt-1 space-y-1">
+                          <li>Right to access your data</li>
+                          <li>Right to rectification</li>
+                          <li>Right to erasure ('right to be forgotten')</li>
+                          <li>Right to data portability</li>
+                          <li>Right to object to processing</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
 
                   <button
