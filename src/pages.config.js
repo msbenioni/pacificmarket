@@ -51,6 +51,7 @@ import About from './screens/About';
 import AdminDashboard from './screens/AdminDashboard';
 import ApplyListing from './screens/ApplyListing';
 import BusinessProfile from './screens/BusinessProfile';
+import Contact from './screens/Contact';
 import CustomerPortal from './screens/CustomerPortal';
 import Home from './screens/Home';
 import Insights from './screens/Insights';
@@ -66,6 +67,7 @@ export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "ApplyListing": ApplyListing,
     "BusinessProfile": BusinessProfile,
+    "Contact": Contact,
     "CustomerPortal": CustomerPortal,
     "Home": Home,
     "Insights": Insights,
