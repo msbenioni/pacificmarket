@@ -153,7 +153,7 @@ export default function Pricing() {
       </section>
 
       {/* Comparison Table */}
-      <section className="py-16 bg-[#f0f2f8] border-y border-gray-200 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 bg-[#f0f2f8] px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-[#0a1628] mb-10 text-center">Full Comparison</h2>
           <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white">
@@ -190,8 +190,6 @@ export default function Pricing() {
           </div>
         </div>
       </section>
-
-      <ChevronStrip />
 
       {/* FAQ */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">

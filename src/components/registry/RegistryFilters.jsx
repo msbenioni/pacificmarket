@@ -2,9 +2,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { BUSINESS_STATUS } from "@/constants/business";
-
-const CATEGORIES = ["Agriculture", "Arts & Crafts", "Beauty & Personal Care", "Coaching (Business & Personal)", "Construction & Trade", "Digital & IT Technology", "Education & Training", "Finance & Insurance", "Food & Beverage", "Health & Wellness", "Hospitality & Tourism", "Legal Services", "Manufacturing", "Media & Entertainment", "Professional Services", "Transport & Logistics", "Other"];
-const IDENTITIES = ["Fijian", "Samoan", "Tongan", "Māori", "Hawaiian", "Tahitian", "Niuean", "Cook Islander", "Tuvaluan", "Kiribati", "Palauan", "Marshallese", "Papua New Guinean", "Solomon Islander", "Vanuatuan"];
+import { CATEGORIES, IDENTITIES } from "@/components/formConstants";
 
 export default function RegistryFilters({ filters, onChange }) {
   const [countries, setCountries] = useState([]);

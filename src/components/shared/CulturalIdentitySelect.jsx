@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import FlagIcon from "./FlagIcon";
+import { IDENTITIES } from "@/components/formConstants";
 
 export default function CulturalIdentitySelect({ value, onChange, label = "Cultural Identity", required = false, className = "" }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,40 +11,7 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
   const selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
   
   // Filter identities based on search
-  const filteredIdentities = [
-    "Australia",
-    "Australia (Aboriginal & Torres Strait Islander)",
-    "New Zealand",
-    "New Zealand (Māori)",
-    "New Zealand (Maori)",
-    "New Zealand Maori",
-    "New Zealand Māori",
-    "Fiji",
-    "Samoa",
-    "American Samoa",
-    "Tonga",
-    "Cook Islands",
-    "Niue",
-    "Tokelau",
-    "Tuvalu",
-    "Kiribati",
-    "Nauru",
-    "Papua New Guinea",
-    "Solomon Islands",
-    "Vanuatu",
-    "New Caledonia",
-    "French Polynesia",
-    "Wallis and Futuna",
-    "Palau",
-    "Marshall Islands",
-    "Micronesia",
-    "Guam",
-    "Northern Mariana Islands",
-    "Hawaii",
-    "Rotuma",
-    "Mixed Pacific",
-    "Other"
-  ].filter(identity => 
+  const filteredIdentities = IDENTITIES.filter(identity => 
     identity.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

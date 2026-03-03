@@ -1,5 +1,6 @@
 import React from "react";
 import { Globe } from "lucide-react";
+import { IDENTITIES } from "@/components/formConstants";
 
 // Map cultural identity to ISO 3166-1 alpha-2 country codes
 export const IDENTITY_TO_CODE = {
@@ -7,9 +8,6 @@ export const IDENTITY_TO_CODE = {
   "Australia (Aboriginal & Torres Strait Islander)": "AU",
   "New Zealand": "NZ",
   "New Zealand (Māori)": "NZ",
-  "New Zealand (Maori)": "NZ",
-  "New Zealand Maori": "NZ",
-  "New Zealand Māori": "NZ",
   "Fiji": "FJ",
   "Samoa": "WS",
   "American Samoa": "AS",
@@ -33,6 +31,8 @@ export const IDENTITY_TO_CODE = {
   "Northern Mariana Islands": "MP",
   "Hawaii": "US",
   "Rotuma": "FJ",
+  "Mixed Pacific": "GLOBE",
+  "Other": "GLOBE",
 };
 
 export const GLOBE_IDENTITIES = ["Mixed Pacific", "Other"];
@@ -78,7 +78,7 @@ function SingleFlagIcon({ identity, size = 24, className = "" }) {
   }
 
   const code = IDENTITY_TO_CODE[identity];
-  if (!code) return <Globe className={`text-[#0d4f4f] ${className}`} style={{ width: size, height: size }} />;
+  if (!code || code === "GLOBE") return <Globe className={`text-[#0d4f4f] ${className}`} style={{ width: size, height: size }} />;
 
   const flagUrl = `https://purecatamphetamine.github.io/country-flag-icons/3x2/${code}.svg`;
 

@@ -25,25 +25,25 @@ export default function Home() {
     {
       icon: Shield,
       title: "Structured Registry",
-      description: "The first global dataset of Pacific-owned enterprise — built to the standard of an official business registry, not a casual directory.",
+      description: "Built like a registry — structured, searchable, and designed to represent Pacific enterprise properly (not just a list of links).",
       color: "text-[#00c4cc]"
     },
     {
       icon: Globe,
-      title: "Diaspora Intelligence",
-      description: "A geographic map of Pacific-owned businesses across countries — showing where Pacific enterprise is growing and where support is needed.",
+      title: "Global Footprint",
+      description: "A global view of where Pacific-owned businesses are growing — across countries, communities, and industries.",
       color: "text-[#c9a84c]"
     },
     {
       icon: CheckCircle,
       title: "Verified Ownership",
-      description: "Verification ensures authenticity of Pacific ownership, cultural identity, and business legitimacy — data you can trust.",
+      description: "Verification helps confirm ownership and legitimacy — creating a trusted reference point for communities and partners.",
       color: "text-[#00c4cc]"
     },
     {
       icon: BookOpen,
       title: "Cultural Data Layer",
-      description: "Identity, language, and representation data preserved with cultural integrity — the kind of insight no census can provide.",
+      description: "Identity, language, and representation captured with cultural care — offering insight that's rarely visible in standard business datasets.",
       color: "text-[#c9a84c]"
     },
   ];
@@ -60,18 +60,32 @@ export default function Home() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-14">
           <h2 className="text-3xl font-bold text-[#0a1628] mb-4">More Than a Directory</h2>
-          <p className="text-gray-500 max-w-xl mx-auto">Pacific Market is building the economic infrastructure layer for Pacific-owned enterprise — a visibility platform for communities and an intelligence platform for researchers, governments, and partners.</p>
+          <p className="text-gray-500 max-w-xl mx-auto">Pacific Market is building the first structured global registry of Pacific-owned enterprise — designed for community visibility today, and research-grade insight over time.</p>
+          <p className="text-xs font-semibold text-[#0a1628]/60 mt-3">Built Pacific-led. Designed for visibility. Trusted for research.</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {values.map((v, i) => (
-            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md hover:shadow-xl transition-all group">
-              <div className="w-11 h-11 rounded-xl bg-[#0a1628] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-[0_10px_30px_rgba(10,22,40,0.08)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.12)] transition-all group">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-b from-[#0a1628] to-[#07101d] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <v.icon className={`w-5 h-5 ${v.color}`} />
               </div>
               <h3 className="font-bold text-[#0a1628] mb-2 text-sm">{v.title}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{v.description}</p>
+              <p className="text-gray-500 text-sm leading-relaxed">{v.description}</p>
             </div>
           ))}
+        </div>
+        
+        {/* Used for pills */}
+        <div className="flex justify-center gap-4 mt-8">
+          <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
+            Community visibility
+          </span>
+          <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
+            Supplier discovery
+          </span>
+          <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
+            Research & policy insight
+          </span>
         </div>
       </section>
 
@@ -106,7 +120,7 @@ export default function Home() {
             <div className="relative">
               <Award className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
               <h2 className="text-3xl font-bold text-white mb-4">Put Your Business on the Map</h2>
-              <p className="text-slate-300 mb-8 max-w-xl mx-auto">Every listing strengthens the economic map of Pacific enterprise. Submit your business for review and become part of the first structured global registry of Pacific-owned enterprise.</p>
+              <p className="text-slate-300 mb-8 max-w-xl mx-auto">Every listing strengthens the global map of Pacific enterprise. Submit your business for review and join the first structured registry of Pacific-owned enterprise.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href={createPageUrl("ApplyListing")}
                   className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm">
