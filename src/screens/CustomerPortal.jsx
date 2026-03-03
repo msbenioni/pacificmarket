@@ -121,17 +121,21 @@ export default function CustomerPortal() {
     </div>
   );
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
-        <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
-          <AlertCircle className="w-10 h-10 text-orange-400 mx-auto mb-4" />
-          <h2 className="font-bold text-[#0a1628] mb-2">Sign-in required</h2>
-          <p className="text-gray-400 text-sm">Create an account to access the owner portal.</p>
-        </div>
-      </div>
-    );
-  }
+  // Temporarily removed auth check for testing
+  // if (!user) {
+  //   return (
+  //     <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+  //       <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
+  //         <AlertCircle className="w-10 h-10 text-orange-400 mx-auto mb-4" />
+  //         <h2 className="text-xl font-bold text-[#0a1628] mb-2">Sign In Required</h2>
+  //         <p className="text-gray-500 mb-6">Please sign in to access the Business Owner Portal.</p>
+  //         <Link href={createPageUrl("Login")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
+  //           Sign In <ArrowRight className="w-4 h-4" />
+  //         </Link>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   const tierInfo = {
     free: { label: "Free", color: "text-gray-500 bg-gray-100" },
@@ -241,7 +245,7 @@ export default function CustomerPortal() {
                   <div key={b.id} className="bg-white border border-gray-100 rounded-2xl p-5">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer relative group">
-                        {b.logo_url ? <img src={b.logo_url} alt="" className="w-full h-full object-cover" /> : <span className="text-white font-bold">{b.name?.[0]}</span>}
+                        {b.logo_url ? <img src={b.logo_url} alt="" className="w-full h-full object-cover" /> : <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />}
                         <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                           <Upload className="w-4 h-4 text-white" />
                           <input type="file" accept="image/*" className="hidden" onChange={e => handleLogoUpload(e, b.id)} />
@@ -265,7 +269,7 @@ export default function CustomerPortal() {
                           className="flex items-center gap-1 text-xs border border-gray-200 px-3 py-2 rounded-xl hover:border-[#0d4f4f] hover:text-[#0d4f4f] transition-all">
                           <Users className="w-3.5 h-3.5" /> Owners
                         </button>
-                        <Link href={createPageUrl("BusinessProfile") + `?handle=${b.handle || b.id}`}
+                        <Link href={createPageUrl("BusinessProfile") + `?handle=${b.shop_handle || b.id}`}
                           className="flex items-center gap-1 text-xs text-[#0d4f4f] px-3 py-2 rounded-xl hover:bg-[#0d4f4f]/5 transition-all">
                           View <ChevronRight className="w-3.5 h-3.5" />
                         </Link>

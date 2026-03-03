@@ -89,7 +89,7 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
             <div>
               <label className={labelCls}>Registry Handle *</label>
               <div className="flex gap-2">
-                <input value={form.handle} onChange={e => set("handle", e.target.value)} placeholder="tala-pacific-consulting" className={inputCls} />
+                <input value={form.shop_handle} onChange={e => set("shop_handle", e.target.value)} placeholder="tala-pacific-consulting" className={inputCls} />
                 <button onClick={handleGenerateHandle} className="text-xs bg-[#0a1628] text-white px-3 py-2 rounded-xl hover:bg-[#122040] flex-shrink-0">Auto</button>
               </div>
               <p className="text-xs text-gray-400 mt-1">Unique URL identifier. Lowercase letters, numbers and hyphens only.</p>
@@ -133,7 +133,7 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
                 {form.logo_url ? (
                   <img src={form.logo_url} alt="Logo" className="w-full h-full object-cover rounded-lg" />
                 ) : (
-                  <Upload className="w-5 h-5 text-gray-400" />
+                  <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover rounded-lg" />
                 )}
                 <input type="file" accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "logo")} disabled={uploadingLogo} />
               </label>

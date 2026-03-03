@@ -193,39 +193,49 @@ export default function Layout({ children, currentPageName }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <img src="/pm_logo.png" alt="Pacific Market Registry" className="h-12 w-12" />
-                <div className="flex flex-col items-center leading-none text-center">
-                  <span className="text-white text-lg font-bold tracking-[0.35em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                    PACIFIC
-                  </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="h-px w-6 bg-[#c9a84c]" />
-                    <span className="text-[#c9a84c] text-[0.65rem] font-bold tracking-[0.45em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                      MARKET
+              <Link href={createPageUrl("Home")} className="inline-block">
+                <div className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+                  <img src="/pm_logo.png" alt="Pacific Market Registry" className="h-12 w-12" />
+                  <div className="flex flex-col items-center leading-none text-center">
+                    <span className="text-white text-lg font-bold tracking-[0.35em]" style={{ fontFamily: "'Cinzel', serif" }}>
+                      PACIFIC
                     </span>
-                    <span className="h-px w-6 bg-[#c9a84c]" />
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="h-px w-6 bg-[#c9a84c]" />
+                      <span className="text-[#c9a84c] text-[0.65rem] font-bold tracking-[0.45em]" style={{ fontFamily: "'Cinzel', serif" }}>
+                        MARKET
+                      </span>
+                      <span className="h-px w-6 bg-[#c9a84c]" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
                 The authoritative global registry for Pacific-owned businesses. Preserving cultural integrity through structured data governance.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-4">Registry</h4>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-4">Legal</h4>
               <ul className="space-y-2">
-                {[["Registry", "Search Registry"], ["ApplyListing", "Submit a Business"], ["Pricing", "Plans & Pricing"], ["About", "About"]].map(([page, label]) => (
+                {[
+                  ["Terms", "Terms & Conditions"],
+                  ["Privacy", "Privacy Policy"],
+                  ["Cookies", "Cookie Policy"],
+                  ["Data", "Data Protection"],
+                  ["Accessibility", "Accessibility"]
+                ].map(([page, label]) => (
                   <li key={page}><Link href={createPageUrl(page)} className="text-gray-400 text-sm hover:text-white transition-colors">{label}</Link></li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-4">Account</h4>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-4">Support</h4>
               <ul className="space-y-2">
                 {[
-                  ["CustomerPortal", "Business Portal"],
-                  ["AdminDashboard", "Admin Dashboard"]
+                  ["Contact", "Contact Us"],
+                  ["Help", "Help Center"],
+                  ["FAQ", "FAQs"],
+                  ["Guidelines", "Community Guidelines"]
                 ].map(([page, label]) => (
                   <li key={page}><Link href={createPageUrl(page)} className="text-gray-400 text-sm hover:text-white transition-colors">{label}</Link></li>
                 ))}

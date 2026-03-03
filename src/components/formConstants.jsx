@@ -46,7 +46,7 @@ export const IDENTITIES = [
 export const FORM_FIELDS = {
   // Business Identity Fields
   name: { label: "Business Name", type: "text", placeholder: "e.g. Tala Pacific Consulting", required: true },
-  handle: { label: "Registry Handle", type: "text", placeholder: "tala-pacific-consulting", required: true, helper: "Unique URL identifier. Lowercase letters, numbers and hyphens only." },
+  shop_handle: { label: "Registry Handle", type: "text", placeholder: "tala-pacific-consulting", required: true, helper: "Unique URL identifier. Lowercase letters, numbers and hyphens only." },
   country: { label: "Country", type: "select", options: COUNTRIES, required: true },
   city: { label: "City", type: "text", placeholder: "e.g. Auckland" },
   category: { label: "Industry Category", type: "select", options: CATEGORIES, required: true },

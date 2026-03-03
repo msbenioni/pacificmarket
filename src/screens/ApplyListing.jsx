@@ -92,7 +92,7 @@ export default function ApplyListing() {
 
       await pacificMarket.entities.Business.create({
         name: form.name,
-        handle: form.handle,
+        shop_handle: form.handle,
         country: form.country,
         city: form.city,
         category: form.category,

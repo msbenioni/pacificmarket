@@ -21,21 +21,21 @@ export default function HeroHomepage() {
             <div className="inline-flex items-center gap-2 bg-white/90 border border-white/40 rounded-full px-3 py-1.5 shadow-sm backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
               <span className="text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
-                Connecting Pacific Businesses Worldwide
+                The First Global Registry of Pacific-Owned Enterprise
               </span>
             </div>
 
             <div className="mt-5 bg-[#0a1628]/62 backdrop-blur-md border border-white/10 rounded-2xl p-7 shadow-xl">
               <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-[1.02]">
-                The Global Registry for{" "}
+                The Economic Map of{" "}
                 <span className="text-[#00c4cc]">Pacific-Owned</span>{" "}
-                <span className="text-[#c9a84c]">Businesses</span>
+                <span className="text-[#c9a84c]">Enterprise</span>
               </h1>
 
               <div className="mt-4 h-[3px] w-44 rounded-full bg-gradient-to-r from-[#00c4cc] via-[#c9a84c] to-transparent" />
 
               <p className="mt-4 text-base sm:text-lg text-white/90">
-                Find Pacific-owned businesses worldwide in a structured registry built for verification, discoverability, and trusted business data.
+                A structured, verified registry of Pacific-owned businesses — built for communities, researchers, policymakers, and partners who need trusted data on Pacific enterprise globally.
               </p>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function HeroHomepage() {
 
                   <div className="flex items-center gap-2 text-xs text-slate-500">
                     <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
-                    <span>Built with Cultural Respect</span>
+                    <span>Verified. Structured. Trusted.</span>
                   </div>
                 </div>
 

@@ -21,8 +21,8 @@ export default function QRCodeGenerator() {
     }).then(b => {
       setBusinesses(b);
       if (b.length > 0) {
-        const handle = b[0].handle || b[0].id;
-        const profileUrl = `${window.location.origin}/business-profile?handle=${handle}`;
+        const shop_handle = b[0].shop_handle || b[0].id;
+        const profileUrl = `${window.location.origin}/business-profile?handle=${shop_handle}`;
         setUrl(profileUrl);
         setLabel(b[0].name);
       }
@@ -44,8 +44,8 @@ export default function QRCodeGenerator() {
   }, [url, size]);
 
   const handleBusinessSelect = (b) => {
-    const handle = b.handle || b.id;
-    const profileUrl = `${window.location.origin}/business-profile?handle=${handle}`;
+    const shop_handle = b.shop_handle || b.id;
+    const profileUrl = `${window.location.origin}/business-profile?handle=${shop_handle}`;
     setUrl(profileUrl);
     setLabel(b.name);
   };

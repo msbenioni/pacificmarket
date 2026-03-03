@@ -32,7 +32,7 @@ export default function BusinessProfile() {
     const handle = params.get("handle");
 
     if (handle) {
-      pacificMarket.entities.Business.filter({ handle }).then(async res => {
+      pacificMarket.entities.Business.filter({ shop_handle: handle }).then(async res => {
         const biz = res.length > 0 ? res[0] : null;
         if (!biz) {
           const res2 = await pacificMarket.entities.Business.filter({ id: handle });
@@ -138,7 +138,7 @@ export default function BusinessProfile() {
                 <div className="w-16 h-16 rounded-2xl border-2 border-white shadow-md flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
                   {business.logo_url
                     ? <img src={business.logo_url} alt="" className="w-full h-full object-cover" />
-                    : <span className="text-white font-bold text-2xl">{business.name?.[0]}</span>}
+                    : <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />}
                 </div>
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -171,7 +171,7 @@ export default function BusinessProfile() {
               {business.languages_spoken?.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-50">
                   <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
-                    <Languages className="w-3.5 h-3.5" /> Languages spoken
+                    <img src="/language_spoken.png" alt="Languages spoken" className="w-[42px] h-[42px]" /> Languages spoken
                   </div>
                   <div className="flex flex-wrap gap-2">
                   {business.languages_spoken.map(l => (

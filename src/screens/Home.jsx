@@ -24,26 +24,26 @@ export default function Home() {
   const values = [
     {
       icon: Shield,
-      title: "Professional Registry",
-      description: "A structured, verified registry designed to meet the standard of official business records — not a casual directory.",
+      title: "Structured Registry",
+      description: "The first global dataset of Pacific-owned enterprise — built to the standard of an official business registry, not a casual directory.",
       color: "text-[#00c4cc]"
     },
     {
       icon: Globe,
-      title: "Global Discoverability",
-      description: "Pacific-owned businesses visible to partners, investors, and communities across the world.",
+      title: "Diaspora Intelligence",
+      description: "A geographic map of Pacific-owned businesses across countries — showing where Pacific enterprise is growing and where support is needed.",
       color: "text-[#c9a84c]"
     },
     {
       icon: CheckCircle,
-      title: "Verified Identity",
-      description: "Verification processes ensure authenticity of ownership, cultural identity, and business legitimacy.",
+      title: "Verified Ownership",
+      description: "Verification ensures authenticity of Pacific ownership, cultural identity, and business legitimacy — data you can trust.",
       color: "text-[#00c4cc]"
     },
     {
       icon: BookOpen,
-      title: "Cultural Integrity",
-      description: "Data governance that respects and preserves Pacific cultural context, languages, and identity.",
+      title: "Cultural Data Layer",
+      description: "Identity, language, and representation data preserved with cultural integrity — the kind of insight no census can provide.",
       color: "text-[#c9a84c]"
     },
   ];
@@ -59,8 +59,8 @@ export default function Home() {
       {/* Value Blocks */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-[#0a1628] mb-4">Why Pacific Market Registry</h2>
-          <p className="text-gray-500 max-w-xl mx-auto">Built on the principle that Pacific business identity deserves the same structural recognition as any global registry.</p>
+          <h2 className="text-3xl font-bold text-[#0a1628] mb-4">More Than a Directory</h2>
+          <p className="text-gray-500 max-w-xl mx-auto">Pacific Market is building the economic infrastructure layer for Pacific-owned enterprise — a visibility platform for communities and an intelligence platform for researchers, governments, and partners.</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {values.map((v, i) => (
@@ -105,8 +105,8 @@ export default function Home() {
             </div>
             <div className="relative">
               <Award className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-white mb-4">Is Your Business Listed?</h2>
-              <p className="text-slate-300 mb-8 max-w-xl mx-auto">Submit a record for review, verify Pacific ownership, and strengthen discoverability through the official registry.</p>
+              <h2 className="text-3xl font-bold text-white mb-4">Put Your Business on the Map</h2>
+              <p className="text-slate-300 mb-8 max-w-xl mx-auto">Every listing strengthens the economic map of Pacific enterprise. Submit your business for review and become part of the first structured global registry of Pacific-owned enterprise.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href={createPageUrl("ApplyListing")}
                   className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm">

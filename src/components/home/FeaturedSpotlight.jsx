@@ -68,7 +68,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
             {b.logo_url ? (
               <img src={b.logo_url} alt="" className="w-full h-full object-cover" loading="lazy" />
             ) : (
-              <span className="text-white font-bold text-xl">{b.name?.[0] || "P"}</span>
+              <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" loading="lazy" />
             )}
           </div>
         </div>
@@ -94,8 +94,8 @@ function BusinessMiniCard({ b, active, onSelect }) {
 
         {/* Languages */}
         {languages && (
-          <div className="text-xs text-slate-400 mb-2">
-            🗣 {languages}
+          <div className="text-xs text-slate-400 mb-2 flex items-center gap-1">
+            <img src="/language_spoken.png" alt="Languages spoken" className="w-[36px] h-[36px]" /> {languages}
           </div>
         )}
 
@@ -121,7 +121,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
   // key forces clean fade/scale on change
   return (
     <div
-      key={b?.id || b?.handle || index}
+      key={b?.id || b?.shop_handle || index}
       className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0a1628] h-full flex flex-col animate-fadeIn"
       style={{ transformOrigin: "center" }}
     >
@@ -189,7 +189,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
             {b?.logo_url ? (
               <img src={b.logo_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-white font-black text-2xl">{b?.name?.[0] || "P"}</span>
+              <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />
             )}
           </div>
         </div>
@@ -248,7 +248,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
 
             <div className="mt-5 flex flex-col sm:flex-row gap-3">
               <Link
-                href={createPageUrl("BusinessProfile") + `?handle=${b?.handle || b?.id}`}
+                href={createPageUrl("BusinessProfile") + `?handle=${b?.shop_handle || b?.id}`}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-extrabold px-5 py-3 transition-all"
               >
                 View Profile <ChevronRight className="w-4 h-4" />
@@ -331,7 +331,7 @@ export default function FeaturedSpotlight({ businesses = [] }) {
             const isActive = i === selectedIndex;
             return (
               <BusinessMiniCard
-                key={b.id || b.handle}
+                key={b.id || b.shop_handle}
                 b={b}
                 active={isActive}
                 onSelect={() => {

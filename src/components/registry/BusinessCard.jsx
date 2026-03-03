@@ -38,12 +38,12 @@ export default function BusinessCard({ business, view = "grid" }) {
   if (view === "list") {
     return (
       <Link
-        href={createPageUrl("BusinessProfile") + `?handle=${business.handle || business.id}`}
+        href={createPageUrl("BusinessProfile") + `?handle=${business.shop_handle || business.id}`}
         className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-md hover:shadow-xl hover:border-[#0d4f4f]/30 transition-all group"
       >
         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0 overflow-hidden">
           {business.logo_url ? <img src={business.logo_url} alt="" className="w-full h-full object-cover" /> :
-            <span className="text-white font-bold text-lg">{business.name?.[0]}</span>}
+            <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
@@ -66,7 +66,7 @@ export default function BusinessCard({ business, view = "grid" }) {
   }
 
   return (
-    <Link href={createPageUrl("BusinessProfile") + `?handle=${business.handle || business.id}`}
+    <Link href={createPageUrl("BusinessProfile") + `?handle=${business.shop_handle || business.id}`}
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:border-[#0d4f4f]/30 transition-all group flex flex-col">
       {/* Banner */}
       <div className="h-32 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] relative overflow-hidden">
@@ -84,7 +84,7 @@ export default function BusinessCard({ business, view = "grid" }) {
           <div className="w-14 h-14 rounded-xl border-2 border-white shadow-md bg-white overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] relative z-10">
             {business.logo_url
               ? <img src={business.logo_url} alt="" className="w-full h-full object-cover" />
-              : <span className="text-white font-bold text-lg">{business.name?.[0]}</span>}
+              : <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />}
           </div>
         </div>
 
@@ -102,8 +102,8 @@ export default function BusinessCard({ business, view = "grid" }) {
         </div>
 
         {languages && (
-          <div className="text-xs text-gray-400 mb-2">
-            🗣 {languages}
+          <div className="text-xs text-gray-400 mb-2 flex items-center gap-1">
+            <img src="/language_spoken.png" alt="Languages spoken" className="w-[36px] h-[36px]" /> {languages}
           </div>
         )}
 
