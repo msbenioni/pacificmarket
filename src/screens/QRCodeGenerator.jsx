@@ -66,7 +66,7 @@ export default function QRCodeGenerator() {
     <div className="min-h-screen bg-[#f8f9fc]">
       <div className="bg-[#0a1628] text-white py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <Link href={createPageUrl("CustomerPortal")} className="flex items-center gap-1 text-gray-400 hover:text-white text-sm mb-2 transition-colors">
+          <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-1 text-gray-400 hover:text-white text-sm mb-2 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Portal
           </Link>
           <h1 className="text-2xl font-bold">QR Code Generator</h1>

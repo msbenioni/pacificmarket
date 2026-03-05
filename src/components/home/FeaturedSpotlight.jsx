@@ -18,13 +18,23 @@ function clampText(s, max = 140) {
   return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
 }
 
-function FeaturedBadge() {
-  return (
-    <div className="inline-flex items-center gap-1 rounded-full bg-[#c9a84c] text-[#0a1628] px-2.5 py-1 text-[11px] font-extrabold shadow-sm">
-      <Star className="w-3.5 h-3.5" />
-      Featured+
-    </div>
-  );
+function FeaturedBadge({ tier }) {
+  if (tier === "featured_plus") {
+    return (
+      <div className="inline-flex items-center gap-1 rounded-full bg-[#c9a84c] text-[#0a1628] px-2.5 py-1 text-[11px] font-extrabold shadow-sm">
+        <Star className="w-3.5 h-3.5" />
+        Featured+
+      </div>
+    );
+  } else if (tier === "verified") {
+    return (
+      <div className="inline-flex items-center gap-1 rounded-full bg-[#00c4cc] text-white px-2.5 py-1 text-[11px] font-extrabold shadow-sm">
+        <CheckCircle className="w-3.5 h-3.5" />
+        Verified
+      </div>
+    );
+  }
+  return null;
 }
 
 function BusinessMiniCard({ b, active, onSelect }) {
@@ -174,7 +184,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         </button>
 
         <div className="absolute top-5 left-5 flex items-center gap-3">
-          <FeaturedBadge />
+          <FeaturedBadge tier={b?.subscription_tier || b?.tier} />
           <div className="text-[11px] text-white/70 font-semibold">
             {index + 1} / {total}
           </div>

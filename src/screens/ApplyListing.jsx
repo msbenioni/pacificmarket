@@ -180,13 +180,13 @@ export default function ApplyListing() {
           </div>
           <h2 className="text-2xl font-bold text-[#0a1628] mb-3">Welcome to Pacific Market Registry</h2>
           <p className="text-gray-500 mb-2">Your account has been created and your business listing is submitted.</p>
-          <p className="text-gray-400 text-sm mb-8">Visit your customer portal to view your pending business, update details, or upgrade your tier while awaiting approval.</p>
+          <p className="text-gray-400 text-sm mb-8">Visit your business portal to view your pending business, update details, or upgrade your tier while awaiting approval.</p>
           <div className="bg-white border border-gray-100 rounded-2xl p-5 text-left text-sm space-y-2 text-gray-500 mb-6">
             <div className="flex justify-between"><span>Status</span><span className="font-semibold text-yellow-600">Pending Review</span></div>
             <div className="flex justify-between"><span>Business</span><span className="font-semibold text-[#0a1628]">{form.name}</span></div>
             <div className="flex justify-between"><span>Email</span><span className="font-semibold text-[#0a1628]">{form.email}</span></div>
           </div>
-          <a href="/CustomerPortal" className="w-full logo-gradient hover:logo-gradient-hover text-white font-bold py-3 rounded-xl transition-all inline-block text-center">
+          <a href="/BusinessPortal" className="w-full logo-gradient hover:logo-gradient-hover text-white font-bold py-3 rounded-xl transition-all inline-block text-center">
             Go to Dashboard
           </a>
         </div>
@@ -361,7 +361,7 @@ export default function ApplyListing() {
               ) : null}
 
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <p className="text-sm text-blue-900"><strong>Next step:</strong> After listing, you'll need to sign in to access your customer portal and manage additional details like images, contact links, and cultural identity.</p>
+                <p className="text-sm text-blue-900"><strong>Next step:</strong> After listing, you'll need to sign in to access your business portal and manage additional details like images, contact links, and cultural identity.</p>
               </div>
             </div>
           )}

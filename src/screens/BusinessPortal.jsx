@@ -9,7 +9,7 @@ import { TIER_BENEFITS, COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/f
 import BusinessSearch from "@/components/BusinessSearch";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 
-export default function CustomerPortal() {
+export default function BusinessPortal() {
   const [user, setUser] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);

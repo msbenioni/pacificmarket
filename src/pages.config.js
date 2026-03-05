@@ -50,11 +50,13 @@
 import About from './screens/About';
 import Accessibility from './screens/Accessibility';
 import AdminDashboard from './screens/AdminDashboard';
+import AdminLogin from './screens/AdminLogin';
 import ApplyListing from './screens/ApplyListing';
 import BusinessProfile from './screens/BusinessProfile';
 import Contact from './screens/Contact';
 import Cookies from './screens/Cookies';
-import CustomerPortal from './screens/CustomerPortal';
+import BusinessLogin from './screens/BusinessLogin';
+import BusinessPortal from './screens/BusinessPortal';
 import Data from './screens/Data';
 import Guidelines from './screens/Guidelines';
 import Help from './screens/Help';
@@ -73,11 +75,13 @@ export const PAGES = {
     "About": About,
     "Accessibility": Accessibility,
     "AdminDashboard": AdminDashboard,
+    "AdminLogin": AdminLogin,
     "ApplyListing": ApplyListing,
     "BusinessProfile": BusinessProfile,
     "Contact": Contact,
     "Cookies": Cookies,
-    "CustomerPortal": CustomerPortal,
+    "BusinessLogin": BusinessLogin,
+    "BusinessPortal": BusinessPortal,
     "Data": Data,
         "Guidelines": Guidelines,
     "Help": Help,

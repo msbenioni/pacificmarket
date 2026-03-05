@@ -5,13 +5,13 @@ const STEPS = [
   {
     id: "discovery",
     phase: "Discovery",
-    actor: "Customer",
+    actor: "Business",
     color: "bg-sky-500",
     borderColor: "border-sky-200",
     bgColor: "bg-sky-50",
     textColor: "text-sky-700",
     icon: Globe,
-    title: "Customer Discovers Registry",
+    title: "Business Discovers Registry",
     description: "A Pacific business owner or member of the public finds the Pacific Market Registry via search, social media, or word of mouth.",
     actions: [
       "Lands on Home page",
@@ -24,7 +24,7 @@ const STEPS = [
   {
     id: "submit",
     phase: "Submission",
-    actor: "Customer",
+    actor: "Business",
     color: "bg-indigo-500",
     borderColor: "border-indigo-200",
     bgColor: "bg-indigo-50",
@@ -70,11 +70,11 @@ const STEPS = [
     textColor: "text-green-700",
     icon: CheckCircle,
     title: "Business Goes Live on Registry",
-    description: "Once approved, the business appears publicly in the Registry. The owner can now log in to the Customer Portal to manage their listing.",
+    description: "Once approved, the business appears publicly in the Registry. The owner can now log in to the Business Portal to manage their listing.",
     actions: [
       "Business visible in Registry search",
       "Public Business Profile page accessible",
-      "Owner logs into Customer Portal to manage listing",
+      "Owner logs into Business Portal to manage listing",
     ],
     adminNote: "You can still edit or remove approved listings from the 'Approved' tab.",
     page: "Registry / BusinessProfile",
@@ -82,14 +82,14 @@ const STEPS = [
   {
     id: "upgrade",
     phase: "Self-Service",
-    actor: "Customer",
+    actor: "Business",
     color: "bg-violet-500",
     borderColor: "border-violet-200",
     bgColor: "bg-violet-50",
     textColor: "text-violet-700",
     icon: Zap,
-    title: "Owner Upgrades Tier via Customer Portal",
-    description: "The business owner logs into their account and can upgrade from Free to Verified or Featured+ via the Customer Portal. Tier upgrades unlock additional features like gallery images and product/service listings.",
+    title: "Business Owner Upgrades Tier via Business Portal",
+    description: "The business owner logs into their account and can upgrade from Free to Verified or Featured+ via the Business Portal. Tier upgrades unlock additional features like gallery images and product/service listings.",
     actions: [
       "Logs into account created during submission",
       "Upgrades tier (Free → Verified or Featured+)",
@@ -97,12 +97,12 @@ const STEPS = [
       "Edits and manages their business info",
     ],
     adminNote: "Admin can also manually change a business's tier or grant the Verified badge from the Approved tab.",
-    page: "CustomerPortal",
+    page: "BusinessPortal",
   },
   {
     id: "claim",
     phase: "Claiming (Admin-Created Listings)",
-    actor: "Customer",
+    actor: "Business",
     color: "bg-blue-500",
     borderColor: "border-blue-200",
     bgColor: "bg-blue-50",
@@ -152,11 +152,11 @@ export default function ProcessFlow() {
       <div className="bg-white border border-gray-100 rounded-2xl p-5">
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
           <div>
-            <h2 className="font-bold text-[#0a1628] text-base">Customer & Admin Journey</h2>
+            <h2 className="font-bold text-[#0a1628] text-base">Business & Admin Journey</h2>
             <p className="text-xs text-gray-400 mt-0.5">Click any step to expand details. Click again to collapse.</p>
           </div>
           <div className="flex gap-2">
-            {["all", "customer", "admin", "system"].map(f => (
+            {["all", "business", "admin", "system"].map(f => (
               <button key={f} onClick={() => setFilter(f)}
                 className={`text-xs px-3 py-1.5 rounded-lg font-medium capitalize transition-all ${
                   filter === f ? "bg-[#0a1628] text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -168,7 +168,7 @@ export default function ProcessFlow() {
         </div>
         <div className="flex flex-wrap gap-4 text-xs">
           {[
-            { label: "Customer Action", color: "bg-sky-500" },
+            { label: "Business Action", color: "bg-sky-500" },
             { label: "Admin Action", color: "bg-yellow-500" },
             { label: "System", color: "bg-green-500" },
           ].map(l => (

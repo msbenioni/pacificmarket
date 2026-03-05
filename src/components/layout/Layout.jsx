@@ -94,17 +94,18 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Actions */}
             <div className="hidden md:flex items-center gap-3">
-              <Link
-                href={createPageUrl("Registry")}
-                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-                  isTransparent
-                    ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-                    : "bg-[#0a1628] text-white hover:bg-[#0a1628]/90"
-                }`}
-              >
-                <Search className="w-4 h-4" />
-                Search
-              </Link>
+              {!user && (
+                <Link
+                  href={createPageUrl("BusinessLogin")}
+                  className={`text-sm font-medium px-4 py-2 rounded-lg transition-all ${
+                    isTransparent
+                      ? "text-white border-white/50 hover:bg-white/10"
+                      : "text-gray-600 border border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  Login
+                </Link>
+              )}
               <Link
                 href={createPageUrl("ApplyListing")}
                 className={`text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
@@ -131,7 +132,7 @@ export default function Layout({ children, currentPageName }) {
                   </button>
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
-                      <Link href={createPageUrl("CustomerPortal")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
+                      <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
                         <Home className="w-4 h-4" /> My Portal
                       </Link>
                       <Link href={createPageUrl("AdminDashboard")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
@@ -173,10 +174,13 @@ export default function Layout({ children, currentPageName }) {
                 {link.label}
               </Link>
             ))}
+            {!user && (
+              <Link href={createPageUrl("BusinessLogin")} className="block text-sm font-medium text-gray-600 py-2" onClick={() => setMenuOpen(false)}>Login</Link>
+            )}
             <Link href={createPageUrl("ApplyListing")} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>Submit a Business</Link>
             {user ? (
               <>
-                <Link href={createPageUrl("CustomerPortal")} className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMenuOpen(false)}>My Portal</Link>
+                <Link href={createPageUrl("BusinessPortal")} className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMenuOpen(false)}>My Portal</Link>
                 <button onClick={() => pacificMarket.auth.logout()} className="block text-sm font-medium text-red-600 py-2">Sign Out</button>
               </>
             ) : null}

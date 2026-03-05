@@ -9,16 +9,23 @@ import BusinessCard from "../components/registry/BusinessCard";
 import FeaturedSpotlight from "../components/home/FeaturedSpotlight";
 import HeroHomepage from "../components/shared/HeroHomepage";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   const [featured, setFeatured] = useState([]);
 
   useEffect(() => {
     pacificMarket.entities.Business.filter(
-      { status: BUSINESS_STATUS.ACTIVE, subscription_tier: BUSINESS_TIER.FEATURED_PLUS },
-      "-created_date"
+      { status: BUSINESS_STATUS.ACTIVE, visibility_tier: "homepage" },
+      "-updated_at"
     )
-      .then(setFeatured)
-      .catch(() => {});
+      .then((data) => {
+        console.log("Homepage featured businesses:", data);
+        setFeatured(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching featured businesses:", error);
+      });
   }, []);
 
   const values = [

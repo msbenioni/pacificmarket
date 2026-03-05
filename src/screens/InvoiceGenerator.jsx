@@ -46,7 +46,7 @@ export default function InvoiceGenerator() {
       <div className="bg-[#0a1628] text-white py-8 px-4 sm:px-6 lg:px-8 no-print">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div>
-            <Link href={createPageUrl("CustomerPortal")} className="flex items-center gap-1 text-gray-400 hover:text-white text-sm mb-2 transition-colors">
+            <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-1 text-gray-400 hover:text-white text-sm mb-2 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to Portal
             </Link>
             <h1 className="text-2xl font-bold">Invoice Generator</h1>
