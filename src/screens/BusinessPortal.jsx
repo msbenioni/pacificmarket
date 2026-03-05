@@ -9,12 +9,17 @@ import { CATEGORIES, COUNTRIES, TIER_BENEFITS } from "@/constants/businessProfil
 import { IDENTITIES } from "@/constants/profileOnboarding";
 import BusinessSearch from "@/components/BusinessSearch";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { SetupProgressCard } from "@/components/onboarding/SetupProgressCard";
+import { ClaimAddBusinessModal, ProfileIncompleteWarning } from "@/components/onboarding/ClaimAddBusinessModal";
+import { ProfileSetupModal } from "@/components/onboarding/ProfileSetupModal";
+import { getBusinessOwner, getBusinessOwnerName, formatBusinessOwnerInfo } from "@/utils/businessHelpers";
 
 export default function BusinessPortal() {
   const [user, setUser] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
-  const [owners, setOwners] = useState({});
+  const [profiles, setProfiles] = useState([]); // Add profiles state
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("my-businesses");
   const [editingBusiness, setEditingBusiness] = useState(null);
@@ -26,26 +31,40 @@ export default function BusinessPortal() {
   const [newOwnerForm, setNewOwnerForm] = useState({ name: "", email: "" });
   const [addingOwner, setAddingOwner] = useState(false);
 
+  // Onboarding state
+  const { onboardingStatus, loading: onboardingLoading } = useOnboardingStatus();
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showClaimAddModal, setShowClaimAddModal] = useState(false);
+
   useEffect(() => {
     pacificMarket.auth.me().then(u => {
       if (!u) { setLoading(false); return; }
       setUser(u);
-      Promise.all([
-        pacificMarket.entities.Business.filter({ owner_user_id: u.id }),
-        pacificMarket.entities.ClaimRequest.filter({ user_id: u.id }),
-        pacificMarket.entities.BusinessOwner.list(),
-      ]).then(([b, c, o]) => { 
-        setBusinesses(b); 
-        setClaims(c);
-        const ownersMap = {};
-        o.forEach(owner => {
-          if (!ownersMap[owner.business_id]) ownersMap[owner.business_id] = [];
-          ownersMap[owner.business_id].push(owner);
-        });
-        setOwners(ownersMap);
-        setLoading(false); 
-      });
-    }).catch(() => setLoading(false));
+      
+      // Fetch all data including profiles using direct Supabase client
+      const fetchData = async () => {
+        try {
+          const { getSupabase } = await import('../lib/supabase/client');
+          const supabase = getSupabase();
+          
+          const [businessesData, claimsData, profilesData] = await Promise.all([
+            pacificMarket.entities.Business.filter({ owner_user_id: u.id }),
+            pacificMarket.entities.ClaimRequest.filter({ user_id: u.id }),
+            supabase.from('profiles').select('*'),
+          ]);
+          
+          setBusinesses(businessesData); 
+          setClaims(claimsData);
+          setProfiles(profilesData || []); // Store profiles for owner information
+        } catch (error) {
+          console.error('Error fetching business data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchData();
+    });
   }, []);
 
   const handleSave = async () => {
@@ -104,10 +123,12 @@ export default function BusinessPortal() {
         businessId: businessId,
       });
 
-      setOwners(prev => ({
-        ...prev,
-        [businessId]: [...(prev[businessId] || []), owner],
-      }));
+      // Refresh profiles after adding owner
+      const { getSupabase } = await import('../lib/supabase/client');
+      const supabase = getSupabase();
+      const { data: updatedProfiles } = await supabase.from('profiles').select('*');
+      setProfiles(updatedProfiles || []);
+      
       setShowAddOwnerModal(null);
       setNewOwnerForm({ name: "", email: "" });
     } catch (error) {
@@ -228,29 +249,40 @@ export default function BusinessPortal() {
                </div>
              )}
             {businesses.length === 0 ? (
-              <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
-                <Building2 className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                <h3 className="font-semibold text-gray-500 mb-2">Manage Your Business</h3>
-                <p className="text-gray-400 text-sm mb-6">Choose how you'd like to get started with your business listing.</p>
+              <div className="space-y-6">
+                {/* Show profile incomplete warning if needed */}
+                {onboardingStatus.needsProfile && <ProfileIncompleteWarning />}
                 
-                <div className="max-w-md mx-auto space-y-3">
-                  <button
-                    onClick={() => setShowClaimModal(true)}
-                    className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-semibold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2"
-                  >
-                    <Shield className="w-5 h-5" />
-                    Claim Existing Business
-                  </button>
+                {/* Show setup progress card if onboarding incomplete */}
+                {!onboardingStatus.isComplete && (
+                  <SetupProgressCard 
+                    onOpenProfileModal={() => setShowProfileModal(true)}
+                    onOpenClaimModal={() => setShowClaimAddModal(true)}
+                    onOpenAddModal={() => setShowClaimAddModal(true)}
+                  />
+                )}
+                
+                {/* Onboarding-aware empty state */}
+                <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
+                  <Building2 className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                  <h3 className="font-semibold text-gray-500 mb-2">
+                    {onboardingStatus.needsProfile ? 'Complete Your Profile First' : 'Manage Your Business'}
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-6">
+                    {onboardingStatus.needsProfile 
+                      ? 'Complete your profile to claim or add a business and keep the registry trustworthy.'
+                      : 'Choose how you\'d like to get started with your business listing.'
+                    }
+                  </p>
                   
-                  <div className="text-center text-gray-400 text-sm">or</div>
-                  
-                  <Link 
-                    href={createPageUrl("ApplyListing")} 
-                    className="w-full bg-white border-2 border-[#0d4f4f] text-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white font-semibold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Submit New Business
-                  </Link>
+                  {/* Single CTA - SetupProgressCard handles the action */}
+                  {!onboardingStatus.isComplete && (
+                    <SetupProgressCard 
+                      onOpenProfileModal={() => setShowProfileModal(true)}
+                      onOpenClaimModal={() => setShowClaimAddModal(true)}
+                      onOpenAddModal={() => setShowClaimAddModal(true)}
+                    />
+                  )}
                 </div>
               </div>
             ) : (
@@ -290,21 +322,18 @@ export default function BusinessPortal() {
                       </div>
                       </div>
 
-                      {owners[b.id]?.length > 0 && (
+                      {/* Display business owner from profiles */}
+                      {b.owner_user_id && (
                       <div className="mt-4 pt-4 border-t border-gray-50">
-                        <p className="text-xs text-gray-500 font-semibold mb-2">Business Owners</p>
-                        <div className="space-y-1.5">
-                          {owners[b.id].map(o => (
-                            <div key={o.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                              <div className="text-xs">
-                                <p className="font-medium text-[#0a1628]">{o.name}</p>
-                                <p className="text-gray-500">{o.email}</p>
-                              </div>
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                o.status === "active" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
-                              }`}>{o.status}</span>
-                            </div>
-                          ))}
+                        <p className="text-xs text-gray-500 font-semibold mb-2">Business Owner</p>
+                        <div className="bg-gray-50 rounded-lg px-3 py-2">
+                          <div className="text-xs">
+                            <p className="font-medium text-[#0a1628]">{getBusinessOwnerName(b.owner_user_id, profiles)}</p>
+                            <p className="text-gray-500">{getBusinessOwner(b.owner_user_id, profiles)?.email}</p>
+                          </div>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">
+                            Active
+                          </span>
                         </div>
                       </div>
                       )}
@@ -441,9 +470,9 @@ export default function BusinessPortal() {
                 <input value={newOwnerForm.email} onChange={e => setNewOwnerForm(p => ({ ...p, email: e.target.value }))}
                   placeholder="john@example.com" type="email" className={inputCls} />
               </div>
-              {owners[showAddOwnerModal]?.length > 0 && (
+              {showAddOwnerModal && businesses.find(b => b.id === showAddOwnerModal)?.owner_user_id && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-xs text-blue-900"><strong>Current Owners:</strong> {owners[showAddOwnerModal].map(o => o.name).join(", ")}</p>
+                  <p className="text-xs text-blue-900"><strong>Current Owner:</strong> {getBusinessOwnerName(businesses.find(b => b.id === showAddOwnerModal)?.owner_user_id, profiles)}</p>
                 </div>
               )}
             </div>
@@ -484,6 +513,33 @@ export default function BusinessPortal() {
            </div>
          </div>
        )}
+
+      {/* Onboarding Modals */}
+      <ProfileSetupModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onComplete={() => {
+          setShowProfileModal(false);
+          // After profile complete, show claim/add modal if needed
+          if (!businesses.length && !claims.length) {
+            setShowClaimAddModal(true);
+          }
+        }}
+      />
+
+      <ClaimAddBusinessModal
+        isOpen={showClaimAddModal}
+        onClose={() => setShowClaimAddModal(false)}
+        onClaimSelected={() => {
+          setShowClaimAddModal(false);
+          setShowClaimModal(true);
+        }}
+        onAddSelected={() => {
+          setShowClaimAddModal(false);
+          // Navigate to ApplyListing
+          window.location.href = createPageUrl("ApplyListing");
+        }}
+      />
     </div>
   );
 }

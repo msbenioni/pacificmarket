@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { COUNTRIES, CATEGORIES, IDENTITIES } from "../formConstants";
+import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/constants/businessProfile";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";

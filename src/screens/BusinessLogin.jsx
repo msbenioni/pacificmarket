@@ -6,12 +6,11 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from "lucide-rea
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { useAuth } from "@/lib/AuthContext";
 import HeroRegistry from "@/components/shared/HeroRegistry";
-import * as AuthContext from "@/lib/AuthContext";
 
 export default function BusinessLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setUser } = AuthContext.useAuth();
+  const { user, setUser } = useAuth(); // Fixed: get setUser from useAuth hook
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

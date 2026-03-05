@@ -205,7 +205,6 @@ export const BUSINESS_PROFILE_STEPS = [
           { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
           { value: 'hawaii', label: 'Hawaii' },
           { value: 'rotuma', label: 'Rotuma' },
-          { value: 'mixed-pacific', label: 'Mixed Pacific' },
           { value: 'other', label: 'Other' }
         ]
       },
@@ -602,6 +601,7 @@ export const DASHBOARD_DATA_MAPPING = {
 // Export commonly used constants for backward compatibility
 export const CATEGORIES = BUSINESS_PROFILE_STEPS[0].fields.find(f => f.id === 'industry').options.map(o => o.label);
 export const COUNTRIES = BUSINESS_PROFILE_STEPS[1].fields.find(f => f.id === 'country').options.map(o => o.label);
+export const IDENTITIES = BUSINESS_PROFILE_STEPS[2].fields.find(f => f.id === 'cultural_identity').options.map(o => o.label);
 
 export const TIER_BENEFITS = {
   free: {

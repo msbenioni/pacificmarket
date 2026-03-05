@@ -84,7 +84,7 @@ export const pacificMarket = {
       // Fetch user profile to get role and display_name
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('role_text, display_name')
+        .select('role, display_name')
         .eq('id', authData.user.id)
         .single();
       
@@ -101,7 +101,7 @@ export const pacificMarket = {
       
       return { 
         ...authData.user, 
-        role: profileData.role_text,
+        role: profileData.role, // Now 'owner' or 'admin'
         full_name: profileData.display_name || authData.user.user_metadata?.full_name || authData.user.user_metadata?.display_name,
         display_name: profileData.display_name || authData.user.user_metadata?.display_name || authData.user.user_metadata?.full_name
       };
@@ -148,11 +148,6 @@ export const pacificMarket = {
       filter: (filters, order, limit) => filter("claim_requests", filters, order, limit),
       create: (payload) => create("claim_requests", payload),
       update: (id, payload) => update("claim_requests", id, payload),
-    },
-    BusinessOwner: {
-      list: (order, limit) => list("business_owners", order, limit),
-      filter: (filters, order, limit) => filter("business_owners", filters, order, limit),
-      create: (payload) => create("business_owners", payload),
     },
     AdminUser: {
       list: (order, limit) => list("admin_users", order, limit),

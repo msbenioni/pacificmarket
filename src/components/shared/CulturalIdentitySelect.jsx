@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import FlagIcon from "./FlagIcon";
-import { IDENTITIES } from "@/components/formConstants";
+import { IDENTITIES } from "@/constants/profileOnboarding";
 
 export default function CulturalIdentitySelect({ value, onChange, label = "Cultural Identity", required = false, className = "" }) {
   const [isOpen, setIsOpen] = useState(false);

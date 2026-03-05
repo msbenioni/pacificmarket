@@ -1,6 +1,6 @@
 import React from "react";
 import { Globe } from "lucide-react";
-import { IDENTITIES } from "@/components/formConstants";
+import { IDENTITIES } from "@/constants/profileOnboarding";
 
 // Map cultural identity to ISO 3166-1 alpha-2 country codes
 export const IDENTITY_TO_CODE = {
@@ -31,11 +31,10 @@ export const IDENTITY_TO_CODE = {
   "Northern Mariana Islands": "MP",
   "Hawaii": "US",
   "Rotuma": "FJ",
-  "Mixed Pacific": "GLOBE",
   "Other": "GLOBE",
 };
 
-export const GLOBE_IDENTITIES = ["Mixed Pacific", "Other"];
+export const GLOBE_IDENTITIES = ["Other"];
 
 export default function FlagIcon({ identity, size = 24, className = "" }) {
   if (!identity) return null;
@@ -46,7 +45,7 @@ export default function FlagIcon({ identity, size = 24, className = "" }) {
   if (Array.isArray(identity)) {
     identities = identity;
   } else if (typeof identity === 'string') {
-    // Split comma-separated strings, but keep "Mixed Pacific" and "Other" as single items
+    // Split comma-separated strings, but keep "Other" as single item
     if (identity.includes(',')) {
       identities = identity.split(',').map(id => id.trim()).filter(Boolean);
     } else {

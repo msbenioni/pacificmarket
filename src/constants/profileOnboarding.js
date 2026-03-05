@@ -1,6 +1,12 @@
 // Profile Onboarding Configuration
 // Business Owner Profile Onboarding Flow
 
+export const COUNTRIES = [
+  "Australia", "New Zealand", "Fiji", "Samoa", "Tonga", "Papua New Guinea", "Vanuatu", "Solomon Islands",
+  "Cook Islands", "Kiribati", "Nauru", "Palau", "Marshall Islands", "Micronesia", "Tuvalu", "Niue",
+  "United States", "United Kingdom", "Canada", "Other"
+];
+
 export const ONBOARDING_STEPS = [
   {
     id: 'identity-location',
@@ -9,7 +15,7 @@ export const ONBOARDING_STEPS = [
     purpose: 'Map the Pacific diaspora economy',
     fields: [
       {
-        id: 'full_name',
+        id: 'display_name',
         label: 'Full name',
         type: 'text',
         required: true,
@@ -69,51 +75,12 @@ export const ONBOARDING_STEPS = [
     purpose: 'Representation of Pacific communities',
     fields: [
       {
-        id: 'primary_cultural',
-        label: 'Primary cultural identity',
-        type: 'select',
-        required: true,
-        placeholder: 'Select your primary cultural identity',
-        description: 'Your main cultural affiliation',
-        options: [
-          { value: 'australia', label: 'Australia' },
-          { value: 'australia-aboriginal-torres-strait-islander', label: 'Australia (Aboriginal & Torres Strait Islander)' },
-          { value: 'new-zealand', label: 'New Zealand' },
-          { value: 'new-zealand-maori', label: 'New Zealand (Māori)' },
-          { value: 'fiji', label: 'Fiji' },
-          { value: 'samoa', label: 'Samoa' },
-          { value: 'american-samoa', label: 'American Samoa' },
-          { value: 'tonga', label: 'Tonga' },
-          { value: 'cook-islands', label: 'Cook Islands' },
-          { value: 'niue', label: 'Niue' },
-          { value: 'tokelau', label: 'Tokelau' },
-          { value: 'tuvalu', label: 'Tuvalu' },
-          { value: 'kiribati', label: 'Kiribati' },
-          { value: 'nauru', label: 'Nauru' },
-          { value: 'papua-new-guinea', label: 'Papua New Guinea' },
-          { value: 'solomon-islands', label: 'Solomon Islands' },
-          { value: 'vanuatu', label: 'Vanuatu' },
-          { value: 'new-caledonia', label: 'New Caledonia' },
-          { value: 'french-polynesia', label: 'French Polynesia' },
-          { value: 'wallis-futuna', label: 'Wallis and Futuna' },
-          { value: 'palau', label: 'Palau' },
-          { value: 'marshall-islands', label: 'Marshall Islands' },
-          { value: 'micronesia', label: 'Micronesia' },
-          { value: 'guam', label: 'Guam' },
-          { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
-          { value: 'hawaii', label: 'Hawaii' },
-          { value: 'rotuma', label: 'Rotuma' },
-          { value: 'mixed-pacific', label: 'Mixed Pacific' },
-          { value: 'other', label: 'Other' }
-        ]
-      },
-      {
-        id: 'cultural_tags',
-        label: 'Other cultural identities',
+        id: 'cultural_identity',
+        label: 'Cultural Identity',
         type: 'multiselect',
-        required: false,
-        placeholder: 'Select additional cultural identities',
-        description: 'Select all that apply to you',
+        required: true,
+        placeholder: 'Select your cultural identities',
+        description: 'Select all cultural identities that apply to you',
         options: [
           { value: 'australia', label: 'Australia' },
           { value: 'australia-aboriginal-torres-strait-islander', label: 'Australia (Aboriginal & Torres Strait Islander)' },
@@ -142,10 +109,17 @@ export const ONBOARDING_STEPS = [
           { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
           { value: 'hawaii', label: 'Hawaii' },
           { value: 'rotuma', label: 'Rotuma' },
-          { value: 'mixed-pacific', label: 'Mixed Pacific' },
           { value: 'other', label: 'Other' }
         ]
-      },
+      }
+    ]
+  },
+  {
+    id: 'languages',
+    title: 'Step 3 — Languages',
+    subtitle: 'Languages Spoken',
+    purpose: 'Language capabilities and communication',
+    fields: [
       {
         id: 'languages',
         label: 'Languages spoken',
@@ -159,7 +133,7 @@ export const ONBOARDING_STEPS = [
   },
   {
     id: 'business-experience',
-    title: 'Step 3 — Business Experience',
+    title: 'Step 4 — Business Experience',
     subtitle: 'Business Experience',
     purpose: 'Economic participation insights',
     fields: [
@@ -383,8 +357,9 @@ export const ONBOARDING_VALIDATION_RULES = {
   },
   
   // Step 2 validation
-  primary_cultural: {
-    required: true
+  cultural_identity: {
+    required: true,
+    minItems: 1
   },
   languages: {
     maxLength: 500,
@@ -395,7 +370,7 @@ export const ONBOARDING_VALIDATION_RULES = {
     }
   },
   
-  // Step 3 validation (individual business experience only)
+  // Step 4 validation (individual business experience only)
   years_operating: {
     min: 0,
     max: 50,
@@ -412,5 +387,4 @@ export const ONBOARDING_DESCRIPTION = {
   estimatedTime: ONBOARDING_COMPLETION_TIME
 };
 
-// Export commonly used constants for backward compatibility
-export const IDENTITIES = ONBOARDING_STEPS[1].fields.find(f => f.id === 'primary_cultural').options.map(o => o.label);
+export const IDENTITIES = ONBOARDING_STEPS[1].fields.find(f => f.id === 'cultural_identity').options.map(o => o.label);
