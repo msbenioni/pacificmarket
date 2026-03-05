@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Search, Building2, MapPin, Star, ArrowRight, ArrowLeft, CheckCircle, User, Mail, Lock, AlertCircle } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { BUSINESS_STATUS } from "@/constants/business";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 
 export default function BusinessOnboarding() {
@@ -39,11 +40,17 @@ export default function BusinessOnboarding() {
       return;
     }
     try {
-      const results = await pacificMarket.entities.Business.filter(
-        { name: { $contains: query }, status: BUSINESS_STATUS.ACTIVE },
-        "name,city,country,shop_handle,owner_user_id,subscription_tier"
-      );
-      setSearchResults(results || []);
+      // Use Supabase's text search with ilike for case-insensitive partial matching
+      const supabase = createSupabaseBrowserClient();
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('name,city,country,shop_handle,owner_user_id,subscription_tier')
+        .eq('status', BUSINESS_STATUS.ACTIVE)
+        .ilike('name', `%${query}%`)
+        .limit(20);
+      
+      if (error) throw error;
+      setSearchResults(data || []);
     } catch (err) {
       console.error("Search error:", err);
       setSearchResults([]);
