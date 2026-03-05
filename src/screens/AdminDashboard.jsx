@@ -148,8 +148,8 @@ export default function AdminDashboard() {
       {/* Header */}
       <HeroRegistry
         badge="Admin · Governance Portal"
-        title="Registry Dashboard"
-        subtitle=""
+        title={`Welcome, ${user?.full_name?.split(" ")[0] || "Admin"}`}
+        subtitle={user?.email}
         description=""
         showStats={true}
         stats={[

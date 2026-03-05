@@ -81,20 +81,30 @@ export const pacificMarket = {
       
       if (!authData?.user) return null;
       
-      // Fetch user profile to get role
+      // Fetch user profile to get role and display_name
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('role_text')
+        .select('role_text, display_name')
         .eq('id', authData.user.id)
         .single();
       
       if (profileError) {
-        // If profile doesn't exist, return user without role
+        // If profile doesn't exist, return user with metadata and role: null
         console.warn('Profile not found for user:', authData.user.id);
-        return { ...authData.user, role: null };
+        return { 
+          ...authData.user, 
+          role: null,
+          full_name: authData.user.user_metadata?.full_name || authData.user.user_metadata?.display_name,
+          display_name: authData.user.user_metadata?.display_name || authData.user.user_metadata?.full_name
+        };
       }
       
-      return { ...authData.user, role: profileData.role_text };
+      return { 
+        ...authData.user, 
+        role: profileData.role_text,
+        full_name: profileData.display_name || authData.user.user_metadata?.full_name || authData.user.user_metadata?.display_name,
+        display_name: profileData.display_name || authData.user.user_metadata?.display_name || authData.user.user_metadata?.full_name
+      };
     },
     signIn: async (email, password) => {
       const supabase = getSupabase();
