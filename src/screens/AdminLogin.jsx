@@ -30,9 +30,16 @@ export default function AdminLogin() {
         throw signInError;
       }
 
-      // Verify admin role (you might need to check user metadata or a separate admin table)
+      // Verify admin role by checking admin_users table
       const user = data?.user;
-      if (!user || user.user_metadata?.role !== 'admin') {
+      if (!user) {
+        throw new Error("Access denied. Admin privileges required.");
+      }
+      
+      // Check if user is in admin_users table
+      const { data: adminData, error: adminError } = await pacificMarket.entities.AdminUser.filter({ owner_user_id: user.id });
+      
+      if (adminError || !adminData || adminData.length === 0) {
         throw new Error("Access denied. Admin privileges required.");
       }
 

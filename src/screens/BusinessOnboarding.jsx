@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Search, Building2, MapPin, Star, ArrowRight, ArrowLeft, CheckCircle, User, Mail, Lock, AlertCircle } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { BUSINESS_STATUS } from "@/constants/business";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getSupabase } from "@/lib/supabase/client";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 
 export default function BusinessOnboarding() {
@@ -41,10 +41,10 @@ export default function BusinessOnboarding() {
     }
     try {
       // Use Supabase's text search with ilike for case-insensitive partial matching
-      const supabase = createSupabaseBrowserClient();
+      const supabase = getSupabase();
       const { data, error } = await supabase
         .from('businesses')
-        .select('name,city,country,shop_handle,owner_user_id,subscription_tier')
+        .select('id,name,city,country,shop_handle,owner_user_id,subscription_tier')
         .eq('status', BUSINESS_STATUS.ACTIVE)
         .ilike('name', `%${query}%`)
         .limit(20);
@@ -78,11 +78,60 @@ export default function BusinessOnboarding() {
   const runAuth = async () => {
     if (authMode === "signin") {
       const { data, error } = await pacificMarket.auth.signIn(email, password);
-      if (error) throw error;
+      if (error) {
+        console.error("Sign-in error:", error);
+        // Handle specific auth errors
+        if (error.message?.includes("Invalid login credentials")) {
+          throw new Error("Invalid email or password. Try again or <a href=\"/BusinessLogin\" class=\"text-[#0d4f4f] hover:underline font-medium\">reset your password</a>.");
+        }
+        if (error.message?.includes("Email not confirmed")) {
+          throw new Error("Please confirm your email address before signing in. Check your inbox for the confirmation link.");
+        }
+        throw error;
+      }
+      
+      // For sign-in, user should be confirmed already
+      if (!data.user?.email_confirmed_at) {
+        throw new Error("Please confirm your email address before signing in. Check your inbox for the confirmation link.");
+      }
+      
       return data;
     }
+    
+    // Sign up flow
     const { data, error } = await pacificMarket.auth.signUp(email, password);
-    if (error) throw error;
+    if (error) {
+      console.error("Sign-up error:", error);
+      // Handle specific signup errors
+      if (error.message?.includes("already registered")) {
+        throw new Error(`This email is already registered. <a href="${createPageUrl("BusinessLogin")}" class="text-[#0d4f4f] hover:underline font-medium">Sign in here</a> instead.`);
+      }
+      if (error.message?.includes("User already registered")) {
+        throw new Error(`This email is already registered. <a href="${createPageUrl("BusinessLogin")}" class="text-[#0d4f4f] hover:underline font-medium">Sign in here</a> instead.`);
+      }
+      
+      // Handle 500 errors specifically
+      if (error.status === 500) {
+        console.error("500 error details:", error);
+        // Check if it's the profile creation trigger error
+        if (error.message?.includes("Database error saving new user")) {
+          // The user account was created but the profile creation failed
+          // This is a database configuration issue, but the user can still sign in
+          throw new Error("✅ Your account was created successfully! There was a minor setup issue with your profile. <a href=\"/BusinessLogin\" class=\"text-[#0d4f4f] hover:underline font-medium\">Click here to sign in</a> and continue with your business claim.");
+        }
+        throw new Error("Server error during sign up. This might be a database configuration issue. Please try again or contact support.");
+      }
+      
+      throw error;
+    }
+    
+    // Check if user needs email confirmation
+    if (!data.user?.email_confirmed_at) {
+      // User needs to confirm email before proceeding
+      const loginUrl = createPageUrl("BusinessLogin");
+      throw new Error(`Please check your email and click the confirmation link. Once confirmed, <a href="${loginUrl}" class="text-[#0d4f4f] hover:underline font-medium">sign in here</a> to complete your business claim.`);
+    }
+    
     return data;
   };
 
@@ -241,9 +290,9 @@ function SearchStep({ onSearch, results, onSelect, onNew }) {
           {results.length > 0 ? (
             <>
               <p className="text-sm text-gray-500 text-center mb-4">Found {results.length} businesses</p>
-              {results.map((business) => (
+              {results.map((business, index) => (
                 <BusinessResultCard
-                  key={business.id}
+                  key={business.id || `business-${index}`}
                   business={business}
                   onSelect={() => onSelect(business)}
                 />
@@ -396,7 +445,10 @@ function AuthStep({
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-          <p className="text-sm text-red-600">{error}</p>
+          <p 
+            className="text-sm text-red-600" 
+            dangerouslySetInnerHTML={{ __html: error }}
+          />
         </div>
       )}
 

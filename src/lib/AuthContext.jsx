@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import { getSupabase } from '@/lib/supabase/client';
 
 const AuthContext = createContext(null);
 
@@ -13,13 +13,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const client = createSupabaseBrowserClient();
-    if (!client) {
+    try {
+      const client = getSupabase();
+      setSupabase(client);
+    } catch (error) {
       setAuthError({ type: "config", message: "Missing Supabase environment variables." });
       setIsLoadingAuth(false);
       return;
     }
-    setSupabase(client);
   }, []);
 
   useEffect(() => {

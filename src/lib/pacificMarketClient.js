@@ -1,12 +1,4 @@
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-
-const getSupabase = () => {
-  const client = createSupabaseBrowserClient();
-  if (!client) {
-    throw new Error("Missing Supabase environment variables.");
-  }
-  return client;
-};
+import { getSupabase } from "./supabase/client";
 
 const mapError = (error) => {
   if (!error) return null;
@@ -84,9 +76,47 @@ export const pacificMarket = {
   auth: {
     me: async () => {
       const supabase = getSupabase();
-      const { data, error } = await supabase.auth.getUser();
-      if (error) throw mapError(error);
-      return data?.user ?? null;
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError) throw mapError(authError);
+      
+      if (!authData?.user) return null;
+      
+      // Fetch user profile to get role
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('role_text')
+        .eq('id', authData.user.id)
+        .single();
+      
+      if (profileError) {
+        // If profile doesn't exist, return user without role
+        console.warn('Profile not found for user:', authData.user.id);
+        return { ...authData.user, role: null };
+      }
+      
+      return { ...authData.user, role: profileData.role_text };
+    },
+    signIn: async (email, password) => {
+      const supabase = getSupabase();
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      return { data, error };
+    },
+    signUp: async (email, password, options = {}) => {
+      const supabase = getSupabase();
+      // Use data object to avoid triggering database issues
+      const signUpOptions = {
+        email, 
+        password,
+        options: {
+          data: {
+            // Add minimal metadata to avoid trigger issues
+            signup_source: 'business_onboarding',
+            ...options.data
+          }
+        }
+      };
+      const { data, error } = await supabase.auth.signUp(signUpOptions);
+      return { data, error };
     },
     logout: async () => {
       const supabase = getSupabase();
@@ -113,6 +143,10 @@ export const pacificMarket = {
       list: (order, limit) => list("business_owners", order, limit),
       filter: (filters, order, limit) => filter("business_owners", filters, order, limit),
       create: (payload) => create("business_owners", payload),
+    },
+    AdminUser: {
+      list: (order, limit) => list("admin_users", order, limit),
+      filter: (filters, order, limit) => filter("admin_users", filters, order, limit),
     },
     BusinessImage: {
       filter: (filters, order, limit) => filter("business_images", filters, order, limit),

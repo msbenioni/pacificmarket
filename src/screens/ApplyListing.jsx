@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getSupabase } from "@/lib/supabase/client";
 import { CheckCircle, ChevronRight, ChevronLeft, AlertCircle } from "lucide-react";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
@@ -78,7 +78,7 @@ export default function ApplyListing() {
 
     setSubmitting(true);
     try {
-      const supabase = createSupabaseBrowserClient();
+      const supabase = getSupabase();
       const { data, error } = await supabase.auth.signUp({
         email: form.email,
         password: signupForm.password,

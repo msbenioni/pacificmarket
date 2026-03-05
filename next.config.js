@@ -9,6 +9,10 @@ const nextConfig = {
       },
     ],
   },
+  // Suppress hydration warnings from browser extensions
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
 };
 
 export default nextConfig;

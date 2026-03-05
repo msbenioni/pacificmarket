@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
@@ -15,6 +16,7 @@ export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     pacificMarket.auth.me().then(setUser).catch(() => setUser(null));
@@ -27,6 +29,21 @@ export default function Layout({ children, currentPageName }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await pacificMarket.auth.logout();
+      setUser(null);
+      setUserMenuOpen(false);
+      router.push(createPageUrl("Home"));
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still clear user state and redirect even if logout fails
+      setUser(null);
+      setUserMenuOpen(false);
+      router.push(createPageUrl("Home"));
+    }
+  };
 
   const isActive = (page) => currentPageName === page;
 
@@ -106,16 +123,18 @@ export default function Layout({ children, currentPageName }) {
                   Login
                 </Link>
               )}
-              <Link
-                href={createPageUrl("BusinessOnboarding")}
-                className={`text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
-                  isTransparent
-                    ? "text-white border-white/50 hover:bg-white/10"
-                    : "text-[#0d4f4f] border border-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white"
-                }`}
-              >
-                Manage My Listing
-              </Link>
+              {!user && (
+                <Link
+                  href={`${createPageUrl("BusinessLogin")}?mode=signup`}
+                  className={`text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
+                    isTransparent
+                      ? "text-white border-white/50 hover:bg-white/10"
+                      : "text-[#0d4f4f] border border-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white"
+                  }`}
+                >
+                  Create Account
+                </Link>
+              )}
               {user ? (
                 <div className="relative">
                   <button
@@ -133,13 +152,19 @@ export default function Layout({ children, currentPageName }) {
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
                       <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                        <Home className="w-4 h-4" /> My Portal
+                        <Home className="w-4 h-4" /> Business Portal
                       </Link>
-                      <Link href={createPageUrl("AdminDashboard")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                        <Settings className="w-4 h-4" /> Admin
+                      <Link href={createPageUrl("ProfileSettings")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
+                        <User className="w-4 h-4" /> Profile Settings
                       </Link>
+                      {/* Only show Admin link for actual admin users */}
+                      {user?.role === 'admin' && (
+                        <Link href={createPageUrl("AdminDashboard")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
+                          <Settings className="w-4 h-4" /> Admin
+                        </Link>
+                      )}
                       <hr className="my-1 border-gray-100" />
-                      <button onClick={() => pacificMarket.auth.logout()} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                      <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                         <LogOut className="w-4 h-4" /> Sign Out
                       </button>
                     </div>
@@ -177,11 +202,12 @@ export default function Layout({ children, currentPageName }) {
             {!user && (
               <Link href={createPageUrl("BusinessLogin")} className="block text-sm font-medium text-gray-600 py-2" onClick={() => setMenuOpen(false)}>Login</Link>
             )}
-            <Link href={createPageUrl("BusinessOnboarding")} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>Manage My Listing</Link>
+            <Link href={user ? createPageUrl("BusinessPortal") : `${createPageUrl("BusinessLogin")}?mode=signup`} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>
+              {user ? "Business Portal" : "Create Account"}
+            </Link>
             {user ? (
               <>
-                <Link href={createPageUrl("BusinessPortal")} className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMenuOpen(false)}>My Portal</Link>
-                <button onClick={() => pacificMarket.auth.logout()} className="block text-sm font-medium text-red-600 py-2">Sign Out</button>
+                <button onClick={handleLogout} className="block text-sm font-medium text-red-600 py-2">Sign Out</button>
               </>
             ) : null}
           </div>
@@ -250,9 +276,14 @@ export default function Layout({ children, currentPageName }) {
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-xs"> 2026 Pacific Market Registry. All rights reserved.</p>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-[#00c4cc] animate-pulse"></div>
-              <span className="text-gray-500 text-xs">Registry Operational</span>
+            <div className="flex items-center gap-4">
+              <Link href={createPageUrl("AdminLogin")} className="text-gray-500 text-xs hover:text-gray-300 transition-colors">
+                Admin
+              </Link>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-[#00c4cc] animate-pulse"></div>
+                <span className="text-gray-500 text-xs">Registry Operational</span>
+              </div>
             </div>
           </div>
         </div>

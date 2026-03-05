@@ -153,11 +153,7 @@ export default function BusinessPortal() {
         title={`Welcome, ${user?.full_name?.split(" ")[0] || "Owner"}`}
         subtitle={user?.email}
         description=""
-        actions={
-          <button onClick={() => pacificMarket.auth.logout()} className="flex items-center gap-2 text-gray-400 hover:text-white text-sm transition-colors">
-            <LogOut className="w-4 h-4" /> Sign Out
-          </button>
-        }
+        actions={null}
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -233,11 +229,28 @@ export default function BusinessPortal() {
             {businesses.length === 0 ? (
               <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
                 <Building2 className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                <h3 className="font-semibold text-gray-500 mb-2">No businesses listed</h3>
-                <p className="text-gray-400 text-sm mb-4">Submit your first Pacific business to the registry.</p>
-                <Link href={createPageUrl("ApplyListing")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#122040]">
-                  <Plus className="w-4 h-4" /> Submit a Business
-                </Link>
+                <h3 className="font-semibold text-gray-500 mb-2">Manage Your Business</h3>
+                <p className="text-gray-400 text-sm mb-6">Choose how you'd like to get started with your business listing.</p>
+                
+                <div className="max-w-md mx-auto space-y-3">
+                  <button
+                    onClick={() => setShowClaimModal(true)}
+                    className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-semibold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <Shield className="w-5 h-5" />
+                    Claim Existing Business
+                  </button>
+                  
+                  <div className="text-center text-gray-400 text-sm">or</div>
+                  
+                  <Link 
+                    href={createPageUrl("ApplyListing")} 
+                    className="w-full bg-white border-2 border-[#0d4f4f] text-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white font-semibold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Submit New Business
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
