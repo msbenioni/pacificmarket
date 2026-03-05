@@ -8,11 +8,15 @@ export default function CookieManager() {
     marketing: false,
     functional: false
   });
+  const [hasConsent, setHasConsent] = useState(true);
 
   useEffect(() => {
     const consent = localStorage.getItem('cookie-consent');
     if (consent) {
       setPreferences(JSON.parse(consent));
+      setHasConsent(true);
+    } else {
+      setHasConsent(false);
     }
   }, []);
 
@@ -20,6 +24,7 @@ export default function CookieManager() {
     setPreferences(newPreferences);
     localStorage.setItem('cookie-consent', JSON.stringify(newPreferences));
     applyCookieSettings(newPreferences);
+    setHasConsent(true); // Hide immediately after setting preferences
   };
 
   const applyCookieSettings = (prefs) => {
@@ -43,6 +48,11 @@ export default function CookieManager() {
     // Reload page to show consent banner again
     window.location.reload();
   };
+
+  // Don't render anything if user has already given consent
+  if (hasConsent) {
+    return null;
+  }
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-[0_12px_40px_rgba(10,22,40,0.08)]">
@@ -119,24 +129,55 @@ export default function CookieManager() {
       {/* Action Buttons */}
       <div className="mt-6 pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
         <button
-          onClick={resetConsent}
-          className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          onClick={() => updatePreferences({
+            essential: true,
+            analytics: true,
+            marketing: true,
+            functional: true
+          })}
+          className="flex-1 bg-[#0d4f4f] hover:bg-[#0a3d3d] text-white font-semibold px-4 py-2 rounded-lg transition-colors"
         >
-          <Settings className="w-4 h-4" />
-          Reset Consent
+          Accept All
         </button>
+        <button
+          onClick={() => updatePreferences({
+            essential: true,
+            analytics: false,
+            marketing: false,
+            functional: false
+          })}
+          className="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold px-4 py-2 rounded-lg transition-colors"
+        >
+          Reject All
+        </button>
+        <button
+          onClick={() => updatePreferences(preferences)}
+          className="flex-1 border border-[#0d4f4f] text-[#0d4f4f] hover:bg-[#0d4f4f]/10 font-semibold px-4 py-2 rounded-lg transition-colors"
+        >
+          Save Preferences
+        </button>
+      </div>
+
+      {/* Additional Options */}
+      <div className="mt-4 flex justify-between items-center">
         <a
           href="/Cookies"
-          className="px-4 py-2 text-sm text-[#0d4f4f] hover:underline"
+          className="text-sm text-[#0d4f4f] hover:underline"
         >
           Learn More About Cookies
         </a>
+        <button
+          onClick={resetConsent}
+          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          Reset Consent
+        </button>
       </div>
 
       {/* Last Updated */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <p className="text-xs text-gray-500">
-          Last updated: {new Date().toLocaleDateString()}
+          Last updated: {new Date().toISOString().split('T')[0]}
         </p>
       </div>
     </div>
