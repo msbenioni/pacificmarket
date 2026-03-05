@@ -28,7 +28,7 @@ SELECT
     subscription_tier,
     user_id,
     owner_user_id,
-    shop_handle,
+    business_handle,
     verified,
     claimed,
     claimed_at,

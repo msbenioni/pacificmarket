@@ -39,7 +39,7 @@ const STEPS = [
       "No tier selection at this stage — free by default",
     ],
     adminNote: null,
-    page: "ApplyListing",
+    page: "BusinessPortal", 
   },
   {
     id: "review",

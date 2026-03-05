@@ -3,19 +3,20 @@ import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/constants/businessProfile";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
+import PremiumStepper from "@/components/shared/PremiumStepper";
 
 const STEPS = [
-  { id: 1, label: "Business Identity" },
-  { id: 2, label: "Media & Details" },
-  { id: 3, label: "Contact Info" },
-  { id: 4, label: "Description" },
-  { id: 5, label: "Review" },
+  { key: "identity", label: "Business Identity" },
+  { key: "media", label: "Media & Details" },
+  { key: "contact", label: "Contact Info" },
+  { key: "description", label: "Description" },
+  { key: "review", label: "Review" },
 ];
 
 export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSelection = false, excludeFields = [], initialData = null }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialData || {
-    name: "", handle: "", country: "", city: "", category: "",
+    name: "", business_handle: "", country: "", city: "", category: "",
     logo_url: "", banner_url: "",
     email: "", contact_email: "", phone: "", website: "", instagram: "", facebook: "", tiktok: "", linkedin: "",
     tagline: "", description: "",
@@ -45,7 +46,7 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
   };
 
   const handleGenerateHandle = () => {
-    if (form.name) set("handle", form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
+    if (form.name) set("business_handle", form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
   };
 
   const handleSubmit = () => {
@@ -58,22 +59,16 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
 
   return (
     <div className="space-y-6">
-      {/* Progress */}
-      <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
-        {STEPS.map((s, i) => (
-          <div key={s.id} className="flex items-center gap-1 flex-shrink-0">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              step === s.id ? "bg-[#0a1628] text-white"
-              : step > s.id ? "bg-[#0d4f4f]/10 text-[#0d4f4f]"
-              : "text-gray-400"
-            }`}>
-              {step > s.id ? <CheckCircle className="w-3 h-3" /> : <span>{s.id}</span>}
-              <span className="hidden sm:block">{s.label}</span>
-            </div>
-            {i < STEPS.length - 1 && <ChevronRight className="w-3 h-3 text-gray-300 flex-shrink-0" />}
-          </div>
-        ))}
-      </div>
+      {/* Premium Progress Stepper */}
+      <PremiumStepper
+        steps={STEPS}
+        currentStep={step - 1}          // Convert 1-based to 0-based
+        completedUntil={step - 2}        // Previous steps are completed
+        onStepClick={(i) => {
+          // Allow jumping to completed steps only
+          if (i < step - 1) setStep(i + 1);
+        }}
+      />
 
       {/* Step 1: Business Identity */}
       {step === 1 && (
@@ -82,14 +77,14 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
           {!excludeFields.includes("name") && (
             <div>
               <label className={labelCls}>Business Name *</label>
-              <input value={form.name} onChange={e => set("name", e.target.value)} onBlur={handleGenerateHandle} placeholder="e.g. Tala Pacific Consulting" className={inputCls} />
+              <input value={form.name} onChange={e => set("name", e.target.value)} onBlur={handleGenerateHandle} placeholder="e.g. Your Business Name" className={inputCls} />
             </div>
           )}
           {!excludeFields.includes("handle") && (
             <div>
               <label className={labelCls}>Registry Handle *</label>
               <div className="flex gap-2">
-                <input value={form.shop_handle} onChange={e => set("shop_handle", e.target.value)} placeholder="tala-pacific-consulting" className={inputCls} />
+                <input value={form.handle} onChange={e => set("handle", e.target.value)} placeholder="tala-pacific-consulting" className={inputCls} />
                 <button onClick={handleGenerateHandle} className="text-xs bg-[#0a1628] text-white px-3 py-2 rounded-xl hover:bg-[#122040] flex-shrink-0">Auto</button>
               </div>
               <p className="text-xs text-gray-400 mt-1">Unique URL identifier. Lowercase letters, numbers and hyphens only.</p>
@@ -312,16 +307,26 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
       {/* Navigation */}
       <div className="flex justify-between pt-4 border-t border-gray-100">
         {step > 1 ? (
-          <button onClick={() => setStep(s => s - 1)} className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#0a1628] font-medium">
+          <button 
+            onClick={() => setStep(s => s - 1)} 
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition"
+          >
             <ChevronLeft className="w-4 h-4" /> Back
           </button>
         ) : <div />}
         {step < 5 ? (
-          <button onClick={() => setStep(s => s + 1)} className="flex items-center gap-2 bg-[#0a1628] hover:bg-[#122040] text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all">
+          <button 
+            onClick={() => setStep(s => s + 1)} 
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#0a1628] transition"
+          >
             Continue <ChevronRight className="w-4 h-4" />
           </button>
         ) : (
-          <button onClick={handleSubmit} disabled={isLoading || !form.name || !form.country || !form.category} className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] disabled:opacity-40 text-white font-bold px-8 py-3 rounded-xl text-sm transition-all">
+          <button 
+            onClick={handleSubmit} 
+            disabled={isLoading || !form.name || !form.country || !form.category} 
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-8 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] disabled:opacity-50 transition"
+          >
             {isLoading ? "Creating..." : "Create Listing"}
           </button>
         )}

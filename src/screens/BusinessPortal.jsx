@@ -7,12 +7,13 @@ import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { CATEGORIES, COUNTRIES, TIER_BENEFITS } from "@/constants/businessProfile";
 import { IDENTITIES } from "@/constants/profileOnboarding";
-import BusinessSearch from "@/components/BusinessSearch";
+import BusinessSearch from "../components/BusinessSearch";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { SetupProgressCard } from "@/components/onboarding/SetupProgressCard";
-import { ClaimAddBusinessModal, ProfileIncompleteWarning } from "@/components/onboarding/ClaimAddBusinessModal";
+import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { ProfileSetupModal } from "@/components/onboarding/ProfileSetupModal";
+import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from "@/components/shared/ModalWrapper";
 import { getBusinessOwner, getBusinessOwnerName, formatBusinessOwnerInfo } from "@/utils/businessHelpers";
 
 export default function BusinessPortal() {
@@ -24,7 +25,6 @@ export default function BusinessPortal() {
   const [activeTab, setActiveTab] = useState("my-businesses");
   const [editingBusiness, setEditingBusiness] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [showClaimModal, setShowClaimModal] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [claiming, setClaiming] = useState(false);
   const [showAddOwnerModal, setShowAddOwnerModal] = useState(null);
@@ -35,35 +35,38 @@ export default function BusinessPortal() {
   const { onboardingStatus, loading: onboardingLoading } = useOnboardingStatus();
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showClaimAddModal, setShowClaimAddModal] = useState(false);
+  const [claimAddDefaultView, setClaimAddDefaultView] = useState("choice");
+
+  const refetchPortalData = async (u = user) => {
+    if (!u?.id) return;
+
+    try {
+      const { getSupabase } = await import("../lib/supabase/client");
+      const supabase = getSupabase();
+
+      const [businessesData, claimsData, profilesRes] = await Promise.all([
+        pacificMarket.entities.Business.filter({ owner_user_id: u.id }),
+        pacificMarket.entities.ClaimRequest.filter({ user_id: u.id }),
+        supabase.from("profiles").select("*"),
+      ]);
+
+      setBusinesses(businessesData || []);
+      setClaims(claimsData || []);
+      setProfiles(profilesRes?.data || []);
+    } catch (e) {
+      console.error("Refetch portal data error:", e);
+    }
+  };
 
   useEffect(() => {
-    pacificMarket.auth.me().then(u => {
-      if (!u) { setLoading(false); return; }
+    pacificMarket.auth.me().then(async (u) => {
+      if (!u) {
+        setLoading(false);
+        return;
+      }
       setUser(u);
-      
-      // Fetch all data including profiles using direct Supabase client
-      const fetchData = async () => {
-        try {
-          const { getSupabase } = await import('../lib/supabase/client');
-          const supabase = getSupabase();
-          
-          const [businessesData, claimsData, profilesData] = await Promise.all([
-            pacificMarket.entities.Business.filter({ owner_user_id: u.id }),
-            pacificMarket.entities.ClaimRequest.filter({ user_id: u.id }),
-            supabase.from('profiles').select('*'),
-          ]);
-          
-          setBusinesses(businessesData); 
-          setClaims(claimsData);
-          setProfiles(profilesData || []); // Store profiles for owner information
-        } catch (error) {
-          console.error('Error fetching business data:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-      fetchData();
+      await refetchPortalData(u);
+      setLoading(false);
     });
   }, []);
 
@@ -96,7 +99,6 @@ export default function BusinessPortal() {
         status: "pending",
       });
       setClaims(prev => [...prev, { business_id: selectedBusiness.id, business_name: selectedBusiness.name, user_email: user.email, status: "pending", created_date: new Date() }]);
-      setShowClaimModal(false);
       setSelectedBusiness(null);
     } catch (error) {
       // error handling
@@ -202,14 +204,20 @@ export default function BusinessPortal() {
             <div className="flex items-center justify-between mb-5 gap-2 flex-wrap">
               <h2 className="font-bold text-[#0a1628]">My Registry Records</h2>
               <div className="flex gap-2">
-                <button onClick={() => setShowClaimModal(true)}
+                <button onClick={() => {
+                  setClaimAddDefaultView("claim");
+                  setShowClaimAddModal(true);
+                }}
                   className="flex items-center gap-2 bg-white border border-gray-200 hover:border-[#0d4f4f] text-[#0d4f4f] text-sm font-semibold px-4 py-2 rounded-xl transition-all">
                   <Search className="w-4 h-4" /> Claim Business
                 </button>
-                <Link href={createPageUrl("ApplyListing")}
+                <button onClick={() => {
+                  setClaimAddDefaultView("add");
+                  setShowClaimAddModal(true);
+                }}
                   className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all">
                   <Plus className="w-4 h-4" /> Add Business
-                </Link>
+                </button>
               </div>
             </div>
 
@@ -251,7 +259,25 @@ export default function BusinessPortal() {
             {businesses.length === 0 ? (
               <div className="space-y-6">
                 {/* Show profile incomplete warning if needed */}
-                {onboardingStatus.needsProfile && <ProfileIncompleteWarning />}
+                {onboardingStatus.needsProfile && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-amber-800 mb-1">
+                          Complete your profile first
+                        </h4>
+                        <p className="text-sm text-amber-700">
+                          Your profile is needed to claim a business and keep the registry trustworthy.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 {/* Onboarding-aware empty state */}
                 <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
@@ -306,7 +332,7 @@ export default function BusinessPortal() {
                           className="flex items-center gap-1 text-xs border border-gray-200 px-3 py-2 rounded-xl hover:border-[#0d4f4f] hover:text-[#0d4f4f] transition-all">
                           <Users className="w-3.5 h-3.5" /> Owners
                         </button>
-                        <Link href={createPageUrl("BusinessProfile") + `?handle=${b.shop_handle || b.id}`}
+                        <Link href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
                           className="flex items-center gap-1 text-xs text-[#0d4f4f] px-3 py-2 rounded-xl hover:bg-[#0d4f4f]/5 transition-all">
                           View <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
@@ -410,56 +436,35 @@ export default function BusinessPortal() {
         )}
       </div>
 
-      {/* Claim Business Modal */}
-      {showClaimModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => { setShowClaimModal(false); setSelectedBusiness(null); }} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-              <h3 className="font-bold text-[#0a1628]">Claim Another Business</h3>
-              <button onClick={() => { setShowClaimModal(false); setSelectedBusiness(null); }} className="text-gray-400 hover:text-gray-600">×</button>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-600 text-sm mb-4">Search for a business by name to claim ownership.</p>
-              <BusinessSearch 
-                onSelect={setSelectedBusiness}
-                onError={() => {}}
-                placeholder="e.g. Tala Pacific Consulting"
-              />
-            </div>
-            <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex gap-3">
-              <button onClick={() => { setShowClaimModal(false); setSelectedBusiness(null); }} 
-                className="flex-1 border border-gray-200 text-gray-600 font-medium py-2.5 rounded-xl text-sm hover:bg-gray-50">Cancel</button>
-              {selectedBusiness && (
-                <button onClick={submitClaimRequest} disabled={claiming} className="flex-1 bg-green-600 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-green-700 disabled:opacity-50">
-                  {claiming ? "Submitting..." : "Request Claim"}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Add Owner Modal */}
       {showAddOwnerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowAddOwnerModal(null)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-              <h3 className="font-bold text-[#0a1628]">Add Business Owner</h3>
-              <button onClick={() => setShowAddOwnerModal(null)} className="text-gray-400 hover:text-gray-600">×</button>
-            </div>
-            <div className="p-6 space-y-4">
-              <p className="text-gray-600 text-sm">Add another person to manage this business. They'll receive an invite to claim access.</p>
+        <ModalWrapper isOpen={showAddOwnerModal} onClose={() => setShowAddOwnerModal(null)}>
+          <ModalHeader 
+            title="Add Business Owner"
+            onClose={() => setShowAddOwnerModal(null)}
+          />
+          
+          <ModalContent>
+            <p className="text-gray-600 text-sm mb-4">Add another person to manage this business. They'll receive an invite to claim access.</p>
+            <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Full Name</label>
-                <input value={newOwnerForm.name} onChange={e => setNewOwnerForm(p => ({ ...p, name: e.target.value }))}
-                  placeholder="e.g. John Smith" className={inputCls} />
+                <input 
+                  value={newOwnerForm.name} 
+                  onChange={e => setNewOwnerForm(p => ({ ...p, name: e.target.value }))}
+                  placeholder="e.g. John Smith" 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Email</label>
-                <input value={newOwnerForm.email} onChange={e => setNewOwnerForm(p => ({ ...p, email: e.target.value }))}
-                  placeholder="john@example.com" type="email" className={inputCls} />
+                <input 
+                  value={newOwnerForm.email} 
+                  onChange={e => setNewOwnerForm(p => ({ ...p, email: e.target.value }))}
+                  placeholder="john@example.com" 
+                  type="email" 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
               {showAddOwnerModal && businesses.find(b => b.id === showAddOwnerModal)?.owner_user_id && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -467,42 +472,45 @@ export default function BusinessPortal() {
                 </div>
               )}
             </div>
-            <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex gap-3">
-              <button onClick={() => setShowAddOwnerModal(null)} className="flex-1 border border-gray-200 text-gray-600 font-medium py-2.5 rounded-xl text-sm hover:bg-gray-50">Cancel</button>
-              <button onClick={() => handleAddOwner(showAddOwnerModal)} disabled={addingOwner || !newOwnerForm.name || !newOwnerForm.email} 
-                className="flex-1 bg-[#0d4f4f] text-white font-bold py-2.5 rounded-xl text-sm hover:bg-[#1a6b6b] disabled:opacity-50">
-                {addingOwner ? "Sending..." : "Add Owner"}
-              </button>
-            </div>
-          </div>
-        </div>
+          </ModalContent>
+          
+          <ModalFooter>
+            <button 
+              onClick={() => setShowAddOwnerModal(null)} 
+              className="flex-1 border border-gray-200 text-gray-600 font-medium py-2.5 rounded-xl text-sm hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => handleAddOwner(showAddOwnerModal)} 
+              disabled={addingOwner} 
+              className="flex-1 bg-[#0d4f4f] text-white font-bold py-2.5 rounded-xl text-sm hover:bg-[#0a1628] disabled:opacity-50"
+            >
+              {addingOwner ? "Adding..." : "Add Owner"}
+            </button>
+          </ModalFooter>
+        </ModalWrapper>
       )}
 
       {/* Edit Modal */}
        {editingBusiness && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-           <div className="absolute inset-0 bg-black/50" onClick={() => setEditingBusiness(null)} />
-           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
-             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-               <h3 className="font-bold text-[#0a1628]">Edit Listing</h3>
-               <button onClick={() => setEditingBusiness(null)} className="text-gray-400 hover:text-gray-600">×</button>
-             </div>
-             <div className="p-6">
-               <DetailedBusinessForm 
-                 initialData={editingBusiness}
-                 onSubmit={handleSave}
-                 isLoading={saving}
-                 excludeFields={["handle", "languages"]}
-               />
-             </div>
-             <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex gap-3">
-               <button onClick={() => setEditingBusiness(null)} className="flex-1 border border-gray-200 text-gray-600 font-medium py-2.5 rounded-xl text-sm hover:bg-gray-50">Cancel</button>
-               <button onClick={handleSave} disabled={saving} className="flex-1 bg-[#0d4f4f] text-white font-bold py-2.5 rounded-xl text-sm hover:bg-[#1a6b6b] disabled:opacity-50">
-                 {saving ? "Saving..." : "Save Changes"}
-               </button>
-             </div>
-           </div>
-         </div>
+         <ModalWrapper isOpen={editingBusiness} onClose={() => setEditingBusiness(null)} className={MODAL_SIZES.lg}>
+           <ModalHeader 
+             title="Edit Listing"
+             onClose={() => setEditingBusiness(null)}
+           />
+           
+           <ModalContent>
+             <DetailedBusinessForm 
+               onSubmit={() => {
+                 setEditingBusiness(null);
+                 // Show success message or refresh data
+               }}
+               isLoading={false}
+               initialData={editingBusiness}
+             />
+           </ModalContent>
+         </ModalWrapper>
        )}
 
       {/* Onboarding Modals */}
@@ -521,14 +529,30 @@ export default function BusinessPortal() {
       <ClaimAddBusinessModal
         isOpen={showClaimAddModal}
         onClose={() => setShowClaimAddModal(false)}
-        onClaimSelected={() => {
-          setShowClaimAddModal(false);
-          setShowClaimModal(true);
+        defaultView={claimAddDefaultView}
+        onClaimSelected={async (business) => {
+          if (!business?.id || !user?.id) return;
+
+          try {
+            await pacificMarket.entities.ClaimRequest.create({
+              business_id: business.id,
+              user_id: user.id,
+              user_email: user.email,
+              business_name: business.name,
+              status: "pending",
+            });
+
+            setShowClaimAddModal(false);
+            setActiveTab("claims");          // premium UX: take them to their claim
+            await refetchPortalData();       // refresh claims list instantly
+          } catch (e) {
+            console.error("Create claim request error:", e);
+            // optional: toast
+          }
         }}
-        onAddSelected={() => {
+        onAddSelected={async () => {
           setShowClaimAddModal(false);
-          // Navigate to ApplyListing
-          window.location.href = createPageUrl("ApplyListing");
+          await refetchPortalData();         // refresh businesses instantly
         }}
       />
     </div>

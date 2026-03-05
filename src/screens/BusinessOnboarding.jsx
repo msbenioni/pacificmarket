@@ -6,12 +6,14 @@ import { pacificMarket } from "@/lib/pacificMarketClient";
 import { BUSINESS_STATUS } from "@/constants/business";
 import { getSupabase } from "@/lib/supabase/client";
 import HeroRegistry from "@/components/shared/HeroRegistry";
+import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 
 export default function BusinessOnboarding() {
   const [step, setStep] = useState(1);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [path, setPath] = useState(""); // "claim" or "new"
+  const [showModal, setShowModal] = useState(false);
 
   const [authMode, setAuthMode] = useState("signup"); // "signup" | "signin"
   const [email, setEmail] = useState("");
@@ -44,7 +46,7 @@ export default function BusinessOnboarding() {
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from('businesses')
-        .select('id,name,city,country,shop_handle,owner_user_id,subscription_tier')
+        .select('id,name,city,country,business_handle,owner_user_id,subscription_tier')
         .eq('status', BUSINESS_STATUS.ACTIVE)
         .ilike('name', `%${query}%`)
         .limit(20);
@@ -178,8 +180,8 @@ export default function BusinessOnboarding() {
 
         setSuccess(true);
       } else {
-        // New business submission path
-        window.location.href = `${createPageUrl("ApplyListing")}?email=${encodeURIComponent(email)}`;
+        // New business submission path - open modal
+        setShowModal(true);
         return;
       }
     } catch (err) {
@@ -245,6 +247,14 @@ export default function BusinessOnboarding() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {renderStep()}
       </div>
+      
+      {/* Modal */}
+      <ClaimAddBusinessModal 
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onClaimSelected={() => setShowModal(false)}
+        onAddSelected={() => setShowModal(false)}
+      />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useOnboardingStatus } from '../../hooks/useOnboardingStatus';
 
 /**
@@ -9,7 +8,6 @@ import { useOnboardingStatus } from '../../hooks/useOnboardingStatus';
  * Shows user's onboarding progress with clear next action
  */
 export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpenAddModal }) {
-  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const { onboardingStatus, getStepStatus, getStepTitle, getStepDescription, loading } = useOnboardingStatus();
 
@@ -26,11 +24,6 @@ export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpen
         <div className="h-3 bg-blue-100 rounded w-1/2"></div>
       </div>
     );
-  }
-
-  // Handle router not being mounted (SSR or outside context)
-  if (!router) {
-    return null;
   }
 
   if (onboardingStatus.isComplete) {
@@ -52,8 +45,10 @@ export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpen
         }
         break;
       case 'complete-business-profiles':
-        // Navigate to business profile completion
-        router.push('/businessportal?showProfileCompletion=true');
+        // Open add business modal for profile completion
+        if (onOpenAddModal) {
+          onOpenAddModal();
+        }
         break;
       default:
         break;
@@ -63,8 +58,8 @@ export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpen
   const handleSkip = () => {
     // Allow skipping for non-critical steps
     if (onboardingStatus.nextAction === 'complete-business-profiles') {
-      // Mark as skipped and hide the card
-      router.push('/businessportal');
+      // Mark as skipped - just do nothing or hide the card
+      // No navigation needed since we're using modals
     }
   };
 

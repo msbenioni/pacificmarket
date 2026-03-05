@@ -131,7 +131,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
   // key forces clean fade/scale on change
   return (
     <div
-      key={b?.id || b?.shop_handle || index}
+      key={b?.id || b?.business_handle || index}
       className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0a1628] h-full flex flex-col animate-fadeIn"
       style={{ transformOrigin: "center" }}
     >
@@ -258,7 +258,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
 
             <div className="mt-5 flex flex-col sm:flex-row gap-3">
               <Link
-                href={createPageUrl("BusinessProfile") + `?handle=${b?.shop_handle || b?.id}`}
+                href={createPageUrl("BusinessProfile") + `?handle=${b?.business_handle || b?.id}`}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-extrabold px-5 py-3 transition-all"
               >
                 View Profile <ChevronRight className="w-4 h-4" />
@@ -341,7 +341,7 @@ export default function FeaturedSpotlight({ businesses = [] }) {
             const isActive = i === selectedIndex;
             return (
               <BusinessMiniCard
-                key={b.id || b.shop_handle}
+                key={b.id || b.business_handle}
                 b={b}
                 active={isActive}
                 onSelect={() => {

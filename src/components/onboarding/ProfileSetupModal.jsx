@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from '@/components/shared/ModalWrapper';
 import { pacificMarket } from '../../lib/pacificMarketClient';
 import { ONBOARDING_STEPS, ONBOARDING_VALIDATION_RULES } from '../../constants/profileOnboarding';
 import { useOnboardingStatus } from '../../hooks/useOnboardingStatus';
@@ -298,98 +299,104 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Complete Your Profile</h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Step {currentStep} of {ONBOARDING_STEPS.length}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-              disabled={saving}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-              {ONBOARDING_STEPS.map((_, index) => (
-                <span key={index} className={index < currentStep ? 'text-blue-600' : ''}>
-                  {index + 1}
-                </span>
-              ))}
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(currentStep / ONBOARDING_STEPS.length) * 100}%` }}
+  <ModalWrapper 
+    isOpen={isOpen} 
+    onClose={onClose}
+    className={MODAL_SIZES['2xl']}
+  >
+    <ModalHeader 
+      title="Complete Your Profile"
+      subtitle={`Step ${currentStep} of ${ONBOARDING_STEPS.length}`}
+      onClose={onClose}
+    />
+    
+    <ModalContent>
+      {/* Progress Steps */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            {ONBOARDING_STEPS.map((_, index) => (
+              <div
+                key={index}
+                className={`h-1 flex-1 rounded-full ${
+                  index < currentStep - 1
+                    ? 'bg-blue-600'
+                    : index === currentStep - 1
+                    ? 'bg-blue-600'
+                    : 'bg-gray-200'
+                }`}
               />
-            </div>
+            ))}
           </div>
+          <span className="text-sm text-gray-600 ml-4">
+            {currentStep}/{ONBOARDING_STEPS.length}
+          </span>
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="p-6">
-          {saveSuccess ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Profile Complete!</h3>
-              <p className="text-gray-600">Your profile has been saved successfully.</p>
-            </div>
-          ) : (
-            renderStepContent()
+      {/* Step Content */}
+      {renderStepContent()}
+    </ModalContent>
+    
+    <ModalFooter>
+      <div className="flex items-center justify-between">
+        <div>
+          {currentStep > 1 && (
+            <button
+              onClick={handlePrevious}
+              disabled={saving}
+              className="text-gray-500 hover:text-gray-700 font-medium py-2 disabled:opacity-50"
+            >
+              ← Previous
+            </button>
           )}
         </div>
-
-        {/* Footer */}
-        {!saveSuccess && (
-          <div className="p-6 border-t border-gray-100">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={handlePrevious}
-                disabled={currentStep === 1 || saving}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              
-              <button
-                onClick={handleNext}
-                disabled={saving}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-              >
-                {saving ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{currentStep === ONBOARDING_STEPS.length ? 'Complete' : 'Next'}</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </>
-                )}
-              </button>
+        
+        <div className="flex items-center space-x-3">
+          {!saveSuccess && (
+            <button
+              onClick={onClose}
+              disabled={saving}
+              className="text-gray-500 hover:text-gray-700 font-medium py-2 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          )}
+          
+          {saveSuccess ? (
+            <div className="flex items-center text-green-600">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium">Profile Complete!</span>
             </div>
-          </div>
-        )}
+          ) : (
+            <button
+              onClick={currentStep === ONBOARDING_STEPS.length ? handleComplete : handleNext}
+              disabled={saving}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center"
+            >
+              {saving ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V8C8 4.477 9.477 3 12 3s4 1.477 4 4v8z" />
+                  </svg>
+                  {currentStep === ONBOARDING_STEPS.length ? 'Saving...' : 'Next'}
+                </>
+              ) : (
+                <>
+                  {currentStep === ONBOARDING_STEPS.length ? 'Complete Profile' : 'Next'}
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    </ModalFooter>
+  </ModalWrapper>
+);
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Mail, Phone, CheckCircle } from "lucide-react";
+import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from "@/components/shared/ModalWrapper";
 
 export default function ContactModal({ business, onClose }) {
   const [email, setEmail] = useState("");
@@ -16,82 +17,78 @@ export default function ContactModal({ business, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-          <X className="w-5 h-5" />
-        </button>
-        <div className="p-6">
-          <h3 className="text-lg font-bold text-[#0a1628] mb-1">Contact {business.name}</h3>
+    <ModalWrapper 
+      isOpen={true} 
+      onClose={onClose}
+      className={MODAL_SIZES.md}
+    >
+      <ModalHeader 
+        title={`Contact ${business.name}`}
+        onClose={onClose}
+      />
+      
+      <ModalContent>
+        {!submitted ? (
+          <>
+            <p className="text-sm text-gray-500 mb-5">
+              Enter your email address to reveal this business's contact details.
+            </p>
 
-          {!submitted ? (
-            <>
-              <p className="text-sm text-gray-500 mb-5">
-                Enter your email address to reveal this business's contact details.
-              </p>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-xs font-medium text-gray-600 mb-1 block">Your Email Address</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => { setEmail(e.target.value); setError(""); }}
-                    placeholder="you@example.com"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                  />
-                  {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Your Email Address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="text-red-600 text-sm">{error}</div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-[#0d4f4f] text-white py-2 px-4 rounded-lg hover:bg-[#0a1628] transition-colors"
+              >
+                Reveal Contact Details
+              </button>
+            </form>
+          </>
+        ) : (
+          <div className="text-center py-6">
+            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Contact Details Revealed!</h4>
+            <p className="text-sm text-gray-600 mb-4">
+              Thank you for your interest. Here's how to contact {business.name}:
+            </p>
+
+            <div className="space-y-3 text-left bg-gray-50 rounded-lg p-4">
+              {business.contact_email && (
+                <div className="flex items-center space-x-3">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">{business.contact_email}</span>
                 </div>
-                <button
-                  type="submit"
-                  className="w-full bg-[#0d4f4f] hover:bg-[#0a3d3d] text-white font-semibold py-3 rounded-xl transition-all text-sm"
-                >
-                  Show Contact Details
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="mt-2">
-              <div className="flex items-center gap-2 text-green-600 mb-5">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-sm font-medium">Contact details unlocked</span>
-              </div>
-              <div className="space-y-3">
-                {business.contact_email && (
-                  <a
-                    href={`mailto:${business.contact_email}`}
-                    className="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-[#0d4f4f]/10 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-4 h-4 text-[#0d4f4f]" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Email</p>
-                      <p className="text-sm font-medium text-[#0a1628]">{business.contact_email}</p>
-                    </div>
-                  </a>
-                )}
-                {business.contact_phone && (
-                  <a
-                    href={`tel:${business.contact_phone}`}
-                    className="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-[#0d4f4f]/10 flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-4 h-4 text-[#0d4f4f]" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Phone</p>
-                      <p className="text-sm font-medium text-[#0a1628]">{business.contact_phone}</p>
-                    </div>
-                  </a>
-                )}
-                {!business.contact_email && !business.contact_phone && (
-                  <p className="text-sm text-gray-400 text-center py-4">No contact details listed yet.</p>
-                )}
-              </div>
+              )}
+              {business.contact_phone && (
+                <div className="flex items-center space-x-3">
+                  <Phone className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">{business.contact_phone}</span>
+                </div>
+              )}
+              {!business.contact_email && !business.contact_phone && (
+                <p className="text-sm text-gray-400 text-center py-4">No contact details listed yet.</p>
+              )}
             </div>
-          )}
-        </div>
-      </div>
-    </div>
+          </div>
+        )}
+      </ModalContent>
+    </ModalWrapper>
   );
 }

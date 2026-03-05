@@ -300,7 +300,7 @@ export default function AdminDashboard() {
                       className="flex items-center gap-1 text-xs bg-gray-50 text-gray-600 border border-gray-200 px-3 py-1.5 rounded-xl hover:border-[#0d4f4f] hover:text-[#0d4f4f]">
                       <Edit className="w-3 h-3" /> Edit
                     </button>
-                    <Link href={createPageUrl("BusinessProfile") + `?handle=${b.shop_handle || b.id}`}
+                    <Link href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
                       className="flex items-center gap-1 text-xs text-[#0d4f4f] px-2 py-1.5 rounded-xl hover:bg-[#0d4f4f]/5">
                       <Eye className="w-3.5 h-3.5" />
                     </Link>

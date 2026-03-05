@@ -38,7 +38,7 @@ export default function BusinessCard({ business, view = "grid" }) {
   if (view === "list") {
     return (
       <Link
-        href={createPageUrl("BusinessProfile") + `?handle=${business.shop_handle || business.id}`}
+        href={createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`}
         className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-md hover:shadow-xl hover:border-[#0d4f4f]/30 transition-all group"
       >
         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -66,7 +66,7 @@ export default function BusinessCard({ business, view = "grid" }) {
   }
 
   return (
-    <Link href={createPageUrl("BusinessProfile") + `?handle=${business.shop_handle || business.id}`}
+    <Link href={createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`}
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:border-[#0d4f4f]/30 transition-all group flex flex-col">
       {/* Banner */}
       <div className="h-32 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] relative overflow-hidden">

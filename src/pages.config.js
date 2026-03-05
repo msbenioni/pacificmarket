@@ -51,7 +51,6 @@ import About from './screens/About';
 import Accessibility from './screens/Accessibility';
 import AdminDashboard from './screens/AdminDashboard';
 import AdminLogin from './screens/AdminLogin';
-import ApplyListing from './screens/ApplyListing';
 import BusinessProfile from './screens/BusinessProfile';
 import Contact from './screens/Contact';
 import Cookies from './screens/Cookies';
@@ -77,7 +76,6 @@ export const PAGES = {
     "Accessibility": Accessibility,
     "AdminDashboard": AdminDashboard,
     "AdminLogin": AdminLogin,
-    "ApplyListing": ApplyListing,
     "BusinessProfile": BusinessProfile,
     "Contact": Contact,
     "Cookies": Cookies,

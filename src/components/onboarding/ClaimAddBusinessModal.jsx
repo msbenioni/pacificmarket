@@ -1,166 +1,290 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  ModalWrapper,
+  ModalHeader,
+  ModalContent,
+  ModalFooter,
+  MODAL_SIZES,
+} from "@/components/shared/ModalWrapper";
+import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
+import BusinessSearch from "@/components/BusinessSearch";
+import { Search, Plus, ChevronLeft } from "lucide-react";
 
 /**
- * Claim or Add Business Modal
- * Premium choice interface for business setup
+ * Claim or Add Business Modal (single modal switching views)
+ *
+ * Props:
+ * - isOpen: boolean
+ * - onClose: () => void
+ * - defaultView?: "choice" | "claim" | "add"
+ * - onClaimSelected?: (business) => void
+ * - onAddSelected?: () => void
  */
-export function ClaimAddBusinessModal({ isOpen, onClose, onClaimSelected, onAddSelected }) {
-  const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
+export function ClaimAddBusinessModal({
+  isOpen,
+  onClose,
+  defaultView = "choice",
+  onClaimSelected,
+  onAddSelected,
+}) {
+  const [view, setView] = useState(defaultView);
+  const [submitting, setSubmitting] = useState(false);
+  const [pickedBusiness, setPickedBusiness] = useState(null);
 
-  // Handle SSR/hydration
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    if (isOpen) {
+      setView(defaultView);
+      setPickedBusiness(null);
+      setSubmitting(false);
+    }
+  }, [isOpen, defaultView]);
 
-  // Don't render until mounted to avoid hydration issues
-  if (!isMounted) {
-    return null;
-  }
+  const header = useMemo(() => {
+    if (view === "claim")
+      return {
+        title: "Claim Business",
+        subtitle: "Search for your listing and submit a claim for review.",
+      };
+    if (view === "add")
+      return {
+        title: "Add New Business",
+        subtitle: "Create a new listing for the Pacific Market registry.",
+      };
+    return {
+      title: "Get Started",
+      subtitle: "Choose how you want to add your business to the registry.",
+    };
+  }, [view]);
 
-  // Handle router not being mounted (SSR or outside context)
-  if (!router) {
-    return null;
-  }
+  const modalClass = useMemo(() => {
+    if (view === "add") return MODAL_SIZES["3xl"];
+    return MODAL_SIZES.lg; // ✅ keep choice + claim consistent
+  }, [view]);
 
   if (!isOpen) return null;
 
-  const handleClaimExisting = () => {
-    onClose();
-    // Open existing claim modal or navigate to claim flow
-    if (onClaimSelected) {
-      onClaimSelected();
-    } else {
-      router.push('/businessportal?showClaimForm=true');
-    }
-  };
+  const btnPrimary =
+    "inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-5 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50";
+  const btnSecondary =
+    "inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition";
+  const pill =
+    "inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-600";
 
-  const handleAddNew = () => {
-    onClose();
-    // Navigate to ApplyListing for new business
-    if (onAddSelected) {
-      onAddSelected();
-    } else {
-      router.push('/applylisting');
+  const handleBusinessSubmit = async (businessData) => {
+    setSubmitting(true);
+    try {
+      const { getSupabase } = await import("../../lib/supabase/client");
+      const supabase = getSupabase();
+
+      const { data: userRes, error: userErr } = await supabase.auth.getUser();
+      if (userErr) throw userErr;
+      if (!userRes?.user) throw new Error("User not authenticated");
+
+      const { error } = await supabase.from("businesses").insert({
+        ...businessData,
+        owner_user_id: userRes.user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+
+      if (error) throw error;
+
+      onAddSelected?.();
+      onClose();
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+    <ModalWrapper isOpen={isOpen} onClose={onClose} className={modalClass}>
+      <ModalHeader title={header.title} subtitle={header.subtitle} onClose={onClose} />
+
+      <ModalContent>
+        {/* Top “brand strip” to make the modal feel designed */}
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#00c4cc]" />
+            <span className="h-2 w-2 rounded-full bg-[#c9a84c]" />
+            <span className="h-2 w-2 rounded-full bg-[#0a1628]" />
+            <span className="ml-2 text-xs font-semibold text-gray-500">
+              Pacific Market Registry
+            </span>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Choose how you want to get started
-          </h3>
-          <p className="text-gray-600">
-            Complete your business setup in just a few steps
-          </p>
+          {view !== "choice" && <span className={pill}>{view === "claim" ? "Claim" : "Add"}</span>}
         </div>
 
-        {/* Options */}
-        <div className="space-y-4">
-          {/* Claim Existing */}
-          <button
-            onClick={handleClaimExisting}
-            className="w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors duration-200 group"
-          >
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">
-                  Claim an existing listing
-                </h4>
-                <p className="text-sm text-gray-600">
-                  Perfect if your business is already in our directory
-                </p>
-                <div className="mt-2 flex items-center text-xs text-blue-600 font-medium">
-                  <span>Recommended if already listed</span>
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
+        {view === "choice" && (
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setView("claim")}
+              className={[
+                "w-full text-left",
+                "rounded-2xl border border-gray-200 bg-white",
+                "p-5",
+                "hover:border-[#0d4f4f]/40 hover:bg-[#0d4f4f]/[0.03]",
+                "transition",
+              ].join(" ")}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-10 w-10 rounded-xl bg-[#0d4f4f]/10 grid place-items-center">
+                      <Search className="h-5 w-5 text-[#0d4f4f]" />
+                    </div>
+                    <h4 className="text-base font-bold text-[#0a1628]">
+                      Claim an existing listing
+                    </h4>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-600">
+                    If your business is already on Pacific Market, claim it to manage details and upgrades.
+                  </p>
                 </div>
+                <span className="mt-1 text-sm font-bold text-[#0d4f4f]">Search →</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setView("add")}
+              className={[
+                "w-full text-left",
+                "rounded-2xl border border-[#0a1628] bg-[#0a1628]",
+                "p-5",
+                "hover:bg-[#122040] transition",
+              ].join(" ")}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-10 w-10 rounded-xl bg-white/10 grid place-items-center">
+                      <Plus className="h-5 w-5 text-white" />
+                    </div>
+                    <h4 className="text-base font-bold text-white">Add a new business</h4>
+                  </div>
+                  <p className="mt-2 text-sm text-white/80">
+                    Create a new listing and represent your people, your country, and your work.
+                  </p>
+                </div>
+                <span className="mt-1 text-sm font-bold text-[#c9a84c]">Create →</span>
+              </div>
+            </button>
+
+            <div className="mt-4 rounded-2xl border border-[#c9a84c]/30 bg-[#c9a84c]/10 p-4">
+              <p className="text-sm font-semibold text-[#0a1628]">
+                Why it matters
+              </p>
+              <p className="mt-1 text-sm text-gray-700">
+                Every listing strengthens Pacific visibility and makes it easier for people to discover,
+                support, and invest in Pacific enterprise.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {view === "claim" && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-gray-100 bg-[#f8f9fc] p-5">
+              <p className="text-sm text-gray-700">
+                Type your business name. If you find it, select it to submit a claim request.
+              </p>
+
+              <div className="mt-4">
+                <BusinessSearch
+                  placeholder="Search business name…"
+                  onSelect={(business) => setPickedBusiness(business)}
+                  onError={() => {}}
+                />
               </div>
             </div>
-          </button>
 
-          {/* Add New */}
-          <button
-            onClick={handleAddNew}
-            className="w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors duration-200 group"
-          >
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">
-                  Submit a new business
-                </h4>
-                <p className="text-sm text-gray-600">
-                  For first-time listings or new businesses
-                </p>
-                <div className="mt-2 flex items-center text-xs text-green-600 font-medium">
-                  <span>Quick setup process</span>
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
+            {pickedBusiness && (
+              <div className="rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/[0.04] p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold text-[#0d4f4f] uppercase tracking-wider">
+                      Selected
+                    </p>
+                    <p className="mt-1 text-base font-bold text-[#0a1628]">
+                      {pickedBusiness?.name}
+                    </p>
+                    <p className="mt-1 text-sm text-gray-600">
+                      {pickedBusiness?.city ? `${pickedBusiness.city}, ` : ""}
+                      {pickedBusiness?.country} · {pickedBusiness?.category}
+                    </p>
+                    <p className="mt-3 text-xs text-gray-500">
+                      Your claim will be reviewed to keep the registry trustworthy.
+                    </p>
+                  </div>
+
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-600 border border-gray-200">
+                    Admin review
+                  </span>
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {view === "add" && (
+          <div className="rounded-2xl border border-gray-100 bg-[#fbfcff] p-5">
+            <DetailedBusinessForm
+              onSubmit={handleBusinessSubmit}
+              isLoading={submitting}
+              showTierSelection={false}
+              excludeFields={["claimed", "tier"]}
+              initialData={null}
+            />
+          </div>
+        )}
+      </ModalContent>
+
+      <ModalFooter className="flex items-center justify-between gap-3">
+        {view === "choice" ? (
+          <>
+            <button type="button" onClick={onClose} className={btnSecondary}>
+              Close
+            </button>
+            <div className="text-xs text-gray-500">
+              Tip: Claim if you already exist. Add if you’re new.
             </div>
-          </button>
-        </div>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => setView("choice")}
+              className={btnSecondary}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
 
-        {/* Footer */}
-        <div className="mt-6 pt-4 border-t border-gray-100">
-          <button
-            onClick={onClose}
-            className="w-full text-gray-500 hover:text-gray-700 font-medium py-2"
-          >
-            I'll decide later
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Profile Incomplete Warning
- * Shows when user needs to complete profile before claiming/adding business
- */
-export function ProfileIncompleteWarning() {
-  return (
-    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-      <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0">
-          <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="flex-1">
-          <h4 className="text-sm font-semibold text-amber-800 mb-1">
-            Complete your profile first
-          </h4>
-          <p className="text-sm text-amber-700">
-            Your profile is needed to claim a business and keep the registry trustworthy.
-          </p>
-        </div>
-      </div>
-    </div>
+            {view === "claim" ? (
+              <button
+                type="button"
+                className={btnPrimary}
+                disabled={!pickedBusiness}
+                onClick={() => {
+                  if (!pickedBusiness) return;
+                  onClaimSelected?.(pickedBusiness);
+                  onClose();
+                }}
+              >
+                Submit claim
+              </button>
+            ) : (
+              <button type="button" className={btnPrimary} onClick={() => {}}>
+                {/* Form has its own submit; keep footer consistent */}
+                Continue
+              </button>
+            )}
+          </>
+        )}
+      </ModalFooter>
+    </ModalWrapper>
   );
 }

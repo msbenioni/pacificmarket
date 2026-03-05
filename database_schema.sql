@@ -689,7 +689,7 @@ DECLARE
   v_exists BOOLEAN;
 BEGIN
   -- Get the shop handle
-  SELECT shop_handle INTO v_handle
+  SELECT business_handle INTO v_handle
   FROM admin_directory_listings
   WHERE id = listing_id;
   
@@ -2354,13 +2354,13 @@ CREATE TABLE IF NOT EXISTS "public"."businesses" (
     "claimed" boolean DEFAULT false,
     "claimed_at" timestamp with time zone,
     "claimed_by" "text",
-    "shop_handle" "text",
+    "business_handle" "text",
     "verified" boolean DEFAULT false,
     "owner_user_id" "uuid",
     "proof_links" "text"[],
     "homepage_featured" boolean DEFAULT false NOT NULL,
     "visibility_tier" "text" DEFAULT 'none'::"text" NOT NULL,
-    CONSTRAINT "businesses_shop_handle_format" CHECK ((("shop_handle" IS NULL) OR ("shop_handle" = ''::"text") OR ("shop_handle" ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'::"text"))),
+    CONSTRAINT "businesses_business_handle_format" CHECK ((("business_handle" IS NULL) OR ("business_handle" = ''::"text") OR ("business_handle" ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'::"text"))),
     CONSTRAINT "businesses_status_check" CHECK ((("status")::"text" = ANY ((ARRAY['pending'::character varying, 'active'::character varying, 'inactive'::character varying, 'suspended'::character varying])::"text"[]))),
     CONSTRAINT "businesses_subscription_tier_check" CHECK ((("subscription_tier")::"text" = ANY ((ARRAY['basic'::character varying, 'verified'::character varying, 'featured_plus'::character varying])::"text"[]))),
     CONSTRAINT "businesses_visibility_tier_check" CHECK (("visibility_tier" = ANY (ARRAY['none'::"text", 'homepage'::"text", 'spotlight'::"text"])))
@@ -2826,7 +2826,7 @@ CREATE INDEX "businesses_contact_email_idx" ON "public"."businesses" USING "btre
 
 
 
-CREATE UNIQUE INDEX "businesses_shop_handle_unique" ON "public"."businesses" USING "btree" ("lower"("shop_handle")) WHERE (("shop_handle" IS NOT NULL) AND ("shop_handle" <> ''::"text"));
+CREATE UNIQUE INDEX "businesses_business_handle_unique" ON "public"."businesses" USING "btree" ("lower"("business_handle")) WHERE (("business_handle" IS NOT NULL) AND ("business_handle" <> ''::"text"));
 
 
 

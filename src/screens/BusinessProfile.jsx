@@ -32,7 +32,7 @@ export default function BusinessProfile() {
     const handle = params.get("handle");
 
     if (handle) {
-      pacificMarket.entities.Business.filter({ shop_handle: handle }).then(async res => {
+      pacificMarket.entities.Business.filter({ business_handle: handle }).then(async res => {
         const biz = res.length > 0 ? res[0] : null;
         if (!biz) {
           const res2 = await pacificMarket.entities.Business.filter({ id: handle });

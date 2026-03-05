@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
+import { useState } from "react";
+import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import {
   Shield,
   Globe,
@@ -15,6 +17,8 @@ import {
 import HeroRegistry from "../components/shared/HeroRegistry";
 
 export default function About() {
+  const [showModal, setShowModal] = useState(false);
+
   const principles = [
     {
       icon: Shield,
@@ -338,12 +342,12 @@ export default function About() {
                 Join the registry and put your business on the Pacific Market map — reviewed with care and built to last.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href={createPageUrl("ApplyListing")}
+                <button
+                  onClick={() => setShowModal(true)}
                   className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm"
                 >
                   Submit a business <ArrowRight className="w-4 h-4" />
-                </Link>
+                </button>
                 <Link
                   href={createPageUrl("Registry")}
                   className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm"
@@ -359,6 +363,14 @@ export default function About() {
           </p>
         </div>
       </section>
+      
+      {/* Modal */}
+      <ClaimAddBusinessModal 
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onClaimSelected={() => setShowModal(false)}
+        onAddSelected={() => setShowModal(false)}
+      />
     </div>
   );
 }

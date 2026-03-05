@@ -3,6 +3,8 @@ import { createPageUrl } from "@/utils";
 import { CheckCircle, X, Star, Shield, Zap, ArrowRight } from "lucide-react";
 import ChevronStrip from "../components/home/ChevronStrip";
 import HeroRegistry from "../components/shared/HeroRegistry";
+import { useState } from "react";
+import { ClaimAddBusinessModal } from "../components/onboarding/ClaimAddBusinessModal";
 
 const plans = [
   {
@@ -109,6 +111,8 @@ const plans = [
 ];
 
 export default function Pricing() {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <div className="bg-[#f8f9fc]">
       {/* Hero */}
@@ -284,12 +288,12 @@ export default function Pricing() {
 
                     {/* CTA always at bottom */}
                     <div className="mt-6">
-                      <Link 
-                        href={plan.id === "free" ? createPageUrl("ApplyListing") : `${createPageUrl("ApplyListing")}?plan=${plan.id}`} 
+                      <button 
+                        onClick={() => setShowModal(true)}
                         className={`inline-flex w-full justify-center items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${plan.ctaClass}`}
                       >
                         {plan.cta} {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -366,6 +370,14 @@ export default function Pricing() {
           </div>
         </div>
       </section>
+      
+      {/* Modal */}
+      <ClaimAddBusinessModal 
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onClaimSelected={() => setShowModal(false)}
+        onAddSelected={() => setShowModal(false)}
+      />
     </div>
   );
 }
