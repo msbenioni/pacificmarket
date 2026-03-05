@@ -75,7 +75,7 @@ export const ONBOARDING_STEPS = [
     purpose: 'Representation of Pacific communities',
     fields: [
       {
-        id: 'cultural_identity',
+        id: 'primary_cultural',
         label: 'Cultural Identity',
         type: 'multiselect',
         required: true,
@@ -144,18 +144,8 @@ export const ONBOARDING_STEPS = [
         required: false,
         placeholder: '5',
         description: 'How many years have you been in business?',
-        min: 0,
-        max: 50
+        min: 0
       }
-    ]
-  },
-  {
-    id: 'trade-relationships',
-    title: 'Step 4 — Trade Relationships',
-    subtitle: 'Trade Relationships',
-    purpose: 'Understand Pacific trade networks',
-    fields: [
-      // Trade relationships moved to business profile as they relate to the business, not the individual
     ]
   },
   {
@@ -211,13 +201,10 @@ export const ONBOARDING_STEPS = [
       {
         id: 'mentorship_availability',
         label: 'Available to mentor others?',
-        type: 'radio',
+        type: 'checkbox',
         required: false,
         description: 'Are you open to mentoring other Pacific entrepreneurs? (private data)',
-        options: [
-          { value: true, label: 'Yes' },
-          { value: false, label: 'No' }
-        ]
+        text: 'Yes, I am available to mentor others'
       },
       {
         id: 'investment_interest',
@@ -357,7 +344,7 @@ export const ONBOARDING_VALIDATION_RULES = {
   },
   
   // Step 2 validation
-  cultural_identity: {
+  primary_cultural: {
     required: true,
     minItems: 1
   },
@@ -373,7 +360,6 @@ export const ONBOARDING_VALIDATION_RULES = {
   // Step 4 validation (individual business experience only)
   years_operating: {
     min: 0,
-    max: 50,
     type: 'number'
   }
 };
@@ -387,4 +373,4 @@ export const ONBOARDING_DESCRIPTION = {
   estimatedTime: ONBOARDING_COMPLETION_TIME
 };
 
-export const IDENTITIES = ONBOARDING_STEPS[1].fields.find(f => f.id === 'cultural_identity').options.map(o => o.label);
+export const IDENTITIES = ONBOARDING_STEPS[1].fields.find(f => f.id === 'primary_cultural').options.map(o => o.label);

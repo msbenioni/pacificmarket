@@ -253,15 +253,6 @@ export default function BusinessPortal() {
                 {/* Show profile incomplete warning if needed */}
                 {onboardingStatus.needsProfile && <ProfileIncompleteWarning />}
                 
-                {/* Show setup progress card if onboarding incomplete */}
-                {!onboardingStatus.isComplete && (
-                  <SetupProgressCard 
-                    onOpenProfileModal={() => setShowProfileModal(true)}
-                    onOpenClaimModal={() => setShowClaimAddModal(true)}
-                    onOpenAddModal={() => setShowClaimAddModal(true)}
-                  />
-                )}
-                
                 {/* Onboarding-aware empty state */}
                 <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
                   <Building2 className="w-10 h-10 text-gray-200 mx-auto mb-3" />

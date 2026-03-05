@@ -61,10 +61,9 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
             display_name: profileData.display_name || userData?.user_metadata?.full_name || userData?.user_metadata?.display_name || '',
             city: profileData.city || '',
             country: profileData.country || '',
-            cultural_identity: profileData.cultural_identity || [],
-            languages: profileData.languages || [],
+            primary_cultural: profileData.primary_cultural || [],
+            languages: Array.isArray(profileData.languages) ? profileData.languages.join(', ') : (profileData.languages || ''),
             years_operating: profileData.years_operating || '',
-            business_role: profileData.business_role || '',
             market_region: profileData.market_region || ''
           });
         } else {
@@ -73,10 +72,9 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
             display_name: userData?.user_metadata?.full_name || userData?.user_metadata?.display_name || '',
             city: '',
             country: '',
-            cultural_identity: [],
-            languages: [],
+            primary_cultural: [],
+            languages: '',
             years_operating: '',
-            business_role: '',
             market_region: ''
           });
         }
@@ -141,6 +139,17 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
       const userData = await pacificMarket.auth.me();
       if (!userData) throw new Error('User not authenticated');
 
+      // Apply transformation rules before saving
+      const transformedData = { ...formData };
+      
+      // Transform languages field from comma-separated string to array
+      if (transformedData['languages'] && typeof transformedData['languages'] === 'string') {
+        transformedData['languages'] = transformedData['languages']
+          .split(',')
+          .map(lang => lang.trim())
+          .filter(lang => lang.length > 0);
+      }
+      
       // Use direct Supabase client for profile update
       const { getSupabase } = await import('../../lib/supabase/client');
       const supabase = getSupabase();
@@ -149,7 +158,7 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
         .from('profiles')
         .upsert({
           id: userData.id,
-          ...formData,
+          ...transformedData,
           updated_at: new Date().toISOString()
         });
 
@@ -245,6 +254,17 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={saving}
               />
+            ) : field.type === 'checkbox' ? (
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData[field.id] || false}
+                  onChange={(e) => handleInputChange(field.id, e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  disabled={saving}
+                />
+                <span className="text-sm text-gray-700">{field.text || field.label}</span>
+              </label>
             ) : (
               <input
                 type={field.type}

@@ -161,6 +161,27 @@ export const BUSINESS_PROFILE_STEPS = [
           { value: 'asia', label: 'Asia' },
           { value: 'global-online', label: 'Global / Online' }
         ]
+      },
+      {
+        id: 'exporting',
+        label: 'Exporting?',
+        type: 'radio',
+        required: false,
+        description: 'Does your business export goods or services?',
+        options: [
+          { value: true, label: 'Yes' },
+          { value: false, label: 'No' }
+        ]
+      },
+      {
+        id: 'import_countries',
+        label: 'Import countries',
+        type: 'text',
+        required: false,
+        placeholder: 'China, Australia, Fiji',
+        description: 'Countries you import from (comma separated)',
+        helper: 'Example: China, Australia, Fiji',
+        maxLength: 500
       }
     ]
   },
@@ -280,27 +301,6 @@ export const BUSINESS_PROFILE_STEPS = [
           { value: '1m-5m', label: '$1M-$5M' },
           { value: '5m+', label: '$5M+' }
         ]
-      },
-      {
-        id: 'exporting',
-        label: 'Exporting?',
-        type: 'radio',
-        required: false,
-        description: 'Does your business export goods or services?',
-        options: [
-          { value: true, label: 'Yes' },
-          { value: false, label: 'No' }
-        ]
-      },
-      {
-        id: 'import_countries',
-        label: 'Import countries',
-        type: 'text',
-        required: false,
-        placeholder: 'China, Australia, Fiji',
-        description: 'Countries you import from (comma separated)',
-        helper: 'Example: China, Australia, Fiji',
-        maxLength: 500
       }
     ]
   },

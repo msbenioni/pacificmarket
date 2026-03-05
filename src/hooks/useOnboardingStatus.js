@@ -74,16 +74,15 @@ export function useOnboardingStatus() {
   // Compute onboarding status
   const onboardingStatus = {
     // Step 1: Profile completeness
-    needsProfile: !profile?.city || !profile?.country || !profile?.cultural_identity || !profile?.cultural_identity?.length,
+    needsProfile: !profile?.city || !profile?.country || !profile?.primary_cultural || !profile?.primary_cultural?.length,
     profileProgress: {
       city: !!profile?.city,
       country: !!profile?.country,
-      cultural_identity: !!profile?.cultural_identity && profile?.cultural_identity?.length > 0,
+      primary_cultural: !!profile?.primary_cultural && profile?.primary_cultural?.length > 0,
       // Optional fields for progress tracking
       display_name: !!profile?.display_name,
       languages: !!profile?.languages && profile?.languages?.length > 0,
       years_operating: !!profile?.years_operating,
-      business_role: !!profile?.business_role,
       market_region: !!profile?.market_region
     },
     
