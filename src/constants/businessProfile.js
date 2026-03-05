@@ -35,18 +35,22 @@ export const BUSINESS_PROFILE_STEPS = [
         placeholder: 'Select your industry',
         description: 'Primary industry category for your business',
         options: [
-          { value: 'arts-culture', label: 'Arts & Culture' },
-          { value: 'consulting-professional', label: 'Consulting & Professional Services' },
+          { value: 'agriculture', label: 'Agriculture' },
+          { value: 'arts-crafts', label: 'Arts & Crafts' },
+          { value: 'beauty-personal-care', label: 'Beauty & Personal Care' },
+          { value: 'coaching-business-personal', label: 'Coaching (Business & Personal)' },
+          { value: 'construction-trade', label: 'Construction & Trade' },
+          { value: 'digital-it-technology', label: 'Digital & IT Technology' },
+          { value: 'education-training', label: 'Education & Training' },
+          { value: 'finance-insurance', label: 'Finance & Insurance' },
           { value: 'food-beverage', label: 'Food & Beverage' },
           { value: 'health-wellness', label: 'Health & Wellness' },
-          { value: 'digital-media-tech', label: 'Digital Media & Technology' },
-          { value: 'construction-trades', label: 'Construction & Trades' },
-          { value: 'retail-ecommerce', label: 'Retail & E-commerce' },
-          { value: 'tourism-hospitality', label: 'Tourism & Hospitality' },
-          { value: 'education-training', label: 'Education & Training' },
-          { value: 'finance-investment', label: 'Finance & Investment' },
-          { value: 'agriculture-fisheries', label: 'Agriculture & Fisheries' },
+          { value: 'hospitality-tourism', label: 'Hospitality & Tourism' },
+          { value: 'legal-services', label: 'Legal Services' },
           { value: 'manufacturing', label: 'Manufacturing' },
+          { value: 'media-entertainment', label: 'Media & Entertainment' },
+          { value: 'professional-services', label: 'Professional Services' },
+          { value: 'transport-logistics', label: 'Transport & Logistics' },
           { value: 'other', label: 'Other' }
         ]
       },
@@ -174,31 +178,35 @@ export const BUSINESS_PROFILE_STEPS = [
         placeholder: 'Select cultural identities',
         description: 'Pacific cultural identities represented by your business',
         options: [
-          { value: 'samoan', label: 'Sāmoa' },
-          { value: 'maori', label: 'Māori (Aotearoa)' },
-          { value: 'cook-islands-maori', label: 'Māori (Cook Islands)' },
-          { value: 'tongan', label: 'Tonga' },
-          { value: 'fijian', label: 'Fiji' },
-          { value: 'niuean', label: 'Niue' },
-          { value: 'tokelauan', label: 'Tokelau' },
-          { value: 'tuvaluan', label: 'Tuvalu' },
+          { value: 'australia', label: 'Australia' },
+          { value: 'australia-aboriginal-torres-strait-islander', label: 'Australia (Aboriginal & Torres Strait Islander)' },
+          { value: 'new-zealand', label: 'New Zealand' },
+          { value: 'new-zealand-maori', label: 'New Zealand (Māori)' },
+          { value: 'fiji', label: 'Fiji' },
+          { value: 'samoa', label: 'Samoa' },
+          { value: 'american-samoa', label: 'American Samoa' },
+          { value: 'tonga', label: 'Tonga' },
+          { value: 'cook-islands', label: 'Cook Islands' },
+          { value: 'niue', label: 'Niue' },
+          { value: 'tokelau', label: 'Tokelau' },
+          { value: 'tuvalu', label: 'Tuvalu' },
           { value: 'kiribati', label: 'Kiribati' },
-          { value: 'marshallese', label: 'Marshall Islands' },
-          { value: 'palauan', label: 'Palau' },
-          { value: 'chamorro', label: 'Chamorro (Guam/Marianas)' },
-          { value: 'chuukese', label: 'Chuukese' },
-          { value: 'pohnpeian', label: 'Pohnpeian' },
-          { value: 'kosraean', label: 'Kosraean' },
-          { value: 'yapese', label: 'Yapese' },
+          { value: 'nauru', label: 'Nauru' },
           { value: 'papua-new-guinea', label: 'Papua New Guinea' },
           { value: 'solomon-islands', label: 'Solomon Islands' },
           { value: 'vanuatu', label: 'Vanuatu' },
-          { value: 'new-caledonian', label: 'New Caledonia' },
-          { value: 'french-polynesian', label: 'French Polynesia' },
-          { value: 'wallisian', label: 'Wallis and Futuna' },
-          { value: 'nauruan', label: 'Nauru' },
-          { value: 'other-pacific', label: 'Other Pacific Islander' },
-          { value: 'non-pacific', label: 'Non-Pacific Islander' }
+          { value: 'new-caledonia', label: 'New Caledonia' },
+          { value: 'french-polynesia', label: 'French Polynesia' },
+          { value: 'wallis-futuna', label: 'Wallis and Futuna' },
+          { value: 'palau', label: 'Palau' },
+          { value: 'marshall-islands', label: 'Marshall Islands' },
+          { value: 'micronesia', label: 'Micronesia' },
+          { value: 'guam', label: 'Guam' },
+          { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
+          { value: 'hawaii', label: 'Hawaii' },
+          { value: 'rotuma', label: 'Rotuma' },
+          { value: 'mixed-pacific', label: 'Mixed Pacific' },
+          { value: 'other', label: 'Other' }
         ]
       },
       {
@@ -296,6 +304,121 @@ export const BUSINESS_PROFILE_STEPS = [
         maxLength: 500
       }
     ]
+  },
+  {
+    id: 'private-analytics',
+    title: 'Step 5 — Advanced Analytics (Private)',
+    subtitle: 'Advanced Analytics',
+    purpose: 'Detailed insights for economic research (private data)',
+    fields: [
+      {
+        id: 'business_structure',
+        label: 'Business structure',
+        type: 'select',
+        required: false,
+        placeholder: 'Select business structure',
+        description: 'Legal structure of your business (private data)',
+        options: [
+          { value: 'sole-proprietorship', label: 'Sole Proprietorship' },
+          { value: 'partnership', label: 'Partnership' },
+          { value: 'limited-liability-company', label: 'Limited Liability Company (LLC)' },
+          { value: 'corporation', label: 'Corporation' },
+          { value: 'cooperative', label: 'Cooperative' },
+          { value: 'non-profit', label: 'Non-Profit' },
+          { value: 'other', label: 'Other' }
+        ]
+      },
+      {
+        id: 'annual_revenue_exact',
+        label: 'Annual revenue (exact)',
+        type: 'number',
+        required: false,
+        placeholder: '100000',
+        description: 'Exact annual revenue in USD (private data)',
+        helper: 'This data is used for economic research only and will not be displayed publicly',
+        min: 0,
+        max: 100000000
+      },
+      {
+        id: 'full_time_employees',
+        label: 'Full-time employees (exact)',
+        type: 'number',
+        required: false,
+        placeholder: '5',
+        description: 'Exact number of full-time employees (private data)',
+        min: 0,
+        max: 1000
+      },
+      {
+        id: 'part_time_employees',
+        label: 'Part-time employees (exact)',
+        type: 'number',
+        required: false,
+        placeholder: '3',
+        description: 'Exact number of part-time employees (private data)',
+        min: 0,
+        max: 1000
+      },
+      {
+        id: 'primary_market',
+        label: 'Primary market focus',
+        type: 'text',
+        required: false,
+        placeholder: 'Local Pacific communities',
+        description: 'Your main target market (private data)',
+        maxLength: 200
+      },
+      {
+        id: 'funding_source',
+        label: 'Primary funding source',
+        type: 'select',
+        required: false,
+        placeholder: 'Select funding source',
+        description: 'How is your business primarily funded? (private data)',
+        options: [
+          { value: 'self-funded', label: 'Self-Funded' },
+          { value: 'family-friends', label: 'Family & Friends' },
+          { value: 'bank-loans', label: 'Bank Loans' },
+          { value: 'government-grants', label: 'Government Grants' },
+          { value: 'angel-investors', label: 'Angel Investors' },
+          { value: 'venture-capital', label: 'Venture Capital' },
+          { value: 'crowdfunding', label: 'Crowdfunding' },
+          { value: 'revenue-funded', label: 'Revenue-Funded' },
+          { value: 'other', label: 'Other' }
+        ]
+      },
+      {
+        id: 'business_challenges',
+        label: 'Key business challenges',
+        type: 'multiselect',
+        required: false,
+        placeholder: 'Select challenges',
+        description: 'Main challenges facing your business (private data)',
+        options: [
+          { value: 'access-to-capital', label: 'Access to Capital' },
+          { value: 'market-access', label: 'Market Access' },
+          { value: 'regulatory-compliance', label: 'Regulatory Compliance' },
+          { value: 'talent-acquisition', label: 'Talent Acquisition' },
+          { value: 'digital-transformation', label: 'Digital Transformation' },
+          { value: 'supply-chain', label: 'Supply Chain Issues' },
+          { value: 'competition', label: 'Competition' },
+          { value: 'cash-flow', label: 'Cash Flow Management' },
+          { value: 'marketing-reach', label: 'Marketing Reach' },
+          { value: 'infrastructure', label: 'Infrastructure' },
+          { value: 'other', label: 'Other' }
+        ]
+      },
+      {
+        id: 'future_plans',
+        label: 'Growth/expansion plans',
+        type: 'textarea',
+        required: false,
+        placeholder: 'Describe your plans for the next 1-3 years...',
+        description: 'Your business growth plans (private data)',
+        maxLength: 1000,
+        rows: 3
+      }
+    ]
   }
 ];
 
@@ -324,7 +447,21 @@ export const BUSINESS_PROFILE_SCHEMA = {
   employee_count: 'text',
   revenue_band: 'text',
   exporting: 'boolean',
-  import_countries: 'text[]'
+  import_countries: 'text[]',
+  
+  // Private Fields (non-public, for analytics only)
+  business_structure: 'text',           // Sole proprietorship, partnership, company, etc.
+  annual_revenue_exact: 'integer',       // Exact revenue (private)
+  full_time_employees: 'integer',        // Exact full-time count (private)
+  part_time_employees: 'integer',        // Exact part-time count (private)
+  primary_market: 'text',                // Main market focus (private)
+  growth_stage: 'text',                  // Detailed growth stage (private)
+  funding_source: 'text',                // Self-funded, loans, investors (private)
+  business_challenges: 'text[]',         // Key challenges (private)
+  future_plans: 'text',                  // Growth/expansion plans (private)
+  tech_stack: 'text[]',                  // Technologies used (private)
+  customer_segments: 'text[]',           // Primary customer types (private)
+  competitive_advantage: 'text',          // What makes them unique (private)
 };
 
 export const BUSINESS_PROFILE_VALIDATION_RULES = {
@@ -425,17 +562,30 @@ export const BUSINESS_PROFILE_PUBLIC_FIELDS = [
 export const BUSINESS_PROFILE_PRIVATE_FIELDS = [
   'employee_count',
   'revenue_band',
-  'import_countries'
+  'import_countries',
+  // Additional private fields for analytics only
+  'business_structure',
+  'annual_revenue_exact',
+  'full_time_employees',
+  'part_time_employees',
+  'primary_market',
+  'growth_stage',
+  'funding_source',
+  'business_challenges',
+  'future_plans',
+  'tech_stack',
+  'customer_segments',
+  'competitive_advantage'
 ];
 
-export const BUSINESS_PROFILE_COMPLETION_TIME = '2 minutes';
+export const BUSINESS_PROFILE_COMPLETION_TIME = '3–4 minutes';
 
 export const BUSINESS_PROFILE_DESCRIPTION = {
   title: 'Business Profile Setup',
   subtitle: 'Tell us about your enterprise',
-  description: 'This 4-step process helps us showcase your business in the Pacific Market registry and provide valuable economic insights.',
+  description: 'This 5-step process helps us showcase your business in the Pacific Market registry and provide valuable economic insights. The final step captures private data for research purposes only.',
   estimatedTime: BUSINESS_PROFILE_COMPLETION_TIME,
-  totalFields: '12–15'
+  totalFields: '15–20'
 };
 
 export const DASHBOARD_DATA_MAPPING = {
@@ -447,4 +597,50 @@ export const DASHBOARD_DATA_MAPPING = {
   'Export activity': 'business.exporting',
   'Market reach': 'business.markets_served',
   'Business maturity': 'business.business_stage / business.year_founded'
+};
+
+// Export commonly used constants for backward compatibility
+export const CATEGORIES = BUSINESS_PROFILE_STEPS[0].fields.find(f => f.id === 'industry').options.map(o => o.label);
+export const COUNTRIES = BUSINESS_PROFILE_STEPS[1].fields.find(f => f.id === 'country').options.map(o => o.label);
+
+export const TIER_BENEFITS = {
+  free: {
+    label: "Free",
+    price: "$0/month",
+    color: "gray",
+    features: [
+      "Basic listing in registry",
+      "Business information & contact",
+      "Text-only profile",
+      "Search visibility"
+    ]
+  },
+  verified: {
+    label: "Verified",
+    price: "$9/month",
+    color: "teal",
+    features: [
+      "Everything in Free",
+      "Verified badge",
+      "Logo & banner images",
+      "Enhanced profile styling",
+      "Priority in search results",
+      "Direct messaging capability"
+    ]
+  },
+  featured_plus: {
+    label: "Featured+",
+    price: "$29/month",
+    color: "gold",
+    features: [
+      "Everything in Verified",
+      "Featured placement",
+      "Golden badge",
+      "Premium profile design",
+      "Invoice generator tool",
+      "QR code generator tool",
+      "Analytics & insights",
+      "Custom branding"
+    ]
+  }
 };

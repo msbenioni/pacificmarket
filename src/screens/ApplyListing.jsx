@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { getSupabase } from "@/lib/supabase/client";
 import { CheckCircle, ChevronRight, ChevronLeft, AlertCircle } from "lucide-react";
-import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
+import { BUSINESS_PROFILE_STEPS, CATEGORIES, COUNTRIES } from "@/constants/businessProfile";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 import HeroRegistry from "../components/shared/HeroRegistry";
 

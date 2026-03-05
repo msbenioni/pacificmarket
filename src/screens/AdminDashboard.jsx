@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { CheckCircle, XCircle, Clock, Building2, Shield, Star, AlertTriangle, Edit, Trash2, Download, ChevronRight, Eye, X, AlertCircle, GitBranch } from "lucide-react";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
-import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
+import { CATEGORIES, COUNTRIES } from "@/constants/businessProfile";
 import ProcessFlow from "@/components/admin/ProcessFlow";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 import HeroRegistry from "@/components/shared/HeroRegistry";

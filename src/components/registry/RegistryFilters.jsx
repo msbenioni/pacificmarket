@@ -2,7 +2,8 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { BUSINESS_STATUS } from "@/constants/business";
-import { CATEGORIES, IDENTITIES } from "@/components/formConstants";
+import { CATEGORIES } from "@/constants/businessProfile";
+import { IDENTITIES } from "@/constants/profileOnboarding";
 
 export default function RegistryFilters({ filters, onChange }) {
   const [countries, setCountries] = useState([]);

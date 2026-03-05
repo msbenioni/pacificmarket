@@ -5,7 +5,8 @@ import { pacificMarket } from "@/lib/pacificMarketClient";
 import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, LogOut, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users } from "lucide-react";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 import HeroRegistry from "../components/shared/HeroRegistry";
-import { TIER_BENEFITS, COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
+import { CATEGORIES, COUNTRIES, TIER_BENEFITS } from "@/constants/businessProfile";
+import { IDENTITIES } from "@/constants/profileOnboarding";
 import BusinessSearch from "@/components/BusinessSearch";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 
