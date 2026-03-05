@@ -8,13 +8,21 @@ export default function BusinessSearch({
   onSelect,                 // now means: "picked business"
   onError,
   placeholder = "Search business name...",
-  showSelectedPreview = true
+  showSelectedPreview = true,
+  initialSearchTerm = "",
+  onSearchChange
 }) {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [results, setResults] = useState([]);
   const [selectedResult, setSelectedResult] = useState(null);
   const [error, setError] = useState("");
   const [allBusinesses, setAllBusinesses] = useState([]);
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    onSearchChange?.(value);
+    handleSearch(value);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -38,14 +46,18 @@ export default function BusinessSearch({
     return () => { alive = false; };
   }, [onError]);
 
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-    setError("");
+  useEffect(() => {
+    setSearchTerm(initialSearchTerm || "");
+  }, [initialSearchTerm]);
 
-    if (!value.trim()) {
-      setResults([]);
-      return;
-    }
+  const handleSearch = (value) => {
+  setError("");
+
+  if (!value.trim()) {
+    setResults([]);
+    setError("");
+    return;
+  }
 
     const matches = allBusinesses.filter((b) =>
       (b?.name || "").toLowerCase().includes(value.toLowerCase())
@@ -74,10 +86,11 @@ export default function BusinessSearch({
           Business Name
         </label>
         <input
+          type="text"
           value={searchTerm}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20"
         />
       </div>
 

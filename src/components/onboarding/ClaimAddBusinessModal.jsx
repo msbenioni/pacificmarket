@@ -10,6 +10,7 @@ import {
 } from "@/components/shared/ModalWrapper";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 import BusinessSearch from "@/components/BusinessSearch";
+import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, Plus, ChevronLeft } from "lucide-react";
 
 /**
@@ -33,12 +34,15 @@ export function ClaimAddBusinessModal({
   const [submitting, setSubmitting] = useState(false);
   const [pickedBusiness, setPickedBusiness] = useState(null);
   const [formControls, setFormControls] = useState(null);
+  const [claimDetails, setClaimDetails] = useState(null);
+  const [claimSearchTerm, setClaimSearchTerm] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       setView(defaultView);
       setPickedBusiness(null);
       setSubmitting(false);
+      setClaimSearchTerm("");
     }
   }, [isOpen, defaultView]);
 
@@ -47,6 +51,11 @@ export function ClaimAddBusinessModal({
       return {
         title: "Claim Business",
         subtitle: "Find your listing, then submit a claim for verification.",
+      };
+    if (view === "claim_details")
+      return {
+        title: "Ownership Details",
+        subtitle: "Provide contact information for verification.",
       };
     if (view === "add")
       return {
@@ -72,6 +81,77 @@ export function ClaimAddBusinessModal({
     "inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition";
   const pill =
     "inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-600";
+
+  const handleClaimDetailsSubmit = async (details) => {
+    setSubmitting(true);
+    try {
+      // Get current user info with validation
+      const { getSupabase } = await import("../../lib/supabase/client");
+      const supabase = getSupabase();
+      const { data: userRes, error: userErr } = await supabase.auth.getUser();
+      if (userErr) throw userErr;
+      if (!userRes?.user) throw new Error("User not authenticated");
+      
+      // Validate business exists
+      if (!pickedBusiness?.id) throw new Error("No business selected");
+      
+      // Check for existing pending claim from this user
+      const { data: existingClaim } = await supabase
+        .from("claim_requests")
+        .select("id,status")
+        .eq("business_id", pickedBusiness.id)
+        .eq("user_id", userRes.user.id)
+        .in("status", ["pending", "under_review"])
+        .maybeSingle();
+        
+      if (existingClaim) {
+        alert("You already have a pending claim for this business. We'll notify you once it's reviewed.");
+        return;
+      }
+      
+      // Auto-fix proof URL format if needed
+      const proof = details.proof_url?.trim();
+      const proof_url = proof && !proof.startsWith("http") ? `https://${proof}` : proof;
+      
+      // Create claim request matching existing table structure
+      const claimData = {
+        business_id: pickedBusiness.id,
+        user_id: userRes.user.id,
+        status: "pending",
+        contact_email: details.contact_email,
+        contact_phone: details.contact_phone || null,
+        role: details.role || "owner",
+        message: details.message || null,
+        proof_url: proof_url || null,
+        business_name: pickedBusiness.name,
+        user_email: userRes.user.email,
+        listing_contact_email: pickedBusiness?.email || null,
+        listing_contact_phone: pickedBusiness?.phone || null,
+      };
+      
+      // Insert into claim_requests table and return the inserted row
+      const { data: inserted, error: insertErr } = await supabase
+        .from("claim_requests")
+        .insert(claimData)
+        .select()
+        .single();
+        
+      if (insertErr) throw insertErr;
+      
+      onClaimSelected?.(inserted);
+      onClose();
+    } catch (error) {
+      console.error("Failed to submit claim:", error);
+      alert("Failed to submit claim request. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleBusinessSelect = (business) => {
+    setPickedBusiness(business);
+    setView("claim_details"); // Move to details collection
+  };
 
   const handleBusinessSubmit = async (businessData) => {
     setSubmitting(true);
@@ -114,7 +194,7 @@ export function ClaimAddBusinessModal({
               Pacific Market Registry
             </span>
           </div>
-          {view !== "choice" && <span className={pill}>{view === "claim" ? "Claim" : "Add"}</span>}
+          {view !== "choice" && <span className={pill}>{view === "claim" ? "Claim" : view === "claim_details" ? "Details" : "Add"}</span>}
         </div>
 
         {view === "choice" && (
@@ -196,46 +276,55 @@ export function ClaimAddBusinessModal({
               <div className="mt-4">
                 <BusinessSearch
                   placeholder="Search business name…"
-                  onSelect={(business) => setPickedBusiness(business)}
+                  onSelect={handleBusinessSelect}
                   onError={() => {}}
                   showSelectedPreview={false}
+                  initialSearchTerm={claimSearchTerm}
+                  onSearchChange={setClaimSearchTerm}
                 />
               </div>
             </div>
+          </div>
+        )}
 
-            {pickedBusiness && (
-              <div className="rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/[0.04] p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold text-[#0d4f4f] uppercase tracking-wider">
-                      Selected
-                    </p>
-                    <p className="mt-1 text-base font-bold text-[#0a1628]">
-                      {pickedBusiness?.name}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-600">
-                      {pickedBusiness?.city ? `${pickedBusiness.city}, ` : ""}
-                      {pickedBusiness?.country} · {pickedBusiness?.category}
-                    </p>
-                    <p className="mt-3 text-xs text-gray-500">
-                      Claims are reviewed to protect Pacific businesses and keep the registry trusted.
-                    </p>
+        {view === "claim_details" && pickedBusiness && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/[0.04] p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold text-[#0d4f4f] uppercase tracking-wider">
+                    Selected Business
+                  </p>
+                  <p className="mt-1 text-base font-bold text-[#0a1628]">
+                    {pickedBusiness?.name}
+                  </p>
+                  <p className="mt-1 text-sm text-gray-600">
+                    {pickedBusiness?.city ? `${pickedBusiness.city}, ` : ""}
+                    {pickedBusiness?.country} · {pickedBusiness?.category}
+                  </p>
+                </div>
 
-                    <button
-                      type="button"
-                      className="mt-4 text-sm font-semibold text-[#0d4f4f] hover:underline"
-                      onClick={() => setPickedBusiness(null)}
-                    >
-                      Choose a different business
-                    </button>
-                  </div>
-
-                  <span className="rounded-full bg-[#0d4f4f]/10 text-[#0d4f4f] px-3 py-1 text-xs font-semibold border border-[#0d4f4f]/20">
-                    Verification pending
-                  </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={submitting}
+                    className="text-sm font-semibold text-[#0d4f4f] hover:underline disabled:opacity-50"
+                    onClick={() => {
+                      setView("claim");
+                      setPickedBusiness(null);
+                    }}
+                  >
+                    Change
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+
+            <ClaimDetailsForm
+              business={pickedBusiness}
+              onSubmit={handleClaimDetailsSubmit}
+              isLoading={submitting}
+            />
           </div>
         )}
 
@@ -270,6 +359,8 @@ export function ClaimAddBusinessModal({
               onClick={() => {
                 if (view === "add" && formControls) {
                   formControls.prevStep();
+                } else if (view === "claim_details") {
+                  setView("claim");
                 } else {
                   setView("choice");
                 }
@@ -281,18 +372,11 @@ export function ClaimAddBusinessModal({
             </button>
 
             {view === "claim" ? (
-              <button
-                type="button"
-                className={btnPrimary}
-                disabled={!pickedBusiness}
-                onClick={() => {
-                  if (!pickedBusiness) return;
-                  onClaimSelected?.(pickedBusiness);
-                  onClose();
-                }}
-              >
-                Submit claim
-              </button>
+              // No primary button - selection auto-advances to details
+              <div />
+            ) : view === "claim_details" ? (
+              // No primary button here - ClaimDetailsForm handles submit
+              <div />
             ) : (
               <button 
                 type="button" 
