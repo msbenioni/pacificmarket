@@ -56,7 +56,6 @@ import Contact from './screens/Contact';
 import Cookies from './screens/Cookies';
 import CustomerPortal from './screens/CustomerPortal';
 import Data from './screens/Data';
-import FAQ from './screens/FAQ';
 import Guidelines from './screens/Guidelines';
 import Help from './screens/Help';
 import Home from './screens/Home';
@@ -80,8 +79,7 @@ export const PAGES = {
     "Cookies": Cookies,
     "CustomerPortal": CustomerPortal,
     "Data": Data,
-    "FAQ": FAQ,
-    "Guidelines": Guidelines,
+        "Guidelines": Guidelines,
     "Help": Help,
     "Home": Home,
     "Insights": Insights,

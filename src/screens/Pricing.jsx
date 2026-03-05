@@ -190,26 +190,6 @@ export default function Pricing() {
           </div>
         </div>
       </section>
-
-      {/* FAQ */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-[#0a1628] mb-8 text-center">Common Questions</h2>
-          <div className="space-y-4">
-            {[
-              { q: "What does 'Verified' actually mean?", a: "Our governance team reviews your business identity, ownership, and cultural connection. A verified badge signals to the community and partners that your record has been independently confirmed." },
-              { q: "Can I upgrade or downgrade my plan?", a: "Yes. You can upgrade at any time from your customer portal. Downgrades take effect at the end of your billing period." },
-              { q: "Is there a fee to submit a free listing?", a: "No. Submitting a basic listing is completely free. Your application goes through admin review before being published." },
-              { q: "What are the business tools?", a: "Featured+ includes a professional Invoice Generator and a QR Code Generator linked to your registry profile — designed for day-to-day Pacific business operations." },
-            ].map((faq, i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all">
-                <h3 className="font-bold text-[#0a1628] text-sm mb-2">{faq.q}</h3>
-                <p className="text-gray-500 text-xs leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

@@ -43,7 +43,7 @@ export default function ApplyListing() {
 
     // Check if handle exists in database
     while (true) {
-      const existing = await pacificMarket.entities.Business.filter({ handle: finalHandle });
+      const existing = await pacificMarket.entities.Business.filter({ shop_handle: finalHandle });
       if (existing.length === 0) break;
       finalHandle = `${baseHandle}-${counter}`;
       counter++;
@@ -195,6 +195,7 @@ export default function ApplyListing() {
   }
 
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20 bg-white";
+  const selectCls = "w-full border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20 bg-white appearance-none";
   const labelCls = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
   return (
@@ -243,7 +244,7 @@ export default function ApplyListing() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>Country *</label>
-                    <select value={form.country} onChange={e => set("country", e.target.value)} className={inputCls}>
+                    <select value={form.country} onChange={e => set("country", e.target.value)} className={selectCls}>
                       <option value="">Select country</option>
                       {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -255,7 +256,7 @@ export default function ApplyListing() {
                 </div>
                 <div>
                   <label className={labelCls}>Industry Category *</label>
-                  <select value={form.category} onChange={e => set("category", e.target.value)} className={inputCls}>
+                  <select value={form.category} onChange={e => set("category", e.target.value)} className={selectCls}>
                     <option value="">Select category</option>
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -375,7 +376,7 @@ export default function ApplyListing() {
             }
             {step < 3
               ? <button onClick={() => setStep(s => s + 1)}
-                  className="flex items-center gap-2 logo-gradient hover:logo-gradient-hover text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm">
+                  className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm">
                   Continue <ChevronRight className="w-4 h-4" />
                 </button>
               : <button

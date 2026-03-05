@@ -40,7 +40,7 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
       {/* Selected items display */}
       <div className="relative">
         <div 
-          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white cursor-text min-h-[42px] flex flex-wrap items-center gap-2"
+          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 pr-8 bg-white cursor-text min-h-[42px] flex flex-wrap items-center gap-2"
           onClick={() => setIsOpen(true)}
         >
           {selectedValues.length === 0 ? (

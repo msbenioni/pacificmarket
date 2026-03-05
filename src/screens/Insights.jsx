@@ -181,32 +181,7 @@ export default function Insights() {
           </div>
         </div>
 
-        <div className={`${UI.card} p-4`}>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold tracking-[0.22em] uppercase text-[#0a1628]/45 mr-2">
-              Snapshot
-            </span>
-            {maxMonth && (
-              <span className={UI.chip}>
-                Biggest month: <span className={UI.chipStrong}>{maxMonth.month}</span> ({maxMonth.count})
-              </span>
-            )}
-            {topCountry && (
-              <span className={UI.chip}>
-                Most represented: <span className={UI.chipStrong}>{topCountry.label}</span> ({topCountry.value})
-              </span>
-            )}
-            {topIdentity && (
-              <span className={UI.chip}>
-                Top identity: <span className={UI.chipStrong}>{topIdentity.label}</span> ({topIdentity.value})
-              </span>
-            )}
-            <span className={UI.chip}>
-              Verification: <span className={UI.chipStrong}>{verified}</span> {verified === 0 ? "(rolling out)" : ""}
-            </span>
-          </div>
-        </div>
-
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className={UI.card}>
             <div className={UI.cardInner}>

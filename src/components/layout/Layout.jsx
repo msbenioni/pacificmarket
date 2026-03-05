@@ -237,7 +237,6 @@ export default function Layout({ children, currentPageName }) {
                 {[
                   ["Contact", "Contact Us"],
                   ["Help", "Help Center"],
-                  ["FAQ", "FAQs"],
                   ["Guidelines", "Community Guidelines"]
                 ].map(([page, label]) => (
                   <li key={page}><Link href={createPageUrl(page)} className="text-gray-400 text-sm hover:text-white transition-colors">{label}</Link></li>
