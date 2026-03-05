@@ -126,6 +126,7 @@ export function ModalContent({ children, className = "" }) {
       className={[
         "px-6 sm:px-8",
         "py-6",
+        "pb-28", // Extra bottom padding for sticky footer breathing room
         "overflow-y-auto",
         "max-h-[calc(90vh-140px)]", // header+footer allowance
         className,
@@ -144,7 +145,7 @@ export function ModalFooter({ children, className = "" }) {
     <div
       className={[
         "sticky bottom-0 z-10",
-        "bg-white/95 backdrop-blur",
+        "bg-white/95 backdrop-blur", // Premium floating effect
         "border-t border-gray-100",
         "px-6 sm:px-8",
         "py-5",

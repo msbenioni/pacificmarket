@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ModalWrapper,
   ModalHeader,
@@ -32,6 +32,7 @@ export function ClaimAddBusinessModal({
   const [view, setView] = useState(defaultView);
   const [submitting, setSubmitting] = useState(false);
   const [pickedBusiness, setPickedBusiness] = useState(null);
+  const [formControls, setFormControls] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -237,6 +238,7 @@ export function ClaimAddBusinessModal({
               showTierSelection={false}
               excludeFields={["claimed", "tier"]}
               initialData={null}
+              onStepChange={setFormControls}
             />
           </div>
         )}
@@ -256,7 +258,13 @@ export function ClaimAddBusinessModal({
           <>
             <button
               type="button"
-              onClick={() => setView("choice")}
+              onClick={() => {
+                if (view === "add" && formControls) {
+                  formControls.prevStep();
+                } else {
+                  setView("choice");
+                }
+              }}
               className={btnSecondary}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -277,9 +285,22 @@ export function ClaimAddBusinessModal({
                 Submit claim
               </button>
             ) : (
-              <button type="button" className={btnPrimary} onClick={() => {}}>
-                {/* Form has its own submit; keep footer consistent */}
-                Continue
+              <button 
+                type="button" 
+                className={btnPrimary}
+                onClick={() => {
+                  if (formControls) {
+                    if (formControls.currentStep === 5) {
+                      // Last step, submit the form
+                      formControls.submit();
+                    } else {
+                      // Go to next step
+                      formControls.nextStep();
+                    }
+                  }
+                }}
+              >
+                {formControls?.currentStep === 5 ? "Create Listing" : "Continue"}
               </button>
             )}
           </>

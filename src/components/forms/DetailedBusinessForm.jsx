@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/constants/businessProfile";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
 import { pacificMarket } from "@/lib/pacificMarketClient";
@@ -13,7 +13,7 @@ const STEPS = [
   { key: "review", label: "Review" },
 ];
 
-export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSelection = false, excludeFields = [], initialData = null }) {
+export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSelection = false, excludeFields = [], initialData = null, onStepChange }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialData || {
     name: "", business_handle: "", country: "", city: "", category: "",
@@ -26,6 +26,41 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
   const [lang, setLang] = useState("");
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
+
+  // Notify parent of step changes
+  const updateStep = (newStep) => {
+    setStep(newStep);
+    if (onStepChange) {
+      onStepChange({
+        currentStep: newStep,
+        canGoNext: () => {
+          if (newStep === 1) return form.name && form.country && form.category;
+          if (newStep === 5) return form.name && form.country && form.category;
+          return true;
+        },
+        nextStep: () => setStep(s => s + 1),
+        prevStep: () => setStep(s => s - 1),
+        submit: () => handleSubmit()
+      });
+    }
+  };
+
+  // Notify parent when step changes
+  useEffect(() => {
+    if (onStepChange) {
+      onStepChange({
+        currentStep: step,
+        canGoNext: () => {
+          if (step === 1) return form.name && form.country && form.category;
+          if (step === 5) return form.name && form.country && form.category;
+          return true;
+        },
+        nextStep: () => setStep(s => s + 1),
+        prevStep: () => setStep(s => s - 1),
+        submit: () => handleSubmit()
+      });
+    }
+  }, [step, form, onStepChange]);
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20 bg-white";
@@ -303,34 +338,6 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, showTierSele
           </div>
         </div>
       )}
-
-      {/* Navigation */}
-      <div className="flex justify-between pt-4 border-t border-gray-100">
-        {step > 1 ? (
-          <button 
-            onClick={() => setStep(s => s - 1)} 
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition"
-          >
-            <ChevronLeft className="w-4 h-4" /> Back
-          </button>
-        ) : <div />}
-        {step < 5 ? (
-          <button 
-            onClick={() => setStep(s => s + 1)} 
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#0a1628] transition"
-          >
-            Continue <ChevronRight className="w-4 h-4" />
-          </button>
-        ) : (
-          <button 
-            onClick={handleSubmit} 
-            disabled={isLoading || !form.name || !form.country || !form.category} 
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-8 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] disabled:opacity-50 transition"
-          >
-            {isLoading ? "Creating..." : "Create Listing"}
-          </button>
-        )}
-      </div>
     </div>
   );
 }
