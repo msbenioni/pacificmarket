@@ -7,7 +7,8 @@ import { AlertCircle } from "lucide-react";
 export default function BusinessSearch({
   onSelect,                 // now means: "picked business"
   onError,
-  placeholder = "Search business name..."
+  placeholder = "Search business name...",
+  showSelectedPreview = true
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState([]);
@@ -104,7 +105,7 @@ export default function BusinessSearch({
         </div>
       )}
 
-      {selectedResult && (
+      {selectedResult && showSelectedPreview && (
         <div className="bg-[#0d4f4f]/5 border border-[#0d4f4f]/20 rounded-xl p-4">
           <p className="font-semibold text-[#0a1628] text-sm">{selectedResult.name}</p>
           <p className="text-gray-600 text-xs mt-1">

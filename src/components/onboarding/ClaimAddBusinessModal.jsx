@@ -46,7 +46,7 @@ export function ClaimAddBusinessModal({
     if (view === "claim")
       return {
         title: "Claim Business",
-        subtitle: "Search for your listing and submit a claim for review.",
+        subtitle: "Find your listing, then submit a claim for verification.",
       };
     if (view === "add")
       return {
@@ -190,7 +190,7 @@ export function ClaimAddBusinessModal({
           <div className="space-y-4">
             <div className="rounded-2xl border border-gray-100 bg-[#f8f9fc] p-5">
               <p className="text-sm text-gray-700">
-                Type your business name. If you find it, select it to submit a claim request.
+                Start typing your business name. Select the right match to request ownership.
               </p>
 
               <div className="mt-4">
@@ -198,6 +198,7 @@ export function ClaimAddBusinessModal({
                   placeholder="Search business name…"
                   onSelect={(business) => setPickedBusiness(business)}
                   onError={() => {}}
+                  showSelectedPreview={false}
                 />
               </div>
             </div>
@@ -217,12 +218,20 @@ export function ClaimAddBusinessModal({
                       {pickedBusiness?.country} · {pickedBusiness?.category}
                     </p>
                     <p className="mt-3 text-xs text-gray-500">
-                      Your claim will be reviewed to keep the registry trustworthy.
+                      Claims are reviewed to protect Pacific businesses and keep the registry trusted.
                     </p>
+
+                    <button
+                      type="button"
+                      className="mt-4 text-sm font-semibold text-[#0d4f4f] hover:underline"
+                      onClick={() => setPickedBusiness(null)}
+                    >
+                      Choose a different business
+                    </button>
                   </div>
 
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-600 border border-gray-200">
-                    Admin review
+                  <span className="rounded-full bg-[#0d4f4f]/10 text-[#0d4f4f] px-3 py-1 text-xs font-semibold border border-[#0d4f4f]/20">
+                    Verification pending
                   </span>
                 </div>
               </div>
