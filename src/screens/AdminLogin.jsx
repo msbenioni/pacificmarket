@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { pacificMarket } from "@/lib/pacificMarketClient";
+import HeroRegistry from "@/components/shared/HeroRegistry";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");

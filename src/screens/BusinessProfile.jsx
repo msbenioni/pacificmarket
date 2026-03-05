@@ -60,16 +60,9 @@ export default function BusinessProfile() {
     }
   };
 
-  const handleClaim = async () => {
-    if (!user) { alert("Please sign in to claim a business."); return; }
-    await pacificMarket.entities.ClaimRequest.create({
-      business_id: business.id,
-      user_id: user.id,
-      user_email: user.email,
-      business_name: business.name,
-      status: "pending"
-    });
-    setClaimSubmitted(true);
+  const handleClaim = () => {
+    // Redirect to onboarding with pre-selected business
+    window.location.href = `${createPageUrl("BusinessOnboarding")}?business=${business.id}&name=${encodeURIComponent(business.name)}`;
   };
 
   const isOwner = user && business?.owner_user_id === user.id;

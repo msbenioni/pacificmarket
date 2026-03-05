@@ -107,14 +107,14 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
               )}
               <Link
-                href={createPageUrl("ApplyListing")}
+                href={createPageUrl("BusinessOnboarding")}
                 className={`text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
                   isTransparent
                     ? "text-white border-white/50 hover:bg-white/10"
                     : "text-[#0d4f4f] border border-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white"
                 }`}
               >
-                Submit a Business
+                Manage My Listing
               </Link>
               {user ? (
                 <div className="relative">
@@ -177,7 +177,7 @@ export default function Layout({ children, currentPageName }) {
             {!user && (
               <Link href={createPageUrl("BusinessLogin")} className="block text-sm font-medium text-gray-600 py-2" onClick={() => setMenuOpen(false)}>Login</Link>
             )}
-            <Link href={createPageUrl("ApplyListing")} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>Submit a Business</Link>
+            <Link href={createPageUrl("BusinessOnboarding")} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>Manage My Listing</Link>
             {user ? (
               <>
                 <Link href={createPageUrl("BusinessPortal")} className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMenuOpen(false)}>My Portal</Link>

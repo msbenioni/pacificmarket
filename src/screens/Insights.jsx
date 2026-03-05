@@ -31,9 +31,10 @@ const UI = {
 
 export default function Insights() {
   const [businesses, setBusinesses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     pacificMarket.entities.Business.filter({ status: BUSINESS_STATUS.ACTIVE }).then(data => {
       setBusinesses(data);
       setLoading(false);
@@ -110,14 +111,6 @@ export default function Insights() {
     null
   );
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#eef0f5] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className={`min-h-screen ${UI.page}`}>
       <HeroRegistry
@@ -133,137 +126,150 @@ export default function Insights() {
           <span className="font-semibold text-[#0a1628]">Scope:</span> Approved & active listings only • Updated in real time • <span className="italic">We are not just listing businesses — we are mapping Pacific economic participation.</span>
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className={`${UI.card} ${UI.cardInner}`}>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-[#0a1628]/55">Enterprises on the map</p>
-              <Building2 className="w-4 h-4 text-[#00c4cc]" />
-            </div>
-            <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{total}</p>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-[#0a1628]/60 mt-2">
               {momPct !== null
                 ? `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta} (${momPct}%)`
                 : `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta}`}
             </p>
           </div>
-
-          <div className={`${UI.card} ${UI.cardInner}`}>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-[#0a1628]/55">Countries with Pacific enterprise</p>
-              <Globe className="w-4 h-4 text-[#00c4cc]" />
-            </div>
-            <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{countries}</p>
-            <p className="text-sm text-[#0a1628]/60 mt-2">
-              {topCountry ? `Most represented: ${topCountry.label} (${topCountry.value})` : "—"}
-            </p>
-          </div>
-
-          <div className={`${UI.card} ${UI.cardInner}`}>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-[#0a1628]/55">Verified enterprises</p>
-              <ShieldCheck className="w-4 h-4 text-[#c9a84c]" />
-            </div>
-            <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{verified}</p>
-            <p className="text-sm text-[#0a1628]/60 mt-2">
-              {verified === 0 ? "Verification is rolling out" : "Verified & active"}
-            </p>
-          </div>
-
-          <div className={`${UI.card} ${UI.cardInner}`}>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-[#0a1628]/55">Distinct cultural identities</p>
-              <Users className="w-4 h-4 text-[#00c4cc]" />
-            </div>
-            <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{identities}</p>
-            <p className="text-sm text-[#0a1628]/60 mt-2">
-              {topIdentity ? `Top identity: ${topIdentity.label} (${topIdentity.value})` : "—"}
-            </p>
-          </div>
-        </div>
-
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className={UI.card}>
-            <div className={UI.cardInner}>
-              <p className={UI.sectionKicker}>Geographic reach</p>
-              <h3 className={UI.sectionTitle}>Pacific enterprise by country</h3>
-              <p className={UI.sectionDesc}>Where Pacific-owned businesses are active — a geographic footprint of the diaspora economy.</p>
-            </div>
-            <div className="px-6 pb-6">
-              <HorizontalBar title="" data={byCountry} color="#00c4cc" maxHeight="360px" />
-            </div>
-          </div>
-
-          <div className={UI.card}>
-            <div className={UI.cardInner}>
-              <p className={UI.sectionKicker}>Cultural representation</p>
-              <h3 className={UI.sectionTitle}>Representation by cultural identity</h3>
-              <p className={UI.sectionDesc}>Self-identified cultural representation — evidence of which Pacific communities are participating in the formal economy.</p>
-            </div>
-            <div className="px-6 pb-6">
-              <HorizontalBar title="" data={byIdentity} color="#c9a84c" />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6">
-          <div className={UI.card}>
-            <div className={UI.cardInner}>
-              <p className={UI.sectionKicker}>Economic participation</p>
-              <h3 className={UI.sectionTitle}>Industry distribution</h3>
-              <p className={UI.sectionDesc}>Which sectors Pacific enterprise is operating in — useful for identifying growth areas, gaps, and investment opportunities.</p>
-            </div>
-            <div className="px-6 pb-6">
-              <HorizontalBar title="" data={byCategory} color="#00aab0" />
-            </div>
-          </div>
-        </div>
-
-        {byLanguages.length > 0 && (
-          <div className={UI.card}>
-            <div className={UI.cardInner}>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className={UI.sectionKicker}>Language retention</p>
-                  <h3 className={UI.sectionTitle}>Languages spoken across the registry</h3>
-                  <p className={UI.sectionDesc}>Language data shows cultural retention inside Pacific enterprise — a signal of diasporic identity and a resource for culturally-aligned partnerships.</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-[#0a1628]/55">Enterprises on the map</p>
+                  <Building2 className="w-4 h-4 text-[#00c4cc]" />
                 </div>
-                <img src="/language_spoken.png" alt="Languages spoken" className="w-[60px] h-[60px]" />
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{total}</p>
+                <p className="text-sm text-[#0a1628]/60 mt-2">
+                  {momPct !== null
+                    ? `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta} (${momPct}%)`
+                    : `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta}`}
+                </p>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-[#0a1628]/55">Countries with Pacific enterprise</p>
+                  <Globe className="w-4 h-4 text-[#00c4cc]" />
+                </div>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{countries}</p>
+                <p className="text-sm text-[#0a1628]/60 mt-2">
+                  {topCountry ? `Most represented: ${topCountry.label} (${topCountry.value})` : "—"}
+                </p>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-[#0a1628]/55">Verified enterprises</p>
+                  <ShieldCheck className="w-4 h-4 text-[#c9a84c]" />
+                </div>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{verified}</p>
+                <p className="text-sm text-[#0a1628]/60 mt-2">
+                  {verified === 0 ? "Verification is rolling out" : "Verified & active"}
+                </p>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-[#0a1628]/55">Distinct cultural identities</p>
+                  <Users className="w-4 h-4 text-[#00c4cc]" />
+                </div>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{identities}</p>
+                <p className="text-sm text-[#0a1628]/60 mt-2">
+                  {topIdentity ? `Top identity: ${topIdentity.label} (${topIdentity.value})` : "—"}
+                </p>
               </div>
             </div>
 
-            <div className="px-6 pb-6 space-y-3">
-              {byLanguages.map((lang, idx) => {
-                const max = byLanguages[0]?.count ?? 1;
-                const pct = Math.round((lang.count / max) * 100);
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className={UI.card}>
+                <div className={UI.cardInner}>
+                  <p className={UI.sectionKicker}>Geographic reach</p>
+                  <h3 className={UI.sectionTitle}>Pacific enterprise by country</h3>
+                  <p className={UI.sectionDesc}>Where Pacific-owned businesses are active — a geographic footprint of the diaspora economy.</p>
+                </div>
+                <div className="px-6 pb-6">
+                  <HorizontalBar title="" data={byCountry} color="#00c4cc" maxHeight="360px" />
+                </div>
+              </div>
 
-                return (
-                  <div key={lang.name} className="rounded-xl border border-gray-200 bg-white px-4 py-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-[#0a1628]/5 text-[#0a1628] flex items-center justify-center text-sm font-semibold">
-                          {idx + 1}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-[#0a1628] truncate">{lang.name}</p>
-                          <div className="mt-2 h-2 rounded-full bg-[#0a1628]/10 overflow-hidden">
-                            <div
-                              className="h-full rounded-full"
-                              style={{ width: `${pct}%`, background: idx % 2 === 0 ? "#00c4cc" : "#c9a84c" }}
-                            />
+              <div className={UI.card}>
+                <div className={UI.cardInner}>
+                  <p className={UI.sectionKicker}>Cultural representation</p>
+                  <h3 className={UI.sectionTitle}>Representation by cultural identity</h3>
+                  <p className={UI.sectionDesc}>Self-identified cultural representation — evidence of which Pacific communities are participating in the formal economy.</p>
+                </div>
+                <div className="px-6 pb-6">
+                  <HorizontalBar title="" data={byIdentity} color="#c9a84c" />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <div className={UI.card}>
+                <div className={UI.cardInner}>
+                  <p className={UI.sectionKicker}>Economic participation</p>
+                  <h3 className={UI.sectionTitle}>Industry distribution</h3>
+                  <p className={UI.sectionDesc}>Which sectors Pacific enterprise is operating in — useful for identifying growth areas, gaps, and investment opportunities.</p>
+                </div>
+                <div className="px-6 pb-6">
+                  <HorizontalBar title="" data={byCategory} color="#00aab0" />
+                </div>
+              </div>
+            </div>
+
+            {byLanguages.length > 0 && (
+              <div className={UI.card}>
+                <div className={UI.cardInner}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className={UI.sectionKicker}>Language retention</p>
+                      <h3 className={UI.sectionTitle}>Languages spoken across the registry</h3>
+                      <p className={UI.sectionDesc}>Language data shows cultural retention inside Pacific enterprise — a signal of diasporic identity and a resource for culturally-aligned partnerships.</p>
+                    </div>
+                    <img src="/language_spoken.png" alt="Languages spoken" className="w-[60px] h-[60px]" />
+                  </div>
+                </div>
+
+                <div className="px-6 pb-6 space-y-3">
+                  {byLanguages.map((lang, idx) => {
+                    const max = byLanguages[0]?.count ?? 1;
+                    const pct = Math.round((lang.count / max) * 100);
+
+                    return (
+                      <div key={lang.name} className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-[#0a1628]/5 text-[#0a1628] flex items-center justify-center text-sm font-semibold">
+                              {idx + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-[#0a1628] truncate">{lang.name}</p>
+                              <div className="mt-2 h-2 rounded-full bg-[#0a1628]/10 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{ width: `${pct}%`, background: idx % 2 === 0 ? "#00c4cc" : "#c9a84c" }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-[#0a1628]">{lang.count}</p>
+                            <p className="text-xs text-[#0a1628]/50">businesses</p>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-[#0a1628]">{lang.count}</p>
-                        <p className="text-xs text-[#0a1628]/50">businesses</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         <div className={`${UI.card} p-6`}>

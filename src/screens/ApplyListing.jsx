@@ -4,7 +4,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { CheckCircle, ChevronRight, ChevronLeft, AlertCircle } from "lucide-react";
 import { COUNTRIES, CATEGORIES, IDENTITIES } from "@/components/formConstants";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
-import HeroRegistry from "@/components/shared/HeroRegistry";
+import HeroRegistry from "../components/shared/HeroRegistry";
 
 const SIMPLE_STEPS = [
   { id: 1, label: "Business Info" },

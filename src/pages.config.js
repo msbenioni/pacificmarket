@@ -56,6 +56,7 @@ import BusinessProfile from './screens/BusinessProfile';
 import Contact from './screens/Contact';
 import Cookies from './screens/Cookies';
 import BusinessLogin from './screens/BusinessLogin';
+import BusinessOnboarding from './screens/BusinessOnboarding';
 import BusinessPortal from './screens/BusinessPortal';
 import Data from './screens/Data';
 import Guidelines from './screens/Guidelines';
@@ -81,6 +82,7 @@ export const PAGES = {
     "Contact": Contact,
     "Cookies": Cookies,
     "BusinessLogin": BusinessLogin,
+    "BusinessOnboarding": BusinessOnboarding,
     "BusinessPortal": BusinessPortal,
     "Data": Data,
         "Guidelines": Guidelines,

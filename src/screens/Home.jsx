@@ -129,9 +129,9 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-white mb-4">Put Your Business on the Map</h2>
               <p className="text-slate-300 mb-8 max-w-xl mx-auto">Every listing strengthens the global map of Pacific enterprise. Submit your business for review and join the first structured registry of Pacific-owned enterprise.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href={createPageUrl("ApplyListing")}
+                <Link href={createPageUrl("BusinessOnboarding")}
                   className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm">
-                  Submit Your Business <ArrowRight className="w-4 h-4" />
+                  Manage My Listing <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link href={createPageUrl("Registry")}
                   className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm">

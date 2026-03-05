@@ -11,7 +11,7 @@ export default function HeroRegistry({
     <div className="bg-[#0a1628] text-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {badge && (
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#00c4cc] mb-2 block pt-4">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[#00c9cc] mb-2 block pt-4">
             {badge}
           </span>
         )}

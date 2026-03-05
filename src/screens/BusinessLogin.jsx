@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { pacificMarket } from "@/lib/pacificMarketClient";
+import HeroRegistry from "@/components/shared/HeroRegistry";
 
 export default function BusinessLogin() {
   const [email, setEmail] = useState("");
@@ -44,38 +45,19 @@ export default function BusinessLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-            <img src="/pm_logo.png" alt="Pacific Market Registry" className="h-12 w-12" />
-            <div className="flex flex-col items-center leading-none text-center">
-              <span className="text-lg font-bold tracking-[0.35em] text-[#0a1628]" style={{ fontFamily: "'Cinzel', serif" }}>
-                PACIFIC
-              </span>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="h-px w-6 bg-[#c9a84c]" />
-                <span className="text-[#c9a84c] text-[0.65rem] font-bold tracking-[0.45em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                  MARKET
-                </span>
-                <span className="h-px w-6 bg-[#c9a84c]" />
-              </div>
-            </div>
-          </Link>
-        </div>
+    <div className="bg-[#f8f9fc] min-h-screen">
+      {/* Hero - using shared component */}
+      <HeroRegistry
+        badge="Business Login"
+        title="Welcome Back"
+        subtitle=""
+        description="Access your business dashboard and manage your Pacific Market listings."
+      />
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-[0_12px_40px_rgba(10,22,40,0.08)] p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#0d4f4f]/10 mx-auto mb-4">
-              <User className="w-6 h-6 text-[#0d4f4f]" />
-            </div>
-            <h2 className="text-2xl font-bold text-[#0a1628] mb-2">Business Login</h2>
-            <p className="text-gray-600 text-sm">Access your business dashboard and manage your listings</p>
-          </div>
-
-          {/* Form */}
+      {/* Login Form */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-md mx-auto">
+          <div className="bg-white border border-gray-100 rounded-2xl p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -89,13 +71,10 @@ export default function BusinessLogin() {
               </div>
             )}
 
-            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                Email Address
-              </label>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
                   required
@@ -107,13 +86,10 @@ export default function BusinessLogin() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type={showPassword ? "text" : "password"}
                   required
@@ -125,42 +101,31 @@ export default function BusinessLogin() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-semibold px-6 py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-semibold px-6 py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Signing in..." : "Sign In"}
-              {!isLoading && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>
 
-          {/* Footer Links */}
-          <div className="mt-8 space-y-4">
-            <div className="text-center">
-              <Link href={createPageUrl("ApplyListing")} className="text-sm text-[#0d4f4f] hover:underline">
-                Don't have an account? Apply for a listing
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Don't have an account?{" "}
+              <Link href={createPageUrl("BusinessOnboarding")} className="text-[#0d4f4f] hover:underline font-medium">
+                Claim or Add Your Business
               </Link>
-            </div>
-            
-            <div className="flex items-center justify-center gap-4 text-sm">
-              <Link href={createPageUrl("AdminLogin")} className="text-gray-500 hover:text-[#0d4f4f] transition-colors">
-                Admin Login
-              </Link>
-              <span className="text-gray-300">•</span>
-              <Link href={createPageUrl("Help")} className="text-gray-500 hover:text-[#0d4f4f] transition-colors">
-                Need Help?
-              </Link>
-            </div>
+            </p>
           </div>
+        </div>
         </div>
       </div>
     </div>
