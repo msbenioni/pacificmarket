@@ -108,7 +108,7 @@ export default function BusinessCard({ business, view = "grid" }) {
         )}
 
         <p className="text-xs text-gray-500 leading-relaxed flex-1 line-clamp-3 mb-3 mt-1">
-          {business.tagline || business.short_description || "Pacific-owned business listed in the Pacific Market Registry."}
+          {business.tagline || business.short_description || "Pacific-owned business listed in the Pacific Market."}
           {business.description && business.description !== business.tagline && business.description !== business.short_description && (
             <>
               <br />

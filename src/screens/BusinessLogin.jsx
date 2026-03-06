@@ -18,6 +18,7 @@ export default function BusinessLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [gdprConsent, setGdprConsent] = useState(false);
   
   // Get initial mode from URL parameter
   const getInitialMode = () => {
@@ -31,6 +32,7 @@ export default function BusinessLogin() {
     setMode(newMode);
     setError("");
     setSuccess("");
+    setGdprConsent(false); // Reset consent when switching modes
     setPassword("");
     setName(""); // Clear name field when switching modes
     
@@ -67,6 +69,13 @@ export default function BusinessLogin() {
     setError("");
     setSuccess("");
 
+    // GDPR consent validation for signup
+    if (mode === "signup" && !gdprConsent) {
+      setError("Please consent to the processing of your personal data under GDPR.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       let result;
       
@@ -78,7 +87,9 @@ export default function BusinessLogin() {
         result = await pacificMarket.auth.signUp(email, password, {
           data: {
             full_name: name,
-            display_name: name
+            display_name: name,
+            gdpr_consent: gdprConsent,
+            gdpr_consent_date: new Date().toISOString()
           }
         });
       }
@@ -203,6 +214,27 @@ export default function BusinessLogin() {
                 </button>
               </div>
             </div>
+
+            {/* GDPR Consent - only show for signup */}
+            {mode === "signup" && (
+              <div className="bg-gray-50 p-4 rounded-xl">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={gdprConsent}
+                    onChange={(e) => setGdprConsent(e.target.checked)}
+                    className="mt-1 rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                    required
+                  />
+                  <span className="text-sm text-gray-600">
+                    I consent to the processing of my personal data for the purpose of creating and managing my account. 
+                    I understand that my data will be processed in accordance with the 
+                    <a href="/Privacy" className="text-[#0d4f4f] hover:underline ml-1">Privacy Policy</a> and that I have 
+                    the right to withdraw this consent at any time.
+                  </span>
+                </label>
+              </div>
+            )}
 
             <button
               type="submit"

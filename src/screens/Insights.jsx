@@ -114,7 +114,7 @@ export default function Insights() {
   return (
     <div className={`min-h-screen ${UI.page}`}>
       <HeroRegistry
-        badge="Pacific Market Registry"
+        badge="Pacific Market"
         title="Economic Map"
         subtitle=""
         description="Pacific Market is building the first structured global registry of Pacific-owned enterprise. This data helps communities understand representation, researchers track entrepreneurial growth, governments identify support gaps, and partners discover Pacific businesses."
@@ -274,7 +274,7 @@ export default function Insights() {
 
         <div className={`${UI.card} p-6`}>
           <p className="text-sm text-[#0a1628]/70">
-            <span className="font-semibold text-[#0a1628]">About this data:</span> These insights reflect <span className="font-semibold text-[#0a1628]">approved & active</span> listings in the Pacific Market Registry — the first structured global dataset of Pacific-owned enterprise. Figures update in real time as new businesses are approved. For research access, bulk data exports, policy enquiries, or methodology questions, contact the registry team.
+            <span className="font-semibold text-[#0a1628]">About this data:</span> These insights reflect <span className="font-semibold text-[#0a1628]">approved & active</span> listings in the Pacific Market — the first structured global dataset of Pacific-owned enterprise. Figures update in real time as new businesses are approved. For research access, bulk data exports, policy enquiries, or methodology questions, contact the registry team.
           </p>
         </div>
       </div>

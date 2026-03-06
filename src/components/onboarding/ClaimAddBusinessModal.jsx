@@ -106,7 +106,7 @@ export function ClaimAddBusinessModal({
     if (view === "add")
       return {
         title: "Add New Business",
-        subtitle: "Create a new listing for the Pacific Market registry.",
+        subtitle: "Create a new listing for the Pacific Market.",
       };
     return {
       title: "Get Started",
@@ -259,7 +259,7 @@ export function ClaimAddBusinessModal({
             <span className="h-2 w-2 rounded-full bg-[#c9a84c]" />
             <span className="h-2 w-2 rounded-full bg-[#0a1628]" />
             <span className="ml-2 text-xs font-semibold text-gray-500">
-              Pacific Market Registry
+              Pacific Market
             </span>
           </div>
           {view !== "choice" && <span className={pill}>{view === "claim" ? "Claim" : view === "claim_details" ? "Details" : "Add"}</span>}

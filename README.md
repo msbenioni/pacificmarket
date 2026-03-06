@@ -1,4 +1,4 @@
-**Welcome to the Pacific Market Registry**
+**Welcome to the Pacific Market**
 
 **About**
 

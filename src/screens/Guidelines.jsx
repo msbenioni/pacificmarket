@@ -8,7 +8,7 @@ export default function Guidelines() {
         badge="Support"
         title="Community Guidelines"
         subtitle=""
-        description="Our standards for maintaining a respectful and valuable Pacific Market Registry community."
+        description="Our standards for maintaining a respectful and valuable Pacific Market community."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -17,7 +17,7 @@ export default function Guidelines() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Upholding Integrity, Respect & Cultural Pride</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market Registry is built on respect, integrity, and cultural responsibility.
+                Pacific Market is built on respect, integrity, and cultural responsibility.
                 These guidelines ensure our registry remains a trusted resource for communities, researchers, partners, and Pacific-owned businesses globally.
               </p>
               <p className="text-gray-600 mb-6">

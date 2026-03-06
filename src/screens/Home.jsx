@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { pacificMarket } from "@/lib/pacificMarketClient";
-import { ArrowRight, CheckCircle, Globe, Shield, Star, BookOpen, Search, Award, ChevronRight } from "lucide-react";
-import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
+import { ArrowRight, CheckCircle, Globe, Shield, Star, BookOpen, Award, ChevronRight } from "lucide-react";
+import { BUSINESS_STATUS } from "@/constants/business";
 import StatsBar from "../components/home/StatsBar";
-import BusinessCard from "../components/registry/BusinessCard";
 import FeaturedSpotlight from "../components/home/FeaturedSpotlight";
 import HeroHomepage from "../components/shared/HeroHomepage";
 
@@ -31,34 +30,47 @@ export default function Home() {
   const values = [
     {
       icon: Shield,
-      title: "Structured Registry",
-      description: "Built like a registry — structured, searchable, and designed to represent Pacific enterprise properly (not just a list of links).",
+      title: "Structured Representation",
+      description:
+        "More than a basic listing — Pacific businesses are presented in a way that feels credible, discoverable, and worthy of the value they bring.",
       color: "text-[#00c4cc]"
     },
     {
       icon: Globe,
-      title: "Global Footprint",
-      description: "A global view of where Pacific-owned businesses are growing — across countries, communities, and industries.",
+      title: "Global Pacific Visibility",
+      description:
+        "From Aotearoa to the wider world, Pacific-owned businesses can be seen as part of a connected global ecosystem of enterprise, service, and innovation.",
       color: "text-[#c9a84c]"
     },
     {
       icon: CheckCircle,
-      title: "Verified Ownership",
-      description: "Verification helps confirm ownership and legitimacy — creating a trusted reference point for communities and partners.",
+      title: "Trust Through Verification",
+      description:
+        "Verified listings help strengthen confidence in ownership, legitimacy, and professionalism — for customers, communities, and future partners.",
       color: "text-[#00c4cc]"
     },
     {
       icon: BookOpen,
-      title: "Cultural Data Layer",
-      description: "Identity, language, and representation captured with cultural care — offering insight that's rarely visible in standard business datasets.",
+      title: "A Living Record of Pacific Enterprise",
+      description:
+        "Pacific identity, language, and origin are captured with care — creating a richer record of who we are, what we build, and how we contribute.",
       color: "text-[#c9a84c]"
     },
   ];
 
   return (
     <div className="bg-[#f8f9fc]">
-      {/* Hero – Pacific expressive, registry-first */}
-      <HeroHomepage />
+      {/* Hero */}
+      <HeroHomepage
+        badge="Global Pacific Registry"
+        title="Our Ancestors Built Economies. We’re Continuing That Legacy."
+        subtitle=""
+        description="Pacific enterprise has always existed — in trade, craftsmanship, service, agriculture, leadership, and exchange. Pacific Market brings that legacy into a modern global registry designed to strengthen representation, visibility, and opportunity for Pacific-owned businesses worldwide."
+        primaryCtaText="List My Business"
+        primaryCtaHref={createPageUrl("BusinessLogin") + "?mode=signup"}
+        secondaryCtaText="Explore the Registry"
+        secondaryCtaHref={createPageUrl("Registry")}
+      />
 
       {/* Stats Bar */}
       <StatsBar />
@@ -66,13 +78,23 @@ export default function Home() {
       {/* Value Blocks */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-[#0a1628] mb-4">More Than a Directory</h2>
-          <p className="text-gray-500 max-w-xl mx-auto">Pacific Market is building the first structured global registry of Pacific-owned enterprise — designed for community visibility today, and research-grade insight over time.</p>
-          <p className="text-xs font-semibold text-[#0a1628]/60 mt-3">Built Pacific-led. Designed for visibility. Trusted for research.</p>
+          <h2 className="text-3xl font-bold text-[#0a1628] mb-4">
+            Built to Represent Pacific Enterprise Properly
+          </h2>
+          <p className="text-gray-500 max-w-2xl mx-auto">
+            Pacific Market is more than a place to drop a business name. It is a structured registry designed to show the depth, legitimacy, and reach of Pacific-owned businesses across industries, countries, and communities.
+          </p>
+          <p className="text-xs font-semibold text-[#0a1628]/60 mt-3">
+            Built Pacific-led. Designed for visibility. Shaped for long-term impact.
+          </p>
         </div>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {values.map((v, i) => (
-            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-[0_10px_30px_rgba(10,22,40,0.08)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.12)] transition-all group">
+            <div
+              key={i}
+              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-[0_10px_30px_rgba(10,22,40,0.08)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.12)] transition-all group"
+            >
               <div className="w-11 h-11 rounded-xl bg-gradient-to-b from-[#0a1628] to-[#07101d] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <v.icon className={`w-5 h-5 ${v.color}`} />
               </div>
@@ -81,17 +103,16 @@ export default function Home() {
             </div>
           ))}
         </div>
-        
-        {/* Used for pills */}
-        <div className="flex justify-center gap-4 mt-8">
+
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
           <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
-            Community visibility
+            Pacific pride in business
           </span>
           <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
-            Supplier discovery
+            Global discoverability
           </span>
           <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
-            Research & policy insight
+            Long-term economic visibility
           </span>
         </div>
       </section>
@@ -104,14 +125,26 @@ export default function Home() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Star className="w-4 h-4 text-[#c9a84c]" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#c9a84c]">Featured Businesses</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#c9a84c]">
+                    Featured Businesses
+                  </span>
                 </div>
-                <h2 className="text-2xl font-bold text-[#0a1628]">Registry Spotlight</h2>
+                <h2 className="text-2xl font-bold text-[#0a1628]">
+                  Pacific Businesses Leading with Visibility
+                </h2>
+                <p className="text-sm text-gray-500 mt-2 max-w-xl">
+                  These businesses are showing what strong Pacific representation looks like — visible, branded, and easy to discover.
+                </p>
               </div>
-              <Link href={createPageUrl("Registry")} className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all">
+
+              <Link
+                href={createPageUrl("Registry")}
+                className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all"
+              >
                 View all <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
+
             <FeaturedSpotlight businesses={featured} />
           </div>
         </section>
@@ -124,18 +157,29 @@ export default function Home() {
             <div className="absolute inset-0 opacity-15 pointer-events-none">
               <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-[#c9a84c] blur-3xl" />
             </div>
+
             <div className="relative">
               <Award className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-white mb-4">Put Your Business on the Map</h2>
-              <p className="text-slate-300 mb-8 max-w-xl mx-auto">Every listing strengthens the global map of Pacific enterprise. Submit your business for review and join the first structured registry of Pacific-owned enterprise.</p>
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Represent Your Business with Pride
+              </h2>
+              <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
+                Every business added to Pacific Market strengthens how Pacific enterprise is seen by the world. Join the registry, build your visibility, and help show that Pacific people are not only rich in culture — we are rich in capability, enterprise, and ambition too.
+              </p>
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href={createPageUrl("BusinessOnboarding")}
-                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm">
-                  Manage My Listing <ArrowRight className="w-4 h-4" />
+                <Link
+                  href={createPageUrl("BusinessLogin") + "?mode=signup"}
+                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm"
+                >
+                  List My Business <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link href={createPageUrl("Registry")}
-                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm">
-                  Search the Registry
+
+                <Link
+                  href={createPageUrl("Registry")}
+                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm"
+                >
+                  Explore the Registry
                 </Link>
               </div>
             </div>

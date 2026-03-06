@@ -63,7 +63,7 @@ export default function AdminLogin() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-            <img src="/pm_logo.png" alt="Pacific Market Registry" className="h-12 w-12" />
+            <img src="/pm_logo.png" alt="Pacific Market" className="h-12 w-12" />
             <div className="flex flex-col items-center leading-none text-center">
               <span className="text-lg font-bold tracking-[0.35em] text-[#0a1628]" style={{ fontFamily: "'Cinzel', serif" }}>
                 PACIFIC

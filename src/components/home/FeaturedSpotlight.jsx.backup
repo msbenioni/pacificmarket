@@ -214,7 +214,7 @@ function SpotlightCard({ business, isCenter }) {
 
           {isCenter && (
             <p className="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-4">
-              {business.short_description || business.description || "Pacific-owned enterprise in the Pacific Market Registry."}
+              {business.short_description || business.description || "Pacific-owned enterprise in the Pacific Market."}
             </p>
           )}
 

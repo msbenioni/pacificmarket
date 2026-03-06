@@ -191,7 +191,7 @@ export default function InvoiceGenerator() {
                 )}
 
                 <div className="mt-8 pt-4 border-t border-gray-50 text-center">
-                  <p className="text-xs text-gray-300">Pacific Market Registry · pacific-market.com</p>
+                  <p className="text-xs text-gray-300">Pacific Market · pacific-market.com</p>
                 </div>
               </div>
             </div>

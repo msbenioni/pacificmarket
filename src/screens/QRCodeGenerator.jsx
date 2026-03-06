@@ -188,7 +188,7 @@ export default function QRCodeGenerator() {
 
             <div className="mt-4 bg-[#0a1628]/5 border border-[#0a1628]/10 rounded-xl p-4 text-xs text-gray-500 w-full">
               <p className="font-semibold text-[#0a1628] mb-1">About QR Codes</p>
-              <p>Use QR codes on business cards, signage, packaging, or promotional materials to link customers directly to your Pacific Market Registry profile.</p>
+              <p>Use QR codes on business cards, signage, packaging, or promotional materials to link customers directly to your Pacific Market profile.</p>
             </div>
           </div>
         </div>

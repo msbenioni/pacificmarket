@@ -8,7 +8,7 @@ export default function Privacy() {
         badge="Legal"
         title="Privacy Policy"
         subtitle=""
-        description="How we collect, use, and protect your information on Pacific Market Registry."
+        description="How we collect, use, and protect your information on Pacific Market."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">

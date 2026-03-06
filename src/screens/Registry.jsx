@@ -56,7 +56,7 @@ export default function Registry() {
     <div className="min-h-screen bg-[#f8f9fc]">
       {/* Hero — scrolls away with the page */}
       <HeroRegistry
-        badge="Pacific Market Registry"
+        badge="Pacific Market"
         title="Business Registry"
         subtitle={loading ? "Loading..." : `${businesses.length} business${businesses.length !== 1 ? "es" : ""} registered`}
         description=""

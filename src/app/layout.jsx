@@ -4,7 +4,7 @@ import { HydrationErrorSuppressor } from "@/components/shared/HydrationErrorSupp
 
 export const metadata = {
   title: "Pacific Market",
-  description: "Pacific Market Registry",
+  description: "Pacific Market",
   icons: {
     icon: "/pm_favicon.png",
   },

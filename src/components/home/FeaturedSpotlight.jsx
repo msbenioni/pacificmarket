@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft } from "lucide-react";
+import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Phone, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
+import ContactModal from "@/components/profile/ContactModal";
 
 const WINDOW_SIZE = 6;
 
@@ -16,6 +17,44 @@ function clampText(s, max = 140) {
   if (!s) return "";
   const clean = String(s).replace(/\s+/g, " ").trim();
   return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
+}
+
+function getSocialLinks(business) {
+  const socials = [
+    { icon: Globe, label: "Website", value: business.website, href: business.website },
+    { icon: Instagram, label: "Instagram", value: business.instagram, href: `https://instagram.com/${business.instagram?.replace("@", "")}` },
+    { icon: Facebook, label: "Facebook", value: business.facebook, href: business.facebook },
+    { icon: Linkedin, label: "LinkedIn", value: business.linkedin, href: business.linkedin },
+    { icon: Video, label: "TikTok", value: business.tiktok, href: business.tiktok },
+    { icon: Twitter, label: "Twitter", value: business.twitter, href: business.twitter },
+    { icon: Youtube, label: "YouTube", value: business.youtube, href: business.youtube },
+  ].filter(s => s.value);
+
+  const socialLinks = business.social_links && typeof business.social_links === "object"
+    ? Object.entries(business.social_links)
+        .filter(([, value]) => value)
+        .map(([platform, value]) => {
+          let icon = Globe;
+          const platformLower = platform.toLowerCase();
+          
+          if (platformLower.includes('instagram')) icon = Instagram;
+          else if (platformLower.includes('facebook')) icon = Facebook;
+          else if (platformLower.includes('linkedin') || platformLower.includes('linked-in')) icon = Linkedin;
+          else if (platformLower.includes('twitter') || platformLower.includes('x')) icon = Twitter;
+          else if (platformLower.includes('youtube') || platformLower.includes('you-tube')) icon = Youtube;
+          else if (platformLower.includes('tiktok') || platformLower.includes('tic-toc')) icon = Video;
+          else if (platformLower.includes('website') || platformLower.includes('web')) icon = Globe;
+          
+          return {
+            icon,
+            label: platform.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+            value,
+            href: value,
+          };
+        })
+    : [];
+
+  return [...socials, ...socialLinks];
 }
 
 function FeaturedBadge({ tier }) {
@@ -128,156 +167,197 @@ function BusinessMiniCard({ b, active, onSelect }) {
 }
 
 function SpotlightPanel({ b, index, total, onPrev, onNext }) {
+  const [showContact, setShowContact] = useState(false);
+  const socialLinks = getSocialLinks(b);
+
   // key forces clean fade/scale on change
   return (
-    <div
-      key={b?.id || b?.business_handle || index}
-      className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0a1628] h-full flex flex-col animate-fadeIn"
-      style={{ transformOrigin: "center" }}
-    >
-      {/* Premium glow */}
-      <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#00c4cc]/20 blur-3xl" />
-      <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a84c]/15 blur-3xl" />
+    <>
+      <div
+        key={b?.id || b?.business_handle || index}
+        className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0a1628] h-full flex flex-col animate-fadeIn"
+        style={{ transformOrigin: "center" }}
+      >
+        {/* Premium glow */}
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#00c4cc]/20 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a84c]/15 blur-3xl" />
 
-      {/* Banner */}
-      <div className="relative h-[220px] sm:h-[260px] overflow-hidden bg-[#0a1628]">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
+        {/* Banner */}
+        <div className="relative h-[220px] sm:h-[260px] overflow-hidden bg-[#0a1628]">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
-        {b?.banner_url && (
-          <img
-            src={b.banner_url}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: "center top" }}
-          />
-        )}
+          {b?.banner_url && (
+            <img
+              src={b.banner_url}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ objectPosition: "center top" }}
+            />
+          )}
 
-        {/* Spotlight chevrons */}
-        <button
-          type="button"
-          onClick={onPrev}
-          aria-label="Previous featured business"
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20
+          {/* Spotlight chevrons */}
+          <button
+            type="button"
+            onClick={onPrev}
+            aria-label="Previous featured business"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20
                      w-11 h-11 rounded-full
                      bg-white/10 hover:bg-white/15
                      border border-white/15
                      backdrop-blur-md
                      flex items-center justify-center
                      text-white transition"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
 
-        <button
-          type="button"
-          onClick={onNext}
-          aria-label="Next featured business"
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20
+          <button
+            type="button"
+            onClick={onNext}
+            aria-label="Next featured business"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20
                      w-11 h-11 rounded-full
                      bg-white/10 hover:bg-white/15
                      border border-white/15
                      backdrop-blur-md
                      flex items-center justify-center
                      text-white transition"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
 
-        <div className="absolute top-5 left-5 flex items-center gap-3">
-          <FeaturedBadge tier={b?.subscription_tier || b?.tier} />
-          <div className="text-[11px] text-white/70 font-semibold">
-            {index + 1} / {total}
+          <div className="absolute top-5 left-5 flex items-center gap-3">
+            <FeaturedBadge tier={b?.subscription_tier || b?.tier} />
+            <div className="text-[11px] text-white/70 font-semibold">
+              {index + 1} / {total}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Body */}
-      <div className="p-6 sm:p-7 flex-1 flex flex-col">
-        {/* Logo positioned on top of banner */}
-        <div className="relative -mt-12 mb-4">
-          <div className="w-20 h-20 rounded-3xl border-3 border-white/80 shadow-2xl overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
-            {b?.logo_url ? (
-              <img src={b.logo_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />
+        {/* Body */}
+        <div className="p-6 sm:p-7 flex-1 flex flex-col">
+          {/* Logo positioned on top of banner */}
+          <div className="relative -mt-12 mb-4">
+            <div className="w-20 h-20 rounded-3xl border-3 border-white/80 shadow-2xl overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
+              {b?.logo_url ? (
+                <img src={b.logo_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-white font-black text-xl sm:text-2xl leading-tight">
+                  {b?.name}
+                </h3>
+                {b?.verified && (
+                  <div className="inline-flex items-center gap-1 rounded-full bg-white/10 text-white px-3 py-1 text-xs font-bold border border-white/10">
+                    <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
+                    Verified
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/75">
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="w-4 h-4" />
+                  {b?.city ? `${b.city}, ` : ""}{b?.country}
+                </span>
+                {b?.industry && (
+                  <span className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg">
+                    {b.industry}
+                  </span>
+                )}
+                {b?.cultural_identity && (
+                  <span className="text-xs bg-[#00c4cc]/10 border border-[#00c4cc]/20 text-white px-2 py-1 rounded-lg">
+                    {b.cultural_identity}
+                  </span>
+                )}
+              </div>
+
+              {(b?.short_description || b?.description) && (
+              <div className="mt-4 space-y-3 flex-1">
+                {b?.short_description && (
+                  <p className="text-sm sm:text-[15px] leading-relaxed text-white/90 font-medium">
+                    {b.short_description}
+                  </p>
+                )}
+                {b?.description && b?.description !== b?.short_description && (
+                  <p className="text-sm sm:text-[15px] leading-relaxed text-white/80">
+                    {clampText(b.description, 300)}
+                  </p>
+                )}
+              </div>
             )}
-          </div>
-        </div>
 
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-white font-black text-xl sm:text-2xl leading-tight">
-                {b?.name}
-              </h3>
-              {b?.verified && (
-                <div className="inline-flex items-center gap-1 rounded-full bg-white/10 text-white px-3 py-1 text-xs font-bold border border-white/10">
-                  <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
-                  Verified
+            {!b?.short_description && !b?.description && (
+              <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-white/80 flex-1">
+                Featured Pacific-owned business in the Pacific Market.
+              </p>
+            )}
+
+              {/* Social Links */}
+              {socialLinks.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs text-white/60 font-semibold uppercase tracking-wider mb-2">Connect</p>
+                  <div className="flex flex-wrap gap-2">
+                    {socialLinks.slice(0, 4).map((social, idx) => (
+                      <a
+                        key={idx}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-lg transition-colors"
+                        title={social.label}
+                      >
+                        <social.icon className="w-3.5 h-3.5 text-white/80" />
+                        <span className="text-xs text-white/80">{social.label}</span>
+                      </a>
+                    ))}
+                    {socialLinks.length > 4 && (
+                      <span className="inline-flex items-center px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+                        <span className="text-xs text-white/60">+{socialLinks.length - 4} more</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
-            </div>
 
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/75">
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
-                {b?.city ? `${b.city}, ` : ""}{b?.country}
-              </span>
-              {b?.industry && (
-                <span className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg">
-                  {b.industry}
-                </span>
-              )}
-              {b?.cultural_identity && (
-                <span className="text-xs bg-[#00c4cc]/10 border border-[#00c4cc]/20 text-white px-2 py-1 rounded-lg">
-                  {b.cultural_identity}
-                </span>
-              )}
-            </div>
+              <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href={createPageUrl("BusinessProfile") + `?handle=${b?.business_handle || b?.id}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-extrabold px-5 py-3 transition-all"
+                >
+                  View Profile <ChevronRight className="w-4 h-4" />
+                </Link>
 
-            {(b?.short_description || b?.description) && (
-            <div className="mt-4 space-y-3 flex-1">
-              {b?.short_description && (
-                <p className="text-sm sm:text-[15px] leading-relaxed text-white/90 font-medium">
-                  {b.short_description}
-                </p>
-              )}
-              {b?.description && b?.description !== b?.short_description && (
-                <p className="text-sm sm:text-[15px] leading-relaxed text-white/80">
-                  {clampText(b.description, 300)}
-                </p>
-              )}
-            </div>
-          )}
-
-          {!b?.short_description && !b?.description && (
-            <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-white/80 flex-1">
-              Featured Pacific-owned business in the Pacific Market Registry.
-            </p>
-          )}
-
-            <div className="mt-5 flex flex-col sm:flex-row gap-3">
-              <Link
-                href={createPageUrl("BusinessProfile") + `?handle=${b?.business_handle || b?.id}`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-extrabold px-5 py-3 transition-all"
-              >
-                View Profile <ChevronRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                href={createPageUrl("Registry")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 text-white hover:bg-white/10 font-semibold px-5 py-3 transition-all"
-              >
-                Explore Registry
-              </Link>
+                <button
+                  onClick={() => setShowContact(true)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 text-white hover:bg-white/10 font-semibold px-8 py-3 transition-all"
+                >
+                  <Mail className="w-4 h-4" />
+                  Contact
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Subtle footer line */}
-        <div className="mt-6 h-px w-full bg-gradient-to-r from-white/0 via-white/15 to-white/0" />
+          {/* Subtle footer line */}
+          <div className="mt-6 h-px w-full bg-gradient-to-r from-white/0 via-white/15 to-white/0" />
+        </div>
       </div>
-    </div>
+
+      {/* Contact Modal */}
+      {showContact && (
+        <ContactModal 
+          business={b} 
+          onClose={() => setShowContact(false)} 
+        />
+      )}
+    </>
   );
 }
 

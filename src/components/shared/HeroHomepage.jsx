@@ -4,7 +4,16 @@ import { Search, CheckCircle } from "lucide-react";
 import BusinessSearch from "@/components/BusinessSearch";
 import { useState } from "react";
 
-export default function HeroHomepage() {
+export default function HeroHomepage({
+  badge = "Global Pacific Registry",
+  title = "Our Ancestors Built Economies. We're Continuing That Legacy.",
+  subtitle = "",
+  description = "Pacific enterprise has always existed — in trade, craftsmanship, service, agriculture, leadership, and exchange. Pacific Market brings that legacy into a modern global registry designed to strengthen representation, visibility, and opportunity for Pacific-owned businesses worldwide.",
+  primaryCtaText = "List My Business",
+  primaryCtaHref = createPageUrl("BusinessLogin") + "?mode=signup",
+  secondaryCtaText = "Explore the Registry",
+  secondaryCtaHref = createPageUrl("Registry")
+}) {
   const [selectedBusiness, setSelectedBusiness] = useState(null);
 
   const handleBusinessSelect = (business) => {
@@ -35,22 +44,42 @@ export default function HeroHomepage() {
             <div className="inline-flex items-center gap-2 bg-white/90 border border-white/40 rounded-full px-3 py-1.5 shadow-sm backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
               <span className="text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
-                The First Global Registry of Pacific-Owned Enterprise
+                {badge}
               </span>
             </div>
 
             <div className="mt-5 bg-[#0a1628]/62 backdrop-blur-md border border-white/10 rounded-2xl p-7 shadow-xl">
               <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-[1.02]">
-                The Economic Map of{" "}
-                <span className="text-[#00c4cc]">Pacific-Owned</span>{" "}
-                <span className="text-[#c9a84c]">Enterprise</span>
+                {title}
               </h1>
+
+              {subtitle && (
+                <h2 className="mt-3 text-xl sm:text-2xl font-semibold text-white/90">
+                  {subtitle}
+                </h2>
+              )}
 
               <div className="mt-4 h-[3px] w-44 rounded-full bg-gradient-to-r from-[#00c4cc] via-[#c9a84c] to-transparent" />
 
               <p className="mt-4 text-base sm:text-lg text-white/90">
-                A structured, verified registry of Pacific-owned businesses — built for communities, researchers, policymakers, and partners who need trusted data on Pacific enterprise globally.
+                {description}
               </p>
+
+              {/* CTAs */}
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <a
+                  href={primaryCtaHref}
+                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 rounded-xl transition-all text-sm"
+                >
+                  {primaryCtaText} <ChevronRight className="w-4 h-4" />
+                </a>
+                <a
+                  href={secondaryCtaHref}
+                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-6 py-3 rounded-xl transition-all text-sm"
+                >
+                  {secondaryCtaText}
+                </a>
+              </div>
             </div>
           </div>
 

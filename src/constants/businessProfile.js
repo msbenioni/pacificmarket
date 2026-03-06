@@ -1,5 +1,5 @@
 // Business Profile Setup Configuration
-// Enterprise-focused profile for Pacific Market registry
+// Enterprise-focused profile for Pacific Market
 
 export const BUSINESS_PROFILE_STEPS = [
   {
@@ -582,7 +582,7 @@ export const BUSINESS_PROFILE_COMPLETION_TIME = '3–4 minutes';
 export const BUSINESS_PROFILE_DESCRIPTION = {
   title: 'Business Profile Setup',
   subtitle: 'Tell us about your enterprise',
-  description: 'This 5-step process helps us showcase your business in the Pacific Market registry and provide valuable economic insights. The final step captures private data for research purposes only.',
+  description: 'This 5-step process helps us showcase your business in the Pacific Market and provide valuable economic insights. The final step captures private data for research purposes only.',
   estimatedTime: BUSINESS_PROFILE_COMPLETION_TIME,
   totalFields: '15–20'
 };

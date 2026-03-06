@@ -8,7 +8,7 @@ export default function Cookies() {
         badge="Legal"
         title="Cookie Policy"
         subtitle=""
-        description="How we use cookies and similar technologies on Pacific Market Registry."
+        description="How we use cookies and similar technologies on Pacific Market."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">

@@ -8,7 +8,7 @@ export default function Accessibility() {
         badge="Legal"
         title="Accessibility"
         subtitle=""
-        description="Our commitment to making Pacific Market Registry accessible to everyone."
+        description="Our commitment to making Pacific Market accessible to everyone."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -17,7 +17,7 @@ export default function Accessibility() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Our Accessibility Commitment</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market Registry is committed to ensuring digital accessibility for people with disabilities. 
+                Pacific Market is committed to ensuring digital accessibility for people with disabilities. 
                 We strive to continually improve the user experience for everyone and apply the relevant 
                 accessibility standards.
               </p>

@@ -284,7 +284,7 @@ export default function Contact() {
                             className="mt-1 rounded"
                           />
                           <span className="text-sm text-gray-600">
-                            I agree to receive marketing communications and updates about Pacific Market Registry. 
+                            I agree to receive marketing communications and updates about Pacific Market. 
                             (Optional - you can unsubscribe at any time)
                           </span>
                         </label>

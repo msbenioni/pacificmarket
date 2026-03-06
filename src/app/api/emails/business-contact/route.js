@@ -23,7 +23,7 @@ export async function POST(request) {
               <h2 style="color: #0a1628; margin-bottom: 20px;">New Contact Request</h2>
               
               <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-                Someone is interested in your business, <strong>${business.name}</strong>, and has requested your contact information through the Pacific Market registry.
+                Someone is interested in your business, <strong>${business.name}</strong>, and has requested your contact information through the Pacific Market.
               </p>
               
               <div style="background: #f8f9fc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">

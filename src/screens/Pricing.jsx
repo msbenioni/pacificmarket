@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { CheckCircle, X, Star, Shield, Zap, ArrowRight } from "lucide-react";
-import ChevronStrip from "../components/home/ChevronStrip";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import { CheckCircle, X, Star, Shield, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { pacificMarket } from "@/lib/pacificMarketClient";
+import HeroRegistry from "../components/shared/HeroRegistry";
 
 const plans = [
   {
@@ -14,13 +13,15 @@ const plans = [
     name: "Basic Listing",
     price: "Free",
     period: "",
-    description: "List with pride — represent your island, your people, and your craft. Join the registry and help grow Pacific visibility worldwide.",
-    bestFor: "Identity-first visibility (Free)",
+    description:
+      "Stand proudly in the registry and represent your business, your people, and your place in Pacific enterprise. A free way to be counted and discovered.",
+    bestFor: "First-step visibility and Pacific representation",
     color: "border-gray-200",
     headerBg: "bg-gray-50",
     badge: null,
-    cta: "Get Listed Free",
-    ctaClass: "bg-white border-2 border-[#0a1628] text-[#0a1628] hover:bg-[#0a1628] hover:text-white",
+    cta: "List My Business",
+    ctaClass:
+      "bg-white border-2 border-[#0a1628] text-[#0a1628] hover:bg-[#0a1628] hover:text-white",
     features: [
       { label: "Basic registry listing", included: true },
       { label: "Business name, country & category", included: true },
@@ -40,21 +41,23 @@ const plans = [
     name: "Verified",
     price: "$9",
     period: "/month",
-    description: "A verified business identity with your logo and banner image — plus login access so you can update anytime.",
-    bestFor: "Trusted identity ($9/mo)",
+    description:
+      "Build trust with a more complete and professional presence — including your logo, banner image, full profile, and verification badge.",
+    bestFor: "Businesses ready to look established and credible",
     color: "border-[#0d4f4f]",
     headerBg: "bg-[#0d4f4f]",
     badge: null,
-    cta: "Get Verified",
+    cta: "Upgrade to Verified",
     ctaClass: "bg-[#0d4f4f] text-white hover:bg-[#1a6b6b]",
     icon: Shield,
     identity: [
       { title: "Logo upload", desc: "Upload 1 logo to brand your listing." },
-      { title: "Banner image", desc: "Upload 1 banner image for a premium profile." },
+      { title: "Banner image", desc: "Upload 1 banner image for a stronger, more professional presence." },
     ],
-    includesLabel: "Everything in Basic",
+    includesLabel: "Everything in Basic, plus",
     adds: [
-      "Logo & banner upload (1 each)",
+      "Logo upload",
+      "Banner image",
       "Full business profile",
       "Verified badge",
       "Priority search placement",
@@ -78,22 +81,23 @@ const plans = [
     name: "Featured+",
     price: "$29",
     period: "/month",
-    description: "Maximum visibility plus included business tools — invoices and QR codes to help you sell faster.",
-    bestFor: "Premium growth + tools ($29/mo)",
+    description:
+      "For businesses ready to lead with visibility — including premium placement, practical tools, and a stronger public presence across Pacific Market.",
+    bestFor: "Businesses ready to grow visibility and sales",
     color: "border-[#c9a84c]",
     headerBg: "bg-gradient-to-br from-[#c9a84c] to-[#b8973b]",
     badge: "Most Popular",
-    cta: "Go Featured+",
+    cta: "Upgrade to Featured+",
     ctaClass: "bg-[#c9a84c] text-[#0a1628] hover:bg-[#b8973b]",
     icon: Star,
     apps: [
-      { title: "Invoice Generator", desc: "Create invoices in seconds for customers." },
-      { title: "QR Code Generator", desc: "Share a scannable link at markets & online." },
+      { title: "Invoice Generator", desc: "Create invoices quickly and professionally for customers." },
+      { title: "QR Code Generator", desc: "Share a scannable business link at markets, events, and online." },
     ],
-    includesLabel: "Everything in Verified",
+    includesLabel: "Everything in Verified, plus",
     adds: [
-      "Invoice Generator (app)",
-      "QR Code Generator (app)",
+      "Invoice Generator",
+      "QR Code Generator",
       "Homepage Spotlight",
     ],
     features: [
@@ -130,25 +134,24 @@ export default function Pricing() {
         setPageLoading(false);
       }
     };
-    
+
     checkAuth();
   }, []);
 
   const handleUpgrade = async (tier) => {
     if (!user) {
-      // Redirect to signup for free, login for paid plans
-      if (tier === 'free') {
-        window.location.href = createPageUrl('SignUp');
+      if (tier === "free") {
+        window.location.href = createPageUrl("SignUp");
       } else {
-        window.location.href = createPageUrl('Login');
+        window.location.href = createPageUrl("Login");
       }
       return;
     }
-    
+
     setProcessingPlan(tier);
-    
+
     try {
-      if (tier === 'free') {
+      if (tier === "free") {
         setShowModal(true);
       } else {
         await createCheckoutSession({ tier });
@@ -171,9 +174,9 @@ export default function Pricing() {
       {/* Hero */}
       <HeroRegistry
         badge="Pricing"
-        title="Invest in Your Pacific Business Identity"
+        title="Choose How You Want Your Business Represented"
         subtitle=""
-        description="Start free, upgrade when ready. Verified builds trust with a complete branded profile. Featured+ adds tools that help you sell and scale."
+        description="Start with a free listing to stand proudly in the registry. Upgrade to Verified for a stronger branded presence, or choose Featured+ for premium visibility and practical business tools."
       />
 
       {/* Plans */}
@@ -184,11 +187,10 @@ export default function Pricing() {
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
-          
+
           <div className="grid md:grid-cols-3 gap-6 items-stretch">
-            {plans.map(plan => (
+            {plans.map((plan) => (
               <div key={plan.id} className="relative pt-4">
-                {/* Badge sits above the card */}
                 {plan.badge && (
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
                     <span className="bg-[#c9a84c] text-[#0a1628] text-xs font-bold px-4 py-1 rounded-full shadow">
@@ -197,34 +199,63 @@ export default function Pricing() {
                   </div>
                 )}
 
-                <div className={`bg-white border-2 rounded-2xl overflow-hidden transition-all flex flex-col h-full
-                shadow-md hover:shadow-xl hover:-translate-y-1
-                ${plan.id === "featured_plus" ? "ring-2 ring-[#c9a84c]/40" : ""}
-                ${plan.color}`}>
+                <div
+                  className={`bg-white border-2 rounded-2xl overflow-hidden transition-all flex flex-col h-full
+                  shadow-md hover:shadow-xl hover:-translate-y-1
+                  ${plan.id === "featured_plus" ? "ring-2 ring-[#c9a84c]/40" : ""}
+                  ${plan.color}`}
+                >
                   {/* Header */}
                   <div className={`${plan.headerBg} p-6`}>
                     <div className="flex items-center gap-2 mb-2">
-                      {plan.icon && <plan.icon className={`w-5 h-5 ${plan.id === "featured_plus" ? "text-[#0a1628]" : "text-[#00c4cc]"}`} />}
-                      <span className={`font-bold text-sm ${
-                        plan.id === "free" ? "text-[#0a1628]"
-                        : plan.id === "featured_plus" ? "text-[#0a1628]"
-                        : "text-white"
-                      }`}>{plan.name}</span>
+                      {plan.icon && (
+                        <plan.icon
+                          className={`w-5 h-5 ${
+                            plan.id === "featured_plus" ? "text-[#0a1628]" : "text-[#00c4cc]"
+                          }`}
+                        />
+                      )}
+                      <span
+                        className={`font-bold text-sm ${
+                          plan.id === "free"
+                            ? "text-[#0a1628]"
+                            : plan.id === "featured_plus"
+                            ? "text-[#0a1628]"
+                            : "text-white"
+                        }`}
+                      >
+                        {plan.name}
+                      </span>
                     </div>
+
                     <div className="flex items-baseline gap-1">
-                      <span className={`text-4xl font-black ${
-                        plan.id === "free" ? "text-[#0a1628]"
-                        : plan.id === "featured_plus" ? "text-[#0a1628]"
-                        : "text-white"
-                      }`}>{plan.price}</span>
-                      {plan.period && <span className={`text-sm ${plan.id === "featured_plus" ? "text-[#0a1628]/70" : "text-white/70"}`}>{plan.period}</span>}
+                      <span
+                        className={`text-4xl font-black ${
+                          plan.id === "free"
+                            ? "text-[#0a1628]"
+                            : plan.id === "featured_plus"
+                            ? "text-[#0a1628]"
+                            : "text-white"
+                        }`}
+                      >
+                        {plan.price}
+                      </span>
+                      {plan.period && (
+                        <span
+                          className={`text-sm ${
+                            plan.id === "featured_plus" ? "text-[#0a1628]/70" : "text-white/70"
+                          }`}
+                        >
+                          {plan.period}
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Body — grows to fill height */}
+                  {/* Body */}
                   <div className="p-6 flex flex-col flex-1">
                     <p className="text-gray-500 text-xs leading-relaxed mb-4">{plan.description}</p>
-                    
+
                     {plan.bestFor && (
                       <div className="text-xs text-gray-600 mb-6">
                         <span className="font-semibold">Best for:</span> {plan.bestFor}
@@ -233,11 +264,11 @@ export default function Pricing() {
 
                     {plan.id === "free" && (
                       <div className="text-[11px] text-gray-500 leading-relaxed -mt-3 mb-6">
-                        Every listing strengthens Pacific representation and makes our businesses easier to find and support.
+                        Every listing helps show the world that Pacific business is active, valuable, and growing.
                       </div>
                     )}
 
-                    {/* Premium blocks */}
+                    {/* Identity block */}
                     {plan.identity?.length ? (
                       <div className="mb-5 rounded-xl border border-[#00c4cc]/25 bg-[#00c4cc]/5 p-4">
                         <div className="flex items-center justify-between mb-3">
@@ -257,15 +288,10 @@ export default function Pricing() {
                             </div>
                           ))}
                         </div>
-
-                        {plan.identityNote && (
-                          <div className="text-[11px] text-gray-600 mt-3">
-                            {plan.identityNote}
-                          </div>
-                        )}
                       </div>
                     ) : null}
 
+                    {/* Apps block */}
                     {plan.apps?.length ? (
                       <div className="mb-5 rounded-xl border border-[#c9a84c]/35 bg-[#fff7db] p-4">
                         <div className="flex items-center justify-between mb-3">
@@ -285,21 +311,14 @@ export default function Pricing() {
                             </div>
                           ))}
                         </div>
-
-                        {plan.appsNote && (
-                          <div className="text-[11px] text-gray-700 mt-3">
-                            {plan.appsNote}
-                          </div>
-                        )}
                       </div>
                     ) : null}
 
-                    {/* Includes + Adds (compact) */}
+                    {/* Includes + Adds */}
                     <div className="flex-1">
                       {plan.id === "free" ? (
-                        // FREE keeps full list
                         <ul className="space-y-2.5">
-                          {plan.features.map(f => (
+                          {plan.features.map((f) => (
                             <li key={f.label} className="flex items-center gap-2.5">
                               {f.included ? (
                                 <CheckCircle className="w-4 h-4 text-[#0d4f4f] flex-shrink-0" />
@@ -313,7 +332,6 @@ export default function Pricing() {
                           ))}
                         </ul>
                       ) : (
-                        // VERIFIED + FEATURED+: compact summary
                         <div className="rounded-xl border border-gray-200 bg-white p-4">
                           <div className="flex items-center gap-2 text-xs font-semibold text-[#0a1628]">
                             <CheckCircle className="w-4 h-4 text-[#0d4f4f]" />
@@ -345,16 +363,16 @@ export default function Pricing() {
                       )}
                     </div>
 
-                    {/* CTA always at bottom */}
+                    {/* CTA */}
                     <div className="mt-6">
-                      <button 
+                      <button
                         onClick={() => handleUpgrade(plan.id)}
                         disabled={processingPlan !== null || (plan.id === "free" && !!user)}
                         className={`inline-flex w-full justify-center items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${
                           plan.id === "free" && user
-                            ? 'bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed'
+                            ? "bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
                             : processingPlan !== null
-                            ? 'opacity-50 cursor-not-allowed'
+                            ? "opacity-50 cursor-not-allowed"
                             : plan.ctaClass
                         }`}
                       >
@@ -373,7 +391,7 @@ export default function Pricing() {
                               </>
                             ) : (
                               <>
-                                {plan.id === 'free' ? 'Create Free Account' : 'Sign Up to Upgrade'}
+                                {plan.id === "free" ? "Create Free Account" : "Create Account to Upgrade"}
                                 {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
                               </>
                             )}
@@ -392,23 +410,38 @@ export default function Pricing() {
       {/* Comparison Table */}
       <section className="py-16 bg-[#f0f2f8] px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-[#0a1628] mb-10 text-center">Full Comparison</h2>
+          <h2 className="text-2xl font-bold text-[#0a1628] mb-3 text-center">
+            Compare Your Options
+          </h2>
+          <p className="text-sm text-gray-500 text-center max-w-2xl mx-auto mb-10">
+            See which level of visibility, trust, and business support is right for where your business is now.
+          </p>
+
           <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#0a1628]">
-                  <th className="text-left py-4 px-6 text-gray-400 font-medium text-xs uppercase tracking-wider w-1/2">Feature</th>
-                  {plans.map(p => (
+                  <th className="text-left py-4 px-6 text-gray-400 font-medium text-xs uppercase tracking-wider w-1/2">
+                    Feature
+                  </th>
+                  {plans.map((p) => (
                     <th key={p.id} className="text-center py-4 px-4">
-                      <div className={`inline-block font-bold text-xs px-3 py-1 rounded-full ${
-                        p.id === "free" ? "bg-white/10 text-gray-300"
-                        : p.id === "verified" ? "bg-[#00c4cc]/20 text-[#00c4cc]"
-                        : "bg-[#c9a84c]/25 text-[#c9a84c]"
-                      }`}>{p.name}</div>
+                      <div
+                        className={`inline-block font-bold text-xs px-3 py-1 rounded-full ${
+                          p.id === "free"
+                            ? "bg-white/10 text-gray-300"
+                            : p.id === "verified"
+                            ? "bg-[#00c4cc]/20 text-[#00c4cc]"
+                            : "bg-[#c9a84c]/25 text-[#c9a84c]"
+                        }`}
+                      >
+                        {p.name}
+                      </div>
                     </th>
                   ))}
                 </tr>
               </thead>
+
               <tbody>
                 {plans[2].features.map((f, i) => {
                   const rowLabel = f.label;
@@ -424,8 +457,11 @@ export default function Pricing() {
                       ${isKeyRow ? "bg-[#fff7db]" : i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
                       hover:bg-gray-50`}
                     >
-                      <td className={`py-3 px-6 text-xs font-medium
-                        ${isKeyRow ? "text-[#0a1628]" : "text-gray-700"}`}>
+                      <td
+                        className={`py-3 px-6 text-xs font-medium ${
+                          isKeyRow ? "text-[#0a1628]" : "text-gray-700"
+                        }`}
+                      >
                         <div className="flex items-center gap-2">
                           {isKeyRow && <Star className="w-4 h-4 text-[#c9a84c]" />}
                           {rowLabel}
@@ -441,11 +477,16 @@ export default function Pricing() {
                           )}
                         </div>
                       </td>
-                      {plans.map(plan => (
+
+                      {plans.map((plan) => (
                         <td key={plan.id} className="text-center py-3 px-4">
-                          {plan.features[i].included
-                            ? <CheckCircle className={`w-4 h-4 ${isKeyRow ? "text-[#c9a84c]" : "text-[#0d4f4f]"} mx-auto`} />
-                            : <X className="w-4 h-4 text-gray-300 mx-auto" />}
+                          {plan.features[i].included ? (
+                            <CheckCircle
+                              className={`w-4 h-4 ${isKeyRow ? "text-[#c9a84c]" : "text-[#0d4f4f]"} mx-auto`}
+                            />
+                          ) : (
+                            <X className="w-4 h-4 text-gray-300 mx-auto" />
+                          )}
                         </td>
                       ))}
                     </tr>
@@ -456,9 +497,9 @@ export default function Pricing() {
           </div>
         </div>
       </section>
-      
+
       {/* Modal */}
-      <ClaimAddBusinessModal 
+      <ClaimAddBusinessModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onClaimSelected={() => setShowModal(false)}

@@ -61,8 +61,8 @@ export default function BusinessProfile() {
   };
 
   const handleClaim = () => {
-    // Redirect to onboarding with pre-selected business
-    window.location.href = `${createPageUrl("BusinessOnboarding")}?business=${business.id}&name=${encodeURIComponent(business.name)}`;
+    // Redirect to login with pre-selected business for claiming
+    window.location.href = `${createPageUrl("BusinessLogin")}?business=${business.id}&name=${encodeURIComponent(business.name)}`;
   };
 
   const isOwner = user && business?.owner_user_id === user.id;
@@ -126,7 +126,17 @@ export default function BusinessProfile() {
           {/* Left: Main Profile */}
           <div className="flex-1 w-full">
             {/* Header card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 relative">
+              {/* Contact button - top right */}
+              {(business.contact_email || business.contact_phone) && (
+                <button
+                  onClick={() => setShowContact(true)}
+                  className="absolute top-6 right-6 flex items-center gap-2 text-xs font-semibold text-white bg-[#0d4f4f] hover:bg-[#0a3d3d] px-4 py-2 rounded-lg transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" /> Contact Us
+                </button>
+              )}
+              
               <div className="flex items-start gap-4 mb-4">
                 <div className="w-16 h-16 rounded-2xl border-2 border-white shadow-md flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
                   {business.logo_url
@@ -174,16 +184,8 @@ export default function BusinessProfile() {
                 </div>
               )}
 
-              {/* Contact / Socials */}
+              {/* Socials */}
               <div className="flex flex-wrap gap-3 mt-5 pt-5 border-t border-gray-50">
-                {(business.contact_email || business.contact_phone) && (
-                  <button
-                    onClick={() => setShowContact(true)}
-                    className="flex items-center gap-2 text-xs font-semibold text-white bg-[#0d4f4f] hover:bg-[#0a3d3d] px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" /> Contact Us
-                  </button>
-                )}
                 {allSocials.map(s => (
                   <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors">

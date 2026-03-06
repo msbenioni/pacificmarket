@@ -75,7 +75,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-              <img src="/pm_logo.png" alt="Pacific Market Registry" className="h-12 w-12" />
+              <img src="/pm_logo.png" alt="Pacific Market" className="h-12 w-12" />
               <div className="flex flex-col items-center leading-none text-center">
                 <span className={`text-lg font-bold tracking-[0.35em] ${
                   isTransparent ? "text-white" : "text-[#0a1628]"
@@ -228,7 +228,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="md:col-span-2">
               <Link href={createPageUrl("Home")} className="inline-block">
                 <div className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
-                  <img src="/pm_logo.png" alt="Pacific Market Registry" className="h-12 w-12" />
+                  <img src="/pm_logo.png" alt="Pacific Market" className="h-12 w-12" />
                   <div className="flex flex-col items-center leading-none text-center">
                     <span className="text-white text-lg font-bold tracking-[0.35em]" style={{ fontFamily: "'Cinzel', serif" }}>
                       PACIFIC
@@ -275,7 +275,7 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-xs"> 2026 Pacific Market Registry. All rights reserved.</p>
+            <p className="text-gray-500 text-xs"> 2026 Pacific Market. All rights reserved.</p>
             <div className="flex items-center gap-4">
               <Link href={createPageUrl("AdminLogin")} className="text-gray-500 text-xs hover:text-gray-300 transition-colors">
                 Admin

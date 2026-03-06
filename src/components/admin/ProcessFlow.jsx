@@ -12,7 +12,7 @@ const STEPS = [
     textColor: "text-sky-700",
     icon: Globe,
     title: "Business Discovers Registry",
-    description: "A Pacific business owner or member of the public finds the Pacific Market Registry via search, social media, or word of mouth.",
+    description: "A Pacific business owner or member of the public finds the Pacific Market via search, social media, or word of mouth.",
     actions: [
       "Lands on Home page",
       "Browses the Registry page",

@@ -8,6 +8,8 @@ export const IDENTITY_TO_CODE = {
   "Australia (Aboriginal & Torres Strait Islander)": "AU",
   "New Zealand": "NZ",
   "New Zealand (Māori)": "NZ",
+  "New Zealand (Maori)": "NZ", // Without macron
+  "New Zealand Maori": "NZ", // Without parentheses and macron
   "Fiji": "FJ",
   "Samoa": "WS",
   "American Samoa": "AS",
@@ -76,7 +78,27 @@ function SingleFlagIcon({ identity, size = 24, className = "" }) {
     return <Globe className={`text-[#0d4f4f] ${className}`} style={{ width: size, height: size }} />;
   }
 
-  const code = IDENTITY_TO_CODE[identity];
+  // Normalize identity for better matching
+  const normalizedIdentity = identity.trim();
+  const lowerIdentity = normalizedIdentity.toLowerCase();
+  
+  // Try exact match first
+  let code = IDENTITY_TO_CODE[normalizedIdentity];
+  
+  // If no exact match, try case-insensitive matching
+  if (!code) {
+    code = Object.keys(IDENTITY_TO_CODE).find(key => 
+      key.toLowerCase() === lowerIdentity
+    ) ? IDENTITY_TO_CODE[Object.keys(IDENTITY_TO_CODE).find(key => 
+      key.toLowerCase() === lowerIdentity
+    )] : null;
+  }
+  
+  // Special handling for New Zealand variations
+  if (!code && lowerIdentity.includes('new zealand') && lowerIdentity.includes('maori')) {
+    code = 'NZ';
+  }
+  
   if (!code || code === "GLOBE") return <Globe className={`text-[#0d4f4f] ${className}`} style={{ width: size, height: size }} />;
 
   const flagUrl = `https://purecatamphetamine.github.io/country-flag-icons/3x2/${code}.svg`;
