@@ -6,7 +6,7 @@ import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrC
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { TIER_BENEFITS } from "@/constants/businessProfile";
-import { BUSINESS_TIER, BUSINESS_STATUS, mapLegacyTier, getTierDisplayName } from "@/constants/business";
+import { BUSINESS_TIER, BUSINESS_STATUS, getTierDisplayName } from "@/constants/business";
 import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
 import FounderInsightsForm from "@/components/forms/FounderInsightsForm";
 import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";

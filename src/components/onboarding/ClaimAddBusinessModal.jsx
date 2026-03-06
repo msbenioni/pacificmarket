@@ -226,7 +226,7 @@ export function ClaimAddBusinessModal({
         updated_at: new Date().toISOString(),
         // Optional: force known starting state
         status: "pending",
-        subscription_tier: "basic",
+        subscription_tier: "vaka",
         visibility_tier: "none",
       }).select();
 

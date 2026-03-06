@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { CheckCircle, Star, MapPin, Tag, ArrowUpRight } from "lucide-react";
+import { CheckCircle, Star, MapPin, Tag, ArrowUpRight, Waves } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
 
 function CulturalBadge({ identity }) {
@@ -26,10 +26,10 @@ function CulturalBadge({ identity }) {
 
 export default function BusinessCard({ business, view = "grid" }) {
   const tierBadge = {
-    featured_plus: { label: "Featured+", cls: "featured-badge" },
-    verified: { label: "Verified", cls: "verified-badge" },
-    free: null,
-  }[business.subscription_tier || "free"];
+    moana: { label: "Moana", cls: "featured-badge" },
+    mana: { label: "Mana", cls: "verified-badge" },
+    vaka: null,
+  }[business.subscription_tier || "vaka"];
 
   const languages = business.languages_spoken?.length > 0
     ? business.languages_spoken.join(", ")
@@ -73,7 +73,7 @@ export default function BusinessCard({ business, view = "grid" }) {
         {business.banner_url && <img src={business.banner_url} alt="" className="w-full h-full object-cover" style={{ objectPosition: "center top" }} />}
         {tierBadge && (
           <span className={`absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full font-medium ${tierBadge.cls}`}>
-            {tierBadge.label === "Featured+" ? <><Star className="w-3 h-3 inline mr-1" />Featured</> : tierBadge.label}
+            {tierBadge.label === "Moana" ? <><Waves className="w-3 h-3 inline mr-1" />Moana</> : tierBadge.label}
           </span>
         )}
       </div>

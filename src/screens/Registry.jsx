@@ -19,7 +19,7 @@ export default function Registry() {
   const [view, setView] = useState("grid");
   const [sort, setSort] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({ search: "", country: "", category: "", verified: false, identity: "" });
+  const [filters, setFilters] = useState({ search: "", country: "", industry: "", verified: false, identity: "" });
 
   useEffect(() => {
     const loadBusinesses = async () => {
@@ -49,7 +49,7 @@ export default function Registry() {
         !b.description?.toLowerCase().includes(filters.search.toLowerCase()) &&
         !b.cultural_identity?.toLowerCase().includes(filters.search.toLowerCase())) return false;
       if (filters.country && b.country !== filters.country) return false;
-      if (filters.category && b.category !== filters.category) return false;
+      if (filters.industry && b.industry !== filters.industry) return false;
       if (filters.verified && !b.verified) return false;
       if (filters.identity && !b.cultural_identity?.toLowerCase().includes(filters.identity.toLowerCase())) return false;
       return true;
@@ -65,7 +65,7 @@ export default function Registry() {
     return result;
   }, [businesses, filters, sort]);
 
-  const hasFilters = filters.country || filters.category || filters.verified || filters.identity;
+  const hasFilters = filters.country || filters.industry || filters.verified || filters.identity;
 
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
@@ -93,7 +93,7 @@ export default function Registry() {
                     {hasFilters && " (filtered)"}
                   </span>
                   {hasFilters && (
-                    <button onClick={() => setFilters({ search: "", country: "", category: "", verified: false, identity: "" })}
+                    <button onClick={() => setFilters({ search: "", country: "", industry: "", verified: false, identity: "" })}
                       className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded-lg">
                       <X className="w-3 h-3" /> Clear filters
                     </button>

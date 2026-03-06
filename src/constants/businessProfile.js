@@ -33,23 +33,28 @@ export const BUSINESS_PROFILE_STEPS = [
         type: 'select',
         required: true,
         placeholder: 'Select your industry',
-        description: 'Primary industry category for your business',
+        description: 'Primary industry for your business',
         options: [
           { value: 'agriculture', label: 'Agriculture' },
           { value: 'arts-crafts', label: 'Arts & Crafts' },
           { value: 'beauty-personal-care', label: 'Beauty & Personal Care' },
+          { value: 'books-publishing', label: 'Books & Publishing' },
+          { value: 'clothing-fashion', label: 'Clothing & Fashion' },
           { value: 'coaching-business-personal', label: 'Coaching (Business & Personal)' },
           { value: 'construction-trade', label: 'Construction & Trade' },
           { value: 'digital-it-technology', label: 'Digital & IT Technology' },
           { value: 'education-training', label: 'Education & Training' },
+          { value: 'fashion-accessories', label: 'Fashion Accessories' },
           { value: 'finance-insurance', label: 'Finance & Insurance' },
           { value: 'food-beverage', label: 'Food & Beverage' },
           { value: 'health-wellness', label: 'Health & Wellness' },
           { value: 'hospitality-tourism', label: 'Hospitality & Tourism' },
+          { value: 'jewellery-watches', label: 'Jewellery & Watches' },
           { value: 'legal-services', label: 'Legal Services' },
           { value: 'manufacturing', label: 'Manufacturing' },
           { value: 'media-entertainment', label: 'Media & Entertainment' },
           { value: 'professional-services', label: 'Professional Services' },
+          { value: 'stationery-office', label: 'Stationery & Office Supplies' },
           { value: 'transport-logistics', label: 'Transport & Logistics' },
           { value: 'other', label: 'Other' }
         ]
@@ -603,44 +608,5 @@ export const CATEGORIES = BUSINESS_PROFILE_STEPS[0].fields.find(f => f.id === 'i
 export const COUNTRIES = BUSINESS_PROFILE_STEPS[1].fields.find(f => f.id === 'country').options.map(o => o.label);
 export const IDENTITIES = BUSINESS_PROFILE_STEPS[2].fields.find(f => f.id === 'cultural_identity').options.map(o => o.label);
 
-export const TIER_BENEFITS = {
-  free: {
-    label: "Free",
-    price: "$0/month",
-    color: "gray",
-    features: [
-      "Basic listing in registry",
-      "Business information & contact",
-      "Text-only profile",
-      "Search visibility"
-    ]
-  },
-  verified: {
-    label: "Verified",
-    price: "$9/month",
-    color: "teal",
-    features: [
-      "Everything in Free",
-      "Verified badge",
-      "Logo & banner images",
-      "Enhanced profile styling",
-      "Priority in search results",
-      "Direct messaging capability"
-    ]
-  },
-  featured_plus: {
-    label: "Featured+",
-    price: "$29/month",
-    color: "gold",
-    features: [
-      "Everything in Verified",
-      "Featured placement",
-      "Golden badge",
-      "Premium profile design",
-      "Invoice generator tool",
-      "QR code generator tool",
-      "Analytics & insights",
-      "Custom branding"
-    ]
-  }
-};
+// Import tier benefits from dedicated constants file
+export { TIER_BENEFITS } from './tierBenefits';

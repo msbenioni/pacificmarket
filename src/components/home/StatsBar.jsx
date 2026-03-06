@@ -4,7 +4,7 @@ import { BUSINESS_STATUS } from "@/constants/business";
 import { Building2, Globe, CheckCircle, LayoutGrid } from "lucide-react";
 
 export default function StatsBar() {
-  const [stats, setStats] = useState({ total: 0, countries: 0, categories: 0, verified: 0 });
+  const [stats, setStats] = useState({ total: 0, countries: 0, industries: 0, verified: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,9 +18,9 @@ export default function StatsBar() {
         
         const businesses = data || [];
         const countries = new Set(businesses.map(b => b.country)).size;
-        const categories = new Set(businesses.map(b => b.category)).size;
+        const industries = new Set(businesses.map(b => b.industry)).size;
         const verified = businesses.filter(b => b.verified).length;
-        setStats({ total: businesses.length, countries, categories, verified });
+        setStats({ total: businesses.length, countries, industries, verified });
         setLoading(false);
       } catch (error) {
         console.error("Error loading stats:", error);
@@ -34,7 +34,7 @@ export default function StatsBar() {
   const items = [
     { icon: Building2, label: "Listed Businesses", value: stats.total, color: "text-[#00c4cc]" },
     { icon: Globe, label: "Countries Represented", value: stats.countries, color: "text-[#c9a84c]" },
-    { icon: LayoutGrid, label: "Industry Categories", value: stats.categories, color: "text-[#00c4cc]" },
+    { icon: LayoutGrid, label: "Industry Categories", value: stats.industries, color: "text-[#00c4cc]" },
     { icon: CheckCircle, label: "Verified Records", value: stats.verified, color: "text-[#c9a84c]" },
   ];
 

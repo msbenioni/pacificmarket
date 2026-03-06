@@ -5,38 +5,16 @@ export const BUSINESS_STATUS = {
 };
 
 export const BUSINESS_TIER = {
-  // New Pacific-inspired tier system
   VAKA: 'vaka',
   MANA: 'mana', 
   MOANA: 'moana',
-  
-  // Legacy mapping for backward compatibility
-  BASIC: 'basic',        // Maps to VAKA
-  VERIFIED: 'verified',  // Maps to MANA
-  FEATURED_PLUS: 'featured_plus', // Maps to MOANA
 };
 
-// Helper function to map legacy tiers to new system
-export const mapLegacyTier = (legacyTier) => {
-  const mapping = {
-    'basic': 'vaka',
-    'verified': 'mana', 
-    'featured_plus': 'moana',
-    'free': 'vaka'
-  };
-  return mapping[legacyTier] || legacyTier;
-};
-
-// Helper function to get display name for tier
 export const getTierDisplayName = (tier) => {
   const displayNames = {
     'vaka': 'Vaka',
     'mana': 'Mana',
     'moana': 'Moana',
-    'basic': 'Vaka', // Legacy display
-    'verified': 'Mana', // Legacy display
-    'featured_plus': 'Moana', // Legacy display
-    'free': 'Vaka' // Legacy display
   };
   return displayNames[tier] || tier;
 };

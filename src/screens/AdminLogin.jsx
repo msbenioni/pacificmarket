@@ -71,25 +71,6 @@ export default function AdminLogin() {
     <PortalShell>
       <div className="min-h-screen bg-[#f8f9fc] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-            <img src="/pm_logo.png" alt="Pacific Market" className="h-12 w-12" />
-            <div className="flex flex-col items-center leading-none text-center">
-              <span className="text-lg font-bold tracking-[0.35em] text-[#0a1628]" style={{ fontFamily: "'Cinzel', serif" }}>
-                PACIFIC
-              </span>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="h-px w-6 bg-[#c9a84c]" />
-                <span className="text-[#c9a84c] text-[0.65rem] font-bold tracking-[0.45em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                  MARKET
-                </span>
-                <span className="h-px w-6 bg-[#c9a84c]" />
-              </div>
-            </div>
-          </Link>
-        </div>
-
         <div className="bg-white border border-gray-200 rounded-2xl shadow-[0_12px_40px_rgba(10,22,40,0.08)] p-8">
           {/* Header */}
           <div className="text-center mb-8">

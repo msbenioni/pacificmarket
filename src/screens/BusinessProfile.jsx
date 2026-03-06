@@ -181,9 +181,9 @@ export default function BusinessProfile() {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <h1 className="text-xl font-bold text-[#0a1628]">{business.name}</h1>
-                    {(business.subscription_tier ?? business.tier) === "featured_plus" && (
+                    {(business.subscription_tier ?? business.tier) === "moana" && (
                       <span className="featured-badge flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-semibold">
-                        <Star className="w-3 h-3" /> Featured+
+                        <Star className="w-3 h-3" /> Moana
                       </span>
                     )}
                   </div>

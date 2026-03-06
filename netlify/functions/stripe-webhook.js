@@ -1,4 +1,11 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { createClient } = require('@supabase/supabase-js');
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 exports.handler = async (event, context) => {
   const sig = event.headers['stripe-signature'];
@@ -28,8 +35,8 @@ exports.handler = async (event, context) => {
         const deletedSubscription = eventObj.data.object;
         console.log('Subscription deleted:', deletedSubscription.id);
         
-        // Downgrade to basic tier
-        await downgradeBusinessToBasic(deletedSubscription);
+        // Downgrade to vaka tier
+        await downgradeBusinessToVaka(deletedSubscription);
         break;
 
       case 'invoice.payment_succeeded':
@@ -65,28 +72,70 @@ exports.handler = async (event, context) => {
 };
 
 async function updateBusinessSubscription(subscription) {
-  // This would update your database with the new subscription tier
-  const metadata = subscription.metadata;
-  const tier = metadata.tier;
-  const userId = metadata.user_id;
-  const businessId = metadata.business_id;
+  try {
+    const metadata = subscription.metadata;
+    const tier = metadata.tier;
+    const userId = metadata.user_id;
+    const businessId = metadata.business_id;
 
-  console.log(`Updating user ${userId} business ${businessId} to tier ${tier}`);
-  
-  // TODO: Update your database here
-  // Example: Update businesses table subscription_tier field
-  // Note: New tier system uses vaka/mana/moana instead of basic/verified/featured_plus
-  // await updateBusinessTier(businessId, tier);
+    console.log(`Updating user ${userId} business ${businessId} to tier ${tier}`);
+    
+    // Validate tier value (only paid tiers come through Stripe)
+    const validTiers = ['mana', 'moana']; // Vaka is free, not in Stripe
+    if (!validTiers.includes(tier)) {
+      throw new Error(`Invalid tier: ${tier}. Only paid tiers (mana, moana) should come through Stripe.`);
+    }
+
+    // Update business subscription tier in database
+    const { data, error } = await supabase
+      .from('businesses')
+      .update({ 
+        subscription_tier: tier,
+        updated_date: new Date().toISOString()
+      })
+      .eq('id', businessId);
+
+    if (error) {
+      console.error('Database update error:', error);
+      throw error;
+    }
+
+    console.log(`Successfully updated business ${businessId} to tier ${tier}`);
+    return data;
+
+  } catch (error) {
+    console.error('Error updating business subscription:', error);
+    throw error;
+  }
 }
 
-async function downgradeBusinessToBasic(subscription) {
-  const metadata = subscription.metadata;
-  const userId = metadata.user_id;
-  const businessId = metadata.business_id;
+async function downgradeBusinessToVaka(subscription) {
+  try {
+    const metadata = subscription.metadata;
+    const userId = metadata.user_id;
+    const businessId = metadata.business_id;
 
-  console.log(`Downgrading user ${userId} business ${businessId} to vaka`);
-  
-  // TODO: Update your database to vaka tier (new basic)
-  // Note: New tier system uses 'vaka' instead of 'basic'
-  // await updateBusinessTier(businessId, 'vaka');
+    console.log(`Downgrading user ${userId} business ${businessId} to vaka`);
+    
+    // Update business to vaka tier
+    const { data, error } = await supabase
+      .from('businesses')
+      .update({ 
+        subscription_tier: 'vaka',
+        updated_date: new Date().toISOString()
+      })
+      .eq('id', businessId);
+
+    if (error) {
+      console.error('Database downgrade error:', error);
+      throw error;
+    }
+
+    console.log(`Successfully downgraded business ${businessId} to vaka tier`);
+    return data;
+
+  } catch (error) {
+    console.error('Error downgrading business subscription:', error);
+    throw error;
+  }
 }

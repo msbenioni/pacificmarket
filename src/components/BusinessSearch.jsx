@@ -113,7 +113,7 @@ export default function BusinessSearch({
             >
               <p className="font-semibold text-[#0a1628] text-sm">{result.name}</p>
               <p className="text-gray-600 text-xs mt-0.5">
-                {result.city ? `${result.city}, ` : ""}{result.country} · {result.category}
+                {result.city ? `${result.city}, ` : ""}{result.country} · {result.industry}
               </p>
             </button>
           ))}
@@ -124,7 +124,7 @@ export default function BusinessSearch({
         <div className="bg-[#0d4f4f]/5 border border-[#0d4f4f]/20 rounded-xl p-4">
           <p className="font-semibold text-[#0a1628] text-sm">{selectedResult.name}</p>
           <p className="text-gray-600 text-xs mt-1">
-            {selectedResult.city ? `${selectedResult.city}, ` : ""}{selectedResult.country} · {selectedResult.category}
+            {selectedResult.city ? `${selectedResult.city}, ` : ""}{selectedResult.country} · {selectedResult.industry}
           </p>
           <p className="text-xs text-gray-500 mt-2">
             You'll submit a claim request for admin review.

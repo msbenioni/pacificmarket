@@ -36,7 +36,7 @@ export function hasRole(user) {
  * @returns {boolean} - True if user can access business features
  */
 export function canAccessBusinessFeatures(user) {
-  return hasRole(user); // Both owner and admin can access business features
+  return isOwner(user); // Only owners can access business features
 }
 
 /**
@@ -79,7 +79,6 @@ export function getRoleBasedNavigation(user) {
   }
 
   if (isAdmin(user)) {
-    baseNav.push({ name: 'Business Portal', href: '/businessportal' });
     baseNav.push({ name: 'Admin Dashboard', href: '/admin' });
   }
 
@@ -99,8 +98,11 @@ export function handleRoleBasedRedirect(user, router) {
 
   if (isAdmin(user)) {
     router.push('/admin');
-  } else {
-    // All non-admin users are owners and go to business portal
+  } else if (isOwner(user)) {
+    // Only owners go to business portal
     router.push('/businessportal');
+  } else {
+    // Fallback for any other role types
+    router.push('/login');
   }
 }

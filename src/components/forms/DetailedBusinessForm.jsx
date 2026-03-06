@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { COUNTRIES, CATEGORIES } from "@/constants/businessProfile";
-import { BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE } from "@/constants/business";
+import { BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName } from "@/constants/business";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
 import { getSupabase } from "@/lib/supabase/client";
 import PremiumStepper from "@/components/shared/PremiumStepper";
@@ -31,7 +31,67 @@ export default function DetailedBusinessForm({
   mode = FORM_MODES.BUSINESS_CREATE 
 }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState(initialData || {
+  // Helper functions to transform social_links between database and form formats
+  const transformSocialLinksFromDB = (socialLinks) => {
+    if (!socialLinks || typeof socialLinks !== 'object') return [];
+    
+    // Convert from { platform: url, platform2: url2 } to [{ platform, url }, { platform, url }]
+    return Object.entries(socialLinks)
+      .filter(([_, url]) => url && url.trim() !== '') // Only include non-empty URLs
+      .map(([platform, url]) => ({ platform, url: url.trim() }));
+  };
+
+  const transformSocialLinksToDB = (socialLinks) => {
+    if (!Array.isArray(socialLinks)) return {};
+    
+    // Convert from [{ platform, url }, { platform, url }] to { platform: url, platform2: url2 }
+    return socialLinks.reduce((acc, link) => {
+      if (link.platform && link.url && link.url.trim() !== '') {
+        acc[link.platform] = link.url.trim();
+      }
+      return acc;
+    }, {});
+  };
+
+  // Helper function to map legacy industry names to current form options
+  const mapLegacyIndustry = (industry) => {
+    if (!industry) return industry;
+    
+    const industryMapping = {
+      "Digital Media & Technology": "Digital & IT Technology",
+      "Construction & Trades": "Construction & Trade", 
+      "Information Technology": "Digital & IT Technology",
+      "Technology": "Digital & IT Technology",
+      "Information Media & Telecommunications": "Media & Entertainment",
+      "Arts & Culture": "Arts & Crafts",
+      "Culture & Heritage": "Arts & Crafts",
+      "Food & Agriculture": "Agriculture",
+      "Home & Decor": "Other",
+      "Logistics": "Transport & Logistics",
+      "Marketing": "Professional Services",
+      "Consulting & Professional Services": "Professional Services",
+      "Trading": "Other",
+      "Travel & Tourism": "Hospitality & Tourism",
+      "Tourism": "Hospitality & Tourism",
+      "Trades & Industry": "Construction & Trade",
+      "Beauty": "Beauty & Personal Care",
+      "Hospitality": "Hospitality & Tourism",
+      "Agriculture, Forestry & Fishing": "Agriculture"
+    };
+    
+    return industryMapping[industry] || industry;
+  };
+
+  const [form, setForm] = useState(initialData ? {
+    ...initialData,
+    // Map database field names to form field names
+    tagline: initialData.short_description || initialData.tagline || "",
+    website: initialData.contact_website || initialData.website || "",
+    // Transform social_links from database format to form format
+    social_links: transformSocialLinksFromDB(initialData.social_links),
+    // Map legacy industry names to current form options
+    industry: mapLegacyIndustry(initialData.industry),
+  } : {
     // Identity fields
     name: "", 
     business_handle: "", 
@@ -56,14 +116,14 @@ export default function DetailedBusinessForm({
     
     // Registry status fields (admin-only)
     status: BUSINESS_STATUS.PENDING,
-    subscription_tier: BUSINESS_TIER.BASIC,
+    subscription_tier: BUSINESS_TIER.VAKA,
     verified: false,
-    claimed: false,
     owner_user_id: null,
     
     // Metadata
     source: BUSINESS_SOURCE.USER
   });
+
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
 
@@ -78,7 +138,7 @@ export default function DetailedBusinessForm({
 
   const shouldShowField = (fieldName) => {
     // Admin-only fields
-    const adminFields = ['status', 'subscription_tier', 'verified', 'claimed', 'owner_user_id'];
+    const adminFields = ['status', 'subscription_tier', 'verified', 'owner_user_id'];
     if (adminFields.includes(fieldName) && !isAdminMode()) {
       return false;
     }
@@ -96,9 +156,9 @@ export default function DetailedBusinessForm({
     if (!initialData) {
       setForm(prev => ({
         ...prev,
-        // User-created businesses are auto-claimed and start as basic
+        // User-created businesses are auto-claimed and start as vaka
         claimed: mode === FORM_MODES.BUSINESS_CREATE ? true : prev.claimed,
-        subscription_tier: mode === FORM_MODES.BUSINESS_CREATE ? BUSINESS_TIER.BASIC : prev.subscription_tier,
+        subscription_tier: mode === FORM_MODES.BUSINESS_CREATE ? BUSINESS_TIER.VAKA : prev.subscription_tier,
         source: mode === FORM_MODES.ADMIN_CREATE ? BUSINESS_SOURCE.ADMIN : BUSINESS_SOURCE.USER,
         // Admin-created businesses start as pending
         status: mode === FORM_MODES.ADMIN_CREATE ? BUSINESS_STATUS.PENDING : prev.status
@@ -146,7 +206,7 @@ export default function DetailedBusinessForm({
   // Helper functions for social_links management
   const addSocialLink = (platform, url) => {
     if (!url.trim()) return;
-    const existingLinks = form.social_links || [];
+    const existingLinks = Array.isArray(form.social_links) ? form.social_links : [];
     const filteredLinks = existingLinks.filter(link => link.platform !== platform);
     setForm(f => ({ 
       ...f, 
@@ -155,12 +215,14 @@ export default function DetailedBusinessForm({
   };
 
   const removeSocialLink = (platform) => {
-    const filteredLinks = form.social_links.filter(link => link.platform !== platform);
+    const socialLinks = Array.isArray(form.social_links) ? form.social_links : [];
+    const filteredLinks = socialLinks.filter(link => link.platform !== platform);
     setForm(f => ({ ...f, social_links: filteredLinks }));
   };
 
   const getSocialUrl = (platform) => {
-    const link = form.social_links?.find(link => link.platform === platform);
+    const socialLinks = Array.isArray(form.social_links) ? form.social_links : [];
+    const link = socialLinks.find(link => link.platform === platform);
     return link?.url || "";
   };
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20 bg-white";
@@ -212,7 +274,21 @@ export default function DetailedBusinessForm({
       alert("Please fill in required fields");
       return;
     }
-    onSubmit(form);
+    
+    // Map form field names back to database field names
+    const submissionData = {
+      ...form,
+      short_description: form.tagline, // Map tagline -> short_description
+      contact_website: form.website, // Map website -> contact_website
+      // Transform social_links from form format back to database format
+      social_links: transformSocialLinksToDB(form.social_links),
+    };
+    
+    // Remove the form-specific fields that don't exist in database
+    delete submissionData.tagline;
+    delete submissionData.website;
+    
+    onSubmit(submissionData);
   };
 
   return (
@@ -265,7 +341,7 @@ export default function DetailedBusinessForm({
           )}
           {!excludeFields.includes("industry") && (
             <div>
-              <label className={labelCls}>Industry Category *</label>
+              <label className={labelCls}>Industry *</label>
               <select value={form.industry || ""} onChange={e => set("industry", e.target.value)} className={inputCls}>
                 <option value="">Select industry</option>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -327,18 +403,10 @@ export default function DetailedBusinessForm({
             <p className="text-xs text-gray-400 mt-1">Recommended: 1200x400px, max 3MB. Landscape format.</p>
             <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-xs text-amber-800">
-                <strong>Premium Feature:</strong> Upgrade to Verified or Featured+ tier to display your custom logo & banner publicly.
+                <strong>Premium Feature:</strong> Upgrade to Mana or Moana tier to display your custom logo & banner publicly.
               </p>
             </div>
           </div>
-          {!excludeFields.includes("claimed") && (
-            <div>
-              <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl hover:bg-gray-50">
-                <input type="checkbox" checked={form.claimed} onChange={e => set("claimed", e.target.checked)} className="mt-0.5 rounded" />
-                <span className="text-sm text-gray-600">Mark as claimed (business owner has created account)</span>
-              </label>
-            </div>
-          )}
         </div>
       )}
 
@@ -450,9 +518,9 @@ export default function DetailedBusinessForm({
                   <div>
                     <label className={labelCls}>Subscription Tier</label>
                     <select value={form.subscription_tier || ""} onChange={e => set("subscription_tier", e.target.value)} className={inputCls}>
-                      <option value={BUSINESS_TIER.BASIC}>Basic</option>
-                      <option value={BUSINESS_TIER.VERIFIED}>Verified</option>
-                      <option value={BUSINESS_TIER.FEATURED_PLUS}>Featured+</option>
+                      <option value={BUSINESS_TIER.VAKA}>Vaka</option>
+                      <option value={BUSINESS_TIER.MANA}>Mana</option>
+                      <option value={BUSINESS_TIER.MOANA}>Moana</option>
                     </select>
                   </div>
                 )}
@@ -460,15 +528,6 @@ export default function DetailedBusinessForm({
                   <div>
                     <label className={labelCls}>Verified</label>
                     <select value={form.verified ? "true" : "false"} onChange={e => set("verified", e.target.value === "true")} className={inputCls}>
-                      <option value="false">No</option>
-                      <option value="true">Yes</option>
-                    </select>
-                  </div>
-                )}
-                {shouldShowField("claimed") && (
-                  <div>
-                    <label className={labelCls}>Claimed</label>
-                    <select value={form.claimed ? "true" : "false"} onChange={e => set("claimed", e.target.value === "true")} className={inputCls}>
                       <option value="false">No</option>
                       <option value="true">Yes</option>
                     </select>
@@ -551,7 +610,7 @@ export default function DetailedBusinessForm({
             )}
 
             {/* Contact Information */}
-            {(form.contact_email || form.contact_phone || form.website || form.social_links?.length > 0) && (
+            {(form.contact_email || form.contact_phone || form.website || (Array.isArray(form.social_links) && form.social_links.length > 0)) && (
               <div className="px-4 py-3">
                 <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Contact Information</h4>
                 <div className="space-y-2">
@@ -573,7 +632,7 @@ export default function DetailedBusinessForm({
                       <span className="font-medium text-[#0a1628] truncate max-w-[200px]">{form.website}</span>
                     </div>
                   )}
-                  {form.social_links?.map((link) => (
+                  {Array.isArray(form.social_links) && form.social_links.map((link) => (
                     <div key={link.platform} className="flex justify-between text-sm">
                       <span className="text-gray-400 capitalize">{link.platform}</span>
                       <span className="font-medium text-[#0a1628] truncate max-w-[200px]">{link.url}</span>
@@ -611,19 +670,11 @@ export default function DetailedBusinessForm({
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-amber-700">Status</span>
-                    <span className="font-medium text-amber-900">{form.status}</span>
+                    <span className="font-medium text-amber-900 capitalize">{form.status}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-amber-700">Subscription Tier</span>
-                    <span className="font-medium text-amber-900">{form.subscription_tier}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-amber-700">Verified</span>
-                    <span className="font-medium text-amber-900">{form.verified ? 'Yes' : 'No'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-amber-700">Claimed</span>
-                    <span className="font-medium text-amber-900">{form.claimed ? 'Yes' : 'No'}</span>
+                    <span className="text-amber-700">Tier</span>
+                    <span className="font-medium text-amber-900">{getTierDisplayName(form.subscription_tier)}</span>
                   </div>
                   {form.owner_user_id && (
                     <div className="flex justify-between text-sm">
@@ -633,14 +684,80 @@ export default function DetailedBusinessForm({
                   )}
                   <div className="flex justify-between text-sm">
                     <span className="text-amber-700">Source</span>
-                    <span className="font-medium text-amber-900">{form.source}</span>
+                    <span className="font-medium text-amber-900 capitalize">{form.source}</span>
                   </div>
+                  {form.created_date && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-amber-700">Created</span>
+                      <span className="font-medium text-amber-900">{new Date(form.created_date).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  {form.updated_date && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-amber-700">Last Updated</span>
+                      <span className="font-medium text-amber-900">{new Date(form.updated_date).toLocaleDateString()}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
           </div>
         </div>
       )}
+      
+      {/* Navigation Buttons */}
+      <div className="flex justify-between items-center pt-6 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={() => step > 1 && setStep(step - 1)}
+          disabled={step === 1}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+            step === 1 
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Previous
+        </button>
+        
+        {step < 5 ? (
+          <button
+            type="button"
+            onClick={() => {
+              // Validate required fields for current step
+              if (step === 1 && (!form.name || !form.country || !form.industry)) {
+                alert("Please fill in required fields (Name, Country, Industry)");
+                return;
+              }
+              setStep(step + 1);
+            }}
+            className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                {mode === FORM_MODES.ADMIN_EDIT ? 'Update Business' : 'Save Business'}
+              </>
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

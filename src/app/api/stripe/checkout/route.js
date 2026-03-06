@@ -5,16 +5,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Stripe price IDs for multiple currencies
 const STRIPE_PRICE_IDS = {
-  verified: {
-    NZD: process.env.STRIPE_PRICE_ID_VERIFIED_NZD,
-    AUD: process.env.STRIPE_PRICE_ID_VERIFIED_AUD,
-    USD: process.env.STRIPE_PRICE_ID_VERIFIED_USD,
+  mana: {
+    NZD: process.env.STRIPE_PRICE_ID_MANA_NZD,
+    AUD: process.env.STRIPE_PRICE_ID_MANA_AUD,
+    USD: process.env.STRIPE_PRICE_ID_MANA_USD,
   },
-  featured_plus: {
-    NZD: process.env.STRIPE_PRICE_ID_FEATURED_PLUS_NZD,
-    AUD: process.env.STRIPE_PRICE_ID_FEATURED_PLUS_AUD,
-    USD: process.env.STRIPE_PRICE_ID_FEATURED_PLUS_USD,
-  },
+  moana: {
+    NZD: process.env.STRIPE_PRICE_ID_MOANA_NZD,
+    AUD: process.env.STRIPE_PRICE_ID_MOANA_AUD,
+    USD: process.env.STRIPE_PRICE_ID_MOANA_USD,
+  }
 };
 
 export async function POST(request) {
@@ -27,8 +27,8 @@ export async function POST(request) {
     console.log('Available price IDs:', STRIPE_PRICE_IDS);
     console.log('Environment variables:', {
       STRIPE_SECRET_KEY: !!process.env.STRIPE_SECRET_KEY,
-      STRIPE_PRICE_ID_VERIFIED_NZD: !!process.env.STRIPE_PRICE_ID_VERIFIED_NZD,
-      STRIPE_PRICE_ID_FEATURED_PLUS_NZD: !!process.env.STRIPE_PRICE_ID_FEATURED_PLUS_NZD
+      STRIPE_PRICE_ID_MANA_NZD: !!process.env.STRIPE_PRICE_ID_MANA_NZD,
+      STRIPE_PRICE_ID_MOANA_NZD: !!process.env.STRIPE_PRICE_ID_MOANA_NZD
     });
 
     // Validate the tier

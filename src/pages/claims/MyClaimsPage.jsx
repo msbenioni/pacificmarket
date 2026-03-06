@@ -29,7 +29,7 @@ export default function MyClaimsPage() {
             name,
             city,
             country,
-            category
+            industry
           )
         `)
         .eq("user_id", user.id)
@@ -76,7 +76,7 @@ export default function MyClaimsPage() {
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
                     {claim.businesses?.city && `${claim.businesses.city}, `}
-                    {claim.businesses?.country} · {claim.businesses?.category}
+                    {claim.businesses?.country} · {claim.businesses?.industry}
                   </p>
                   
                   <div className="mt-3 flex items-center gap-4 text-sm">

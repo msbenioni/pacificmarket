@@ -8,7 +8,7 @@ import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
 import CookieConsent from "../shared/CookieConsent";
-import { User, LogOut, Settings, CreditCard, AlertCircle, AlertTriangle, Home } from "lucide-react";
+import { User, LogOut, Settings, CreditCard, AlertCircle, AlertTriangle, Home, Shield } from "lucide-react";
 import * as AuthContext from "@/lib/AuthContext";
 
 export default function Layout({ children, currentPageName }) {
@@ -23,7 +23,25 @@ export default function Layout({ children, currentPageName }) {
       try {
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
+        
+        if (user) {
+          // Get user profile for role information
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('role, display_name')
+            .eq('id', user.id)
+            .single();
+
+          const enhancedUser = { 
+            ...user, 
+            role: profileData?.role || 'owner',
+            display_name: profileData?.display_name || user.user_metadata?.display_name || user.user_metadata?.full_name
+          };
+          
+          setUser(enhancedUser);
+        } else {
+          setUser(null);
+        }
       } catch (error) {
         setUser(null);
       }
@@ -162,16 +180,19 @@ export default function Layout({ children, currentPageName }) {
                   </button>
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
-                      <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                        <Home className="w-4 h-4" /> Business Portal
-                      </Link>
+                      {/* Only show Business Portal for owner users */}
+                      {user?.role === 'owner' && (
+                        <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
+                          <Home className="w-4 h-4" /> Business Portal
+                        </Link>
+                      )}
                       <Link href={createPageUrl("ProfileSettings")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
                         <User className="w-4 h-4" /> Profile Settings
                       </Link>
-                      {/* Only show Admin link for actual admin users */}
+                      {/* Only show Admin Dashboard for actual admin users */}
                       {user?.role === 'admin' && (
                         <Link href={createPageUrl("AdminDashboard")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                          <Settings className="w-4 h-4" /> Admin
+                          <Shield className="w-4 h-4" /> Admin Dashboard
                         </Link>
                       )}
                       <hr className="my-1 border-gray-100" />
@@ -213,9 +234,22 @@ export default function Layout({ children, currentPageName }) {
             {!user && (
               <Link href={createPageUrl("BusinessLogin")} className="block text-sm font-medium text-gray-600 py-2" onClick={() => setMenuOpen(false)}>Login</Link>
             )}
-            <Link href={user ? createPageUrl("BusinessPortal") : `${createPageUrl("BusinessLogin")}?mode=signup`} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>
-              {user ? "Business Portal" : "Create Account"}
-            </Link>
+            {/* Only show Business Portal for owner users */}
+            {user?.role === 'owner' && (
+              <Link href={createPageUrl("BusinessPortal")} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>
+                Business Portal
+              </Link>
+            )}
+            {/* Show Create Account for non-users, Admin link for admin users */}
+            {!user ? (
+              <Link href={`${createPageUrl("BusinessLogin")}?mode=signup`} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>
+                Create Account
+              </Link>
+            ) : user?.role === 'admin' ? (
+              <Link href={createPageUrl("AdminDashboard")} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>
+                Admin Dashboard
+              </Link>
+            ) : null}
             {user ? (
               <>
                 <button onClick={handleLogout} className="block text-sm font-medium text-red-600 py-2">Sign Out</button>

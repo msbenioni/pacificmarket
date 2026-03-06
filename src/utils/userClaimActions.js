@@ -26,7 +26,7 @@ export const userClaimActions = {
       .from("claim_requests")
       .select(`
         *,
-        businesses:business_id (name, city, country, category)
+        businesses:business_id (name, city, country, industry)
       `)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });

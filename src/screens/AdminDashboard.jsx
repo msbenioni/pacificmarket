@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { getSupabase } from "@/lib/supabase/client";
-import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users, X, Filter, Calendar, TrendingUp, Globe, Award, Clock, XCircle, GitBranch, AlertTriangle, Download, Eye } from "lucide-react";
+import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users, X, Filter, Calendar, TrendingUp, Globe, Award, Clock, XCircle, AlertTriangle, Download, Eye } from "lucide-react";
 import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
-import { BUSINESS_STATUS, BUSINESS_TIER, mapLegacyTier, getTierDisplayName } from "@/constants/business";
-import ProcessFlow from "@/components/admin/ProcessFlow";
+import { COUNTRIES, CATEGORIES } from "@/constants/businessProfile";
+import { BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName } from "@/constants/business";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
@@ -13,12 +13,11 @@ import PortalShell from "@/components/portal/PortalShell";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
 const TABS = [
-  { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
   { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
-  { id: "rejected", label: "Rejected", icon: XCircle, color: "text-red-500", status: BUSINESS_STATUS.REJECTED },
+  { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
   { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
   { id: "insights", label: "Insights", icon: Users, color: "text-purple-600" },
-  { id: "flow", label: "Process Flow", icon: GitBranch, color: "text-violet-600" },
+  { id: "rejected", label: "Rejected", icon: XCircle, color: "text-red-500", status: BUSINESS_STATUS.REJECTED },
 ];
 
 // Premium color scheme for governance console
@@ -63,9 +62,10 @@ export default function AdminDashboard() {
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
   const [insightSnapshots, setInsightSnapshots] = useState([]);
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("active");
   const [editingBusiness, setEditingBusiness] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [currentEditStep, setCurrentEditStep] = useState(1);
   const [creatingBusiness, setCreatingBusiness] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedInsightBusiness, setSelectedInsightBusiness] = useState(null);
@@ -98,8 +98,23 @@ export default function AdminDashboard() {
           return;
         }
 
-        setUser(user);
-        if (checkIsAdmin(user)) {
+        // Get user profile for role information
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('role, display_name')
+          .eq('id', user.id)
+          .single();
+
+        const enhancedUser = { 
+          ...user, 
+          role: profileData?.role || 'owner',
+          permissions: profileData?.role === 'admin' ? ['read', 'write', 'delete'] : [],
+          full_name: profileData?.display_name || user.user_metadata?.full_name || user.user_metadata?.display_name,
+          display_name: profileData?.display_name || user.user_metadata?.display_name || user.user_metadata?.full_name
+        };
+
+        setUser(enhancedUser);
+        if (checkIsAdmin(enhancedUser)) {
           setIsAdmin(true);
           
           // Load businesses and claims in parallel
@@ -145,18 +160,35 @@ export default function AdminDashboard() {
     loadAdminData();
   }, []);
 
+  const createVerifiedBusinessUpdates = () => ({
+  subscription_tier: BUSINESS_TIER.VAKA, 
+  verified: true,
+  verified_date: new Date().toISOString(),
+});
+
   const updateStatus = async (business, status) => {
     try {
       const supabase = getSupabase();
+      
+      // If approving a business, automatically verify it
+      const updates = status === BUSINESS_STATUS.ACTIVE 
+        ? { status, ...createVerifiedBusinessUpdates() }
+        : { status };
+      
       const { error } = await supabase
         .from('businesses')
-        .update({ status })
+        .update(updates)
         .eq('id', business.id);
+        
       if (error) throw error;
-      setBusinesses(prev => prev.map(b => b.id === business.id ? { ...b, status } : b));
+      
+      setBusinesses(prev => prev.map(b => b.id === business.id ? { ...b, ...updates } : b));
+      
       toast({
         title: "Status Updated",
-        description: `Business status has been updated to ${status}.`,
+        description: status === BUSINESS_STATUS.ACTIVE 
+          ? "Business approved and automatically verified!" 
+          : `Business status has been updated to ${status}.`,
         variant: "success"
       });
     } catch (error) {
@@ -169,46 +201,8 @@ export default function AdminDashboard() {
     }
   };
 
-  const toggleVerified = async (business) => {
-    const nextVerified = !business.verified;
-    
-    const updates = nextVerified
-      ? {
-          verified: true,
-          subscription_tier: business.subscription_tier === BUSINESS_TIER.VAKA 
-            ? BUSINESS_TIER.MANA 
-            : business.subscription_tier,
-        }
-      : {
-          verified: false,
-          subscription_tier: business.subscription_tier === BUSINESS_TIER.MANA 
-            ? BUSINESS_TIER.VAKA 
-            : business.subscription_tier,
-        };
-
-    try {
-      const supabase = getSupabase();
-      const { error } = await supabase
-        .from('businesses')
-        .update(updates)
-        .eq('id', business.id);
-      if (error) throw error;
-      setBusinesses(prev =>
-        prev.map(b => (b.id === business.id ? { ...b, ...updates } : b))
-      );
-      toast({
-        title: nextVerified ? "Business Verified" : "Business Unverified",
-        description: `Business verification status has been updated.`,
-        variant: "success"
-      });
-    } catch (error) {
-      console.error("Error toggling verification:", error);
-      toast({
-        title: "Update Failed",
-        description: "Failed to update verification status. Please try again.",
-        variant: "error"
-      });
-    }
+  const handleEditStepChange = (stepInfo) => {
+    setCurrentEditStep(stepInfo.currentStep);
   };
 
   const saveBusiness = async (formData) => {
@@ -237,6 +231,7 @@ export default function AdminDashboard() {
       
       setBusinesses(prev => prev.map(b => b.id === id ? { ...b, ...safeUpdateData } : b));
       setEditingBusiness(null);
+      setCurrentEditStep(1); // Reset step when closing
       toast({
         title: "Business Updated",
         description: "Business updated successfully.",
@@ -298,11 +293,12 @@ export default function AdminDashboard() {
     setClaims(prev => prev.map(c => c.id === claim.id ? { ...c, status } : c));
     
     if (status === "approved") {
-      // Update business to set owner and mark as claimed, and set status to active
+      // Update business to set owner, mark as claimed, set status to active, and auto-verify
       const businessUpdates = { 
         owner_user_id: claim.user_id, 
         claimed: true,
-        status: BUSINESS_STATUS.ACTIVE 
+        status: BUSINESS_STATUS.ACTIVE,
+        ...createVerifiedBusinessUpdates()
       };
       
       const { error: businessError } = await supabase
@@ -320,7 +316,9 @@ export default function AdminDashboard() {
     
     toast({
       title: `Claim ${status}`,
-      description: `Claim request has been ${status}.`,
+      description: status === "approved" 
+        ? "Claim approved and business automatically verified!" 
+        : `Claim request has been ${status}.`,
       variant: status === "approved" ? "success" : "default"
     });
   } catch (error) {
@@ -341,6 +339,8 @@ const createBusiness = async (formData) => {
     const businessData = {
       owner_user_id: formData.owner_user_id ?? null,
       claimed: formData.claimed ?? false,
+      status: BUSINESS_STATUS.ACTIVE, // Admin-created businesses start as active
+      ...createVerifiedBusinessUpdates(),
       ...formData,
     };
     
@@ -355,8 +355,8 @@ const createBusiness = async (formData) => {
     setBusinesses(prev => [data, ...prev]);
     setShowCreateForm(false);
     toast({
-      title: "Business Created",
-      description: "The listing was created successfully.",
+      title: "Business Created & Verified",
+      description: "The listing was created and automatically verified.",
       variant: "success"
     });
   } catch (error) {
@@ -425,7 +425,7 @@ const createBusiness = async (formData) => {
       data = data.filter(business => 
         business.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         business.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        business.category?.toLowerCase().includes(searchQuery.toLowerCase())
+        business.industry?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     
@@ -434,7 +434,7 @@ const createBusiness = async (formData) => {
       data = data.filter(business => business.country === filters.country);
     }
     if (filters.industry) {
-      data = data.filter(business => business.category === filters.industry);
+      data = data.filter(business => business.industry === filters.industry);
     }
     if (filters.tier) {
       data = data.filter(business => business.subscription_tier === filters.tier);
@@ -455,8 +455,8 @@ const createBusiness = async (formData) => {
   // Executive stats for premium dashboard
   const executiveStats = [
     { label: "Total Businesses", value: businesses.length, color: "text-blue-600", bgColor: "bg-blue-50" },
-    { label: "Pending Review", value: pendingCount, color: "text-yellow-600", bgColor: "bg-yellow-50" },
     { label: "Verified", value: businesses.filter(b => b.verified).length, color: "text-green-600", bgColor: "bg-green-50" },
+    { label: "Pending Review", value: pendingCount, color: "text-yellow-600", bgColor: "bg-yellow-50" },
     { label: "Pending Claims", value: pendingClaimsCount, color: "text-purple-600", bgColor: "bg-purple-50" },
   ];
 
@@ -465,17 +465,13 @@ const createBusiness = async (formData) => {
   return (
     <PortalShell>
       <HeroRegistry
-        badge="Admin · Governance Portal"
-        title={`Welcome, ${user?.full_name?.split(" ")[0] || "Admin"}`}
-        subtitle={user?.email}
+        badge="Admin Dashboard"
+        title="Pacific Market Registry"
+        subtitle="Administrative control center for business listings and insights"
         description=""
         showStats={true}
         stats={executiveStats}
-        actions={
-          <button onClick={exportCSV} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all">
-            <Download className="w-4 h-4" /> Export CSV
-          </button>
-        }
+        actions={null}
       />
 
       <div className="bg-[#f8f9fc] min-h-screen">
@@ -536,7 +532,9 @@ const createBusiness = async (formData) => {
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
                   >
                     <option value="">All Countries</option>
-                    {/* Add country options */}
+                    {COUNTRIES.map(country => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
                   </select>
                   <select
                     value={filters.industry}
@@ -544,7 +542,9 @@ const createBusiness = async (formData) => {
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
                   >
                     <option value="">All Industries</option>
-                    {/* Add industry options */}
+                    {CATEGORIES.map(industry => (
+                      <option key={industry} value={industry}>{industry}</option>
+                    ))}
                   </select>
                   <select
                     value={filters.tier}
@@ -552,9 +552,9 @@ const createBusiness = async (formData) => {
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
                   >
                     <option value="">All Tiers</option>
-                    <option value="basic">Basic</option>
-                    <option value="verified">Verified</option>
-                    <option value="featured_plus">Featured+</option>
+                    <option value="vaka">Vaka</option>
+                    <option value="mana">Mana</option>
+                    <option value="moana">Moana</option>
                   </select>
                   <select
                     value={filters.verified}
@@ -596,13 +596,15 @@ const createBusiness = async (formData) => {
                   </button>
                 ))}
               </div>
+              
+              {/* Export CSV Button */}
+              <button onClick={exportCSV} className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white text-sm font-medium px-4 py-2 rounded-lg transition-all">
+                <Download className="w-4 h-4" /> Export CSV
+              </button>
             </div>
 
             {/* Level 4: Data Views */}
             <div className="p-4">
-              {/* Process Flow Tab */}
-              {activeTab === "flow" && <ProcessFlow />}
-
               {/* Claims Tab */}
               {activeTab === "claims" && (
                 <div className="space-y-3">
@@ -698,7 +700,7 @@ const createBusiness = async (formData) => {
               )}
 
               {/* Business Tabs - Premium Table View */}
-              {activeTab !== "claims" && activeTab !== "flow" && activeTab !== "insights" && (
+              {activeTab !== "claims" && activeTab !== "insights" && (
                 <div className="space-y-1">
                   {filteredData.length === 0 ? (
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
@@ -764,13 +766,10 @@ const createBusiness = async (formData) => {
                                       </button>
                                     </>
                                   )}
-                                  <button onClick={() => toggleVerified(b)}
-                                    className={`p-1.5 rounded-lg border transition-all ${b.verified ? getBadgeStyles('premium') : getBadgeStyles('neutral')}`}
-                                    title={b.verified ? "Unverify" : "Verify"}
-                                  >
-                                    <Shield className="w-3 h-3" />
-                                  </button>
-                                  <button onClick={() => setEditingBusiness(b)}
+                                  <button onClick={() => {
+                                    setEditingBusiness(b);
+                                    setCurrentEditStep(1); // Reset to first step when opening
+                                  }}
                                     className="p-1.5 rounded-lg border border-gray-200 hover:border-[#0d4f4f] hover:text-[#0d4f4f] transition-colors"
                                     title="Edit"
                                   >
@@ -818,7 +817,7 @@ const createBusiness = async (formData) => {
                     onSubmit={saveBusiness} 
                     isLoading={savingEdit} 
                     initialData={editingBusiness}
-                    onStepChange={() => {}}
+                    onStepChange={handleEditStepChange}
                     mode={FORM_MODES.ADMIN_EDIT}
                   />
                 </div>

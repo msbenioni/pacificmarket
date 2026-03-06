@@ -1,7 +1,7 @@
 # Stripe Integration Setup Guide
 
 ## Overview
-Pacific Market now has full Stripe checkout integration for subscription upgrades. Users can upgrade to "Verified" ($9/month) or "Featured+" ($29/month) tiers directly from the pricing page or business portal.
+Pacific Market now has full Stripe checkout integration for subscription upgrades. Users can upgrade to "Mana" ($9/month) or "Moana" ($29/month) tiers directly from the pricing page or business portal.
 
 ## Environment Variables
 
@@ -13,8 +13,8 @@ STRIPE_SECRET_KEY=sk_test_...  # Your Stripe secret key
 STRIPE_PUBLISHABLE_KEY=pk_test_...  # Your Stripe publishable key
 
 # Stripe Price IDs (create these in Stripe Dashboard)
-STRIPE_PRICE_VERIFIED=price_...  # $9/month Verified tier
-STRIPE_PRICE_FEATURED_PLUS=price_...  # $29/month Featured+ tier
+STRIPE_PRICE_MANA=price_...  # $9/month Mana tier
+STRIPE_PRICE_MOANA=price_...  # $29/month Moana tier
 
 # Existing URLs
 NEXT_PUBLIC_APP_DEV_URL=http://localhost:3000
@@ -28,14 +28,14 @@ NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
 1. Go to Stripe Dashboard → Products
 2. Create two products:
 
-#### Verified Product
-- **Name**: "Pacific Market Verified"
+#### Mana Product
+- **Name**: "Pacific Market Mana"
 - **Description**: "Verified business tier with logo, banner, and enhanced profile"
 - **Price**: $9.00 USD/month
 - **Recurring**: Monthly
 
-#### Featured+ Product  
-- **Name**: "Pacific Market Featured+"
+#### Moana Product  
+- **Name**: "Pacific Market Moana"
 - **Description**: "Premium tier with all features plus business tools"
 - **Price**: $29.00 USD/month
 - **Recurring**: Monthly
@@ -43,10 +43,10 @@ NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
 ### 2. Get Price IDs
 
 After creating products, copy the Price IDs:
-- `price_...` for Verified tier
-- `price_...` for Featured+ tier
+- `price_...` for Mana tier
+- `price_...` for Moana tier
 
-Add these to your environment variables as `STRIPE_PRICE_VERIFIED` and `STRIPE_PRICE_FEATURED_PLUS`.
+Add these to your environment variables as `STRIPE_PRICE_MANA` and `STRIPE_PRICE_MOANA`.
 
 ### 3. Configure Webhooks (Optional but Recommended)
 
@@ -89,7 +89,7 @@ The `/api/stripe/checkout` route:
 ### 3. Metadata Tracking
 
 Each subscription includes metadata:
-- `tier`: "verified" or "featured_plus"
+- `tier`: "mana" or "moana"
 - `user_id`: Supabase user ID
 - `business_id`: Business being upgraded (if applicable)
 - `customer_email`: User's email

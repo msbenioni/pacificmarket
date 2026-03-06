@@ -33,8 +33,8 @@ export default function RegistryFilters({ filters, onChange }) {
   }, [businesses]);
 
   const set = (key, val) => onChange({ ...filters, [key]: val });
-  const clear = () => onChange({ search: "", country: "", category: "", verified: false, identity: "" });
-  const hasFilters = filters.country || filters.category || filters.verified || filters.identity;
+  const clear = () => onChange({ search: "", country: "", industry: "", verified: false, identity: "" });
+  const hasFilters = filters.country || filters.industry || filters.verified || filters.identity;
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
@@ -72,10 +72,10 @@ export default function RegistryFilters({ filters, onChange }) {
           </select>
         </div>
 
-        {/* Category */}
+        {/* Industry */}
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Industry</label>
-          <select value={filters.category} onChange={e => set("category", e.target.value)}
+          <select value={filters.industry} onChange={e => set("industry", e.target.value)}
             className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#0d4f4f] bg-white">
             <option value="">All Industries</option>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}

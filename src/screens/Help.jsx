@@ -49,7 +49,7 @@ export default function Help() {
         },
         {
           q: "Is Pacific Market free to use?",
-          a: "Basic browsing and searching is free for everyone. Business listings start with a free tier, with paid options for verified status and enhanced features."
+          a: "Basic browsing and searching is free for everyone. Business listings start with a free Vaka tier, with paid options for Mana and Moana tiers with enhanced features."
         },
         {
           q: "Who can list a business?",
@@ -62,19 +62,15 @@ export default function Help() {
       questions: [
         {
           q: "What information do I need to submit a business?",
-          a: "You'll need: business name, contact information, location, industry category, cultural identity information, and basic business details."
+          a: "You'll need: business name, contact information, location, industry, cultural identity information, and basic business details."
         },
         {
           q: "How long does the review process take?",
-          a: "Standard listings are typically reviewed within 2–3 business days. Verified listings may take 5–7 business days."
+          a: "Standard listings are typically reviewed within 2–3 business days. Mana listings may take 5–7 business days."
         },
         {
           q: "Can I edit my listing after submission?",
-          a: "Yes. You can edit your listing any time from your account dashboard. Changes to verified information may require review."
-        },
-        {
-          q: "What's the difference between Active and Verified status?",
-          a: "Active means the listing is approved. Verified means additional checks confirm authenticity, ownership, and cultural connection."
+          a: "Yes. You can edit your listing any time from your account dashboard. Changes to Mana tier information may require review."
         },
         {
           q: "How do I upgrade my listing tier?",
@@ -91,7 +87,7 @@ export default function Help() {
         },
         {
           q: "Can I contact businesses through the registry?",
-          a: "Yes. Verified businesses show their contact details. For basic listings, you may need to use the contact form."
+          a: "Yes. All businesses show their contact details after you provide a valid email address. (This prevents spam and ensures legitimate inquiries.)"
         },
         {
           q: "How accurate is the information?",

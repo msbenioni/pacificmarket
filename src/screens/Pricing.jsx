@@ -5,19 +5,18 @@ import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { getSupabase } from "@/lib/supabase/client";
-import { BUSINESS_TIER, mapLegacyTier, getTierDisplayName } from "@/constants/business";
+import { BUSINESS_TIER, getTierDisplayName } from "@/constants/business";
+import { TIER_BENEFITS } from "@/constants/tierBenefits";
 import HeroRegistry from "../components/shared/HeroRegistry";
 
 const plans = [
   {
     id: BUSINESS_TIER.VAKA,
-    legacyTier: BUSINESS_TIER.BASIC,
-    name: getTierDisplayName(BUSINESS_TIER.VAKA),
-    subtitle: "Begin the journey",
-    price: "Free",
+    name: TIER_BENEFITS.vaka.label,
+    subtitle: TIER_BENEFITS.vaka.subtitle,
+    price: TIER_BENEFITS.vaka.price,
     period: "",
-    description:
-      "Start your journey in the Pacific Market registry and make sure your business is counted, represented, and discoverable.",
+    description: TIER_BENEFITS.vaka.description,
     bestFor: "Early visibility and proud Pacific representation",
     badge: null,
     icon: Compass,
@@ -27,36 +26,16 @@ const plans = [
     cta: "Start with Vaka",
     ctaClass:
       "bg-white border-2 border-[#0a1628] text-[#0a1628] hover:bg-[#0a1628] hover:text-white",
-    highlights: [
-      "Public registry listing",
-      "Business name, country and category",
-      "Discoverable across the platform",
-      "Official registry record number",
-    ],
-    features: [
-      { label: "Registry listing", included: true },
-      { label: "Business name, country & category", included: true },
-      { label: "Public discoverability", included: true },
-      { label: "Registry record number", included: true },
-      { label: "Logo upload", included: false },
-      { label: "Banner image", included: false },
-      { label: "Full business profile", included: false },
-      { label: "Trust badge", included: false },
-      { label: "Priority placement", included: false },
-      { label: "Invoice generator", included: false },
-      { label: "QR code generator", included: false },
-      { label: "Homepage spotlight", included: false },
-    ],
+    highlights: TIER_BENEFITS.vaka.features,
+    features: TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
   },
   {
     id: BUSINESS_TIER.MANA,
-    legacyTier: BUSINESS_TIER.VERIFIED,
-    name: getTierDisplayName(BUSINESS_TIER.MANA),
-    subtitle: "Build trust and presence",
-    price: "$9",
+    name: TIER_BENEFITS.mana.label,
+    subtitle: TIER_BENEFITS.mana.subtitle,
+    price: TIER_BENEFITS.mana.price,
     period: "/month",
-    description:
-      "Strengthen your presence with branding, a fuller profile, and stronger trust signals that help your business look established and credible.",
+    description: TIER_BENEFITS.mana.description,
     bestFor: "Businesses ready for a stronger public presence",
     badge: null,
     icon: Shield,
@@ -65,37 +44,19 @@ const plans = [
     accent: "text-white",
     cta: "Choose Mana",
     ctaClass: "bg-[#0d4f4f] text-white hover:bg-[#1a6b6b]",
-    highlights: [
-      "Everything in Vaka",
-      "Logo and banner image",
-      "Full business profile",
-      "Trust-focused profile upgrade",
-      "Priority search placement",
-    ],
+    highlights: TIER_BENEFITS.mana.features.slice(0, 3), // First 3 features as highlights
     features: [
-      { label: "Registry listing", included: true },
-      { label: "Business name, country & category", included: true },
-      { label: "Public discoverability", included: true },
-      { label: "Registry record number", included: true },
-      { label: "Logo upload", included: true },
-      { label: "Banner image", included: true },
-      { label: "Full business profile", included: true },
-      { label: "Trust badge", included: true },
-      { label: "Priority placement", included: true },
-      { label: "Invoice generator", included: false },
-      { label: "QR code generator", included: false },
-      { label: "Homepage spotlight", included: false },
+      ...TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
+      ...TIER_BENEFITS.mana.features.slice(4).map(feature => ({ label: feature, included: true })),
     ],
   },
   {
     id: BUSINESS_TIER.MOANA,
-    legacyTier: BUSINESS_TIER.FEATURED_PLUS,
-    name: getTierDisplayName(BUSINESS_TIER.MOANA),
-    subtitle: "Expand your reach",
-    price: "$29",
+    name: TIER_BENEFITS.moana.label,
+    subtitle: TIER_BENEFITS.moana.subtitle,
+    price: TIER_BENEFITS.moana.price,
     period: "/month",
-    description:
-      "For businesses ready to lead with visibility, unlock premium placement, useful tools, and a stronger presence across Pacific Market.",
+    description: TIER_BENEFITS.moana.description,
     bestFor: "Businesses ready to grow reach, visibility and momentum",
     badge: "Most Popular",
     icon: Waves,
@@ -104,26 +65,11 @@ const plans = [
     accent: "text-[#0a1628]",
     cta: "Choose Moana",
     ctaClass: "bg-[#c9a84c] text-[#0a1628] hover:bg-[#b8973b]",
-    highlights: [
-      "Everything in Mana",
-      "Invoice generator",
-      "QR code generator",
-      "Premium visibility",
-      "Homepage spotlight",
-    ],
+    highlights: TIER_BENEFITS.moana.features.slice(0, 4), // First 4 features as highlights
     features: [
-      { label: "Registry listing", included: true },
-      { label: "Business name, country & category", included: true },
-      { label: "Public discoverability", included: true },
-      { label: "Registry record number", included: true },
-      { label: "Logo upload", included: true },
-      { label: "Banner image", included: true },
-      { label: "Full business profile", included: true },
-      { label: "Trust badge", included: true },
-      { label: "Priority placement", included: true },
-      { label: "Invoice generator", included: true },
-      { label: "QR code generator", included: true },
-      { label: "Homepage spotlight", included: true },
+      ...TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
+      ...TIER_BENEFITS.mana.features.map(feature => ({ label: feature, included: true })),
+      ...TIER_BENEFITS.moana.features.slice(4).map(feature => ({ label: feature, included: true })),
     ],
   },
 ];
@@ -155,6 +101,11 @@ export default function Pricing() {
 
   const handleUpgrade = async (planId) => {
     if (!user) {
+      if (planId === BUSINESS_TIER.VAKA) {
+        // Route to signup for Vaka tier
+        window.location.href = createPageUrl("BusinessLogin");
+        return;
+      }
       window.location.href = createPageUrl("BusinessLogin");
       return;
     }
@@ -163,6 +114,7 @@ export default function Pricing() {
 
     try {
       if (planId === BUSINESS_TIER.VAKA) {
+        // Vaka is free, just show modal or handle differently
         setShowModal(true);
       } else {
         await createCheckoutSession({ tier: planId });
@@ -225,7 +177,7 @@ export default function Pricing() {
                   )}
 
                   <div
-                    className={`h-full overflow-hidden rounded-[28px] border ${plan.border} bg-white shadow-[0_18px_50px_rgba(10,22,40,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(10,22,40,0.12)] ${
+                    className={`h-full flex flex-col overflow-hidden rounded-[28px] border ${plan.border} bg-white shadow-[0_18px_50px_rgba(10,22,40,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(10,22,40,0.12)] ${
                       isMoana ? "ring-2 ring-[#c9a84c]/25" : ""
                     }`}
                   >
@@ -284,7 +236,7 @@ export default function Pricing() {
                       </div>
                     </div>
 
-                    <div className="flex h-[calc(100%-148px)] flex-col p-7">
+                    <div className="flex-1 flex flex-col p-7">
                       <p className="text-sm leading-6 text-slate-600">{plan.description}</p>
 
                       <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3">
@@ -312,18 +264,25 @@ export default function Pricing() {
                         </ul>
                       </div>
 
-                      <div className="mt-6 border-t border-slate-200 pt-6">
+                      <div className="mt-auto border-t border-slate-200 pt-6">
                         <button
                           onClick={() => handleUpgrade(plan.id)}
-                          disabled={processingPlan !== null}
+                          disabled={processingPlan !== null || (plan.id === BUSINESS_TIER.VAKA && user)}
                           className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition ${
-                            processingPlan !== null ? "opacity-60 cursor-not-allowed" : plan.ctaClass
+                            processingPlan !== null || (plan.id === BUSINESS_TIER.VAKA && user)
+                              ? "opacity-60 cursor-not-allowed bg-gray-100 text-gray-500 border border-gray-200"
+                              : plan.ctaClass
                           }`}
                         >
                           {processingPlan === plan.id ? (
                             <>
                               <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                               Processing...
+                            </>
+                          ) : plan.id === BUSINESS_TIER.VAKA && user ? (
+                            <>
+                              Current Plan
+                              <CheckCircle className="w-4 h-4" />
                             </>
                           ) : (
                             <>

@@ -58,18 +58,18 @@ function getSocialLinks(business) {
 }
 
 function FeaturedBadge({ tier }) {
-  if (tier === "featured_plus") {
+  if (tier === "moana") {
     return (
       <div className="inline-flex items-center gap-1 rounded-full bg-[#c9a84c] text-[#0a1628] px-2.5 py-1 text-[11px] font-extrabold shadow-sm">
         <Star className="w-3.5 h-3.5" />
-        Featured+
+        Moana
       </div>
     );
-  } else if (tier === "verified") {
+  } else if (tier === "mana") {
     return (
       <div className="inline-flex items-center gap-1 rounded-full bg-[#00c4cc] text-white px-2.5 py-1 text-[11px] font-extrabold shadow-sm">
         <CheckCircle className="w-3.5 h-3.5" />
-        Verified
+        Mana
       </div>
     );
   }
@@ -129,7 +129,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
           </h3>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {b.cultural_identity && <FlagIcon identity={b.cultural_identity} size={16} />}
-            {b.verified && <CheckCircle className="w-4 h-4 text-[#00c4cc] shrink-0" />}
+            {(b.subscription_tier === "mana" || b.subscription_tier === "moana") && <CheckCircle className="w-4 h-4 text-[#00c4cc] shrink-0" />}
           </div>
         </div>
 
@@ -253,10 +253,10 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                 <h3 className="text-white font-black text-xl sm:text-2xl leading-tight">
                   {b?.name}
                 </h3>
-                {b?.verified && (
+                {(b?.subscription_tier === "mana" || b?.subscription_tier === "moana") && (
                   <div className="inline-flex items-center gap-1 rounded-full bg-white/10 text-white px-3 py-1 text-xs font-bold border border-white/10">
                     <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
-                    Verified
+                    {b?.subscription_tier === "mana" ? "Mana" : "Moana"}
                   </div>
                 )}
               </div>
@@ -463,7 +463,7 @@ export default function FeaturedSpotlight({ businesses = [] }) {
 
         {/* Mobile hint */}
         <div className="mt-3 text-xs text-slate-500 lg:hidden">
-          Tap a card to preview the Featured+ spotlight.
+          Tap a card to preview the Moana spotlight.
         </div>
       </div>
 

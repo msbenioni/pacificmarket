@@ -30,12 +30,12 @@ export default function InvoiceGenerator() {
         
         setUser(user);
         
-        // Get user's featured_plus business
+        // Get user's moana business
         const { data: businesses } = await supabase
           .from('businesses')
           .select('*')
           .eq('owner_user_id', user.id)
-          .eq('subscription_tier', 'featured_plus');
+          .eq('subscription_tier', 'moana');
         
         if (businesses && businesses.length > 0) {
           setBusiness(businesses[0]);

@@ -64,6 +64,7 @@ import Insights from './screens/Insights';
 import InvoiceGenerator from './screens/InvoiceGenerator';
 import Pricing from './screens/Pricing';
 import Privacy from './screens/Privacy';
+import ProfileSettings from './screens/ProfileSettings';
 import QRCodeGenerator from './screens/QRCodeGenerator';
 import Registry from './screens/Registry';
 import Terms from './screens/Terms';
@@ -88,6 +89,7 @@ export const PAGES = {
     "InvoiceGenerator": InvoiceGenerator,
     "Pricing": Pricing,
     "Privacy": Privacy,
+    "ProfileSettings": ProfileSettings,
     "QRCodeGenerator": QRCodeGenerator,
     "Registry": Registry,
     "Terms": Terms,
