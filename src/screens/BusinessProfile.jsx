@@ -146,7 +146,7 @@ export default function BusinessProfile() {
     <div className="min-h-screen bg-[#f8f9fc]">
       {showContact && <ContactModal business={business} onClose={() => setShowContact(false)} />}
       {/* Banner */}
-      <div className="h-96 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] relative overflow-hidden">
+      <div className="h-[400px] bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] relative overflow-hidden">
         {business.banner_url && <img src={business.banner_url} alt="" className="w-full h-full object-cover" />}
         {business.cultural_identity && (
           <div className="absolute bottom-3 right-4 flex items-center gap-1.5 bg-black/30 backdrop-blur-sm px-2.5 py-1.5 rounded-lg">

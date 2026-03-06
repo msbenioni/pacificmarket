@@ -69,7 +69,7 @@ export default function BusinessCard({ business, view = "grid" }) {
     <Link href={createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`}
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:border-[#0d4f4f]/30 transition-all group flex flex-col">
       {/* Banner */}
-      <div className="h-32 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] relative overflow-hidden">
+      <div className="h-[133px] bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] relative overflow-hidden">
         {business.banner_url && <img src={business.banner_url} alt="" className="w-full h-full object-cover" style={{ objectPosition: "center top" }} />}
         {tierBadge && (
           <span className={`absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full font-medium ${tierBadge.cls}`}>

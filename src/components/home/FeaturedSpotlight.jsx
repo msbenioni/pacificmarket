@@ -96,7 +96,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
       ].join(" ")}
     >
       {/* Banner */}
-      <div className="relative h-[84px] rounded-t-2xl overflow-hidden bg-[#0d4f4f] flex-shrink-0">
+      <div className="relative h-[133px] rounded-t-2xl overflow-hidden bg-[#0d4f4f] flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
 
         {b.banner_url && (
@@ -183,7 +183,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a84c]/15 blur-3xl" />
 
         {/* Banner */}
-        <div className="relative h-[220px] sm:h-[260px] overflow-hidden bg-[#0a1628]">
+        <div className="relative h-[233px] overflow-hidden bg-[#0a1628]">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
           {b?.banner_url && (
