@@ -1,0 +1,83 @@
+import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-04-10",
+});
+
+// Stripe price IDs (you'll need to create these in your Stripe dashboard)
+const STRIPE_PRICE_IDS = {
+  verified: process.env.STRIPE_PRICE_VERIFIED, // $9/month
+  featured_plus: process.env.STRIPE_PRICE_FEATURED_PLUS, // $29/month
+};
+
+export async function POST(request) {
+  const body = await request.json();
+  const { tier, businessId, customerEmail, successUrl, cancelUrl } = body;
+
+  try {
+    // Validate the tier
+    if (!tier || !STRIPE_PRICE_IDS[tier]) {
+      return new Response("Invalid tier specified", { status: 400 });
+    }
+
+    // Get the current user
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return new Response("User not authenticated", { status: 401 });
+    }
+
+    // Create or retrieve Stripe customer
+    let customer;
+    if (customerEmail) {
+      // Try to find existing customer
+      const customers = await stripe.customers.list({ email: customerEmail, limit: 1 });
+      customer = customers.data[0];
+    }
+
+    if (!customer) {
+      // Create new customer
+      customer = await stripe.customers.create({
+        email: customerEmail || user.email,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Pacific Market User',
+        metadata: {
+          supabase_user_id: user.id
+        }
+      });
+    }
+
+    // Create checkout session with correct parameters
+    const sessionParams = {
+      customer: customer.id,
+      payment_method_types: ["card"],
+      mode: "subscription",
+      line_items: [{ price: STRIPE_PRICE_IDS[tier], quantity: 1 }],
+      success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_PROD_URL}/business-portal?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_PROD_URL}/pricing?cancelled=true`,
+      subscription_data: {
+        metadata: {
+          tier: tier,
+          user_id: user.id,
+          business_id: businessId || null,
+          customer_email: customerEmail || user.email
+        }
+      },
+      allow_promotion_codes: true
+    };
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+
+    return Response.json({ 
+      sessionId: session.id,
+      url: session.url 
+    });
+  } catch (error) {
+    console.error('Stripe checkout error:', error);
+    return new Response(error.message || "Failed to create checkout session", { status: 500 });
+  }
+}

@@ -213,7 +213,7 @@ export default function AdminDashboard() {
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <span className="font-bold text-[#0a1628] text-sm">{b.name}</span>
                           <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">Unclaimed</span>
-                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{b.tier}</span>
+                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{b.subscription_tier}</span>
                         </div>
                         <p className="text-gray-400 text-xs">{b.country} · {b.category} · {b.email || "No email"}</p>
                         <p className="text-gray-400 text-xs mt-0.5">Created {new Date(b.created_date).toLocaleDateString()}</p>
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <span className="font-bold text-[#0a1628] text-sm">{b.name}</span>
                       {b.verified && <span className="text-xs px-2 py-0.5 bg-[#0d4f4f]/10 text-[#0d4f4f] rounded-full font-medium">Verified</span>}
-                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{b.tier}</span>
+                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{b.subscription_tier}</span>
                     </div>
                     <p className="text-gray-400 text-xs">{b.country} · {b.category} · {b.email || "No email"}</p>
                     <p className="text-gray-400 text-xs mt-0.5">Submitted {new Date(b.created_date).toLocaleDateString()}</p>

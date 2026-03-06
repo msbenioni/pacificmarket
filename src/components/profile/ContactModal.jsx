@@ -7,13 +7,39 @@ export default function ContactModal({ business, onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Please enter a valid email address.");
       return;
     }
-    setSubmitted(true);
+    
+    try {
+      const response = await fetch('/api/emails/business-contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          business: business,
+          userEmail: email,
+          userName: email.split('@')[0] // Extract name from email for simplicity
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to send contact request');
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Business contact error:', err);
+      setError(err.message || "Failed to send contact request. Please try again.");
+    }
   };
 
   return (
@@ -50,7 +76,7 @@ export default function ContactModal({ business, onClose }) {
               </div>
 
               {error && (
-                <div className="text-red-600 text-sm">{error}</div>
+                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
               )}
 
               <button

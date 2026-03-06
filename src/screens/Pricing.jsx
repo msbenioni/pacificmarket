@@ -3,8 +3,10 @@ import { createPageUrl } from "@/utils";
 import { CheckCircle, X, Star, Shield, Zap, ArrowRight } from "lucide-react";
 import ChevronStrip from "../components/home/ChevronStrip";
 import HeroRegistry from "../components/shared/HeroRegistry";
-import { useState } from "react";
-import { ClaimAddBusinessModal } from "../components/onboarding/ClaimAddBusinessModal";
+import { useState, useEffect } from "react";
+import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
+import { pacificMarket } from "@/lib/pacificMarketClient";
 
 const plans = [
   {
@@ -112,6 +114,46 @@ const plans = [
 
 export default function Pricing() {
   const [showModal, setShowModal] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { createCheckoutSession, loading: checkoutLoading, error } = useStripeCheckout();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const currentUser = await pacificMarket.auth.me();
+        setUser(currentUser);
+      } catch (error) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, []);
+
+  const handleUpgrade = async (tier) => {
+    if (!user) {
+      // Redirect to login/signup
+      window.location.href = createPageUrl("Login");
+      return;
+    }
+    
+    if (tier === 'free') {
+      setShowModal(true);
+    } else {
+      await createCheckoutSession({ tier });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#f8f9fc]">
@@ -288,11 +330,41 @@ export default function Pricing() {
 
                     {/* CTA always at bottom */}
                     <div className="mt-6">
+                      {error && (
+                        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-sm text-red-600">{error}</p>
+                        </div>
+                      )}
+                      
                       <button 
-                        onClick={() => setShowModal(true)}
-                        className={`inline-flex w-full justify-center items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${plan.ctaClass}`}
+                        onClick={() => handleUpgrade(plan.id)}
+                        disabled={loading || (checkoutLoading && plan.id !== 'free')}
+                        className={`inline-flex w-full justify-center items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${
+                          loading || (checkoutLoading && plan.id !== 'free')
+                            ? 'opacity-50 cursor-not-allowed' 
+                            : plan.ctaClass
+                        }`}
                       >
-                        {plan.cta} {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
+                        {loading ? (
+                          <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                        ) : checkoutLoading && plan.id !== 'free' ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            {user ? (
+                              <>
+                                {plan.cta} {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
+                              </>
+                            ) : (
+                              <>
+                                {plan.id === 'free' ? 'Sign Up Free' : 'Sign Up to Upgrade'} {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
+                              </>
+                            )}
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

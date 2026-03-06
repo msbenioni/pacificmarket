@@ -13,6 +13,52 @@ import BusinessSearch from "@/components/BusinessSearch";
 import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, Plus, ChevronLeft } from "lucide-react";
 
+// Whitelist of allowed fields that match the exact database schema
+const ALLOWED_BUSINESS_FIELDS = [
+  "name",
+  "description",
+  "short_description", // Database has short_description instead of tagline
+  "logo_url",
+  "banner_url",
+  "contact_website", // Database uses contact_website instead of website
+  "contact_email",
+  "contact_phone",
+  "contact_name",
+  "address",
+  "suburb",
+  "city",
+  "state_region",
+  "postal_code",
+  "country",
+  "industry",
+  "languages_spoken",
+  "social_links", // JSONB array for social media
+  "business_hours",
+  "cultural_identity",
+  "business_handle",
+  "proof_links",
+  "claimed",
+];
+
+function pickAllowedBusinessFields(input) {
+  const out = {};
+  for (const key of ALLOWED_BUSINESS_FIELDS) {
+    if (input?.[key] !== undefined) {
+      out[key] = input[key];
+    }
+  }
+  
+  // Map form field names to database column names
+  if (input?.tagline) {
+    out["short_description"] = input.tagline; // Map tagline -> short_description
+  }
+  if (input?.website) {
+    out["contact_website"] = input.website; // Map website -> contact_website
+  }
+  
+  return out;
+}
+
 /**
  * Claim or Add Business Modal (single modal switching views)
  *
@@ -125,8 +171,8 @@ export function ClaimAddBusinessModal({
         proof_url: proof_url || null,
         business_name: pickedBusiness.name,
         user_email: userRes.user.email,
-        listing_contact_email: pickedBusiness?.email || null,
-        listing_contact_phone: pickedBusiness?.phone || null,
+        listing_contact_email: pickedBusiness?.contact_email || null,
+        listing_contact_phone: pickedBusiness?.contact_phone || null,
       };
       
       // Insert into claim_requests table and return the inserted row
@@ -163,17 +209,39 @@ export function ClaimAddBusinessModal({
       if (userErr) throw userErr;
       if (!userRes?.user) throw new Error("User not authenticated");
 
-      const { error } = await supabase.from("businesses").insert({
-        ...businessData,
-        owner_user_id: userRes.user.id,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+      // ✅ ONLY insert the fields we allow
+      const clean = pickAllowedBusinessFields(businessData);
+      
+      console.log("Submitting business data:", {
+        original: businessData,
+        cleaned: clean,
+        userId: userRes.user.id
       });
 
-      if (error) throw error;
+      const { error, data } = await supabase.from("businesses").insert({
+        ...clean,
+        owner_user_id: userRes.user.id,
+        // Let DB defaults handle timestamps
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        // Optional: force known starting state
+        status: "pending",
+        subscription_tier: "basic",
+        visibility_tier: "none",
+      }).select();
+
+      if (error) {
+        console.error("Database insert error:", error);
+        throw error;
+      }
+
+      console.log("Business created successfully:", data);
 
       onAddSelected?.();
       onClose();
+    } catch (error) {
+      console.error("Business submission error:", error);
+      alert(`Failed to create business: ${error.message || "Unknown error occurred. Please try again."}`);
     } finally {
       setSubmitting(false);
     }
@@ -300,7 +368,7 @@ export function ClaimAddBusinessModal({
                   </p>
                   <p className="mt-1 text-sm text-gray-600">
                     {pickedBusiness?.city ? `${pickedBusiness.city}, ` : ""}
-                    {pickedBusiness?.country} · {pickedBusiness?.category}
+                    {pickedBusiness?.country} · {pickedBusiness?.industry}
                   </p>
                 </div>
 
@@ -333,10 +401,9 @@ export function ClaimAddBusinessModal({
             <DetailedBusinessForm
               onSubmit={handleBusinessSubmit}
               isLoading={submitting}
-              showTierSelection={false}
               excludeFields={["claimed", "tier"]}
               initialData={null}
-              onStepChange={setFormControls}
+              onStepChange={(controls) => setFormControls(controls)}
             />
           </div>
         )}

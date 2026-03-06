@@ -62,14 +62,24 @@ const remove = async (table, id) => {
   return true;
 };
 
-const uploadFile = async ({ file }) => {
+const uploadFile = async ({ file, type }) => {
   const supabase = getSupabase();
-  const bucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || "public";
-  const filePath = `uploads/${Date.now()}-${file.name}`;
-  const { error } = await supabase.storage.from(bucket).upload(filePath, file);
-  if (error) throw mapError(error);
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return { file_url: data.publicUrl };
+  const bucket = "admin-listings"; // Use the existing 'admin-listings' bucket
+  const folder = type === "logo" ? "logos" : "banners"; // Determine subfolder based on type
+  const filePath = `${folder}/${Date.now()}-${file.name}`;
+  
+  try {
+    const { error } = await supabase.storage.from(bucket).upload(filePath, file);
+    if (error) {
+      throw mapError(error);
+    }
+    
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+    return { file_url: data.publicUrl };
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw error;
+  }
 };
 
 export const pacificMarket = {

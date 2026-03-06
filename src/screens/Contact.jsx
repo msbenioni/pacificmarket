@@ -41,12 +41,33 @@ export default function Contact() {
       return;
     }
 
-    // Simulate form submission
+    // Send form submission
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/emails/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          inquiryType: formData.inquiryType,
+          marketingConsent: formData.marketingConsent
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to send message');
+      }
+
       setSubmitted(true);
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      console.error('Contact form error:', err);
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

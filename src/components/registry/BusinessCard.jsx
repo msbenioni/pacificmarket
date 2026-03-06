@@ -29,7 +29,7 @@ export default function BusinessCard({ business, view = "grid" }) {
     featured_plus: { label: "Featured+", cls: "featured-badge" },
     verified: { label: "Verified", cls: "verified-badge" },
     free: null,
-  }[business.tier || "free"];
+  }[business.subscription_tier || "free"];
 
   const languages = business.languages_spoken?.length > 0
     ? business.languages_spoken.join(", ")
