@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getSupabase } from '../lib/supabase/client';
 
 /**
@@ -13,127 +13,126 @@ export function useOnboardingStatus() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Handle SSR/hydration
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    // Don't run on server or before mount
+  const fetchOnboardingData = useCallback(async () => {
     if (!isMounted) return;
-    
-    async function fetchOnboardingData() {
-      try {
-        setLoading(true);
-        
-        // Get authenticated user
-        const supabase = getSupabase();
-        const { data: { user: userData } } = await supabase.auth.getUser();
-        if (!userData) {
-          setLoading(false);
-          return;
-        }
-        
-        setUser(userData);
 
-        // Fetch user profile using direct Supabase client
-        const { data: profileData, error: profileError } = await supabase
+    try {
+      setLoading(true);
+      setError(null);
+
+      const supabase = getSupabase();
+      const { data: { user: userData } } = await supabase.auth.getUser();
+
+      if (!userData) {
+        setUser(null);
+        setProfile(null);
+        setBusinesses([]);
+        setClaims([]);
+        return;
+      }
+
+      setUser(userData);
+
+      const [profileResult, businessesResult, claimsResult] = await Promise.all([
+        supabase
           .from('profiles')
           .select('*')
           .eq('id', userData.id)
-          .single();
-        
-        if (profileError && profileError.code !== 'PGRST116') {
-          throw profileError;
-        }
-        
-        setProfile(profileData);
-
-        // Fetch user's businesses
-        const { data: businessesData } = await supabase
+          .single(),
+        supabase
           .from('businesses')
           .select('*')
-          .eq('owner_user_id', userData.id);
-        setBusinesses(businessesData || []);
-
-        // Fetch user's claim requests
-        const { data: claimsData } = await supabase
+          .eq('owner_user_id', userData.id),
+        supabase
           .from('claim_requests')
           .select('*')
-          .eq('user_id', userData.id);
-        setClaims(claimsData || []);
+          .eq('user_id', userData.id),
+      ]);
 
-      } catch (err) {
-        console.error('Error fetching onboarding data:', err);
-        setError(err);
-      } finally {
-        setLoading(false);
+      if (profileResult.error && profileResult.error.code !== 'PGRST116') {
+        throw profileResult.error;
       }
+
+      setProfile(profileResult.data || null);
+      setBusinesses(businessesResult.data || []);
+      setClaims(claimsResult.data || []);
+    } catch (err) {
+      console.error('Error fetching onboarding data:', err);
+      setError(err);
+    } finally {
+      setLoading(false);
     }
+  }, [isMounted]);
 
+  useEffect(() => {
     fetchOnboardingData();
-  }, [isMounted, refreshKey]);
+  }, [fetchOnboardingData]);
 
-  // Compute onboarding status
-  const onboardingStatus = {
-    // Step 1: Profile completeness
-    needsProfile: !profile?.city || !profile?.country || !profile?.primary_cultural || !profile?.primary_cultural?.length,
-    profileProgress: {
-      city: !!profile?.city,
-      country: !!profile?.country,
-      primary_cultural: !!profile?.primary_cultural && profile?.primary_cultural?.length > 0,
-      // Optional fields for progress tracking
-      display_name: !!profile?.display_name,
-      languages: !!profile?.languages && profile?.languages?.length > 0,
-      years_operating: !!profile?.years_operating,
-      market_region: !!profile?.market_region
-    },
-    
-    // Step 2: Business ownership
-    hasOwnedBusinesses: businesses.length > 0,
-    hasClaims: claims.length > 0,
-    hasAnyBusiness: businesses.length > 0 || claims.length > 0,
-    
-    // Step 3: Business profile completeness (optional)
-    incompleteBusinessProfiles: businesses.filter(business => 
-      !business.description || 
-      !business.industry || 
+  const onboardingStatus = useMemo(() => {
+    const hasRequiredProfile = !!profile?.country;
+    const hasOwnedBusinesses = businesses.length > 0;
+    const hasClaims = claims.length > 0;
+    const hasAnyBusiness = hasOwnedBusinesses || hasClaims;
+
+    const incompleteBusinessProfiles = businesses.filter((business) =>
+      !business.description ||
+      !business.industry ||
       !business.year_founded ||
       !business.contact_website
-    ),
-    
-    // Overall progress
-    totalSteps: 3,
-    completedSteps: 0,
-    currentStep: 1,
-    nextAction: null,
-    isComplete: false
-  };
+    );
 
-  // Determine next action
-  if (onboardingStatus.needsProfile) {
-    onboardingStatus.nextAction = 'complete-profile';
-    onboardingStatus.currentStep = 1;
-  } else if (!onboardingStatus.hasAnyBusiness) {
-    onboardingStatus.nextAction = 'claim-or-add';
-    onboardingStatus.currentStep = 2;
-  } else if (onboardingStatus.incompleteBusinessProfiles.length > 0) {
-    onboardingStatus.nextAction = 'complete-business-profiles';
-    onboardingStatus.currentStep = 3;
-  } else {
-    onboardingStatus.nextAction = 'dashboard-ready';
-    onboardingStatus.currentStep = 3;
-    onboardingStatus.isComplete = true;
-  }
+    let currentStep = 1;
+    let nextAction = 'complete-profile';
+    let isComplete = false;
 
-  // Calculate completed steps
-  if (onboardingStatus.currentStep > 1) onboardingStatus.completedSteps = 1;
-  if (onboardingStatus.currentStep > 2) onboardingStatus.completedSteps = 2;
-  if (onboardingStatus.isComplete) onboardingStatus.completedSteps = 3;
+    if (!hasRequiredProfile) {
+      currentStep = 1;
+      nextAction = 'complete-profile';
+    } else if (!hasAnyBusiness) {
+      currentStep = 2;
+      nextAction = 'claim-or-add';
+    } else if (incompleteBusinessProfiles.length > 0) {
+      currentStep = 3;
+      nextAction = 'complete-business-profiles';
+    } else {
+      currentStep = 3;
+      nextAction = 'dashboard-ready';
+      isComplete = true;
+    }
 
-  // Helper functions
+    let completedSteps = 0;
+    if (currentStep > 1) completedSteps = 1;
+    if (currentStep > 2) completedSteps = 2;
+    if (isComplete) completedSteps = 3;
+
+    return {
+      needsProfile: !hasRequiredProfile,
+      profileProgress: {
+        country: !!profile?.country,
+        city: !!profile?.city,
+        primary_cultural: !!profile?.primary_cultural,
+        display_name: !!profile?.display_name,
+        languages: Array.isArray(profile?.languages) && profile.languages.length > 0,
+        years_operating: !!profile?.years_operating,
+        market_region: !!profile?.market_region,
+      },
+      hasOwnedBusinesses,
+      hasClaims,
+      hasAnyBusiness,
+      incompleteBusinessProfiles,
+      totalSteps: 3,
+      completedSteps,
+      currentStep,
+      nextAction,
+      isComplete,
+    };
+  }, [profile, businesses, claims]);
+
   const getStepStatus = (stepNumber) => {
     if (stepNumber < onboardingStatus.currentStep) return 'completed';
     if (stepNumber === onboardingStatus.currentStep) return 'current';
@@ -144,7 +143,7 @@ export function useOnboardingStatus() {
     const titles = {
       1: 'Complete your profile',
       2: 'Claim or add your business',
-      3: 'Finish business details'
+      3: 'Finish business details',
     };
     return titles[stepNumber] || '';
   };
@@ -153,23 +152,19 @@ export function useOnboardingStatus() {
     const descriptions = {
       1: 'Needed to claim a business',
       2: 'Get your business listed',
-      3: 'Optional: Add photos & details'
+      3: 'Optional: Add photos & details',
     };
     return descriptions[stepNumber] || '';
   };
 
-  // Return early if not mounted to prevent SSR issues
   if (!isMounted) {
     return {
-      // Data
       user: null,
       profile: null,
       businesses: [],
       claims: [],
       loading: true,
       error: null,
-      
-      // Status
       onboardingStatus: {
         needsProfile: true,
         hasOwnedBusinesses: false,
@@ -180,37 +175,26 @@ export function useOnboardingStatus() {
         completedSteps: 0,
         currentStep: 1,
         nextAction: 'complete-profile',
-        isComplete: false
+        isComplete: false,
       },
-      
-      // Helpers
       getStepStatus: () => 'locked',
       getStepTitle: () => '',
       getStepDescription: () => '',
-      
-      // Actions
-      refetch: () => setRefreshKey(k => k + 1)
+      refetch: fetchOnboardingData,
     };
   }
 
   return {
-    // Data
     user,
     profile,
     businesses,
     claims,
     loading,
     error,
-    
-    // Status
     onboardingStatus,
-    
-    // Helpers
     getStepStatus,
     getStepTitle,
     getStepDescription,
-    
-    // Actions
-    refetch: () => setRefreshKey(k => k + 1)
+    refetch: fetchOnboardingData,
   };
 }

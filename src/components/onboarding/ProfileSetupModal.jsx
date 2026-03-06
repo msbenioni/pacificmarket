@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from '@/components/shared/ModalWrapper';
 import { getSupabase } from '../../lib/supabase/client';
 import { ONBOARDING_STEPS, ONBOARDING_VALIDATION_RULES } from '../../constants/profileOnboarding';
-import { useOnboardingStatus } from '../../hooks/useOnboardingStatus';
 
 /**
  * Profile Setup Modal
@@ -19,7 +18,6 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
   const [errors, setErrors] = useState({ submit: undefined });
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const { onboardingStatus, getStepStatus, getStepTitle, getStepDescription } = useOnboardingStatus();
 
   // Handle SSR/hydration
   useEffect(() => {
@@ -164,20 +162,20 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
 
       setSaveSuccess(true);
       
-      // Auto-close after success
-      setTimeout(() => {
-        if (onComplete) {
-          onComplete();
-        } else {
-          onClose();
-          // Redirect back to business portal
-          router.push('/businessportal');
-        }
-      }, 1500);
+      if (onComplete) {
+        await onComplete();
+      } else {
+        onClose();
+        // Redirect back to business portal
+        router.push('/businessportal');
+      }
 
     } catch (error) {
       console.error('Error saving profile:', error);
-      setErrors({ ...errors, submit: 'Failed to save profile. Please try again.' });
+      setErrors((prev) => ({
+        ...prev,
+        submit: 'Failed to save profile. Please try again.',
+      }));
     } finally {
       setSaving(false);
     }

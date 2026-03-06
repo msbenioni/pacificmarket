@@ -11,7 +11,6 @@ import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBus
 import FounderInsightsForm from "@/components/forms/FounderInsightsForm";
 import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
-import { SetupProgressCard } from "@/components/onboarding/SetupProgressCard";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import CancelClaimButton from "@/components/claims/CancelClaimButton";
 import { ProfileSetupModal } from "@/components/onboarding/ProfileSetupModal";
@@ -53,7 +52,11 @@ export default function BusinessPortal() {
     insightSnapshots.find(s => s.business_id === businessId);
 
   // Onboarding state
-  const { onboardingStatus, loading: onboardingLoading } = useOnboardingStatus();
+  const {
+    onboardingStatus,
+    loading: onboardingLoading,
+    refetch: refetchOnboardingStatus,
+  } = useOnboardingStatus();
 
   const refetchPortalData = async (u = user) => {
     if (!u?.id) return;
@@ -536,11 +539,20 @@ export default function BusinessPortal() {
 
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
 
+  const disabledActionCls =
+    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed";
+
+  const secondaryActionCls =
+    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-white text-[#0d4f4f] hover:border-[#0d4f4f] transition";
+
+  const primaryActionCls =
+    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-[#0d4f4f] text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)]";
+
   return (
     <PortalShell>
       <HeroRegistry
         badge="Business Owner Portal"
-        title={`Welcome, ${user?.full_name?.split(" ")[0] || "Owner"}`}
+        title={`Welcome back, ${user?.full_name?.split(" ")[0] || "Owner"}`}
         subtitle={user?.email}
         description=""
         actions={null}
@@ -580,32 +592,48 @@ export default function BusinessPortal() {
                     My Registry Records
                   </h2>
                   <p className={portalUI.sectionDesc}>
-                    Manage your business listings, update ownership details, and unlock more visibility through Verified or Featured+.
+                    Claim an existing business or add your own listing once your profile is set up.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => {
-                      setClaimAddDefaultView("claim");
-                      setShowClaimAddModal(true);
+                      if (!onboardingStatus.needsProfile) {
+                        setClaimAddDefaultView("claim");
+                        setShowClaimAddModal(true);
+                      }
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] transition"
+                    disabled={onboardingLoading || onboardingStatus.needsProfile}
+                    className={onboardingStatus.needsProfile ? disabledActionCls : secondaryActionCls}
                   >
-                    <Search className="w-4 h-4 text-[#00c4cc]" />
+                    <Search className="w-4 h-4" />
                     Claim Business
                   </button>
 
                   <button
                     onClick={() => {
-                      setClaimAddDefaultView("add");
-                      setShowClaimAddModal(true);
+                      if (!onboardingStatus.needsProfile) {
+                        setClaimAddDefaultView("add");
+                        setShowClaimAddModal(true);
+                      }
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)]"
+                    disabled={onboardingLoading || onboardingStatus.needsProfile}
+                    className={onboardingStatus.needsProfile ? disabledActionCls : primaryActionCls}
                   >
                     <Plus className="w-4 h-4" />
                     Add Business
                   </button>
+
+                  {!onboardingLoading && onboardingStatus.needsProfile && (
+                    <button
+                      onClick={() => setShowProfileModal(true)}
+                      className={secondaryActionCls}
+                    >
+                      <Users className="w-4 h-4" />
+                      Complete Profile
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -633,7 +661,7 @@ export default function BusinessPortal() {
                   </div>
 
                   <button
-                    onClick={() => handleUpgradeClick('verified')}
+                    onClick={() => handleUpgradeClick("verified")}
                     disabled={checkoutLoading}
                     className="inline-flex items-center gap-2 rounded-xl bg-[#c9a84c] px-5 py-3 text-sm font-bold text-[#0a1628] hover:bg-[#d8b865] transition disabled:opacity-50"
                   >
@@ -644,7 +672,7 @@ export default function BusinessPortal() {
                       </>
                     ) : (
                       <>
-                        {user ? 'Upgrade Now' : 'Sign Up to Upgrade'}
+                        {user ? "Upgrade Now" : "Sign Up to Upgrade"}
                         <ChevronRight className="w-4 h-4" />
                       </>
                     )}
@@ -685,192 +713,222 @@ export default function BusinessPortal() {
               {businesses.length === 0 ? (
                 <div className="space-y-6">
                   {onboardingStatus.needsProfile && (
-                    <div className="rounded-2xl border border-amber-300/20 bg-amber-50/80 p-4">
+                    <div className="rounded-2xl border border-[#c9a84c]/25 bg-[#c9a84c]/8 p-4">
                       <div className="flex items-start gap-3">
-                        <div className="mt-0.5">
-                          <AlertCircle className="w-5 h-5 text-amber-600" />
-                        </div>
+                        <AlertCircle className="w-5 h-5 text-[#c9a84c] mt-0.5" />
                         <div>
-                          <h4 className="text-sm font-semibold text-amber-800">
-                            Complete your profile first
+                          <h4 className="text-sm font-semibold text-[#0a1628]">
+                            Complete your profile to get started
                           </h4>
-                          <p className="mt-1 text-sm text-amber-700">
-                            Your profile is needed to claim a business and keep the registry trustworthy.
+                          <p className="mt-1 text-sm text-slate-600">
+                            Once your profile is ready, you'll be able to claim a business or add a new one.
                           </p>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <div className="bg-white/70 border border-dashed border-gray-200 rounded-2xl p-12 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white/90">
+                  <div className="rounded-2xl border border-dashed border-gray-200 bg-white/80 p-12 text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white">
                       <Building2 className="w-7 h-7 text-gray-400" />
                     </div>
 
                     <h3 className="text-lg font-bold text-[#0a1628]">
-                      {onboardingStatus.needsProfile ? "Complete Your Profile First" : "Manage Your Business"}
+                      {onboardingStatus.needsProfile ? "Start with your profile" : "No businesses yet"}
                     </h3>
 
                     <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
                       {onboardingStatus.needsProfile
-                        ? "Complete your profile to claim or add a business and keep the registry trustworthy."
-                        : "Choose how you'd like to get started with your Pacific Market business listing."}
+                        ? "Your profile helps confirm ownership details before you manage business listings."
+                        : "Claim an existing business or add your own listing to begin managing your presence in Pacific Market."}
                     </p>
 
-                    {!onboardingStatus.isComplete && (
-                      <div className="mt-6">
-                        <SetupProgressCard
-                          onOpenProfileModal={() => setShowProfileModal(true)}
-                          onOpenClaimModal={() => setShowClaimAddModal(true)}
-                          onOpenAddModal={() => setShowClaimAddModal(true)}
-                        />
-                      </div>
-                    )}
+                    <div className="mt-6 flex flex-wrap justify-center gap-3">
+                      {onboardingStatus.needsProfile ? (
+                        <>
+                          <button disabled className={disabledActionCls}>
+                            <Search className="w-4 h-4" />
+                            Claim Business
+                          </button>
+
+                          <button disabled className={disabledActionCls}>
+                            <Plus className="w-4 h-4" />
+                            Add Business
+                          </button>
+
+                          <button
+                            onClick={() => setShowProfileModal(true)}
+                            className={primaryActionCls}
+                          >
+                            Complete Profile
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => {
+                              setClaimAddDefaultView("claim");
+                              setShowClaimAddModal(true);
+                            }}
+                            className={secondaryActionCls}
+                          >
+                            <Search className="w-4 h-4" />
+                            Claim Business
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setClaimAddDefaultView("add");
+                              setShowClaimAddModal(true);
+                            }}
+                            className={primaryActionCls}
+                          >
+                            <Plus className="w-4 h-4" />
+                            Add Business
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                {businesses.map((b) => {
-                  const tierStyles =
-                    b.subscription_tier === "featured_plus"
-                      ? "bg-[#c9a84c]/14 text-[#f4e3a8] border border-[#c9a84c]/20"
-                      : b.subscription_tier === "verified"
-                      ? "bg-[#00c4cc]/12 text-[#8df3f6] border border-[#00c4cc]/20"
-                      : "bg-gray-100/80 text-gray-600 border border-gray-200";
+              ) : (
+                <div className="space-y-5">
+                  {businesses.map((b) => {
+                    const tierStyles =
+                      b.subscription_tier === "featured_plus"
+                        ? "bg-[#c9a84c]/14 text-[#f4e3a8] border border-[#c9a84c]/20"
+                        : b.subscription_tier === "verified"
+                        ? "bg-[#00c4cc]/12 text-[#8df3f6] border border-[#00c4cc]/20"
+                        : "bg-gray-100/80 text-gray-600 border border-gray-200";
 
-                  const statusStyles =
-                    b.status === BUSINESS_STATUS.ACTIVE
-                      ? "bg-emerald-100/80 text-emerald-700 border border-emerald-200"
-                      : b.status === BUSINESS_STATUS.PENDING
-                      ? "bg-amber-100/80 text-amber-700 border border-amber-200"
-                      : "bg-red-100/80 text-red-700 border border-red-200";
+                    const statusStyles =
+                      b.status === BUSINESS_STATUS.ACTIVE
+                        ? "bg-emerald-100/80 text-emerald-700 border border-emerald-200"
+                        : b.status === BUSINESS_STATUS.PENDING
+                        ? "bg-amber-100/80 text-amber-700 border border-amber-200"
+                        : "bg-red-100/80 text-red-700 border border-red-200";
 
-                  return (
-                    <div
-                      key={b.id}
-                      className="bg-white border border-gray-200 rounded-2xl p-5 shadow-[0_12px_40px_rgba(10,22,40,0.06)] transition hover:border-[#00c4cc]/20 hover:shadow-[0_18px_45px_rgba(0,0,0,0.1)] relative"
-                    >
-                      {/* Top-right action icons */}
-                      <div className="absolute top-5 right-5 flex items-center gap-2">
-                        <button
-                          onClick={() => setEditingBusiness(b)}
-                          className="p-2 rounded-lg text-gray-400 hover:text-[#0d4f4f] hover:bg-gray-50 transition"
-                          title="Edit business"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteBusiness(b.id)}
-                          className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
-                          title="Remove business"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                    return (
+                      <div
+                        key={b.id}
+                        className="bg-white border border-gray-200 rounded-2xl p-5 shadow-[0_12px_40px_rgba(10,22,40,0.06)] transition hover:border-[#00c4cc]/20 hover:shadow-[0_18px_45px_rgba(0,0,0,0.1)] relative"
+                      >
+                        <div className="absolute top-5 right-5 flex items-center gap-2">
+                          <button
+                            onClick={() => setEditingBusiness(b)}
+                            className="p-2 rounded-lg text-gray-400 hover:text-[#0d4f4f] hover:bg-gray-50 transition"
+                            title="Edit business"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBusiness(b.id)}
+                            className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
+                            title="Remove business"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
 
-                      <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between pr-20">
-                        {/* Left side */}
-                        <div className="flex flex-1 items-start gap-4">
-                          <div className="relative group h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                            {b.logo_url ? (
-                              <img src={b.logo_url} alt="" className="h-full w-full object-cover" />
-                            ) : (
-                              <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
-                            )}
-                            <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
-                              <Upload className="w-4 h-4 text-white" />
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleLogoUpload(e, b.id)}
-                              />
-                            </label>
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <h3 className="truncate text-lg font-bold text-[#0a1628]">
-                                {b.name}
-                              </h3>
-
-                              {b.verified && (
-                                <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
+                        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between pr-20">
+                          <div className="flex flex-1 items-start gap-4">
+                            <div className="relative group h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                              {b.logo_url ? (
+                                <img src={b.logo_url} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
                               )}
+                              <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Upload className="w-4 h-4 text-white" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleLogoUpload(e, b.id)}
+                                />
+                              </label>
+                            </div>
 
-                              {(b.subscription_tier === "verified" || b.subscription_tier === "featured_plus") && (
-                                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tierStyles}`}>
-                                  {tierInfo[b.subscription_tier]?.label}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="truncate text-lg font-bold text-[#0a1628]">
+                                  {b.name}
+                                </h3>
+
+                                {b.verified && (
+                                  <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
+                                )}
+
+                                {(b.subscription_tier === "verified" || b.subscription_tier === "featured_plus") && (
+                                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tierStyles}`}>
+                                    {tierInfo[b.subscription_tier]?.label}
+                                  </span>
+                                )}
+
+                                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}>
+                                  {b.status}
                                 </span>
-                              )}
+                              </div>
 
-                              <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}>
-                                {b.status}
-                              </span>
-                            </div>
+                              <p className="mt-2 text-sm text-slate-600">
+                                {b.city ? `${b.city}, ` : ""}
+                                {b.country} · {b.industry}
+                              </p>
 
-                            <p className="mt-2 text-sm text-slate-600">
-                              {b.city ? `${b.city}, ` : ""}
-                              {b.country} · {b.industry}
-                            </p>
+                              <div className="mt-3">
+                                <Link
+                                  href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
+                                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#0d4f4f] hover:text-[#1a6b6b] transition"
+                                >
+                                  View Listing <ChevronRight className="w-4 h-4" />
+                                </Link>
+                              </div>
 
-                            {/* View Listing - Premium text link */}
-                            <div className="mt-3">
-                              <Link
-                                href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
-                                className="inline-flex items-center gap-1 text-sm font-semibold text-[#0d4f4f] hover:text-[#1a6b6b] transition"
-                              >
-                                View Listing <ChevronRight className="w-4 h-4" />
-                              </Link>
-                            </div>
-
-                            {b.owner_user_id && (
-                              <div className="mt-4 max-w-md rounded-2xl border border-gray-200 bg-white/90 p-4">
-                                <div className="flex items-center justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                                      Primary Owner
-                                    </p>
-                                    <p className="truncate text-sm font-semibold text-[#0a1628]">
-                                      {getBusinessOwnerName(b.owner_user_id, profiles)}
-                                    </p>
-                                    <p className="truncate text-sm text-slate-600">
-                                      {getBusinessOwner(b.owner_user_id, profiles)?.email}
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100/80 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                      Active
-                                    </span>
-                                    {/* Add Owner button in Primary Owner box */}
-                                    <button
-                                      onClick={() => setShowAddOwnerModal(b.id)}
-                                      className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] hover:bg-gray-50 transition"
-                                      title="Add another owner"
-                                    >
-                                      <Users className="w-3 h-3" />
-                                      Add Owner
-                                    </button>
+                              {b.owner_user_id && (
+                                <div className="mt-4 max-w-md rounded-2xl border border-gray-200 bg-white/90 p-4">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                        Primary Owner
+                                      </p>
+                                      <p className="truncate text-sm font-semibold text-[#0a1628]">
+                                        {getBusinessOwnerName(b.owner_user_id, profiles)}
+                                      </p>
+                                      <p className="truncate text-sm text-slate-600">
+                                        {getBusinessOwner(b.owner_user_id, profiles)?.email}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100/80 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                        Active
+                                      </span>
+                                      <button
+                                        onClick={() => setShowAddOwnerModal(b.id)}
+                                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] hover:bg-gray-50 transition"
+                                        title="Add another owner"
+                                      >
+                                        <Users className="w-3 h-3" />
+                                        Add Owner
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Footer strip */}
-                      {b.subscription_tier === "basic" && (
-                        <div className="mt-5 border-t border-gray-200 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <p className="text-sm font-semibold text-[#0a1628]">
-                              Ready to upgrade this listing?
-                            </p>
-                            <p className="text-sm text-slate-600">
-                              Unlock logo, richer presentation, verification, and premium tools.
-                            </p>
-                          </div>
-                  <Link
+                        {b.subscription_tier === "basic" && (
+                          <div className="mt-5 border-t border-gray-200 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <p className="text-sm font-semibold text-[#0a1628]">
+                                Ready to upgrade this listing?
+                              </p>
+                              <p className="text-sm text-slate-600">
+                                Unlock logo, richer presentation, verification, and premium tools.
+                              </p>
+                            </div>
+                            <Link
                               href={createPageUrl("Pricing")}
                               className="inline-flex items-center gap-2 text-sm font-semibold text-[#c9a84c] hover:text-[#f0d27b] transition"
                             >
@@ -1271,12 +1329,12 @@ export default function BusinessPortal() {
       <ProfileSetupModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
-        onComplete={() => {
+        onComplete={async () => {
           setShowProfileModal(false);
-          // After profile complete, show claim/add modal if needed
-          if (!businesses.length && !claims.length) {
-            setShowClaimAddModal(true);
-          }
+          await Promise.all([
+            refetchPortalData(),
+            refetchOnboardingStatus(),
+          ]);
         }}
       />
 
