@@ -99,19 +99,14 @@ export const pacificMarket = {
         .single();
       
       if (profileError) {
-        // If profile doesn't exist, return user with metadata and role: null
-        console.warn('Profile not found for user:', authData.user.id);
-        return { 
-          ...authData.user, 
-          role: null,
-          full_name: authData.user.user_metadata?.full_name || authData.user.user_metadata?.display_name,
-          display_name: authData.user.user_metadata?.display_name || authData.user.user_metadata?.full_name
-        };
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
       }
       
       return { 
         ...authData.user, 
-        role: profileData.role, // Now 'owner' or 'admin'
+        role: profileData.role, // 'admin' or 'owner'
+        permissions: profileData.role === 'admin' ? ['read', 'write', 'delete'] : [],
         full_name: profileData.display_name || authData.user.user_metadata?.full_name || authData.user.user_metadata?.display_name,
         display_name: profileData.display_name || authData.user.user_metadata?.display_name || authData.user.user_metadata?.full_name
       };
@@ -158,10 +153,6 @@ export const pacificMarket = {
       filter: (filters, order, limit) => filter("claim_requests", filters, order, limit),
       create: (payload) => create("claim_requests", payload),
       update: (id, payload) => update("claim_requests", id, payload),
-    },
-    AdminUser: {
-      list: (order, limit) => list("admin_users", order, limit),
-      filter: (filters, order, limit) => filter("admin_users", filters, order, limit),
     },
     BusinessImage: {
       filter: (filters, order, limit) => filter("business_images", filters, order, limit),

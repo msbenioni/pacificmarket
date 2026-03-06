@@ -5,6 +5,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, AlertTriangle } from "luci
 import { useAuth } from "@/lib/AuthContext";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import HeroRegistry from "@/components/shared/HeroRegistry";
+import PortalShell from "@/components/portal/PortalShell";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -30,16 +31,23 @@ export default function AdminLogin() {
         throw signInError;
       }
 
-      // Verify admin role by checking admin_users table
+      // Verify admin role by checking profiles table
       const user = data?.user;
       if (!user) {
         throw new Error("Access denied. Admin privileges required.");
       }
       
-      // Check if user is in admin_users table
-      const { data: adminData, error: adminError } = await pacificMarket.entities.AdminUser.filter({ owner_user_id: user.id });
+      // Check if user has admin role in profiles table
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
       
-      if (adminError || !adminData || adminData.length === 0) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileError || !profileData || profileData.role !== 'admin') {
         throw new Error("Access denied. Admin privileges required.");
       }
 
@@ -58,8 +66,9 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <PortalShell>
+      <div className="min-h-screen bg-[#f8f9fc] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
@@ -186,10 +195,11 @@ export default function AdminLogin() {
               <Link href={createPageUrl("Help")} className="text-gray-500 hover:text-[#0d4f4f] transition-colors">
                 Need Help?
               </Link>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+</div>
+    </PortalShell>
   );
 }

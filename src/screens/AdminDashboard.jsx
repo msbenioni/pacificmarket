@@ -5,14 +5,17 @@ import { pacificMarket } from "@/lib/pacificMarketClient";
 import { CheckCircle, XCircle, Clock, Building2, Shield, Star, AlertTriangle, Edit, Trash2, Download, ChevronRight, Eye, X, AlertCircle, GitBranch } from "lucide-react";
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 import { CATEGORIES, COUNTRIES } from "@/constants/businessProfile";
+import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
 import ProcessFlow from "@/components/admin/ProcessFlow";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 import HeroRegistry from "@/components/shared/HeroRegistry";
+import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
+import PortalShell from "@/components/portal/PortalShell";
 
 const TABS = [
-  { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600" },
-  { id: "approved", label: "Approved", icon: CheckCircle, color: "text-green-600" },
-  { id: "rejected", label: "Rejected", icon: XCircle, color: "text-red-500" },
+  { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
+  { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
+  { id: "rejected", label: "Rejected", icon: XCircle, color: "text-red-500", status: BUSINESS_STATUS.REJECTED },
   { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
   { id: "flow", label: "Process Flow", icon: GitBranch, color: "text-violet-600" },
 ];
@@ -31,9 +34,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     pacificMarket.auth.me().then(async u => {
-      if (!u) { setLoading(false); return; }
+      if (!u) { 
+        setLoading(false); 
+        return; 
+      }
       setUser(u);
-      if (u.role === "admin") {
+      if (checkIsAdmin(u)) {
         setIsAdmin(true);
         const [b, c] = await Promise.all([
           pacificMarket.entities.Business.list("-created_date", 200),
@@ -67,8 +73,18 @@ export default function AdminDashboard() {
     await pacificMarket.entities.ClaimRequest.update(claim.id, { status });
     setClaims(prev => prev.map(c => c.id === claim.id ? { ...c, status } : c));
     if (status === "approved") {
-      await pacificMarket.entities.Business.update(claim.business_id, { owner_user_id: claim.user_id, claimed: true });
-      setBusinesses(prev => prev.map(b => b.id === claim.business_id ? { ...b, claimed: true, owner_user_id: claim.user_id } : b));
+      // Update business to set owner and mark as claimed, and set status to active
+      await pacificMarket.entities.Business.update(claim.business_id, { 
+        owner_user_id: claim.user_id, 
+        claimed: true,
+        status: BUSINESS_STATUS.ACTIVE 
+      });
+      setBusinesses(prev => prev.map(b => b.id === claim.business_id ? { 
+        ...b, 
+        claimed: true, 
+        owner_user_id: claim.user_id,
+        status: BUSINESS_STATUS.ACTIVE 
+      } : b));
     }
   };
 
@@ -84,7 +100,7 @@ export default function AdminDashboard() {
     setCreatingBusiness(true);
     const created = await pacificMarket.entities.Business.create({
       ...formData,
-      status: "approved",
+      status: BUSINESS_STATUS.ACTIVE,
       claimed: false,
       owner_user_id: null,
     });
@@ -94,7 +110,7 @@ export default function AdminDashboard() {
   };
 
   const exportCSV = () => {
-    const fields = ["name", "country", "city", "category", "status", "tier", "verified", "claimed", "email", "website"];
+    const fields = ["name", "country", "city", "category", "status", "subscription_tier", "verified", "claimed", "email", "website"];
     const header = fields.join(",");
     const rows = businesses.map(b => fields.map(f => `"${(b[f] ?? "").toString().replace(/"/g, '""')}"`).join(","));
     const csv = [header, ...rows].join("\n");
@@ -105,47 +121,45 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" /></div>;
 
-  // Temporarily removed auth checks for testing
-  // if (!user) {
-  //   return (
-  //     <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
-  //       <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
-  //         <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-4" />
-  //         <h2 className="text-xl font-bold text-[#0a1628] mb-2">Access Denied</h2>
-  //         <p className="text-gray-500 mb-6">Admin access required to view this page.</p>
-  //         <Link href={createPageUrl("Login")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
-  //           Sign In <ArrowRight className="w-4 h-4" />
-  //         </Link>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+        <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
+          <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Access Denied</h2>
+          <p className="text-gray-500 mb-6">Admin access required to view this page.</p>
+          <Link href={createPageUrl("BusinessLogin")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
+            Sign In <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  // if (!isAdmin) return (
-  //   <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
-  //     <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
-  //       <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-4" />
-  //       <h2 className="text-xl font-bold text-[#0a1628] mb-2">Access Denied</h2>
-  //       <p className="text-gray-500 mb-6">Admin access required to view this page.</p>
-  //       <Link href={createPageUrl("Login")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
-  //         Sign In <ArrowRight className="w-4 h-4" />
-  //       </Link>
-  //     </div>
-  //   </div>
-  // );
+  if (!checkIsAdmin(user)) return (
+    <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+      <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
+        <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-[#0a1628] mb-2">Access Denied</h2>
+        <p className="text-gray-500 mb-6">Admin access required to view this page.</p>
+        <Link href={createPageUrl("BusinessLogin")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
+          Sign In <ChevronRight className="w-4 h-4" />
+        </Link>
+      </div>
+    </div>
+  );
 
   const filtered = activeTab === "claims"
     ? null
-    : businesses.filter(b => b.status === activeTab);
+    : businesses.filter(b => b.status === TABS.find(tab => tab.id === activeTab)?.status);
 
-  const pendingCount = businesses.filter(b => b.status === "pending").length;
+  const pendingCount = businesses.filter(b => b.status === BUSINESS_STATUS.PENDING).length;
   const pendingClaimsCount = claims.filter(c => c.status === "pending").length;
 
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc]">
-      {/* Header */}
+    <PortalShell>
       <HeroRegistry
         badge="Admin · Governance Portal"
         title={`Welcome, ${user?.full_name?.split(" ")[0] || "Admin"}`}
@@ -191,70 +205,61 @@ export default function AdminDashboard() {
         {activeTab === "flow" && <ProcessFlow />}
 
         {/* Claims Tab */}
-        {activeTab === "claims" && (() => {
-          const unclaimedBusinesses = businesses.filter(b => !b.claimed);
-          return (
-            <div className="space-y-3">
-              {unclaimedBusinesses.length === 0 ? (
-                <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
-                  <Shield className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                  <p className="text-gray-400 text-sm">All businesses are claimed.</p>
-                </div>
-              ) : unclaimedBusinesses.map(b => {
-                const businessClaims = claims.filter(c => c.business_id === b.id);
-                const pendingClaim = businessClaims.find(c => c.status === "pending");
-                return (
-                  <div key={b.id} className="bg-white border border-gray-100 rounded-2xl p-5">
-                    <div className="flex items-start gap-4 flex-wrap mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-sm">{b.name?.[0]}</span>
+        {activeTab === "claims" && (
+          <div className="space-y-3">
+            {claims.filter(c => c.status === "pending").length === 0 ? (
+              <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
+                <Shield className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <p className="text-gray-400 text-sm">No pending claim requests.</p>
+              </div>
+            ) : claims.filter(c => c.status === "pending").map(claim => {
+              const business = businesses.find(b => b.id === claim.business_id);
+              return (
+                <div key={claim.id} className="bg-white border border-gray-100 rounded-2xl p-5">
+                  <div className="flex items-start gap-4 flex-wrap mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">{business?.name?.[0] || "?"}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="font-bold text-[#0a1628] text-sm">{business?.name || "Unknown Business"}</span>
+                        <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">Claim Request</span>
+                        {business && <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{business.subscription_tier}</span>}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <span className="font-bold text-[#0a1628] text-sm">{b.name}</span>
-                          <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">Unclaimed</span>
-                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{b.subscription_tier}</span>
+                      <p className="text-gray-400 text-xs">{business?.country || "Unknown"} · {business?.category || "Unknown"} · {claim.user_email}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Requested {new Date(claim.created_date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <AlertCircle className="w-4 h-4 text-yellow-600" />
+                          <p className="font-semibold text-yellow-900 text-sm">Claim Request Details</p>
                         </div>
-                        <p className="text-gray-400 text-xs">{b.country} · {b.category} · {b.email || "No email"}</p>
-                        <p className="text-gray-400 text-xs mt-0.5">Created {new Date(b.created_date).toLocaleDateString()}</p>
+                        <p className="text-yellow-800 text-xs">User: {claim.user_email}</p>
+                        <p className="text-yellow-800 text-xs">Business: {business?.name || "Unknown Business"}</p>
+                        <p className="text-yellow-800 text-xs">Requested {new Date(claim.created_date).toLocaleDateString()}</p>
+                        {claim.notes && <p className="text-yellow-800 text-xs mt-1">Notes: {claim.notes}</p>}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button onClick={() => updateClaim(claim, "approved")}
+                          className="flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl hover:bg-green-100">
+                          <CheckCircle className="w-3 h-3" /> Approve
+                        </button>
+                        <button onClick={() => updateClaim(claim, "denied")}
+                          className="flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-xl hover:bg-red-100">
+                          <XCircle className="w-3 h-3" /> Deny
+                        </button>
                       </div>
                     </div>
-                    
-                    {pendingClaim ? (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                        <div className="flex items-start justify-between gap-4 flex-wrap">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <AlertCircle className="w-4 h-4 text-yellow-600" />
-                              <p className="font-semibold text-yellow-900 text-sm">Claim Request Pending</p>
-                            </div>
-                            <p className="text-yellow-800 text-xs">User: {pendingClaim.user_email}</p>
-                            <p className="text-yellow-800 text-xs">Requested {new Date(pendingClaim.created_date).toLocaleDateString()}</p>
-                            {pendingClaim.notes && <p className="text-yellow-800 text-xs mt-1">Notes: {pendingClaim.notes}</p>}
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <button onClick={() => updateClaim(pendingClaim, "approved")}
-                              className="flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl hover:bg-green-100">
-                              <CheckCircle className="w-3 h-3" /> Approve
-                            </button>
-                            <button onClick={() => updateClaim(pendingClaim, "denied")}
-                              className="flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-xl hover:bg-red-100">
-                              <XCircle className="w-3 h-3" /> Deny
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                        <p className="text-gray-600 text-xs">No claim requests yet. Business owner can claim this listing once they create an account.</p>
-                      </div>
-                    )}
                   </div>
-                );
-              })}
-            </div>
-          );
-        })()}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Business Tabs */}
         {activeTab !== "claims" && activeTab !== "flow" && (
@@ -280,13 +285,13 @@ export default function AdminDashboard() {
                     <p className="text-gray-400 text-xs mt-0.5">Submitted {new Date(b.created_date).toLocaleDateString()}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    {b.status === "pending" && (
+                    {b.status === BUSINESS_STATUS.PENDING && (
                       <>
-                        <button onClick={() => updateStatus(b, "approved")}
+                        <button onClick={() => updateStatus(b, BUSINESS_STATUS.ACTIVE)}
                           className="flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl hover:bg-green-100">
                           <CheckCircle className="w-3 h-3" /> Approve
                         </button>
-                        <button onClick={() => updateStatus(b, "rejected")}
+                        <button onClick={() => updateStatus(b, BUSINESS_STATUS.REJECTED)}
                           className="flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-xl hover:bg-red-100">
                           <XCircle className="w-3 h-3" /> Reject
                         </button>
@@ -387,18 +392,18 @@ export default function AdminDashboard() {
               <h4 className="font-semibold text-[#0a1628] text-sm mt-4">Status & Tier</h4>
               <div>
                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Tier</label>
-                <select value={editingBusiness.tier||"free"} onChange={e => setEditingBusiness(p => ({...p, tier: e.target.value}))} className={inputCls}>
-                  <option value="free">Free</option>
-                  <option value="verified">Verified</option>
-                  <option value="featured_plus">Featured+</option>
+                <select value={editingBusiness.subscription_tier||BUSINESS_TIER.FREE} onChange={e => setEditingBusiness(p => ({...p, subscription_tier: e.target.value}))} className={inputCls}>
+                  <option value={BUSINESS_TIER.FREE}>Free</option>
+                  <option value={BUSINESS_TIER.VERIFIED}>Verified</option>
+                  <option value={BUSINESS_TIER.FEATURED_PLUS}>Featured+</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Status</label>
-                <select value={editingBusiness.status||"pending"} onChange={e => setEditingBusiness(p => ({...p, status: e.target.value}))} className={inputCls}>
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
+                <select value={editingBusiness.status||BUSINESS_STATUS.PENDING} onChange={e => setEditingBusiness(p => ({...p, status: e.target.value}))} className={inputCls}>
+                  <option value={BUSINESS_STATUS.PENDING}>Pending</option>
+                  <option value={BUSINESS_STATUS.ACTIVE}>Active</option>
+                  <option value={BUSINESS_STATUS.REJECTED}>Rejected</option>
                 </select>
               </div>
             </div>
@@ -424,11 +429,12 @@ export default function AdminDashboard() {
                   </button>
                 </div>
                 <div className="p-6">
-                  <DetailedBusinessForm onSubmit={createBusiness} isLoading={creatingBusiness} showTierSelection={true} />
+                  <DetailedBusinessForm onSubmit={createBusiness} isLoading={creatingBusiness} onStepChange={() => {}} />
                 </div>
               </div>
             </div>
           )}
-          </div>
-          );
-          }
+
+    </PortalShell>
+  );
+}

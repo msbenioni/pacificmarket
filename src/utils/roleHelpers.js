@@ -24,10 +24,10 @@ export function isOwner(user) {
 /**
  * Check if user has any role (owner or admin)
  * @param {Object} user - User object with role property
- * @returns {boolean} - True if user has a role
+ * @returns {boolean} - True if user has a role (always true in this system)
  */
 export function hasRole(user) {
-  return user?.role && ['owner', 'admin'].includes(user.role);
+  return user?.role === 'owner' || user?.role === 'admin';
 }
 
 /**
@@ -59,8 +59,6 @@ export function getRoleDisplayName(user) {
       return 'Administrator';
     case 'owner':
       return 'Business Owner';
-    default:
-      return 'User';
   }
 }
 
@@ -101,9 +99,8 @@ export function handleRoleBasedRedirect(user, router) {
 
   if (isAdmin(user)) {
     router.push('/admin');
-  } else if (isOwner(user)) {
-    router.push('/businessportal');
   } else {
-    router.push('/businessportal'); // Send to onboarding
+    // All non-admin users are owners and go to business portal
+    router.push('/businessportal');
   }
 }

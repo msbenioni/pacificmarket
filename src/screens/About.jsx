@@ -1,7 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createPageUrl } from "@/utils";
-import { useState } from "react";
-import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import {
   Shield,
   Globe,
@@ -13,35 +12,37 @@ import {
   Award,
   BadgeCheck,
   Sparkles,
+  Hammer,
+  Store,
+  HeartHandshake,
 } from "lucide-react";
 import HeroRegistry from "../components/shared/HeroRegistry";
 
 export default function About() {
-  const [showModal, setShowModal] = useState(false);
 
   const principles = [
     {
       icon: Shield,
       title: "Registry Standards",
-      desc: "Structured fields and consistent categories designed for credible analysis and long-term use.",
+      desc: "A structured system designed for credibility, discoverability, and long-term value — not just a simple list of names.",
       tone: "text-[#00c4cc]",
     },
     {
       icon: BookOpen,
       title: "Cultural Integrity",
-      desc: "Cultural identity and language are treated as core data — captured with care and context.",
+      desc: "Identity, language, and Pacific context are treated with care so businesses are represented as people, not just data points.",
       tone: "text-[#c9a84c]",
     },
     {
       icon: Globe,
-      title: "Global Discoverability",
-      desc: "Makes Pacific-owned enterprise easier to find worldwide — for customers, partners, and supporters.",
+      title: "Global Visibility",
+      desc: "Pacific-owned businesses become easier to find, support, and recognise across countries, communities, and industries.",
       tone: "text-[#00c4cc]",
     },
     {
       icon: Users,
       title: "Pacific-led Stewardship",
-      desc: "Built in Aotearoa and guided by Pacific values, with community benefit at the centre.",
+      desc: "Built in Aotearoa and guided by Pacific values, with people, trust, and long-term community benefit at the centre.",
       tone: "text-[#c9a84c]",
     },
   ];
@@ -51,63 +52,187 @@ export default function About() {
       icon: FileText,
       step: "01",
       title: "Application submitted",
-      desc: "A structured application is submitted with ownership, identity, and business details (and any supporting evidence available).",
+      desc: "A business is submitted with key ownership, identity, and listing information.",
     },
     {
       icon: Search,
       step: "02",
       title: "Registry review",
-      desc: "Listings are reviewed against registry standards for completeness, clarity, and consistency.",
+      desc: "The listing is reviewed for clarity, consistency, and fit with registry standards.",
     },
     {
       icon: Shield,
       step: "03",
       title: "Verification checks",
-      desc: "For Verified listings, additional checks help confirm authenticity and legitimacy.",
+      desc: "Verified listings go through additional checks to strengthen trust and legitimacy.",
     },
     {
       icon: Award,
       step: "04",
       title: "Record activated",
-      desc: "Approved listings are published with their tier, verification status, and registry metadata.",
+      desc: "Approved businesses are published with their listing tier, metadata, and visibility status.",
+    },
+  ];
+
+  const legacyCards = [
+    {
+      icon: Hammer,
+      title: "Builders & Fixers",
+      desc: "Pacific families have always built, repaired, adapted, and solved problems with skill, resilience, and resourcefulness.",
+      tone: "text-[#00c4cc]",
+    },
+    {
+      icon: Store,
+      title: "Traders & Providers",
+      desc: "From market stalls and family shops to service businesses and hospitality, enterprise has always been part of how we cared for our communities.",
+      tone: "text-[#c9a84c]",
+    },
+    {
+      icon: Sparkles,
+      title: "Makers & Creators",
+      desc: "Craft, design, sewing, food, art, and cultural making are not side notes — they are part of Pacific economic life and ingenuity.",
+      tone: "text-[#00c4cc]",
+    },
+    {
+      icon: HeartHandshake,
+      title: "People-Centred Entrepreneurs",
+      desc: "Pacific business has often been rooted in service, generosity, family, and collective advancement — without losing commercial intelligence.",
+      tone: "text-[#c9a84c]",
     },
   ];
 
   return (
     <div className="bg-[#f8f9fc]">
-      {/* Hero */}
-      <HeroRegistry
-        badge="About"
-        title="A Registry Built on Data Integrity & Cultural Pride"
-        subtitle=""
-        description="Pacific Market creates a structured, living record of Pacific-owned enterprise — built in Aotearoa, serving Pacific communities globally, and trusted for discovery, research, and partnerships."
-      />
+      {/* Premium Hero Section */}
+      <section className="relative overflow-hidden bg-[#07101d]">
+        {/* Background glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-24 -right-20 w-[28rem] h-[28rem] rounded-full bg-[#c9a84c]/18 blur-3xl" />
+          <div className="absolute top-1/2 -left-24 w-[24rem] h-[24rem] rounded-full bg-[#00c4cc]/10 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_35%)]" />
+        </div>
 
-      {/* Definition band (white card, clear chapter break) */}
-      <section className="py-12 bg-[#f8f9fc]">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
+              `,
+              backgroundSize: "48px 48px",
+            }}
+          />
+        </div>
+
+        <div className="relative px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto py-20 lg:py-24">
+            <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 items-center">
+              {/* Left content */}
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 mb-6">
+                  <span className="w-2 h-2 rounded-full bg-[#c9a84c]" />
+                  <span className="text-[11px] uppercase tracking-[0.22em] font-semibold text-[#d8e1ea]">
+                    About Pacific Market
+                  </span>
+                </div>
+
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] text-white max-w-4xl">
+                  Our Ancestors Built,
+                  <span className="block text-[#c9a84c] mt-1">Traded, Made, and Led.</span>
+                  <span className="block mt-1">Pacific Market Continues That Legacy.</span>
+                </h1>
+
+                <div className="w-28 h-1 rounded-full bg-gradient-to-r from-[#c9a84c] via-[#00c4cc] to-transparent mt-6 mb-6" />
+
+                <p className="text-lg text-slate-300 leading-relaxed max-w-2xl">
+                Pacific Market is a premium registry designed to make Pacific-owned enterprise more visible, trusted, and respected. Built in Aotearoa and shaped by Pacific values, it honours where we come from while helping our businesses be seen clearly today.
+              </p>
+
+                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-5 py-4 max-w-2xl">
+                  <p className="text-sm text-slate-200 leading-relaxed">
+                    <span className="text-[#c9a84c] font-semibold">A core belief:</span>{" "}
+                    We are not starting from nothing. We are building on generations of Pacific enterprise.
+                  </p>
+                </div>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  {[
+                    "Pacific-led",
+                    "Legacy-led",
+                    "Built in Aotearoa",
+                  ].map((chip) => (
+                    <span
+                      key={chip}
+                      className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-sm text-slate-200"
+                    >
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                  <Link
+                    href={createPageUrl("BusinessLogin")}
+                    className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm shadow-[0_12px_30px_rgba(201,168,76,0.25)]"
+                  >
+                    Submit a business <ArrowRight className="w-4 h-4" />
+                  </Link>
+
+                  <Link
+                    href={createPageUrl("Registry")}
+                    className="inline-flex items-center justify-center gap-2 border border-[#00c4cc]/40 text-[#b3e5e5] hover:bg-[#00c4cc]/8 font-medium px-8 py-4 rounded-xl transition-all text-sm"
+                  >
+                    Explore the registry
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right visual panel */}
+              <div className="relative">
+                <div className="relative rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.35)]">
+                  <div className="aspect-[4/5] relative">
+                    <Image
+                      src="/about_hero.png"
+                      alt="Pacific Market hero visual"
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#07101d] via-[#07101d]/40 to-transparent" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Opening definition card */}
+      <section className="relative z-10 -mt-10 py-12 bg-[#f8f9fc]">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
           <div className="bg-white border border-gray-200/70 rounded-2xl shadow-[0_18px_50px_rgba(10,22,40,0.08)] p-8">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-xl bg-[#0a1628] flex items-center justify-center flex-shrink-0">
                 <BadgeCheck className="w-5 h-5 text-[#00c4cc]" />
               </div>
+
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0d4f4f]">
                   What Pacific Market is
                 </p>
                 <h2 className="text-2xl font-bold text-[#0a1628] mt-2">
-                  The first global registry of Pacific-owned enterprise
+                  A global registry for Pacific-owned business
                 </h2>
                 <p className="text-gray-600 mt-3 leading-relaxed">
-                  Pacific Market is built like a registry — not just a directory — with a consistent structure that supports
-                  trustworthy discovery today and meaningful insight over time.
+                  Pacific Market is more than a directory. It is a structured registry built to represent Pacific-owned enterprise with greater depth, clarity, and credibility — making businesses easier to discover while preserving the cultural context that standard business platforms often miss.
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   {[
-                    "Registry-standard structure",
-                    "Pacific-led cultural integrity",
-                    "Visibility + research insight over time",
+                    "Legacy-led positioning",
+                    "Pacific-owned business visibility",
+                    "Structured, premium representation",
                   ].map((chip) => (
                     <span
                       key={chip}
@@ -123,129 +248,402 @@ export default function About() {
         </div>
       </section>
 
-      {/* Subtle separator line */}
+      {/* Divider */}
       <div className="w-full flex justify-center py-8">
         <div className="w-[28rem] h-px bg-gradient-to-r from-transparent via-[#c9a84c]/30 to-transparent"></div>
       </div>
 
-      {/* Why a Registry Matters (light canvas) */}
+      {/* Why it exists */}
       <section className="py-20 bg-[#f8f9fc]">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-end">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
-                Our mission
+                Why we built this
               </span>
-              <h2 className="text-3xl font-bold text-[#0a1628] mb-6">Why a Registry Matters</h2>
+              <h2 className="text-3xl font-bold text-[#0a1628] mb-6">
+                Because Pacific business deserves to be seen properly
+              </h2>
 
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  Pacific-owned businesses are often undercounted, misclassified, or invisible in mainstream datasets —
-                  which impacts visibility, funding, and recognition.
+                  Pacific-owned businesses are often undercounted, misrepresented, or absent from the places people search, study, and source from. That affects visibility, access, recognition, and long-term opportunity.
                 </p>
                 <p>
-                  Pacific Market changes that by capturing businesses in a consistent registry format, while preserving the
-                  cultural context that standard business databases leave out.
+                  Pacific Market was created to help change that — by building a registry that is not only searchable, but intentional in how Pacific enterprise is represented.
                 </p>
                 <p>
-                  The result is a discoverable, trustworthy dataset that grows over time — for community benefit today and
-                  research value tomorrow.
+                  This is about more than being online. It is about making sure our businesses are visible as part of a larger Pacific story of innovation, work ethic, care, trade, service, and entrepreneurship.
                 </p>
               </div>
 
               <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_12px_40px_rgba(10,22,40,0.07)]">
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="w-4 h-4 text-[#c9a84c]" />
-                  <p className="text-sm font-semibold text-[#0a1628]">Built in Aotearoa, serving the Pacific globally</p>
+                  <p className="text-sm font-semibold text-[#0a1628]">
+                    Built in Aotearoa, with a global Pacific vision
+                  </p>
                 </div>
                 <p className="text-sm text-gray-600">
-                  We're doing groundwork to include businesses that may not be online yet — so the registry reflects real
-                  Pacific enterprise, not just what can be easily scraped.
+                  Pacific Market is being built to reflect real Pacific enterprise — including businesses that may not have had polished digital visibility yet, but still carry deep value, skill, and legacy.
                 </p>
               </div>
             </div>
 
-            {/* Principles cards */}
-            <div className="grid grid-cols-2 gap-4">
-              {principles.map((item) => (
-                <div
-                  key={item.title}
-                  className="bg-white border border-gray-200/70 rounded-2xl p-5 shadow-[0_12px_40px_rgba(10,22,40,0.07)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.10)] transition-shadow"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-b from-[#0a1628] to-[#07101d] flex items-center justify-center mb-4">
-                    <item.icon className={`w-5 h-5 ${item.tone}`} />
-                  </div>
-                  <h3 className="font-bold text-[#0a1628] text-sm mb-1">{item.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+            <div className="relative">
+              <div className="rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.10)]">
+                <div className="relative h-[420px] w-full">
+                  <Image
+                    src="/why_we_built_this.png"
+                    alt="Pacific legacy and enterprise"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-              ))}
+              </div>
+              <div className="absolute -bottom-6 -left-6 max-w-xs rounded-2xl border border-[#c9a84c]/30 bg-white p-5 shadow-[0_18px_40px_rgba(10,22,40,0.10)]">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0d4f4f] mb-2">
+                  The deeper truth
+                </p>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Pacific people have never lacked enterprise. What has often been lacking is structured visibility.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Clear chapter break: White panel with borders */}
+      {/* Legacy section */}
       <section className="py-20 bg-white border-y border-gray-200/70">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
-              Trust & quality
+              Pacific legacy
             </span>
-            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">What makes the registry trustworthy</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto text-sm">
-              Pacific Market is designed to be useful to everyday communities and credible for research. That means clear
-              scope, consistent structure, and transparent verification signals.
+            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">
+              Enterprise is not new to us
+            </h2>
+            <p className="text-gray-500 max-w-3xl mx-auto text-sm leading-relaxed">
+              Long before modern platforms, Pacific families were already building livelihoods through trade, making, hosting, selling, repairing, feeding, farming, creating, and serving. Pacific Market is a modern continuation of that same spirit — just with better visibility, better structure, and a wider stage.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Clear scope",
-                desc: "Insights reflect approved & active listings. Counts change as records are updated or newly approved.",
-              },
-              {
-                title: "Consistent structure",
-                desc: "Standardised fields (industry, location, identity) enable meaningful comparison over time.",
-              },
-              {
-                title: "Transparent verification",
-                desc: "Verified listings complete additional checks so partners and researchers can interpret confidence levels.",
-              },
-            ].map((card) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {legacyCards.map((item) => (
               <div
-                key={card.title}
-                className="rounded-2xl border border-gray-200 bg-[#fbfcff] p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)]"
+                key={item.title}
+                className="rounded-2xl border border-gray-200 bg-[#fbfcff] p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.10)] transition-shadow"
               >
-                <h3 className="text-sm font-bold text-[#0a1628]">{card.title}</h3>
-                <p className="text-sm text-gray-600 mt-2 leading-relaxed">{card.desc}</p>
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-b from-[#0a1628] to-[#07101d] flex items-center justify-center mb-4">
+                  <item.icon className={`w-5 h-5 ${item.tone}`} />
+                </div>
+                <h3 className="text-sm font-bold text-[#0a1628] mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 grid lg:grid-cols-2 gap-8 items-center">
+            <div className="rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.08)]">
+              <div className="relative h-[320px] w-full">
+                <Image
+                  src="/placeholders/about-founders-craft.jpg"
+                  alt="Pacific founders placeholder"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                For many of us, business did not arrive as a trend. It lived in our families through practical intelligence — in the people who built things, fixed things, cooked, sewed, sold, organised, hosted, and found ways to make something from what they had.
+              </p>
+              <p>
+                That is the spirit behind Pacific Market. Not a borrowed idea of entrepreneurship, but a recognition that Pacific people have always had business acumen, capability, and ingenuity — even when it was not always named that way.
+              </p>
+              <p className="text-[#0a1628] font-semibold">
+                Pacific Market exists to help that reality be seen more clearly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Editorial quote band */}
+      <section className="py-10 bg-[#07101d] relative overflow-hidden border-y border-white/5">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-16 left-1/4 w-72 h-72 rounded-full bg-[#c9a84c]/12 blur-3xl" />
+          <div className="absolute -bottom-20 right-1/4 w-80 h-80 rounded-full bg-[#00c4cc]/10 blur-3xl" />
+        </div>
+
+        <div className="relative px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+          <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-sm px-6 py-10 sm:px-10 sm:py-12 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+            <div className="max-w-4xl mx-auto text-center">
+              <p className="text-[11px] uppercase tracking-[0.24em] font-semibold text-[#c9a84c] mb-4">
+                A Pacific Market belief
+              </p>
+
+              <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white">
+                "Pacific people have never lacked enterprise.
+                <span className="block mt-2 text-[#d8e1ea]">
+                  What has often been lacking is visibility."
+                </span>
+              </blockquote>
+
+              <div className="w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-[#00c4cc] to-transparent mx-auto my-6" />
+
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                Pacific Market exists to help close that gap — with structure, pride, and a registry designed to represent Pacific-owned business with greater clarity and respect.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Principles */}
+      <section className="py-20 bg-[#f8f9fc]">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
+              What guides the registry
+            </span>
+            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">
+              Built with pride, care, and structure
+            </h2>
+            <p className="text-gray-500 max-w-2xl mx-auto text-sm">
+              Pacific Market is designed to feel culturally grounded and professionally credible at the same time.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {principles.map((item) => (
+              <div
+                key={item.title}
+                className="bg-white border border-gray-200/70 rounded-2xl p-6 shadow-[0_12px_40px_rgba(10,22,40,0.07)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.10)] transition-shadow"
+              >
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-b from-[#0a1628] to-[#07101d] flex items-center justify-center mb-4">
+                  <item.icon className={`w-5 h-5 ${item.tone}`} />
+                </div>
+                <h3 className="font-bold text-[#0a1628] text-sm mb-2">{item.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Verification process on tinted background (obvious new chapter) */}
+      {/* Founders */}
+      <section className="py-24 bg-white border-y border-gray-200/70 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#c9a84c]/6 blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#00c4cc]/5 blur-3xl" />
+        </div>
+
+        <div className="relative px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
+              Meet the founders
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0a1628] mb-4">
+              Built by founders who understand both people and systems
+            </h2>
+            <p className="text-gray-500 max-w-3xl mx-auto text-sm leading-relaxed">
+              Pacific Market is being shaped by founders who care deeply about visibility, trust, and long-term opportunity for Pacific-owned businesses — combining digital infrastructure, relationship-building, and a real respect for where Pacific enterprise comes from.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Jasmin */}
+            <div className="group rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
+              <div className="relative h-[320px] w-full overflow-hidden">
+                <Image
+                  src="/placeholders/jasmin-founder.jpg"
+                  alt="Jasmin Benioni placeholder"
+                  fill
+                  className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07101d] via-[#07101d]/20 to-transparent" />
+
+                <div className="absolute left-6 bottom-6 right-6">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 backdrop-blur-sm px-4 py-2">
+                    <span className="w-2 h-2 rounded-full bg-[#c9a84c]" />
+                    <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-white/90">
+                      Founder Profile
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-[#0a1628]">Jasmin Benioni</h3>
+                    <p className="text-sm font-semibold text-[#0d4f4f] mt-1">
+                      Founder, Technology, Systems & Platform Development
+                    </p>
+                  </div>
+
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#c9a84c]" />
+                    Saasy Cookies
+                  </div>
+                </div>
+
+                <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+                  <p>
+                    Jasmin is a software developer and founder of Saasy Cookies, an AI and digital infrastructure company focused on building practical systems that help businesses grow with stronger foundations.
+                  </p>
+                  <p>
+                    Her work on Pacific Market brings together technical problem-solving, structured thinking, and a belief that Pacific-owned businesses deserve digital spaces that feel credible, polished, and worthy of the value they already carry.
+                  </p>
+                  <p>
+                    She builds with the understanding that enterprise often runs quietly through families — in the people who fix things, organise things, make things, sell things, and find a way forward with skill and resourcefulness. Pacific Market carries that same spirit into a modern platform.
+                  </p>
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {[
+                    "Systems thinker",
+                    "Builder",
+                    "Problem-solver",
+                    "Pacific-led technology",
+                  ].map((chip) => (
+                    <span
+                      key={chip}
+                      className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-xs text-[#0a1628]/80"
+                    >
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Daniel */}
+            <div className="group rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
+              <div className="relative h-[320px] w-full overflow-hidden">
+                <Image
+                  src="/placeholders/daniel-founder.jpg"
+                  alt="Daniel Maine placeholder"
+                  fill
+                  className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07101d] via-[#07101d]/20 to-transparent" />
+
+                <div className="absolute left-6 bottom-6 right-6">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 backdrop-blur-sm px-4 py-2">
+                    <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
+                    <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-white/90">
+                      Founder Profile
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-[#0a1628]">Daniel Maine</h3>
+                    <p className="text-sm font-semibold text-[#0d4f4f] mt-1">
+                      Founder, Partnerships, Visibility & Business Growth
+                    </p>
+                  </div>
+
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
+                    <Globe className="w-3.5 h-3.5 text-[#00c4cc]" />
+                    Oceanique Solutionz
+                  </div>
+                </div>
+
+                <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+                  <p>
+                    Daniel is a business owner and founder of Oceanique Solutionz, a Destination Management Company built around connection, coordination, and creating meaningful business experiences.
+                  </p>
+                  <p>
+                    Through Pacific Market, he brings a strong understanding of visibility, partnerships, and what it takes to grow trust with people, communities, and organisations in a way that feels practical and genuine.
+                  </p>
+                  <p>
+                    His role helps ensure Pacific Market is not only well built, but well connected — shaped by real relationships, community insight, and a commitment to helping Pacific businesses be recognised, supported, and discovered more widely.
+                  </p>
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {[
+                    "Relationship-led",
+                    "Business growth",
+                    "Partnership builder",
+                    "Community visibility",
+                  ].map((chip) => (
+                    <span
+                      key={chip}
+                      className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-xs text-[#0a1628]/80"
+                    >
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Shared founder note */}
+          <div className="mt-10 rounded-[28px] border border-[#c9a84c]/20 bg-gradient-to-r from-[#fffaf0] via-white to-[#f6fffe] p-8 shadow-[0_12px_40px_rgba(10,22,40,0.05)]">
+            <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0d4f4f] mb-3">
+                  Why this matters to us
+                </p>
+                <h3 className="text-2xl font-bold text-[#0a1628] leading-snug">
+                  We want Pacific Market to feel worthy of the people it represents.
+                </h3>
+              </div>
+
+              <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+                <p>
+                  Pacific Market is not being built from distance. It is being built from lived understanding — from seeing the skill, care, hustle, and business intelligence that already exists across Pacific communities, often without the digital visibility it deserves.
+                </p>
+                <p>
+                  We know many Pacific businesses carry deep value long before they ever have polished branding, formal systems, or strong online discoverability. This platform exists to help close that gap with dignity, structure, and pride.
+                </p>
+                <p className="font-semibold text-[#0a1628]">
+                  This is about building something modern that still honours where we come from.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 text-center">
+            <p className="text-sm text-gray-500">
+              Want to partner, contribute, or support the visibility of Pacific-owned businesses?
+            </p>
+            <Link
+              href={createPageUrl("Contact")}
+              className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-[#0d4f4f] hover:underline"
+            >
+              Contact the Pacific Market team <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust section */}
       <section className="py-20 bg-[#eef0f5] border-y border-gray-200/70">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
-              Process
+              Trust & process
             </span>
-            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">How verification works</h2>
+            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">
+              How businesses enter the registry
+            </h2>
             <p className="text-gray-500 max-w-2xl mx-auto text-sm">
-              Every listing is reviewed before publishing. Verified listings go through additional checks to strengthen
-              trust and authenticity.
+              Pacific Market combines a warm, community-aware approach with a structured review process designed to keep the registry useful and trustworthy.
             </p>
-
-            <div className="mt-4 text-xs text-[#0a1628]/55">
-              <span className="font-semibold text-[#0a1628]">Active</span> = approved & visible •{" "}
-              <span className="font-semibold text-[#0a1628]">Verified</span> = additional checks completed
-            </div>
           </div>
 
           <div className="relative">
-            {/* connecting line (desktop only) */}
             <div className="hidden lg:block absolute left-0 right-0 top-10 h-px bg-gray-300/70" />
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -267,68 +665,17 @@ export default function About() {
             </div>
           </div>
 
-          {/* Optional: add a small help note */}
           <div className="mt-10 max-w-3xl mx-auto">
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)]">
               <p className="text-sm text-gray-600 leading-relaxed">
-                <span className="font-semibold text-[#0a1628]">Note:</span> Verification is designed to be rigorous but fair.
-                If a business does not have certain documents, we still aim to capture the record accurately and work with the
-                owner to improve completeness over time.
+                <span className="font-semibold text-[#0a1628]">Note:</span> We aim to keep the process rigorous but fair. Not every business will begin with the same level of documentation or polish, and we want the registry to support visibility while improving completeness over time.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stewards (white panel) */}
-      <section className="py-20 bg-white border-y border-gray-200/70">
-        <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
-              Stewards of the registry
-            </span>
-            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">Built and stewarded in Aotearoa</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto text-sm">
-              Pacific Market is founded and stewarded in Aotearoa with a commitment to cultural integrity, data quality,
-              and long-term community benefit.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-gray-200 bg-[#fbfcff] p-8 shadow-[0_12px_40px_rgba(10,22,40,0.06)]">
-              <h3 className="text-lg font-bold text-[#0a1628]">Jasmin Benioni</h3>
-              <p className="text-sm font-semibold text-[#0d4f4f] mt-1">Founder, Product & Technology</p>
-              <p className="text-sm text-gray-600 mt-4 leading-relaxed">
-                Leads the registry platform, data systems, and technical development — ensuring Pacific Market is reliable,
-                scalable, and built to a registry standard.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-[#fbfcff] p-8 shadow-[0_12px_40px_rgba(10,22,40,0.06)]">
-              <h3 className="text-lg font-bold text-[#0a1628]">Daniel Maine</h3>
-              <p className="text-sm font-semibold text-[#0d4f4f] mt-1">Founder, Partnerships & Growth</p>
-              <p className="text-sm text-gray-600 mt-4 leading-relaxed">
-                Leads outreach, partnerships, and community engagement — helping businesses get listed and building the
-                relationships that grow the registry.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500">
-              Want to partner, sponsor a report, or request structured data access?
-            </p>
-            <Link
-              href={createPageUrl("Contact")}
-              className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-[#0d4f4f] hover:underline"
-            >
-              Contact the registry team <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA (light canvas, premium card) */}
+      {/* CTA */}
       <section className="py-20 bg-[#f8f9fc]">
         <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
           <div className="rounded-2xl p-12 bg-gradient-to-b from-[#0a1628] to-[#07101d] relative overflow-hidden border border-[#0d4f4f] shadow-[0_18px_60px_rgba(10,22,40,0.25)]">
@@ -337,17 +684,21 @@ export default function About() {
             </div>
 
             <div className="relative">
-              <h2 className="text-3xl font-bold text-white mb-4">Ready to register your business?</h2>
-              <p className="text-slate-300 mb-8 max-w-xl mx-auto">
-                Join the registry and put your business on the Pacific Market map — reviewed with care and built to last.
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Add your business to the story
+              </h2>
+              <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
+                Pacific business has always been here. Pacific Market helps make it visible. Join the registry and represent your work, your people, and your place in Pacific enterprise with pride.
               </p>
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={() => setShowModal(true)}
+                <Link
+                  href={createPageUrl("BusinessLogin")}
                   className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm"
                 >
                   Submit a business <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
+
                 <Link
                   href={createPageUrl("Registry")}
                   className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm"
@@ -359,18 +710,11 @@ export default function About() {
           </div>
 
           <p className="text-xs text-gray-500 mt-6">
-            For research access, bulk exports, or methodology questions, contact the registry team.
+            For partnerships, sponsorships, structured data access, or research enquiries, contact the Pacific Market team.
           </p>
         </div>
       </section>
-      
-      {/* Modal */}
-      <ClaimAddBusinessModal 
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onClaimSelected={() => setShowModal(false)}
-        onAddSelected={() => setShowModal(false)}
-      />
-    </div>
+
+      </div>
   );
 }

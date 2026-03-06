@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createPageUrl } from "@/utils";
 import { CheckCircle, X, Star, Shield, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -141,9 +142,9 @@ export default function Pricing() {
   const handleUpgrade = async (tier) => {
     if (!user) {
       if (tier === "free") {
-        window.location.href = createPageUrl("SignUp");
+        window.location.href = createPageUrl("BusinessLogin");
       } else {
-        window.location.href = createPageUrl("Login");
+        window.location.href = createPageUrl("BusinessLogin");
       }
       return;
     }

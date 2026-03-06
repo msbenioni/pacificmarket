@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { pacificMarket } from "@/lib/pacificMarketClient";
 import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, LogOut, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users } from "lucide-react";
 import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
+import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { CATEGORIES, COUNTRIES, TIER_BENEFITS } from "@/constants/businessProfile";
 import { IDENTITIES } from "@/constants/profileOnboarding";
@@ -270,21 +271,20 @@ export default function BusinessPortal() {
     </div>
   );
 
-  // Temporarily removed auth check for testing
-  // if (!user) {
-  //   return (
-  //     <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
-  //       <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
-  //         <AlertCircle className="w-10 h-10 text-orange-400 mx-auto mb-4" />
-  //         <h2 className="text-xl font-bold text-[#0a1628] mb-2">Sign In Required</h2>
-  //         <p className="text-gray-500 mb-6">Please sign in to access the Business Owner Portal.</p>
-  //         <Link href={createPageUrl("Login")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
-  //           Sign In <ArrowRight className="w-4 h-4" />
-  //         </Link>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (!user || !canAccessBusinessFeatures(user)) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+        <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-sm">
+          <AlertCircle className="w-10 h-10 text-orange-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Access Required</h2>
+          <p className="text-gray-500 mb-6">Business owner or admin access required to view this portal.</p>
+          <Link href={createPageUrl("BusinessLogin")} className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]">
+            Sign In <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const tierInfo = {
     free: { label: "Free", color: "text-gray-500 bg-gray-100" },
