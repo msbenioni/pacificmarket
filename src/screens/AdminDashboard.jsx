@@ -1,24 +1,60 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { pacificMarket } from "@/lib/pacificMarketClient";
-import { CheckCircle, XCircle, Clock, Building2, Shield, Star, AlertTriangle, Edit, Trash2, Download, ChevronRight, Eye, X, AlertCircle, GitBranch } from "lucide-react";
-import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
-import { CATEGORIES, COUNTRIES } from "@/constants/businessProfile";
-import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
+import { getSupabase } from "@/lib/supabase/client";
+import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users, X, Filter, Calendar, TrendingUp, Globe, Award, Clock, XCircle, GitBranch, AlertTriangle, Download, Eye } from "lucide-react";
+import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
+import { BUSINESS_STATUS, BUSINESS_TIER, mapLegacyTier, getTierDisplayName } from "@/constants/business";
 import ProcessFlow from "@/components/admin/ProcessFlow";
-import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
 import HeroRegistry from "@/components/shared/HeroRegistry";
+import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import PortalShell from "@/components/portal/PortalShell";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 const TABS = [
   { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
   { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
   { id: "rejected", label: "Rejected", icon: XCircle, color: "text-red-500", status: BUSINESS_STATUS.REJECTED },
   { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
+  { id: "insights", label: "Insights", icon: Users, color: "text-purple-600" },
   { id: "flow", label: "Process Flow", icon: GitBranch, color: "text-violet-600" },
 ];
+
+// Premium color scheme for governance console
+const COLORS = {
+  navy: "#0a1628",
+  navyHover: "#122040", 
+  teal: "#0d4f4f",
+  tealHover: "#1a6b6b",
+  gold: "#c9a84c",
+  goldHover: "#b8973b",
+  surface: {
+    page: "#f8f9fc",
+    primary: "#ffffff",
+    elevated: "#ffffff",
+    status: {
+      success: "#f0fdf4",
+      warning: "#fffbeb", 
+      danger: "#fef2f2",
+      info: "#f0f9ff",
+      premium: "#fffbeb"
+    }
+  }
+};
+
+// Badge system for consistent styling
+const getBadgeStyles = (variant) => {
+  const styles = {
+    success: "bg-green-100 text-green-800 border-green-200",
+    warning: "bg-yellow-100 text-yellow-800 border-yellow-200", 
+    danger: "bg-red-100 text-red-800 border-red-200",
+    info: "bg-blue-100 text-blue-800 border-blue-200",
+    premium: "bg-amber-100 text-amber-800 border-amber-200",
+    neutral: "bg-gray-100 text-gray-800 border-gray-200"
+  };
+  return styles[variant] || styles.neutral;
+};
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -26,91 +62,317 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
+  const [insightSnapshots, setInsightSnapshots] = useState([]);
   const [activeTab, setActiveTab] = useState("pending");
   const [editingBusiness, setEditingBusiness] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [creatingBusiness, setCreatingBusiness] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedInsightBusiness, setSelectedInsightBusiness] = useState(null);
+  
+  // Premium search and filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    country: "",
+    industry: "",
+    tier: "",
+    verified: ""
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  
+  const { toast } = useToast();
+
+  // Helper to get latest snapshot for a business
+  const getLatestSnapshot = (businessId) =>
+    insightSnapshots.find(s => s.business_id === businessId);
 
   useEffect(() => {
-    pacificMarket.auth.me().then(async u => {
-      if (!u) { 
-        setLoading(false); 
-        return; 
+    const loadAdminData = async () => {
+      try {
+        const supabase = getSupabase();
+        
+        // Get current user
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+          setLoading(false);
+          return;
+        }
+
+        setUser(user);
+        if (checkIsAdmin(user)) {
+          setIsAdmin(true);
+          
+          // Load businesses and claims in parallel
+          const [businessesResult, claimsResult] = await Promise.all([
+            supabase
+              .from('businesses')
+              .select('*')
+              .order('created_date', { ascending: false })
+              .limit(200),
+            supabase
+              .from('claim_requests')
+              .select('*')
+              .order('created_date', { ascending: false })
+              .limit(100)
+          ]);
+
+          const businesses = businessesResult.data || [];
+          const claims = claimsResult.data || [];
+          
+          setBusinesses(businesses);
+          setClaims(claims);
+
+          // Fetch insight snapshots for all businesses
+          const businessIds = businesses.map(business => business.id);
+          let snapshots = [];
+          if (businessIds.length) {
+            const { data } = await supabase
+              .from("business_insights_snapshots")
+              .select("*")
+              .in("business_id", businessIds)
+              .order("submitted_date", { ascending: false });
+            snapshots = data || [];
+          }
+          setInsightSnapshots(snapshots);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading admin data:", error);
+        setLoading(false);
       }
-      setUser(u);
-      if (checkIsAdmin(u)) {
-        setIsAdmin(true);
-        const [b, c] = await Promise.all([
-          pacificMarket.entities.Business.list("-created_date", 200),
-          pacificMarket.entities.ClaimRequest.list("-created_date", 100),
-        ]);
-        setBusinesses(b);
-        setClaims(c);
-      }
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    };
+
+    loadAdminData();
   }, []);
 
   const updateStatus = async (business, status) => {
-    await pacificMarket.entities.Business.update(business.id, { status });
-    setBusinesses(prev => prev.map(b => b.id === business.id ? { ...b, status } : b));
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('businesses')
+        .update({ status })
+        .eq('id', business.id);
+      if (error) throw error;
+      setBusinesses(prev => prev.map(b => b.id === business.id ? { ...b, status } : b));
+      toast({
+        title: "Status Updated",
+        description: `Business status has been updated to ${status}.`,
+        variant: "success"
+      });
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update business status. Please try again.",
+        variant: "error"
+      });
+    }
   };
 
   const toggleVerified = async (business) => {
-    const verified = !business.verified;
-    await pacificMarket.entities.Business.update(business.id, { verified });
-    setBusinesses(prev => prev.map(b => b.id === business.id ? { ...b, verified } : b));
+    const nextVerified = !business.verified;
+    
+    const updates = nextVerified
+      ? {
+          verified: true,
+          subscription_tier: business.subscription_tier === BUSINESS_TIER.VAKA 
+            ? BUSINESS_TIER.MANA 
+            : business.subscription_tier,
+        }
+      : {
+          verified: false,
+          subscription_tier: business.subscription_tier === BUSINESS_TIER.MANA 
+            ? BUSINESS_TIER.VAKA 
+            : business.subscription_tier,
+        };
+
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('businesses')
+        .update(updates)
+        .eq('id', business.id);
+      if (error) throw error;
+      setBusinesses(prev =>
+        prev.map(b => (b.id === business.id ? { ...b, ...updates } : b))
+      );
+      toast({
+        title: nextVerified ? "Business Verified" : "Business Unverified",
+        description: `Business verification status has been updated.`,
+        variant: "success"
+      });
+    } catch (error) {
+      console.error("Error toggling verification:", error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update verification status. Please try again.",
+        variant: "error"
+      });
+    }
+  };
+
+  const saveBusiness = async (formData) => {
+    setSavingEdit(true);
+    try {
+      const supabase = getSupabase();
+      
+      // Filter out any fields that might cause database issues
+      const { id, ...updateData } = formData;
+      
+      // Remove potentially problematic fields
+      const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
+        // Only include fields that we know exist in the database
+        if (!['updated_date', 'created_date', 'verification_source'].includes(key)) {
+          acc[key] = updateData[key];
+        }
+        return acc;
+      }, {});
+      
+      const { error } = await supabase
+        .from('businesses')
+        .update(safeUpdateData)
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setBusinesses(prev => prev.map(b => b.id === id ? { ...b, ...safeUpdateData } : b));
+      setEditingBusiness(null);
+      toast({
+        title: "Business Updated",
+        description: "Business updated successfully.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error("Error updating business:", error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update business. Please try again.",
+        variant: "error"
+      });
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
   const deleteBusiness = async (id) => {
     if (!confirm("Delete this business record? This cannot be undone.")) return;
-    await pacificMarket.entities.Business.delete(id);
-    setBusinesses(prev => prev.filter(b => b.id !== id));
-  };
-
-  const updateClaim = async (claim, status) => {
-    await pacificMarket.entities.ClaimRequest.update(claim.id, { status });
-    setClaims(prev => prev.map(c => c.id === claim.id ? { ...c, status } : c));
-    if (status === "approved") {
-      // Update business to set owner and mark as claimed, and set status to active
-      await pacificMarket.entities.Business.update(claim.business_id, { 
-        owner_user_id: claim.user_id, 
-        claimed: true,
-        status: BUSINESS_STATUS.ACTIVE 
+    
+    try {
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('businesses')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setBusinesses(prev => prev.filter(b => b.id !== id));
+      
+      toast({
+        title: "Business Deleted",
+        description: "Business has been successfully deleted.",
+        variant: "success"
       });
-      setBusinesses(prev => prev.map(b => b.id === claim.business_id ? { 
-        ...b, 
-        claimed: true, 
-        owner_user_id: claim.user_id,
-        status: BUSINESS_STATUS.ACTIVE 
-      } : b));
+    } catch (error) {
+      console.error("Error deleting business:", error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete business. Please try again.",
+        variant: "error"
+      });
     }
   };
 
-  const saveBusiness = async () => {
-    setSavingEdit(true);
-    await pacificMarket.entities.Business.update(editingBusiness.id, editingBusiness);
-    setBusinesses(prev => prev.map(b => b.id === editingBusiness.id ? editingBusiness : b));
-    setEditingBusiness(null);
-    setSavingEdit(false);
-  };
-
-  const createBusiness = async (formData) => {
-    setCreatingBusiness(true);
-    const created = await pacificMarket.entities.Business.create({
-      ...formData,
-      status: BUSINESS_STATUS.ACTIVE,
-      claimed: false,
-      owner_user_id: null,
+  const updateClaim = async (claim, status) => {
+  try {
+    const supabase = getSupabase();
+    
+    // Update claim status
+    const { error: claimError } = await supabase
+      .from('claim_requests')
+      .update({ status })
+      .eq('id', claim.id);
+    
+    if (claimError) throw claimError;
+    
+    setClaims(prev => prev.map(c => c.id === claim.id ? { ...c, status } : c));
+    
+    if (status === "approved") {
+      // Update business to set owner and mark as claimed, and set status to active
+      const businessUpdates = { 
+        owner_user_id: claim.user_id, 
+        claimed: true,
+        status: BUSINESS_STATUS.ACTIVE 
+      };
+      
+      const { error: businessError } = await supabase
+        .from('businesses')
+        .update(businessUpdates)
+        .eq('id', claim.business_id);
+      
+      if (businessError) throw businessError;
+      
+      setBusinesses(prev => prev.map(b => b.id === claim.business_id ? { 
+        ...b, 
+        ...businessUpdates
+      } : b));
+    }
+    
+    toast({
+      title: `Claim ${status}`,
+      description: `Claim request has been ${status}.`,
+      variant: status === "approved" ? "success" : "default"
     });
-    setBusinesses(prev => [created, ...prev]);
+  } catch (error) {
+    console.error("Error updating claim:", error);
+    toast({
+      title: "Update Failed",
+      description: "Failed to update claim request. Please try again.",
+      variant: "error"
+    });
+  }
+};
+
+const createBusiness = async (formData) => {
+  setCreatingBusiness(true);
+  try {
+    const supabase = getSupabase();
+    
+    const businessData = {
+      owner_user_id: formData.owner_user_id ?? null,
+      claimed: formData.claimed ?? false,
+      ...formData,
+    };
+    
+    const { data, error } = await supabase
+      .from('businesses')
+      .insert(businessData)
+      .select('*')
+      .single();
+    
+    if (error) throw error;
+    
+    setBusinesses(prev => [data, ...prev]);
     setShowCreateForm(false);
+    toast({
+      title: "Business Created",
+      description: "The listing was created successfully.",
+      variant: "success"
+    });
+  } catch (error) {
+    console.error("Error creating business:", error);
+    toast({
+      title: "Create Failed",
+      description: "Unable to create the listing.",
+      variant: "error"
+    });
+  } finally {
     setCreatingBusiness(false);
-  };
+  }
+};
 
   const exportCSV = () => {
-    const fields = ["name", "country", "city", "category", "status", "subscription_tier", "verified", "claimed", "email", "website"];
+    const fields = ["name", "business_handle", "industry", "country", "city", "status", "subscription_tier", "verified", "claimed", "contact_email", "website"];
     const header = fields.join(",");
     const rows = businesses.map(b => fields.map(f => `"${(b[f] ?? "").toString().replace(/"/g, '""')}"`).join(","));
     const csv = [header, ...rows].join("\n");
@@ -149,12 +411,54 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const filtered = activeTab === "claims"
-    ? null
-    : businesses.filter(b => b.status === TABS.find(tab => tab.id === activeTab)?.status);
+  const statusTab = TABS.find(tab => tab.id === activeTab && tab.status);
+  const filtered = statusTab
+    ? businesses.filter(b => b.status === statusTab.status)
+    : [];
+
+  // Premium search and filter logic
+  const getFilteredData = () => {
+    let data = filtered;
+    
+    // Apply search query
+    if (searchQuery) {
+      data = data.filter(business => 
+        business.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        business.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        business.category?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Apply filters
+    if (filters.country) {
+      data = data.filter(business => business.country === filters.country);
+    }
+    if (filters.industry) {
+      data = data.filter(business => business.category === filters.industry);
+    }
+    if (filters.tier) {
+      data = data.filter(business => business.subscription_tier === filters.tier);
+    }
+    if (filters.verified !== "") {
+      const isVerified = filters.verified === "true";
+      data = data.filter(business => business.verified === isVerified);
+    }
+    
+    return data;
+  };
+
+  const filteredData = getFilteredData();
 
   const pendingCount = businesses.filter(b => b.status === BUSINESS_STATUS.PENDING).length;
   const pendingClaimsCount = claims.filter(c => c.status === "pending").length;
+
+  // Executive stats for premium dashboard
+  const executiveStats = [
+    { label: "Total Businesses", value: businesses.length, color: "text-blue-600", bgColor: "bg-blue-50" },
+    { label: "Pending Review", value: pendingCount, color: "text-yellow-600", bgColor: "bg-yellow-50" },
+    { label: "Verified", value: businesses.filter(b => b.verified).length, color: "text-green-600", bgColor: "bg-green-50" },
+    { label: "Pending Claims", value: pendingClaimsCount, color: "text-purple-600", bgColor: "bg-purple-50" },
+  ];
 
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
 
@@ -166,12 +470,7 @@ export default function AdminDashboard() {
         subtitle={user?.email}
         description=""
         showStats={true}
-        stats={[
-          { label: "Total Businesses", value: businesses.length, color: "text-[#00c4cc]" },
-          { label: "Pending Review", value: pendingCount, color: "text-yellow-400" },
-          { label: "Verified", value: businesses.filter(b => b.verified).length, color: "text-green-400" },
-          { label: "Pending Claims", value: pendingClaimsCount, color: "text-blue-400" },
-        ]}
+        stats={executiveStats}
         actions={
           <button onClick={exportCSV} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all">
             <Download className="w-4 h-4" /> Export CSV
@@ -179,242 +478,352 @@ export default function AdminDashboard() {
         }
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Create Business Button + Tabs */}
-        <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-          <div className="flex gap-1 bg-white border border-gray-100 rounded-2xl p-1 overflow-x-auto scrollbar-hide">
-            {TABS.map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex-shrink-0 ${
-                  activeTab === tab.id ? "bg-[#0a1628] text-white" : "text-gray-500 hover:text-[#0a1628]"
-                }`}>
-                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? "text-white" : tab.color}`} />
-                {tab.label}
-                {tab.id === "pending" && pendingCount > 0 && <span className="bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">{pendingCount}</span>}
-                {tab.id === "claims" && pendingClaimsCount > 0 && <span className="bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">{pendingClaimsCount}</span>}
-              </button>
-            ))}
-          </div>
-          <button onClick={() => setShowCreateForm(true)} 
-            className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#0a5555] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all flex-shrink-0">
-            <Building2 className="w-4 h-4" /> Create Listing
-          </button>
-        </div>
-
-        {/* Process Flow Tab */}
-        {activeTab === "flow" && <ProcessFlow />}
-
-        {/* Claims Tab */}
-        {activeTab === "claims" && (
-          <div className="space-y-3">
-            {claims.filter(c => c.status === "pending").length === 0 ? (
-              <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
-                <Shield className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                <p className="text-gray-400 text-sm">No pending claim requests.</p>
-              </div>
-            ) : claims.filter(c => c.status === "pending").map(claim => {
-              const business = businesses.find(b => b.id === claim.business_id);
-              return (
-                <div key={claim.id} className="bg-white border border-gray-100 rounded-2xl p-5">
-                  <div className="flex items-start gap-4 flex-wrap mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-sm">{business?.name?.[0] || "?"}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="font-bold text-[#0a1628] text-sm">{business?.name || "Unknown Business"}</span>
-                        <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">Claim Request</span>
-                        {business && <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{business.subscription_tier}</span>}
-                      </div>
-                      <p className="text-gray-400 text-xs">{business?.country || "Unknown"} · {business?.category || "Unknown"} · {claim.user_email}</p>
-                      <p className="text-gray-400 text-xs mt-0.5">Requested {new Date(claim.created_date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                    <div className="flex items-start justify-between gap-4 flex-wrap">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <AlertCircle className="w-4 h-4 text-yellow-600" />
-                          <p className="font-semibold text-yellow-900 text-sm">Claim Request Details</p>
-                        </div>
-                        <p className="text-yellow-800 text-xs">User: {claim.user_email}</p>
-                        <p className="text-yellow-800 text-xs">Business: {business?.name || "Unknown Business"}</p>
-                        <p className="text-yellow-800 text-xs">Requested {new Date(claim.created_date).toLocaleDateString()}</p>
-                        {claim.notes && <p className="text-yellow-800 text-xs mt-1">Notes: {claim.notes}</p>}
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <button onClick={() => updateClaim(claim, "approved")}
-                          className="flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl hover:bg-green-100">
-                          <CheckCircle className="w-3 h-3" /> Approve
-                        </button>
-                        <button onClick={() => updateClaim(claim, "denied")}
-                          className="flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-xl hover:bg-red-100">
-                          <XCircle className="w-3 h-3" /> Deny
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+      <div className="bg-[#f8f9fc] min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          
+          {/* Level 2: Main Action Row */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-6 shadow-sm">
+            <div className="flex items-center justify-between gap-4">
+              {/* Search */}
+              <div className="flex-1 max-w-md">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search businesses..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#0d4f4f] bg-gray-50 focus:bg-white transition-colors"
+                  />
                 </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Business Tabs */}
-        {activeTab !== "claims" && activeTab !== "flow" && (
-          <div className="space-y-3">
-            {filtered.length === 0 ? (
-              <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
-                <Building2 className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                <p className="text-gray-400 text-sm">No {activeTab} businesses.</p>
               </div>
-            ) : filtered.map(b => (
-              <div key={b.id} className="bg-white border border-gray-100 rounded-2xl p-5">
-                <div className="flex items-start gap-4 flex-wrap">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-sm">{b.name?.[0]}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="font-bold text-[#0a1628] text-sm">{b.name}</span>
-                      {b.verified && <span className="text-xs px-2 py-0.5 bg-[#0d4f4f]/10 text-[#0d4f4f] rounded-full font-medium">Verified</span>}
-                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{b.subscription_tier}</span>
-                    </div>
-                    <p className="text-gray-400 text-xs">{b.country} · {b.category} · {b.email || "No email"}</p>
-                    <p className="text-gray-400 text-xs mt-0.5">Submitted {new Date(b.created_date).toLocaleDateString()}</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {b.status === BUSINESS_STATUS.PENDING && (
-                      <>
-                        <button onClick={() => updateStatus(b, BUSINESS_STATUS.ACTIVE)}
-                          className="flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-xl hover:bg-green-100">
-                          <CheckCircle className="w-3 h-3" /> Approve
-                        </button>
-                        <button onClick={() => updateStatus(b, BUSINESS_STATUS.REJECTED)}
-                          className="flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-xl hover:bg-red-100">
-                          <XCircle className="w-3 h-3" /> Reject
-                        </button>
-                      </>
+              
+              {/* Filters */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                    showFilters 
+                      ? 'bg-[#0d4f4f] text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Filter className="w-4 h-4" />
+                  Filters
+                  {(filters.country || filters.industry || filters.tier || filters.verified !== "") && (
+                    <span className="bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                      {Object.values(filters).filter(v => v).length}
+                    </span>
+                  )}
+                </button>
+                
+                <button
+                  onClick={() => setShowCreateForm(true)}
+                  className="flex items-center gap-2 bg-[#0a1628] hover:bg-[#122040] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all"
+                >
+                  <Plus className="w-4 h-4" /> Create Listing
+                </button>
+              </div>
+            </div>
+            
+            {/* Filter Panel */}
+            {showFilters && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <select
+                    value={filters.country}
+                    onChange={(e) => setFilters(prev => ({ ...prev, country: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
+                  >
+                    <option value="">All Countries</option>
+                    {/* Add country options */}
+                  </select>
+                  <select
+                    value={filters.industry}
+                    onChange={(e) => setFilters(prev => ({ ...prev, industry: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
+                  >
+                    <option value="">All Industries</option>
+                    {/* Add industry options */}
+                  </select>
+                  <select
+                    value={filters.tier}
+                    onChange={(e) => setFilters(prev => ({ ...prev, tier: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
+                  >
+                    <option value="">All Tiers</option>
+                    <option value="basic">Basic</option>
+                    <option value="verified">Verified</option>
+                    <option value="featured_plus">Featured+</option>
+                  </select>
+                  <select
+                    value={filters.verified}
+                    onChange={(e) => setFilters(prev => ({ ...prev, verified: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
+                  >
+                    <option value="">All Verification</option>
+                    <option value="true">Verified</option>
+                    <option value="false">Not Verified</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Level 3: Tabbed Work Areas */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+            {/* Tabs */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div className="flex gap-1 bg-gray-50 rounded-xl p-1">
+                {TABS.map(tab => (
+                  <button 
+                    key={tab.id} 
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 ${
+                      activeTab === tab.id 
+                        ? "bg-white text-[#0a1628] shadow-sm" 
+                        : "text-gray-600 hover:text-[#0a1628]"
+                    }`}
+                  >
+                    <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? "text-[#0d4f4f]" : ""}`} />
+                    {tab.label}
+                    {tab.id === "pending" && pendingCount > 0 && (
+                      <span className="bg-yellow-500 text-white text-xs px-1.5 py-0.5 rounded-full">{pendingCount}</span>
                     )}
-                    <button onClick={() => toggleVerified(b)}
-                      className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-all ${b.verified ? "bg-[#0d4f4f]/10 text-[#0d4f4f] border-[#0d4f4f]/20" : "bg-gray-50 text-gray-600 border-gray-200"}`}>
-                      <Shield className="w-3 h-3" /> {b.verified ? "Unverify" : "Verify"}
-                    </button>
-                    <button onClick={() => setEditingBusiness(b)}
-                      className="flex items-center gap-1 text-xs bg-gray-50 text-gray-600 border border-gray-200 px-3 py-1.5 rounded-xl hover:border-[#0d4f4f] hover:text-[#0d4f4f]">
-                      <Edit className="w-3 h-3" /> Edit
-                    </button>
-                    <Link href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
-                      className="flex items-center gap-1 text-xs text-[#0d4f4f] px-2 py-1.5 rounded-xl hover:bg-[#0d4f4f]/5">
-                      <Eye className="w-3.5 h-3.5" />
-                    </Link>
-                    <button onClick={() => deleteBusiness(b.id)}
-                      className="flex items-center gap-1 text-xs bg-red-50 text-red-500 border border-red-100 px-3 py-1.5 rounded-xl hover:bg-red-100">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
+                    {tab.id === "claims" && pendingClaimsCount > 0 && (
+                      <span className="bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">{pendingClaimsCount}</span>
+                    )}
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
 
-      {/* Edit Modal */}
-      {editingBusiness && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setEditingBusiness(null)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-              <h3 className="font-bold text-[#0a1628]">Edit: {editingBusiness.name}</h3>
-              <button onClick={() => setEditingBusiness(null)} className="text-gray-400 text-xl">×</button>
-            </div>
-            <div className="p-6 space-y-4">
-              {/* Business Identity */}
-              <h4 className="font-semibold text-[#0a1628] text-sm mt-4">Business Identity</h4>
-              {[["name","Business Name"],["handle","Registry Handle"]].map(([k,l]) => (
-                <div key={k}>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{l}</label>
-                  <input value={editingBusiness[k]||""} onChange={e => setEditingBusiness(p => ({...p,[k]:e.target.value}))} placeholder={k === "handle" ? "tala-pacific-consulting" : ""} className={inputCls} />
+            {/* Level 4: Data Views */}
+            <div className="p-4">
+              {/* Process Flow Tab */}
+              {activeTab === "flow" && <ProcessFlow />}
+
+              {/* Claims Tab */}
+              {activeTab === "claims" && (
+                <div className="space-y-3">
+                  {claims.filter(c => c.status === "pending").length === 0 ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
+                      <Shield className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">No pending claim requests.</p>
+                    </div>
+                  ) : claims.filter(c => c.status === "pending").map(claim => {
+                    const business = businesses.find(b => b.id === claim.business_id);
+                    return (
+                      <div key={claim.id} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-bold text-sm">{business?.name?.[0] || "?"}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <span className="font-semibold text-[#0a1628]">{business?.name || "Unknown Business"}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getBadgeStyles('info')}`}>Claim Request</span>
+                              {business && <span className={`px-2 py-0.5 rounded-full text-xs ${getBadgeStyles('neutral')}`}>{business.subscription_tier}</span>}
+                            </div>
+                            <p className="text-gray-500 text-xs">{business?.country || "Unknown"} · {business?.industry || "Unknown"} · {claim.user_email}</p>
+                            <p className="text-gray-400 text-xs mt-1">Requested {new Date(claim.created_date).toLocaleDateString()}</p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button onClick={() => updateClaim(claim, "approved")}
+                              className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-all ${getBadgeStyles('success')}`}>
+                              <CheckCircle className="w-3 h-3" /> Approve
+                            </button>
+                            <button onClick={() => updateClaim(claim, "denied")}
+                              className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-all ${getBadgeStyles('danger')}`}>
+                              <XCircle className="w-3 h-3" /> Deny
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Country</label>
-                <select value={editingBusiness.country||""} onChange={e => setEditingBusiness(p => ({...p, country: e.target.value}))} className={inputCls}>
-                  <option value="">Select country</option>
-                  {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">City</label>
-                <input value={editingBusiness.city||""} onChange={e => setEditingBusiness(p => ({...p,city:e.target.value}))} placeholder="e.g. Auckland" className={inputCls} />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Industry Category</label>
-                <select value={editingBusiness.category||""} onChange={e => setEditingBusiness(p => ({...p, category: e.target.value}))} className={inputCls}>
-                  <option value="">Select category</option>
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              
-              {/* Contact & Media */}
-              <h4 className="font-semibold text-[#0a1628] text-sm mt-4">Contact & Media</h4>
-              {[["email","Email"],["website","Website"],["phone","Phone"],["instagram","Instagram"],["facebook","Facebook"],["tiktok","TikTok"],["linkedin","LinkedIn"]].map(([k,l]) => (
-                <div key={k}>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{l}</label>
-                  <input value={editingBusiness[k]||""} onChange={e => setEditingBusiness(p => ({...p,[k]:e.target.value}))} className={inputCls} />
+              )}
+
+              {/* Insights Tab */}
+              {activeTab === "insights" && (
+                <div className="space-y-4">
+                  {businesses.filter(b => b.founder_snapshot_completed).length === 0 ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
+                      <Users className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">No founder insights submitted yet.</p>
+                    </div>
+                  ) : businesses.filter(b => b.founder_snapshot_completed).map(business => (
+                    <div key={business.id} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-[#0a1628]">{business.name}</h4>
+                            <span className={`px-2 py-1 rounded-full text-xs ${getBadgeStyles('neutral')}`}>
+                              {business.subscription_tier}
+                            </span>
+                            {business.verified && (
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBadgeStyles('premium')}`}>
+                                Verified
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-xs text-gray-600 mb-3">
+                            <span>{business.country} • {business.industry || "No industry"}</span>
+                            {business.founder_snapshot_completed_at && (
+                              <span>Submitted {new Date(business.founder_snapshot_completed_at).toLocaleDateString()}</span>
+                            )}
+                          </div>
+                          
+                          {getLatestSnapshot(business.id) && (
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <span>Year: {getLatestSnapshot(business.id).year_started}</span>
+                              <span>Team: {getLatestSnapshot(business.id).team_size_band}</span>
+                              <span>Stage: {getLatestSnapshot(business.id).business_stage}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <button 
+                          onClick={() => setSelectedInsightBusiness(business)}
+                          className="text-xs text-[#0d4f4f] hover:text-[#0a1628] font-medium flex items-center gap-1"
+                        >
+                          View Details <ChevronRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              
-              {/* Description */}
-              <h4 className="font-semibold text-[#0a1628] text-sm mt-4">Description</h4>
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Tagline</label>
-                <input maxLength={160} value={editingBusiness.short_description||""} onChange={e => setEditingBusiness(p => ({...p,short_description:e.target.value}))} placeholder="One-line description" className={inputCls} />
-                <p className="text-xs text-gray-400 mt-1">{(editingBusiness.short_description||"").length}/160</p>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Description</label>
-                <textarea value={editingBusiness.description||""} onChange={e => setEditingBusiness(p => ({...p,description:e.target.value}))} rows={4} className={`${inputCls} resize-none`} />
-              </div>
-              
-              {/* Pacific Identity */}
-              <h4 className="font-semibold text-[#0a1628] text-sm mt-4">Pacific Identity</h4>
-              <div>
-                <CulturalIdentitySelect
-                  value={editingBusiness.cultural_identity || ""}
-                  onChange={(value) => setEditingBusiness(p => ({ ...p, cultural_identity: value }))}
-                />
-              </div>
-              
-              {/* Status & Tier */}
-              <h4 className="font-semibold text-[#0a1628] text-sm mt-4">Status & Tier</h4>
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Tier</label>
-                <select value={editingBusiness.subscription_tier||BUSINESS_TIER.FREE} onChange={e => setEditingBusiness(p => ({...p, subscription_tier: e.target.value}))} className={inputCls}>
-                  <option value={BUSINESS_TIER.FREE}>Free</option>
-                  <option value={BUSINESS_TIER.VERIFIED}>Verified</option>
-                  <option value={BUSINESS_TIER.FEATURED_PLUS}>Featured+</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Status</label>
-                <select value={editingBusiness.status||BUSINESS_STATUS.PENDING} onChange={e => setEditingBusiness(p => ({...p, status: e.target.value}))} className={inputCls}>
-                  <option value={BUSINESS_STATUS.PENDING}>Pending</option>
-                  <option value={BUSINESS_STATUS.ACTIVE}>Active</option>
-                  <option value={BUSINESS_STATUS.REJECTED}>Rejected</option>
-                </select>
-              </div>
-            </div>
-            <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex gap-3">
-              <button onClick={() => setEditingBusiness(null)} className="flex-1 border border-gray-200 text-gray-600 font-medium py-2.5 rounded-xl text-sm">Cancel</button>
-              <button onClick={saveBusiness} disabled={savingEdit} className="flex-1 bg-[#0d4f4f] text-white font-bold py-2.5 rounded-xl text-sm disabled:opacity-50">
-                 {savingEdit ? "Saving..." : "Save Changes"}
-               </button>
+              )}
+
+              {/* Business Tabs - Premium Table View */}
+              {activeTab !== "claims" && activeTab !== "flow" && activeTab !== "insights" && (
+                <div className="space-y-1">
+                  {filteredData.length === 0 ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
+                      <Building2 className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">No {activeTab} businesses found.</p>
+                    </div>
+                  ) : (
+                    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {filteredData.map(b => (
+                            <tr key={b.id} className="hover:bg-gray-50">
+                              <td className="px-4 py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
+                                    <span className="text-white font-bold text-xs">{b.name?.[0]}</span>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-[#0a1628]">{b.name}</div>
+                                    <div className="text-xs text-gray-500">{b.contact_email || "No email"}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4">
+                                <div className="text-sm text-gray-600">
+                                  {b.country} · {b.industry || "No industry"}
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                  Submitted {new Date(b.created_date).toLocaleDateString()}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4">
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBadgeStyles(b.verified ? 'premium' : 'neutral')}`}>
+                                    {b.subscription_tier}
+                                  </span>
+                                  {b.verified && (
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBadgeStyles('success')}`}>
+                                      Verified
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4">
+                                <div className="flex items-center justify-end gap-2">
+                                  {b.status === BUSINESS_STATUS.PENDING && (
+                                    <>
+                                      <button onClick={() => updateStatus(b, BUSINESS_STATUS.ACTIVE)}
+                                        className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg border transition-all ${getBadgeStyles('success')}`}>
+                                        <CheckCircle className="w-3 h-3" />
+                                      </button>
+                                      <button onClick={() => updateStatus(b, BUSINESS_STATUS.REJECTED)}
+                                        className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg border transition-all ${getBadgeStyles('danger')}`}>
+                                        <XCircle className="w-3 h-3" />
+                                      </button>
+                                    </>
+                                  )}
+                                  <button onClick={() => toggleVerified(b)}
+                                    className={`p-1.5 rounded-lg border transition-all ${b.verified ? getBadgeStyles('premium') : getBadgeStyles('neutral')}`}
+                                    title={b.verified ? "Unverify" : "Verify"}
+                                  >
+                                    <Shield className="w-3 h-3" />
+                                  </button>
+                                  <button onClick={() => setEditingBusiness(b)}
+                                    className="p-1.5 rounded-lg border border-gray-200 hover:border-[#0d4f4f] hover:text-[#0d4f4f] transition-colors"
+                                    title="Edit"
+                                  >
+                                    <Edit className="w-3 h-3" />
+                                  </button>
+                                  <Link href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
+                                    className="p-1.5 rounded-lg hover:bg-[#0d4f4f]/5 transition-colors"
+                                    title="View"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </Link>
+                                  <button onClick={() => deleteBusiness(b.id)}
+                                    className="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
+                                    title="Delete"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-          </div>
+
+          {/* Modals */}
+          {/* Edit Modal */}
+          {editingBusiness && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/50" onClick={() => setEditingBusiness(null)} />
+              <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+                  <h3 className="font-bold text-[#0a1628]">Edit: {editingBusiness.name}</h3>
+                  <button onClick={() => setEditingBusiness(null)} className="text-gray-400 hover:text-gray-600">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6">
+                  <DetailedBusinessForm 
+                    onSubmit={saveBusiness} 
+                    isLoading={savingEdit} 
+                    initialData={editingBusiness}
+                    onStepChange={() => {}}
+                    mode={FORM_MODES.ADMIN_EDIT}
+                  />
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Create Business Modal */}
@@ -429,12 +838,42 @@ export default function AdminDashboard() {
                   </button>
                 </div>
                 <div className="p-6">
-                  <DetailedBusinessForm onSubmit={createBusiness} isLoading={creatingBusiness} onStepChange={() => {}} />
+                  <DetailedBusinessForm onSubmit={createBusiness} isLoading={creatingBusiness} onStepChange={() => {}} mode={FORM_MODES.ADMIN_CREATE} />
                 </div>
               </div>
             </div>
           )}
 
+          {/* Admin Insights Detail Modal */}
+          {selectedInsightBusiness && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-[#0a1628]">Founder Insights Details</h2>
+                      <p className="text-sm text-gray-600 mt-1">{selectedInsightBusiness.name}</p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedInsightBusiness(null)}
+                      className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <FounderInsightsSummary 
+                    snapshot={getLatestSnapshot(selectedInsightBusiness.id)}
+                    business={selectedInsightBusiness}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </PortalShell>
   );
 }

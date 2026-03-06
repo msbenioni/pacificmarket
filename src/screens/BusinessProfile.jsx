@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { CheckCircle, Globe, MapPin, Instagram, Facebook, Star, ArrowLeft, ExternalLink, MessageCircle, Languages } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -26,37 +26,72 @@ export default function BusinessProfile() {
       .trim();
 
   useEffect(() => {
-    pacificMarket.auth.me().then(setUser).catch(() => {});
+    const loadProfileData = async () => {
+      try {
+        const supabase = getSupabase();
+        
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
 
-    const params = new URLSearchParams(window.location.search);
-    const handle = params.get("handle");
+        const params = new URLSearchParams(window.location.search);
+        const handle = params.get("handle");
 
-    if (handle) {
-      pacificMarket.entities.Business.filter({ business_handle: handle }).then(async res => {
-        const biz = res.length > 0 ? res[0] : null;
-        if (!biz) {
-          const res2 = await pacificMarket.entities.Business.filter({ id: handle });
-          const biz2 = res2[0] || null;
-          setBusiness(biz2);
-          if (biz2) await fetchExtras(biz2);
-        } else {
+        if (handle) {
+          // Try to find business by handle first
+          const { data: businessByHandle } = await supabase
+            .from('businesses')
+            .select('*')
+            .eq('business_handle', handle)
+            .single();
+          
+          let biz = businessByHandle;
+          
+          // If not found by handle, try by ID
+          if (!biz) {
+            const { data: businessById } = await supabase
+              .from('businesses')
+              .select('*')
+              .eq('id', handle)
+              .single();
+            biz = businessById;
+          }
+          
           setBusiness(biz);
-          await fetchExtras(biz);
+          if (biz) await fetchExtras(biz);
         }
         setLoading(false);
-      });
-    } else setLoading(false);
+      } catch (error) {
+        console.error("Error loading profile data:", error);
+        setLoading(false);
+      }
+    };
+
+    loadProfileData();
   }, []);
 
   const fetchExtras = async (biz) => {
-    const tier = biz.subscription_tier ?? biz.tier;
-    if (tier === "verified" || tier === "featured_plus") {
-      const imgs = await pacificMarket.entities.BusinessImage.filter({ business_id: biz.id });
-      setGalleryImages(imgs);
-    }
-    if (tier === "featured_plus") {
-      const prods = await pacificMarket.entities.ProductService.filter({ business_id: biz.id });
-      setProducts(prods);
+    try {
+      const supabase = getSupabase();
+      const tier = biz.subscription_tier ?? biz.tier;
+      
+      if (tier === "verified" || tier === "featured_plus") {
+        const { data: imgs } = await supabase
+          .from('business_images')
+          .select('*')
+          .eq('business_id', biz.id);
+        setGalleryImages(imgs || []);
+      }
+      
+      if (tier === "featured_plus") {
+        const { data: prods } = await supabase
+          .from('product_services')
+          .select('*')
+          .eq('business_id', biz.id);
+        setProducts(prods || []);
+      }
+    } catch (error) {
+      console.error("Error fetching extras:", error);
     }
   };
 

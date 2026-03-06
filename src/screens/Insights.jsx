@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
-import { Building2, Users, ShieldCheck, Globe } from "lucide-react";
-import { BUSINESS_STATUS } from "@/constants/business";
+import { getSupabase } from "@/lib/supabase/client";
+import { Building2, Users, ShieldCheck, Globe, TrendingUp, Target, Lightbulb, Rocket, BarChart3, PieChart, Activity } from "lucide-react";
+import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import HorizontalBar from "../components/insights/HorizontalBar";
 
@@ -19,8 +19,7 @@ function tally(arr, key) {
 const UI = {
   page: "bg-[#eef0f5]",
   wrap: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8",
-  card:
-    "rounded-2xl border border-gray-200/70 bg-gradient-to-b from-white to-[#fbfcff] shadow-[0_18px_50px_rgba(10,22,40,0.08)]",
+  card: "rounded-2xl border border-gray-200/70 bg-gradient-to-b from-white to-[#fbfcff] shadow-[0_18px_50px_rgba(10,22,40,0.08)]",
   cardInner: "p-6",
   sectionKicker: "text-xs font-bold tracking-[0.22em] uppercase text-[#0a1628]/50",
   sectionTitle: "text-lg font-semibold text-[#0a1628]",
@@ -31,250 +30,309 @@ const UI = {
 
 export default function Insights() {
   const [businesses, setBusinesses] = useState([]);
+  const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    pacificMarket.entities.Business.filter({ status: BUSINESS_STATUS.ACTIVE }).then(data => {
-      setBusinesses(data);
-      setLoading(false);
-    });
+    const loadInsightsData = async () => {
+      setLoading(true);
+      try {
+        const supabase = getSupabase();
+        
+        const [businessesResult, insightsData] = await Promise.all([
+          supabase
+            .from('businesses')
+            .select('*')
+            .eq('status', BUSINESS_STATUS.ACTIVE),
+          fetchInsightsData()
+        ]);
+        
+        setBusinesses(businessesResult.data || []);
+        setInsights(insightsData || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading insights data:', error);
+        setLoading(false);
+      }
+    };
+
+    loadInsightsData();
   }, []);
+
+  const fetchInsightsData = async () => {
+    try {
+      const { getSupabase } = await import('../lib/supabase/client');
+      const supabase = getSupabase();
+      
+      const { data, error } = await supabase
+        .from('latest_business_insights')
+        .select('*');
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+      return [];
+    }
+  };
 
   const total = businesses.length;
   const verified = businesses.filter(b => b.verified).length;
   const countries = new Set(businesses.map(b => b.country).filter(Boolean)).size;
-  const identityMap = {};
-  const identitySet = new Set();
-  businesses.forEach(b => {
-    if (!b.cultural_identity) return;
-    const identities = String(b.cultural_identity)
-      .split(",")
-      .map(identity => identity.trim())
-      .filter(Boolean);
-    identities.forEach(identity => {
-      identitySet.add(identity);
-      identityMap[identity] = (identityMap[identity] || 0) + 1;
-    });
-  });
-  const identities = identitySet.size;
-
+  const insightsCount = insights.length;
+  
+  // Business metrics
   const byCountry = tally(businesses, "country");
-  const byCategory = tally(businesses, "industry");
-  const byIdentity = Object.entries(identityMap)
-    .map(([label, value]) => ({ label, value }))
-    .sort((a, b) => b.value - a.value);
+  const byIndustry = tally(businesses, "industry");
+  const byTier = tally(businesses, "subscription_tier");
+  
+  // Founder insights metrics
+  const byTeamSize = tally(insights, "team_size_band");
+  const byBusinessStage = tally(insights, "business_stage");
+  const byImportExport = tally(insights, "import_export_status");
+  
+  // Calculate years in business
+  const yearsInBusiness = insights
+    .map(i => {
+      const currentYear = new Date().getFullYear();
+      return i.year_started ? currentYear - i.year_started : null;
+    })
+    .filter(year => year !== null && year >= 0);
+  
+  const avgYearsInBusiness = yearsInBusiness.length > 0 
+    ? (yearsInBusiness.reduce((sum, year) => sum + year, 0) / yearsInBusiness.length).toFixed(1)
+    : 0;
 
-  // Parse languages_spoken (comma-separated) and tally
-  const languageMap = {};
-  businesses.forEach(b => {
-    if (!b.languages_spoken) return;
-    
-    let languages = [];
-    if (typeof b.languages_spoken === 'string') {
-      languages = b.languages_spoken.split(',').map(lang => lang.trim()).filter(Boolean);
-    } else if (Array.isArray(b.languages_spoken)) {
-      languages = b.languages_spoken.map(lang => String(lang).trim()).filter(Boolean);
+  // Motivation analysis
+  const motivationKeywords = insights.reduce((acc, insight) => {
+    if (insight.founder_motivation) {
+      const keywords = ['community', 'passion', 'opportunity', 'family', 'problem', 'impact', 'growth'];
+      keywords.forEach(keyword => {
+        if (insight.founder_motivation.toLowerCase().includes(keyword)) {
+          acc[keyword] = (acc[keyword] || 0) + 1;
+        }
+      });
     }
-    
-    languages.forEach(lang => {
-      languageMap[lang] = (languageMap[lang] || 0) + 1;
-    });
-  });
-  const byLanguages = Object.entries(languageMap)
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10); // Top 10 languages
+    return acc;
+  }, {});
 
-  // Monthly registrations (by created_date)
-  const monthMap = {};
-  businesses.forEach(b => {
-    if (!b.created_date) return;
-    const d = new Date(b.created_date);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    monthMap[key] = (monthMap[key] || 0) + 1;
-  });
-  const monthlyData = Object.entries(monthMap)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-12)
-    .map(([month, count]) => ({ month: month.slice(5) + "/" + month.slice(2, 4), count }));
+  // Challenges analysis
+  const allChallenges = insights.reduce((acc, insight) => {
+    if (insight.top_challenges && Array.isArray(insight.top_challenges)) {
+      insight.top_challenges.forEach(challenge => {
+        acc[challenge] = (acc[challenge] || 0) + 1;
+      });
+    }
+    return acc;
+  }, {});
 
-  const lastTwoMonths = monthlyData.slice(-2);
-  const lastMonth = lastTwoMonths[0]?.count ?? 0;
-  const thisMonth = lastTwoMonths[1]?.count ?? 0;
-  const momDelta = thisMonth - lastMonth;
-  const momPct = lastMonth > 0 ? Math.round((momDelta / lastMonth) * 100) : null;
-  const topCountry = byCountry[0];
-  const topIdentity = byIdentity[0];
-  const maxMonth = monthlyData.reduce(
-    (best, cur) => (cur.count > (best?.count ?? -1) ? cur : best),
-    null
-  );
+  const topChallenges = Object.entries(allChallenges)
+    .map(([challenge, count]) => ({ label: challenge, value: count }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
+
+  // Hiring intentions
+  const hiringIntentionRate = insights.length > 0 
+    ? Math.round((insights.filter(i => i.hiring_intentions).length / insights.length) * 100)
+    : 0;
+
+  // Family involvement
+  const familyInvolvementRate = insights.length > 0
+    ? Math.round((insights.filter(i => i.family_involvement).length / insights.length) * 100)
+    : 0;
+
+  // Collaboration interest
+  const collaborationRate = insights.length > 0
+    ? Math.round((insights.filter(i => i.collaboration_interest).length / insights.length) * 100)
+    : 0;
 
   return (
     <div className={`min-h-screen ${UI.page}`}>
       <HeroRegistry
-        badge="Pacific Market"
-        title="Economic Map"
-        subtitle=""
-        description="Pacific Market is building the first structured global registry of Pacific-owned enterprise. This data helps communities understand representation, researchers track entrepreneurial growth, governments identify support gaps, and partners discover Pacific businesses."
+        badge="Pacific Market Insights"
+        title="Founder Journey Analytics"
+        subtitle="Real-time insights from Pacific entrepreneurs"
+        description="Comprehensive analytics based on real founder insights and business data. Track trends, understand challenges, and identify opportunities across the Pacific business ecosystem."
         showStats={false}
       />
 
       <div className={UI.wrap}>
         <p className="text-xs text-[#0a1628]/55 -mt-4">
-          <span className="font-semibold text-[#0a1628]">Scope:</span> Approved & active listings only • Updated in real time • <span className="italic">We are not just listing businesses — we are mapping Pacific economic participation.</span>
+          <span className="font-semibold text-[#0a1628]">Data Source:</span> {total} active businesses • {insightsCount} founder insights • Real-time analytics • 
+          <span className="italic">Powered by founder-submitted journey data and business registry information.</span>
         </p>
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-[#0a1628]/60 mt-2">
-              {momPct !== null
-                ? `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta} (${momPct}%)`
-                : `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta}`}
-            </p>
+            <p className="text-sm text-[#0a1628]/60 mt-2">Loading insights data...</p>
           </div>
         ) : (
           <>
+            {/* Key Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Enterprises on the map</p>
+                  <p className="text-xs text-[#0a1628]/55">Pacific Enterprises</p>
                   <Building2 className="w-4 h-4 text-[#00c4cc]" />
                 </div>
                 <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{total}</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  {momPct !== null
-                    ? `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta} (${momPct}%)`
-                    : `Growth this month: ${momDelta >= 0 ? "+" : ""}${momDelta}`}
+                  {verified} verified • {countries} countries
                 </p>
               </div>
 
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Countries with Pacific enterprise</p>
-                  <Globe className="w-4 h-4 text-[#00c4cc]" />
+                  <p className="text-xs text-[#0a1628]/55">Founder Insights</p>
+                  <Users className="w-4 h-4 text-[#0d4f4f]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{countries}</p>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{insightsCount}</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  {topCountry ? `Most represented: ${topCountry.label} (${topCountry.value})` : "—"}
+                  Journey data collected
                 </p>
               </div>
 
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Verified enterprises</p>
-                  <ShieldCheck className="w-4 h-4 text-[#c9a84c]" />
+                  <p className="text-xs text-[#0a1628]/55">Avg Years in Business</p>
+                  <TrendingUp className="w-4 h-4 text-[#c9a84c]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{verified}</p>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{avgYearsInBusiness}</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  {verified === 0 ? "Verification is rolling out" : "Verified & active"}
+                  Years of operation
                 </p>
               </div>
 
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Distinct cultural identities</p>
-                  <Users className="w-4 h-4 text-[#00c4cc]" />
+                  <p className="text-xs text-[#0a1628]/55">Hiring Intention</p>
+                  <Rocket className="w-4 h-4 text-[#f59e0b]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{identities}</p>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{hiringIntentionRate}%</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  {topIdentity ? `Top identity: ${topIdentity.label} (${topIdentity.value})` : "—"}
+                  Plan to hire in 12 months
                 </p>
               </div>
             </div>
 
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className={UI.card}>
-                <div className={UI.cardInner}>
-                  <p className={UI.sectionKicker}>Geographic reach</p>
-                  <h3 className={UI.sectionTitle}>Pacific enterprise by country</h3>
-                  <p className={UI.sectionDesc}>Where Pacific-owned businesses are active — a geographic footprint of the diaspora economy.</p>
-                </div>
-                <div className="px-6 pb-6">
-                  <HorizontalBar title="" data={byCountry} color="#00c4cc" maxHeight="360px" />
+            {/* Entrepreneurship Origins */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Founder Motivations</h3>
+                <p className={UI.sectionDesc}>What drives Pacific entrepreneurs to start businesses?</p>
+                <div className="mt-4 space-y-2">
+                  {Object.entries(motivationKeywords)
+                    .map(([motivation, count]) => ({ label: motivation, value: count }))
+                    .sort((a, b) => b.value - a.value)
+                    .slice(0, 5)
+                    .map((item, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <span className="text-sm text-[#0a1628] capitalize">{item.label}</span>
+                        <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
 
-              <div className={UI.card}>
-                <div className={UI.cardInner}>
-                  <p className={UI.sectionKicker}>Cultural representation</p>
-                  <h3 className={UI.sectionTitle}>Representation by cultural identity</h3>
-                  <p className={UI.sectionDesc}>Self-identified cultural representation — evidence of which Pacific communities are participating in the formal economy.</p>
-                </div>
-                <div className="px-6 pb-6">
-                  <HorizontalBar title="" data={byIdentity} color="#c9a84c" />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              <div className={UI.card}>
-                <div className={UI.cardInner}>
-                  <p className={UI.sectionKicker}>Economic participation</p>
-                  <h3 className={UI.sectionTitle}>Industry distribution</h3>
-                  <p className={UI.sectionDesc}>Which sectors Pacific enterprise is operating in — useful for identifying growth areas, gaps, and investment opportunities.</p>
-                </div>
-                <div className="px-6 pb-6">
-                  <HorizontalBar title="" data={byCategory} color="#00aab0" />
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Business Stages</h3>
+                <p className={UI.sectionDesc}>Current maturity of Pacific enterprises</p>
+                <div className="mt-4">
+                  <HorizontalBar title="Business Stages" data={byBusinessStage} color="#0d4f4f" />
                 </div>
               </div>
             </div>
 
-            {byLanguages.length > 0 && (
-              <div className={UI.card}>
-                <div className={UI.cardInner}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className={UI.sectionKicker}>Language retention</p>
-                      <h3 className={UI.sectionTitle}>Languages spoken across the registry</h3>
-                      <p className={UI.sectionDesc}>Language data shows cultural retention inside Pacific enterprise — a signal of diasporic identity and a resource for culturally-aligned partnerships.</p>
+            {/* Business Operations */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Team Sizes</h3>
+                <p className={UI.sectionDesc}>Employment across Pacific businesses</p>
+                <div className="mt-4">
+                  <HorizontalBar title="Team Sizes" data={byTeamSize} color="#00c4cc" />
+                </div>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Family Involvement</h3>
+                <p className={UI.sectionDesc}>Family-owned enterprises</p>
+                <div className="mt-4">
+                  <div className="flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-[#0a1628]">{familyInvolvementRate}%</p>
+                      <p className="text-sm text-[#0a1628]/60 mt-1">Family-involved</p>
                     </div>
-                    <img src="/language_spoken.png" alt="Languages spoken" className="w-[60px] h-[60px]" />
                   </div>
                 </div>
+              </div>
 
-                <div className="px-6 pb-6 space-y-3">
-                  {byLanguages.map((lang, idx) => {
-                    const max = byLanguages[0]?.count ?? 1;
-                    const pct = Math.round((lang.count / max) * 100);
-
-                    return (
-                      <div key={lang.name} className="rounded-xl border border-gray-200 bg-white px-4 py-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-[#0a1628]/5 text-[#0a1628] flex items-center justify-center text-sm font-semibold">
-                              {idx + 1}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-[#0a1628] truncate">{lang.name}</p>
-                              <div className="mt-2 h-2 rounded-full bg-[#0a1628]/10 overflow-hidden">
-                                <div
-                                  className="h-full rounded-full"
-                                  style={{ width: `${pct}%`, background: idx % 2 === 0 ? "#00c4cc" : "#c9a84c" }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-[#0a1628]">{lang.count}</p>
-                            <p className="text-xs text-[#0a1628]/50">businesses</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Trade Activity</h3>
+                <p className={UI.sectionDesc}>International trade engagement</p>
+                <div className="mt-4">
+                  <HorizontalBar title="Trade Activity" data={byImportExport} color="#c9a84c" />
                 </div>
               </div>
-            )}
+            </div>
+
+            {/* Challenges & Support */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Top Challenges</h3>
+                <p className={UI.sectionDesc}>Biggest hurdles facing Pacific entrepreneurs</p>
+                <div className="mt-4">
+                  <HorizontalBar title="Top Challenges" data={topChallenges} color="#ef4444" />
+                </div>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Collaboration Interest</h3>
+                <p className={UI.sectionDesc}>Openness to business partnerships</p>
+                <div className="mt-4">
+                  <div className="flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-[#0a1628]">{collaborationRate}%</p>
+                      <p className="text-sm text-[#0a1628]/60 mt-1">Interested in collaborating</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Geographic & Industry Distribution */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Geographic Distribution</h3>
+                <p className={UI.sectionDesc}>Pacific businesses by country</p>
+                <div className="mt-4">
+                  <HorizontalBar title="Geographic Distribution" data={byCountry.slice(0, 10)} color="#0d4f4f" />
+                </div>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Industry Breakdown</h3>
+                <p className={UI.sectionDesc}>Business sectors across the Pacific</p>
+                <div className="mt-4">
+                  <HorizontalBar title="Industry Breakdown" data={byIndustry.slice(0, 10)} color="#00c4cc" />
+                </div>
+              </div>
+            </div>
+
+            {/* Subscription Tiers */}
+            <div className={`${UI.card} ${UI.cardInner}`}>
+              <h3 className={UI.sectionTitle}>Subscription Tiers</h3>
+              <p className={UI.sectionDesc}>Business registry participation levels</p>
+              <div className="mt-4">
+                <HorizontalBar title="Subscription Tiers" data={byTier} color="#c9a84c" />
+              </div>
+            </div>
           </>
         )}
 
         <div className={`${UI.card} p-6`}>
           <p className="text-sm text-[#0a1628]/70">
-            <span className="font-semibold text-[#0a1628]">About this data:</span> These insights reflect <span className="font-semibold text-[#0a1628]">approved & active</span> listings in the Pacific Market — the first structured global dataset of Pacific-owned enterprise. Figures update in real time as new businesses are approved. For research access, bulk data exports, policy enquiries, or methodology questions, contact the registry team.
+            <span className="font-semibold text-[#0a1628]">About this data:</span> These insights reflect <span className="font-semibold text-[#0a1628]">approved & active</span> listings in the Pacific Market — the first structured global dataset of Pacific-owned enterprise. Figures update in real time as new businesses are approved and founders share their journey data. For research access, bulk data exports, policy enquiries, or methodology questions, contact the registry team.
           </p>
         </div>
       </div>

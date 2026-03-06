@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from "lucide-react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/AuthContext";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 
@@ -77,19 +77,27 @@ export default function BusinessLogin() {
     }
 
     try {
+      const supabase = getSupabase();
       let result;
       
       if (mode === "signin") {
         // Sign in with Supabase
-        result = await pacificMarket.auth.signIn(email, password);
+        result = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
       } else {
         // Sign up with Supabase
-        result = await pacificMarket.auth.signUp(email, password, {
-          data: {
-            full_name: name,
-            display_name: name,
-            gdpr_consent: gdprConsent,
-            gdpr_consent_date: new Date().toISOString()
+        result = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+              display_name: name,
+              gdpr_consent: gdprConsent,
+              gdpr_consent_date: new Date().toISOString()
+            }
           }
         });
       }
@@ -111,7 +119,7 @@ export default function BusinessLogin() {
       if (mode === "signin") {
         setSuccess("Login successful! Redirecting...");
         // Refresh user context and redirect immediately
-        const currentUser = await pacificMarket.auth.me();
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
         setUser(currentUser);
         router.push(createPageUrl("BusinessPortal"));
       } else {

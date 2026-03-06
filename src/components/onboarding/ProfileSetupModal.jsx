@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from '@/components/shared/ModalWrapper';
-import { pacificMarket } from '../../lib/pacificMarketClient';
+import { getSupabase } from '../../lib/supabase/client';
 import { ONBOARDING_STEPS, ONBOARDING_VALIDATION_RULES } from '../../constants/profileOnboarding';
 import { useOnboardingStatus } from '../../hooks/useOnboardingStatus';
 
@@ -46,20 +46,19 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
 
   const loadProfileData = async () => {
     try {
-      const userData = await pacificMarket.auth.me();
-      if (userData) {
+      const supabase = getSupabase();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
         // Use direct Supabase client for profile data
-        const { getSupabase } = await import('../../lib/supabase/client');
-        const supabase = getSupabase();
         const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', userData.id)
+          .eq('id', user.id)
           .single();
         
         if (profileData) {
           setFormData({
-            display_name: profileData.display_name || userData?.user_metadata?.full_name || userData?.user_metadata?.display_name || '',
+            display_name: profileData.display_name || user?.user_metadata?.full_name || user?.user_metadata?.display_name || '',
             city: profileData.city || '',
             country: profileData.country || '',
             primary_cultural: profileData.primary_cultural || [],
@@ -70,7 +69,7 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
         } else {
           // If no profile exists, initialize with user metadata
           setFormData({
-            display_name: userData?.user_metadata?.full_name || userData?.user_metadata?.display_name || '',
+            display_name: user?.user_metadata?.full_name || user?.user_metadata?.display_name || '',
             city: '',
             country: '',
             primary_cultural: [],
@@ -137,8 +136,9 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
   const handleComplete = async () => {
     setSaving(true);
     try {
-      const userData = await pacificMarket.auth.me();
-      if (!userData) throw new Error('User not authenticated');
+      const supabase = getSupabase();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
       // Apply transformation rules before saving
       const transformedData = { ...formData };
@@ -152,13 +152,10 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
       }
       
       // Use direct Supabase client for profile update
-      const { getSupabase } = await import('../../lib/supabase/client');
-      const supabase = getSupabase();
-      
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: userData.id,
+          id: user.id,
           ...transformedData,
           updated_at: new Date().toISOString()
         });

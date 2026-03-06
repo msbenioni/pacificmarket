@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { Plus, Trash2, Download, ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
@@ -22,10 +22,30 @@ export default function InvoiceGenerator() {
   });
 
   useEffect(() => {
-    pacificMarket.auth.me().then(u => {
-      setUser(u);
-      return pacificMarket.entities.Business.filter({ owner_user_id: u.id, tier: "featured_plus" });
-    }).then(b => { if (b.length > 0) setBusiness(b[0]); }).catch(() => {});
+    const loadInvoiceData = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        setUser(user);
+        
+        // Get user's featured_plus business
+        const { data: businesses } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('owner_user_id', user.id)
+          .eq('subscription_tier', 'featured_plus');
+        
+        if (businesses && businesses.length > 0) {
+          setBusiness(businesses[0]);
+        }
+      } catch (error) {
+        console.error("Error loading invoice data:", error);
+      }
+    };
+
+    loadInvoiceData();
   }, []);
 
   const setField = (key, val) => setInvoice(i => ({ ...i, [key]: val }));

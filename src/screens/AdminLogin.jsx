@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, AlertCircle, AlertTriangle } from "lucide-react";
+import { getSupabase } from "@/lib/supabase/client";
 import { createPageUrl } from "@/utils";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, AlertTriangle } from "lucide-react";
-import { useAuth } from "@/lib/AuthContext";
-import { pacificMarket } from "@/lib/pacificMarketClient";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import PortalShell from "@/components/portal/PortalShell";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -25,7 +26,11 @@ export default function AdminLogin() {
 
     try {
       // Sign in with Supabase
-      const { data, error: signInError } = await pacificMarket.auth.signIn(email, password);
+      const supabase = getSupabase();
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
       if (signInError) {
         throw signInError;
@@ -38,9 +43,6 @@ export default function AdminLogin() {
       }
       
       // Check if user has admin role in profiles table
-      const { getSupabase } = await import("@/lib/supabase/client");
-      const supabase = getSupabase();
-      
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('role')

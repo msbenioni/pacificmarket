@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { QrCode, Download, Link as LinkIcon, Building2, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
@@ -15,18 +15,33 @@ export default function QRCodeGenerator() {
   const [mode, setMode] = useState("profile"); // profile | custom
 
   useEffect(() => {
-    pacificMarket.auth.me().then(u => {
-      setUser(u);
-      return pacificMarket.entities.Business.filter({ owner_user_id: u.id });
-    }).then(b => {
-      setBusinesses(b);
-      if (b.length > 0) {
-        const business_handle = b[0].business_handle || b[0].id;
-        const profileUrl = `${window.location.origin}/business-profile?handle=${business_handle}`;
-        setUrl(profileUrl);
-        setLabel(b[0].name);
+    const loadQRData = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        setUser(user);
+        
+        // Get user's businesses
+        const { data: businesses } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('owner_user_id', user.id);
+        
+        if (businesses && businesses.length > 0) {
+          setBusinesses(businesses);
+          const business_handle = businesses[0].business_handle || businesses[0].id;
+          const profileUrl = `${window.location.origin}/business-profile?handle=${business_handle}`;
+          setUrl(profileUrl);
+          setLabel(businesses[0].name);
+        }
+      } catch (error) {
+        console.error("Error loading QR data:", error);
       }
-    }).catch(() => {});
+    };
+
+    loadQRData();
   }, []);
 
   const generateQR = async () => {

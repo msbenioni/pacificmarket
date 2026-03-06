@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { AlertCircle } from "lucide-react";
 
 export default function BusinessSearch({
@@ -29,10 +29,12 @@ export default function BusinessSearch({
 
     (async () => {
       try {
-        const res = await pacificMarket.entities.Business.list();
-
-        // ✅ supports both array OR { data } shape
-        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        const supabase = getSupabase();
+        const { data } = await supabase
+          .from('businesses')
+          .select('*');
+        
+        const list = data || [];
         if (alive) setAllBusinesses(list);
       } catch (e) {
         console.error("BusinessSearch list error:", e);
@@ -43,7 +45,7 @@ export default function BusinessSearch({
       }
     })();
 
-    return () => { alive = false; };
+    return () => { alive = false };
   }, [onError]);
 
   useEffect(() => {

@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { pacificMarket } from "@/lib/pacificMarketClient";
-import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, LogOut, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users } from "lucide-react";
-import CulturalIdentitySelect from "@/components/shared/CulturalIdentitySelect";
+import { getSupabase } from "@/lib/supabase/client";
+import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
-import { CATEGORIES, COUNTRIES, TIER_BENEFITS } from "@/constants/businessProfile";
-import { IDENTITIES } from "@/constants/profileOnboarding";
-import BusinessSearch from "../components/BusinessSearch";
-import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
+import { TIER_BENEFITS } from "@/constants/businessProfile";
+import { BUSINESS_TIER, BUSINESS_STATUS, mapLegacyTier, getTierDisplayName } from "@/constants/business";
+import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
+import FounderInsightsForm from "@/components/forms/FounderInsightsForm";
+import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { SetupProgressCard } from "@/components/onboarding/SetupProgressCard";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import CancelClaimButton from "@/components/claims/CancelClaimButton";
 import { ProfileSetupModal } from "@/components/onboarding/ProfileSetupModal";
 import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from "@/components/shared/ModalWrapper";
-import { getBusinessOwner, getBusinessOwnerName, formatBusinessOwnerInfo } from "@/utils/businessHelpers";
+import { getBusinessOwner, getBusinessOwnerName } from "@/utils/businessHelpers";
 import PortalShell from "@/components/portal/PortalShell";
 import { portalUI } from "@/components/portal/portalUI";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
@@ -26,92 +26,257 @@ export default function BusinessPortal() {
   const [user, setUser] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
-  const [profiles, setProfiles] = useState([]); // Add profiles state
+  const [profiles, setProfiles] = useState([]);
+  const [insightSnapshots, setInsightSnapshots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("my-businesses");
   const [editingBusiness, setEditingBusiness] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const [claiming, setClaiming] = useState(false);
   const [showAddOwnerModal, setShowAddOwnerModal] = useState(null);
   const [newOwnerForm, setNewOwnerForm] = useState({ name: "", email: "" });
   const [addingOwner, setAddingOwner] = useState(false);
-  const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
-  const { toast } = useToast();
-
-  // Onboarding state
-  const { onboardingStatus, loading: onboardingLoading } = useOnboardingStatus();
+  const [deleteConfirmBusiness, setDeleteConfirmBusiness] = useState(null);
+  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [claiming, setClaiming] = useState(false);
+  const [showInsightsModal, setShowInsightsModal] = useState(false);
+  const [selectedBusinessForInsights, setSelectedBusinessForInsights] = useState(null);
+  const [insightsSubmitting, setInsightsSubmitting] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showClaimAddModal, setShowClaimAddModal] = useState(false);
   const [claimAddDefaultView, setClaimAddDefaultView] = useState("choice");
+
+  const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
+  const { toast } = useToast();
+
+  // Helper to get latest snapshot for a business
+  const getLatestSnapshot = (businessId) =>
+    insightSnapshots.find(s => s.business_id === businessId);
+
+  // Onboarding state
+  const { onboardingStatus, loading: onboardingLoading } = useOnboardingStatus();
 
   const refetchPortalData = async (u = user) => {
     if (!u?.id) return;
 
     try {
-      const { getSupabase } = await import("../lib/supabase/client");
       const supabase = getSupabase();
 
-      const [businessesData, claimsData, profilesRes] = await Promise.all([
-        pacificMarket.entities.Business.filter({ owner_user_id: u.id }),
-        pacificMarket.entities.ClaimRequest.filter({ user_id: u.id }),
-        supabase.from("profiles").select("*"),
+      const [businessesResult, claimsResult, profilesResult] = await Promise.all([
+        supabase
+          .from('businesses')
+          .select('*')
+          .eq('owner_user_id', u.id),
+        supabase
+          .from('claim_requests')
+          .select('*')
+          .eq('user_id', u.id),
+        supabase
+          .from("profiles")
+          .select("*"),
       ]);
 
-      setBusinesses(businessesData || []);
-      setClaims(claimsData || []);
-      setProfiles(profilesRes?.data || []);
+      const businesses = businessesResult.data || [];
+      const claims = claimsResult.data || [];
+      const profiles = profilesResult.data || [];
+
+      setBusinesses(businesses);
+      setClaims(claims);
+      setProfiles(profiles);
+
+      // Fetch insight snapshots for owned businesses
+      const businessIds = businesses.map(b => b.id);
+      let snapshots = [];
+      if (businessIds.length) {
+        const { data } = await supabase
+          .from("business_insights_snapshots")
+          .select("*")
+          .in("business_id", businessIds)
+          .order("submitted_date", { ascending: false });
+        snapshots = data || [];
+      }
+      setInsightSnapshots(snapshots);
     } catch (e) {
       console.error("Refetch portal data error:", e);
     }
   };
 
   useEffect(() => {
-    pacificMarket.auth.me().then(async (u) => {
-      if (!u) {
+    const loadPortalData = async () => {
+      try {
+        const supabase = getSupabase();
+        
+        // Get current user with profile data
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+          setLoading(false);
+          return;
+        }
+
+        // Get user profile for role and display info
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('role, display_name')
+          .eq('id', user.id)
+          .single();
+
+        const enhancedUser = { 
+          ...user, 
+          role: profileData?.role || 'owner',
+          permissions: profileData?.role === 'admin' ? ['read', 'write', 'delete'] : [],
+          full_name: profileData?.display_name || user.user_metadata?.full_name || user.user_metadata?.display_name,
+          display_name: profileData?.display_name || user.user_metadata?.display_name || user.user_metadata?.full_name
+        };
+
+        setUser(enhancedUser);
+        await refetchPortalData(enhancedUser);
         setLoading(false);
-        return;
+      } catch (error) {
+        console.error("Error loading portal data:", error);
+        setLoading(false);
       }
-      setUser(u);
-      await refetchPortalData(u);
-      setLoading(false);
-    });
+    };
+
+    loadPortalData();
   }, []);
 
-  const handleSave = async () => {
+  const handleSave = async (formData) => {
     setSaving(true);
-    await pacificMarket.entities.Business.update(editingBusiness.id, editingBusiness);
-    setBusinesses(prev => prev.map(b => b.id === editingBusiness.id ? editingBusiness : b));
-    setEditingBusiness(null);
-    setSaving(false);
+    try {
+      const supabase = getSupabase();
+      
+      // Filter out potentially problematic fields
+      const { id, ...updateData } = formData;
+      const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
+        if (!['updated_date', 'created_date', 'verification_source'].includes(key)) {
+          acc[key] = updateData[key];
+        }
+        return acc;
+      }, {});
+      
+      const { error } = await supabase
+        .from('businesses')
+        .update(safeUpdateData)
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setBusinesses(prev => prev.map(b => b.id === formData.id ? { ...b, ...safeUpdateData } : b));
+      setEditingBusiness(null);
+      toast({
+        title: "Business Updated",
+        description: "Your changes were saved successfully.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error("Error updating business:", error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update business. Please try again.",
+        variant: "error"
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleLogoUpload = async (e, businessId) => {
     const file = e.target.files[0];
     if (!file) return;
-    const { file_url } = await pacificMarket.integrations.Core.UploadFile({ file, type: "logo" });
-    await pacificMarket.entities.Business.update(businessId, { logo_url: file_url });
-    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, logo_url: file_url } : b));
-    if (editingBusiness?.id === businessId) setEditingBusiness(prev => ({ ...prev, logo_url: file_url }));
+    
+    try {
+      const supabase = getSupabase();
+      
+      // Upload file to Supabase storage
+      const bucket = "admin-listings";
+      const folder = "logos";
+      const filePath = `${folder}/${Date.now()}-${file.name}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+      
+      const file_url = data.publicUrl;
+      
+      // Update business with new logo URL
+      const { error: updateError } = await supabase
+        .from('businesses')
+        .update({ logo_url: file_url })
+        .eq('id', businessId);
+      
+      if (updateError) throw updateError;
+      
+      setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, logo_url: file_url } : b));
+      if (editingBusiness?.id === businessId) {
+        setEditingBusiness(prev => ({ ...prev, logo_url: file_url }));
+      }
+      
+      toast({
+        title: "Logo Updated",
+        description: "Business logo has been successfully updated.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload logo. Please try again.",
+        variant: "error"
+      });
+    }
   };
 
   const submitClaimRequest = async () => {
     if (!selectedBusiness) return;
     setClaiming(true);
     try {
-      await pacificMarket.entities.ClaimRequest.create({
-        business_id: selectedBusiness.id,
-        user_id: user.id,
-        user_email: user.email,
-        business_name: selectedBusiness.name,
-        status: "pending",
-      });
-      setClaims(prev => [...prev, { business_id: selectedBusiness.id, business_name: selectedBusiness.name, user_email: user.email, status: "pending", created_date: new Date() }]);
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('claim_requests')
+        .insert({
+          business_id: selectedBusiness.id,
+          user_id: user.id,
+          user_email: user.email,
+          business_name: selectedBusiness.name,
+          status: "pending",
+        });
+      
+      if (error) throw error;
+      
+      setClaims(prev => [...prev, { 
+        business_id: selectedBusiness.id, 
+        business_name: selectedBusiness.name, 
+        user_email: user.email, 
+        status: "pending", 
+        created_date: new Date() 
+      }]);
       setSelectedBusiness(null);
+      
+      toast({
+        title: "Claim Submitted",
+        description: "Your claim request has been submitted successfully.",
+        variant: "success"
+      });
     } catch (error) {
-      // error handling
+      console.error("Error submitting claim:", error);
+      toast({
+        title: "Claim Failed",
+        description: "Failed to submit claim request. Please try again.",
+        variant: "error"
+      });
+    } finally {
+      setClaiming(false);
     }
-    setClaiming(false);
+  };
+
+  const handleDeleteBusiness = (businessId) => {
+    setDeleteConfirmBusiness(businessId);
   };
 
   const handleAddOwner = async (businessId) => {
@@ -228,23 +393,25 @@ export default function BusinessPortal() {
     }
   };
 
-  const handleDeleteBusiness = async (businessId) => {
-    toast({
-      title: "Confirm Delete",
-      description: "Are you sure you want to delete this business? This action cannot be undone.",
-      variant: "default",
-      duration: 10000 // Longer duration for confirmation
-    });
+  const confirmDeleteBusiness = async () => {
+    if (!deleteConfirmBusiness) return;
     
-    // For now, proceed with deletion (in a real app, you'd want a confirmation dialog)
     try {
-      await pacificMarket.entities.Business.delete(businessId);
-      setBusinesses(prev => prev.filter(b => b.id !== businessId));
+      const supabase = getSupabase();
+      const { error } = await supabase
+        .from('businesses')
+        .delete()
+        .eq('id', deleteConfirmBusiness);
+      
+      if (error) throw error;
+      
+      setBusinesses(prev => prev.filter(b => b.id !== deleteConfirmBusiness));
       toast({
         title: "Business Deleted",
         description: "The business has been successfully deleted.",
         variant: "success"
       });
+      setDeleteConfirmBusiness(null);
     } catch (error) {
       console.error("Error deleting business:", error);
       toast({
@@ -252,6 +419,76 @@ export default function BusinessPortal() {
         description: "Failed to delete business. Please try again.",
         variant: "error"
       });
+    }
+  };
+
+  const handleFounderInsightsSubmit = async (insightsData) => {
+    setInsightsSubmitting(true);
+    try {
+      const supabase = getSupabase();
+
+      // Save insights to database
+      const { error } = await supabase
+        .from('business_insights_snapshots')
+        .insert(insightsData);
+
+      if (error) throw error;
+
+      // Show success message
+      toast({
+        title: "Founder Insights Submitted!",
+        description: "Thank you for sharing your business journey. Your insights will help us better support Pacific entrepreneurs.",
+        variant: "success"
+      });
+
+      // Close modal and reset
+      setShowInsightsModal(false);
+      setSelectedBusinessForInsights(null);
+      
+      // Upgrade business to Mana tier with comprehensive fields
+      if (selectedBusinessForInsights) {
+        const businessUpdates = {
+          subscription_tier: BUSINESS_TIER.MANA,
+          verified: true,
+          founder_snapshot_completed: true,
+          founder_snapshot_completed_at: new Date().toISOString()
+        };
+        
+        const { error: updateError } = await supabase
+          .from('businesses')
+          .update(businessUpdates)
+          .eq('id', selectedBusinessForInsights.id);
+        
+        if (updateError) throw updateError;
+        
+        setBusinesses(prev => prev.map(b => 
+          b.id === selectedBusinessForInsights.id 
+            ? { 
+                ...b, 
+                ...businessUpdates
+              }
+            : b
+        ));
+        
+        // Refresh insight snapshots to include the new submission
+        await refetchPortalData();
+        
+        toast({
+          title: "Verified Upgrade Complete!",
+          description: "Your business has been upgraded to Verified tier. Thank you for sharing your founder journey!",
+          variant: "success"
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error submitting insights:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Failed to submit insights. Please try again.",
+        variant: "error"
+      });
+    } finally {
+      setInsightsSubmitting(false);
     }
   };
 
@@ -287,9 +524,14 @@ export default function BusinessPortal() {
   }
 
   const tierInfo = {
-    free: { label: "Free", color: "text-gray-500 bg-gray-100" },
-    verified: { label: "Verified", color: "text-[#0d4f4f] bg-[#0d4f4f]/10", icon: Shield },
-    featured_plus: { label: "Featured+", color: "text-[#c9a84c] bg-[#c9a84c]/10", icon: Star },
+    [BUSINESS_TIER.VAKA]: { label: getTierDisplayName(BUSINESS_TIER.VAKA), color: "text-gray-500 bg-gray-100" },
+    [BUSINESS_TIER.MANA]: { label: getTierDisplayName(BUSINESS_TIER.MANA), color: "text-[#0d4f4f] bg-[#0d4f4f]/10", icon: Shield },
+    [BUSINESS_TIER.MOANA]: { label: getTierDisplayName(BUSINESS_TIER.MOANA), color: "text-[#c9a84c] bg-[#c9a84c]/10", icon: Star },
+    
+    // Legacy support
+    basic: { label: getTierDisplayName(BUSINESS_TIER.BASIC), color: "text-gray-500 bg-gray-100" },
+    verified: { label: getTierDisplayName(BUSINESS_TIER.VERIFIED), color: "text-[#0d4f4f] bg-[#0d4f4f]/10", icon: Shield },
+    featured_plus: { label: getTierDisplayName(BUSINESS_TIER.FEATURED_PLUS), color: "text-[#c9a84c] bg-[#c9a84c]/10", icon: Star },
   };
 
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
@@ -310,6 +552,7 @@ export default function BusinessPortal() {
           <div className={portalUI.tabsWrap}>
             {[
               { id: "my-businesses", label: "My Businesses", icon: Building2 },
+              { id: "insights", label: "Founder Insights", icon: Users },
               { id: "claims", label: "Claim Requests", icon: CheckCircle },
               { id: "tools", label: "Business Tools", icon: FileText },
             ].map((tab) => (
@@ -496,9 +739,9 @@ export default function BusinessPortal() {
                       : "bg-gray-100/80 text-gray-600 border border-gray-200";
 
                   const statusStyles =
-                    b.status === "approved"
+                    b.status === BUSINESS_STATUS.ACTIVE
                       ? "bg-emerald-100/80 text-emerald-700 border border-emerald-200"
-                      : b.status === "pending"
+                      : b.status === BUSINESS_STATUS.PENDING
                       ? "bg-amber-100/80 text-amber-700 border border-amber-200"
                       : "bg-red-100/80 text-red-700 border border-red-200";
 
@@ -684,6 +927,178 @@ export default function BusinessPortal() {
             </div>
           )}
 
+          {/* Founder Insights */}
+          {activeTab === "insights" && (
+            <div className="space-y-6">
+              {/* Section header */}
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className={portalUI.sectionKicker}>
+                    Founder Journey
+                  </p>
+                  <h2 className={portalUI.sectionTitle}>
+                    Share Your Business Story
+                  </h2>
+                  <p className={portalUI.sectionDesc}>
+                    Help us build the first comprehensive dataset of Pacific entrepreneurship. Your insights will strengthen support programs and research across the region.
+                  </p>
+                </div>
+              </div>
+
+              {/* Insights Status Cards */}
+              <div className="space-y-4">
+                {businesses.length === 0 ? (
+                  <div className={`${portalUI.card} p-8 text-center`}>
+                    <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-[#0a1628] mb-2">No Businesses Yet</h3>
+                    <p className="text-gray-600 mb-4">Add your first business to access the Founder Insights survey.</p>
+                    <button
+                      onClick={() => {
+                        setClaimAddDefaultView("add");
+                        setShowClaimAddModal(true);
+                      }}
+                      className="inline-flex items-center gap-2 bg-[#0d4f4f] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#1a6b6b] transition"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Business
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {businesses.map((business) => (
+                      <div key={business.id} className={`${portalUI.card} p-6`}>
+                        <div className="flex items-start justify-between gap-6">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              {business.logo_url ? (
+                                <img src={business.logo_url} alt={business.name} className="w-12 h-12 rounded-xl object-cover" />
+                              ) : (
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
+                                  <span className="text-white font-bold text-lg">{business.name?.[0] || "?"}</span>
+                                </div>
+                              )}
+                              <div>
+                                <h3 className="font-bold text-[#0a1628]">{business.name}</h3>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                    business.subscription_tier === "verified"
+                                      ? "bg-[#0d4f4f]/10 text-[#0d4f4f]"
+                                      : "bg-gray-100 text-gray-600"
+                                  }`}>
+                                    {business.subscription_tier === "verified" ? "Verified" : "Basic"}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    {business.country || "Unknown"} • {business.industry || "Unknown"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                              <div className="flex items-start gap-3">
+                                <Users className="w-5 h-5 text-blue-600 mt-0.5" />
+                                <div>
+                                  <h4 className="font-semibold text-blue-900 text-sm">Founder Insights Reward</h4>
+                                  <p className="text-blue-700 text-sm mt-1">
+                                    Complete this survey to receive a <strong>complimentary Verified upgrade</strong> and help strengthen Pacific entrepreneurship data.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => {
+                                  setSelectedBusinessForInsights(business);
+                                  setShowInsightsModal(true);
+                                }}
+                                className="inline-flex items-center gap-2 bg-[#0d4f4f] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#1a6b6b] transition"
+                              >
+                                <Users className="w-4 h-4" />
+                                {business.founder_snapshot_completed ? "View Submitted Insights" : "Start Founder Insights"}
+                              </button>
+
+                              {business.founder_snapshot_completed && (
+                                <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                                  <CheckCircle className="w-4 h-4" />
+                                  Submitted {getLatestSnapshot(business.id)?.submitted_date ? 
+                                    new Date(getLatestSnapshot(business.id).submitted_date).toLocaleDateString() : 
+                                    'Recently'
+                                  }
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Benefits Section */}
+              <div className="rounded-[28px] border border-[#0d4f4f]/20 bg-gradient-to-r from-[#0d4f4f]/10 via-white to-[#00c4cc]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/12">
+                      <Users className="w-6 h-6 text-[#0d4f4f]" />
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
+                        Community Impact
+                      </p>
+                      <h3 className="mt-1 text-lg font-bold text-[#0a1628]">
+                        Why Your Journey Matters
+                      </h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        Your business story helps researchers, policymakers, and support organizations understand the unique challenges and opportunities facing Pacific entrepreneurs.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#0d4f4f]">
+                      Research
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#0a1628]">
+                      First Pacific Dataset
+                    </p>
+                    <p className="mt-2 text-xs text-slate-600">
+                      Contribute to the largest structured dataset of Pacific entrepreneurship
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#00c4cc]">
+                      Support
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#0a1628]">
+                      Better Programs
+                    </p>
+                    <p className="mt-2 text-xs text-slate-600">
+                      Help organizations design better support for Pacific businesses
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#c9a84c]">
+                      Recognition
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#0a1628]">
+                      Verified Status
+                    </p>
+                    <p className="mt-2 text-xs text-slate-600">
+                      Receive complimentary Verified tier for your contribution
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Tools */}
           {activeTab === "tools" && (
             <div>
@@ -795,28 +1210,62 @@ export default function BusinessPortal() {
                isLoading={saving}
                initialData={editingBusiness}
                onStepChange={() => {}}
+               mode={editingBusiness ? FORM_MODES.BUSINESS_EDIT : FORM_MODES.BUSINESS_CREATE}
              />
            </ModalContent>
            
            <ModalFooter>
-             <div className="flex justify-between">
+             <div className="flex justify-end">
                <button 
                  onClick={() => setEditingBusiness(null)} 
                  className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition"
                >
                  Cancel
                </button>
-               <button 
-                 onClick={handleSave} 
-                 disabled={saving} 
-                 className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-5 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] disabled:opacity-50"
-               >
-                 {saving ? "Saving..." : "Save Changes"}
-               </button>
              </div>
            </ModalFooter>
          </ModalWrapper>
        )}
+
+      {/* Founder Insights Modal */}
+      {showInsightsModal && selectedBusinessForInsights && (
+        <ModalWrapper isOpen={showInsightsModal} onClose={() => setShowInsightsModal(false)} className={MODAL_SIZES.xl}>
+          <ModalHeader 
+            title="Founder Insights Survey"
+            subtitle={`Share your journey for ${selectedBusinessForInsights.name}`}
+            onClose={() => setShowInsightsModal(false)}
+          />
+          
+          <ModalContent>
+            {selectedBusinessForInsights.founder_snapshot_completed ? (
+              <FounderInsightsSummary 
+                snapshot={getLatestSnapshot(selectedBusinessForInsights.id)}
+                business={selectedBusinessForInsights}
+              />
+            ) : (
+              <>
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-semibold text-blue-900">Why Share Your Insights?</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Your journey helps us build better support programs for Pacific entrepreneurs. Complete this survey to automatically upgrade to Verified tier.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <FounderInsightsForm 
+                  businessId={selectedBusinessForInsights.id}
+                  onSubmit={handleFounderInsightsSubmit}
+                  isLoading={insightsSubmitting}
+                />
+              </>
+            )}
+          </ModalContent>
+        </ModalWrapper>
+      )}
 
       {/* Onboarding Modals */}
       <ProfileSetupModal
@@ -845,6 +1294,53 @@ export default function BusinessPortal() {
           await refetchPortalData();         // refresh businesses instantly
         }}
       />
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmBusiness && (
+        <ModalWrapper 
+          isOpen={!!deleteConfirmBusiness} 
+          onClose={() => setDeleteConfirmBusiness(null)} 
+          className="max-w-md"
+        >
+          <ModalHeader 
+            title="Delete Business"
+            onClose={() => setDeleteConfirmBusiness(null)}
+          />
+          
+          <ModalContent>
+            <div className="text-center py-4">
+              <Trash2 className="w-12 h-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-[#0a1628] mb-2">Delete Business</h3>
+              <p className="text-gray-600 mb-4">
+                Are you sure you want to delete this business? This action cannot be undone. Please make sure you no longer need this listing before continuing.
+              </p>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-sm text-red-800">
+                  <strong>Important:</strong> This will permanently remove your business listing from Pacific Market.
+                </p>
+              </div>
+            </div>
+          </ModalContent>
+          
+          <ModalFooter>
+            <div className="flex justify-between gap-3">
+              <button 
+                onClick={() => setDeleteConfirmBusiness(null)} 
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] transition"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDeleteBusiness} 
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Business
+              </button>
+            </div>
+          </ModalFooter>
+        </ModalWrapper>
+      )}
     </PortalShell>
   );
 }

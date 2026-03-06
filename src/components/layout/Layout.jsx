@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { Search, Menu, X, ChevronDown } from "lucide-react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
 import CookieConsent from "../shared/CookieConsent";
 import { User, LogOut, Settings, CreditCard, AlertCircle, AlertTriangle, Home } from "lucide-react";
@@ -19,7 +19,17 @@ export default function Layout({ children, currentPageName }) {
   const router = useRouter();
 
   useEffect(() => {
-    pacificMarket.auth.me().then(setUser).catch(() => setUser(null));
+    const checkAuth = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        setUser(null);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -32,7 +42,8 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = async () => {
     try {
-      await pacificMarket.auth.logout();
+      const supabase = getSupabase();
+      await supabase.auth.signOut();
       setUser(null);
       setUserMenuOpen(false);
       router.push(createPageUrl("Home"));

@@ -1,115 +1,126 @@
 import Link from "next/link";
-import Image from "next/image";
 import { createPageUrl } from "@/utils";
-import { CheckCircle, X, Star, Shield, ArrowRight } from "lucide-react";
+import { CheckCircle, X, Star, Shield, ArrowRight, Waves, Compass, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
+import { BUSINESS_TIER, mapLegacyTier, getTierDisplayName } from "@/constants/business";
 import HeroRegistry from "../components/shared/HeroRegistry";
 
 const plans = [
   {
-    id: "free",
-    name: "Basic Listing",
+    id: BUSINESS_TIER.VAKA,
+    legacyTier: BUSINESS_TIER.BASIC,
+    name: getTierDisplayName(BUSINESS_TIER.VAKA),
+    subtitle: "Begin the journey",
     price: "Free",
     period: "",
     description:
-      "Stand proudly in the registry and represent your business, your people, and your place in Pacific enterprise. A free way to be counted and discovered.",
-    bestFor: "First-step visibility and Pacific representation",
-    color: "border-gray-200",
-    headerBg: "bg-gray-50",
+      "Start your journey in the Pacific Market registry and make sure your business is counted, represented, and discoverable.",
+    bestFor: "Early visibility and proud Pacific representation",
     badge: null,
-    cta: "List My Business",
+    icon: Compass,
+    border: "border-slate-200",
+    headerTone: "bg-white",
+    accent: "text-[#0a1628]",
+    cta: "Start with Vaka",
     ctaClass:
       "bg-white border-2 border-[#0a1628] text-[#0a1628] hover:bg-[#0a1628] hover:text-white",
+    highlights: [
+      "Public registry listing",
+      "Business name, country and category",
+      "Discoverable across the platform",
+      "Official registry record number",
+    ],
     features: [
-      { label: "Basic registry listing", included: true },
+      { label: "Registry listing", included: true },
       { label: "Business name, country & category", included: true },
       { label: "Public discoverability", included: true },
       { label: "Registry record number", included: true },
-      { label: "Logo + banner image", included: false },
+      { label: "Logo upload", included: false },
+      { label: "Banner image", included: false },
       { label: "Full business profile", included: false },
-      { label: "Verified badge", included: false },
-      { label: "Priority search placement", included: false },
+      { label: "Trust badge", included: false },
+      { label: "Priority placement", included: false },
       { label: "Invoice generator", included: false },
       { label: "QR code generator", included: false },
       { label: "Homepage spotlight", included: false },
     ],
   },
   {
-    id: "verified",
-    name: "Verified",
+    id: BUSINESS_TIER.MANA,
+    legacyTier: BUSINESS_TIER.VERIFIED,
+    name: getTierDisplayName(BUSINESS_TIER.MANA),
+    subtitle: "Build trust and presence",
     price: "$9",
     period: "/month",
     description:
-      "Build trust with a more complete and professional presence — including your logo, banner image, full profile, and verification badge.",
-    bestFor: "Businesses ready to look established and credible",
-    color: "border-[#0d4f4f]",
-    headerBg: "bg-[#0d4f4f]",
+      "Strengthen your presence with branding, a fuller profile, and stronger trust signals that help your business look established and credible.",
+    bestFor: "Businesses ready for a stronger public presence",
     badge: null,
-    cta: "Upgrade to Verified",
-    ctaClass: "bg-[#0d4f4f] text-white hover:bg-[#1a6b6b]",
     icon: Shield,
-    identity: [
-      { title: "Logo upload", desc: "Upload 1 logo to brand your listing." },
-      { title: "Banner image", desc: "Upload 1 banner image for a stronger, more professional presence." },
-    ],
-    includesLabel: "Everything in Basic, plus",
-    adds: [
-      "Logo upload",
-      "Banner image",
+    border: "border-[#0d4f4f]",
+    headerTone: "bg-gradient-to-br from-[#0d4f4f] to-[#0a5d5d]",
+    accent: "text-white",
+    cta: "Choose Mana",
+    ctaClass: "bg-[#0d4f4f] text-white hover:bg-[#1a6b6b]",
+    highlights: [
+      "Everything in Vaka",
+      "Logo and banner image",
       "Full business profile",
-      "Verified badge",
+      "Trust-focused profile upgrade",
       "Priority search placement",
     ],
     features: [
-      { label: "Basic registry listing", included: true },
+      { label: "Registry listing", included: true },
       { label: "Business name, country & category", included: true },
       { label: "Public discoverability", included: true },
       { label: "Registry record number", included: true },
-      { label: "Logo + banner image", included: true },
+      { label: "Logo upload", included: true },
+      { label: "Banner image", included: true },
       { label: "Full business profile", included: true },
-      { label: "Verified badge", included: true },
-      { label: "Priority search placement", included: true },
+      { label: "Trust badge", included: true },
+      { label: "Priority placement", included: true },
       { label: "Invoice generator", included: false },
       { label: "QR code generator", included: false },
       { label: "Homepage spotlight", included: false },
     ],
   },
   {
-    id: "featured_plus",
-    name: "Featured+",
+    id: BUSINESS_TIER.MOANA,
+    legacyTier: BUSINESS_TIER.FEATURED_PLUS,
+    name: getTierDisplayName(BUSINESS_TIER.MOANA),
+    subtitle: "Expand your reach",
     price: "$29",
     period: "/month",
     description:
-      "For businesses ready to lead with visibility — including premium placement, practical tools, and a stronger public presence across Pacific Market.",
-    bestFor: "Businesses ready to grow visibility and sales",
-    color: "border-[#c9a84c]",
-    headerBg: "bg-gradient-to-br from-[#c9a84c] to-[#b8973b]",
+      "For businesses ready to lead with visibility, unlock premium placement, useful tools, and a stronger presence across Pacific Market.",
+    bestFor: "Businesses ready to grow reach, visibility and momentum",
     badge: "Most Popular",
-    cta: "Upgrade to Featured+",
+    icon: Waves,
+    border: "border-[#c9a84c]",
+    headerTone: "bg-gradient-to-br from-[#c9a84c] to-[#b8973b]",
+    accent: "text-[#0a1628]",
+    cta: "Choose Moana",
     ctaClass: "bg-[#c9a84c] text-[#0a1628] hover:bg-[#b8973b]",
-    icon: Star,
-    apps: [
-      { title: "Invoice Generator", desc: "Create invoices quickly and professionally for customers." },
-      { title: "QR Code Generator", desc: "Share a scannable business link at markets, events, and online." },
-    ],
-    includesLabel: "Everything in Verified, plus",
-    adds: [
-      "Invoice Generator",
-      "QR Code Generator",
-      "Homepage Spotlight",
+    highlights: [
+      "Everything in Mana",
+      "Invoice generator",
+      "QR code generator",
+      "Premium visibility",
+      "Homepage spotlight",
     ],
     features: [
-      { label: "Basic registry listing", included: true },
+      { label: "Registry listing", included: true },
       { label: "Business name, country & category", included: true },
       { label: "Public discoverability", included: true },
       { label: "Registry record number", included: true },
-      { label: "Logo + banner image", included: true },
+      { label: "Logo upload", included: true },
+      { label: "Banner image", included: true },
       { label: "Full business profile", included: true },
-      { label: "Verified badge", included: true },
-      { label: "Priority search placement", included: true },
+      { label: "Trust badge", included: true },
+      { label: "Priority placement", included: true },
       { label: "Invoice generator", included: true },
       { label: "QR code generator", included: true },
       { label: "Homepage spotlight", included: true },
@@ -127,9 +138,12 @@ export default function Pricing() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const currentUser = await pacificMarket.auth.me();
+        const supabase = getSupabase();
+        const {
+          data: { user: currentUser },
+        } = await supabase.auth.getUser();
         setUser(currentUser);
-      } catch (error) {
+      } catch {
         setUser(null);
       } finally {
         setPageLoading(false);
@@ -139,23 +153,19 @@ export default function Pricing() {
     checkAuth();
   }, []);
 
-  const handleUpgrade = async (tier) => {
+  const handleUpgrade = async (planId) => {
     if (!user) {
-      if (tier === "free") {
-        window.location.href = createPageUrl("BusinessLogin");
-      } else {
-        window.location.href = createPageUrl("BusinessLogin");
-      }
+      window.location.href = createPageUrl("BusinessLogin");
       return;
     }
 
-    setProcessingPlan(tier);
+    setProcessingPlan(planId);
 
     try {
-      if (tier === "free") {
+      if (planId === BUSINESS_TIER.VAKA) {
         setShowModal(true);
       } else {
-        await createCheckoutSession({ tier });
+        await createCheckoutSession({ tier: planId });
       }
     } finally {
       setProcessingPlan(null);
@@ -172,321 +182,238 @@ export default function Pricing() {
 
   return (
     <div className="bg-[#f8f9fc]">
-      {/* Hero */}
       <HeroRegistry
         badge="Pricing"
-        title="Choose How You Want Your Business Represented"
+        title="Choose the Presence That Fits Your Journey"
         subtitle=""
-        description="Start with a free listing to stand proudly in the registry. Upgrade to Verified for a stronger branded presence, or choose Featured+ for premium visibility and practical business tools."
+        description="Start with Vaka to be represented in the registry, move into Mana for stronger trust and branding, or choose Moana for premium visibility and practical tools designed to help Pacific businesses grow."
       />
 
-      {/* Plans */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {error && (
-            <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
-          <div className="grid md:grid-cols-3 gap-6 items-stretch">
-            {plans.map((plan) => (
-              <div key={plan.id} className="relative pt-4">
-                {plan.badge && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
-                    <span className="bg-[#c9a84c] text-[#0a1628] text-xs font-bold px-4 py-1 rounded-full shadow">
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
+          <div className="mb-10 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
+              A Pacific business journey
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-[#0a1628]">
+              {getTierDisplayName(BUSINESS_TIER.VAKA)} → {getTierDisplayName(BUSINESS_TIER.MANA)} → {getTierDisplayName(BUSINESS_TIER.MOANA)}
+            </h2>
+            <p className="mt-3 max-w-2xl mx-auto text-sm leading-6 text-slate-600">
+              Begin the journey, strengthen your presence, then expand your reach.
+            </p>
+          </div>
 
-                <div
-                  className={`bg-white border-2 rounded-2xl overflow-hidden transition-all flex flex-col h-full
-                  shadow-md hover:shadow-xl hover:-translate-y-1
-                  ${plan.id === "featured_plus" ? "ring-2 ring-[#c9a84c]/40" : ""}
-                  ${plan.color}`}
-                >
-                  {/* Header */}
-                  <div className={`${plan.headerBg} p-6`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      {plan.icon && (
-                        <plan.icon
-                          className={`w-5 h-5 ${
-                            plan.id === "featured_plus" ? "text-[#0a1628]" : "text-[#00c4cc]"
-                          }`}
-                        />
-                      )}
-                      <span
-                        className={`font-bold text-sm ${
-                          plan.id === "free"
-                            ? "text-[#0a1628]"
-                            : plan.id === "featured_plus"
-                            ? "text-[#0a1628]"
-                            : "text-white"
-                        }`}
-                      >
-                        {plan.name}
+          <div className="grid gap-6 lg:grid-cols-3 items-stretch">
+            {plans.map((plan) => {
+              const Icon = plan.icon;
+              const isMoana = plan.id === BUSINESS_TIER.MOANA;
+
+              return (
+                <div key={plan.id} className={`relative ${isMoana ? "lg:-mt-3" : ""}`}>
+                  {plan.badge && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <span className="inline-flex items-center rounded-full bg-[#c9a84c] px-4 py-1 text-xs font-bold text-[#0a1628] shadow-md">
+                        {plan.badge}
                       </span>
                     </div>
+                  )}
 
-                    <div className="flex items-baseline gap-1">
-                      <span
-                        className={`text-4xl font-black ${
-                          plan.id === "free"
-                            ? "text-[#0a1628]"
-                            : plan.id === "featured_plus"
-                            ? "text-[#0a1628]"
-                            : "text-white"
-                        }`}
-                      >
-                        {plan.price}
-                      </span>
-                      {plan.period && (
-                        <span
-                          className={`text-sm ${
-                            plan.id === "featured_plus" ? "text-[#0a1628]/70" : "text-white/70"
+                  <div
+                    className={`h-full overflow-hidden rounded-[28px] border ${plan.border} bg-white shadow-[0_18px_50px_rgba(10,22,40,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(10,22,40,0.12)] ${
+                      isMoana ? "ring-2 ring-[#c9a84c]/25" : ""
+                    }`}
+                  >
+                    <div className={`${plan.headerTone} p-7`}>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
+                            plan.id === BUSINESS_TIER.VAKA
+                              ? "bg-[#0a1628]/5"
+                              : plan.id === BUSINESS_TIER.MANA
+                              ? "bg-white/10"
+                              : "bg-white/40"
                           }`}
                         >
-                          {plan.period}
-                        </span>
-                      )}
+                          <Icon
+                            className={`w-5 h-5 ${
+                              plan.id === BUSINESS_TIER.MANA
+                                ? "text-white"
+                                : plan.id === BUSINESS_TIER.MOANA
+                                ? "text-[#0a1628]"
+                                : "text-[#0a1628]"
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <p className={`text-lg font-bold ${plan.accent}`}>{plan.name}</p>
+                          <p
+                            className={`text-xs ${
+                              plan.id === BUSINESS_TIER.MANA
+                                ? "text-white/80"
+                                : plan.id === BUSINESS_TIER.MOANA
+                                ? "text-[#0a1628]/70"
+                                : "text-slate-500"
+                            }`}
+                          >
+                            {plan.subtitle}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex items-end gap-1">
+                        <span className={`text-4xl font-black ${plan.accent}`}>{plan.price}</span>
+                        {plan.period && (
+                          <span
+                            className={`pb-1 text-sm ${
+                              plan.id === BUSINESS_TIER.MANA
+                                ? "text-white/80"
+                                : plan.id === BUSINESS_TIER.MOANA
+                                ? "text-[#0a1628]/70"
+                                : "text-slate-500"
+                            }`}
+                          >
+                            {plan.period}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Body */}
-                  <div className="p-6 flex flex-col flex-1">
-                    <p className="text-gray-500 text-xs leading-relaxed mb-4">{plan.description}</p>
+                    <div className="flex h-[calc(100%-148px)] flex-col p-7">
+                      <p className="text-sm leading-6 text-slate-600">{plan.description}</p>
 
-                    {plan.bestFor && (
-                      <div className="text-xs text-gray-600 mb-6">
-                        <span className="font-semibold">Best for:</span> {plan.bestFor}
+                      <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                          Best for
+                        </p>
+                        <p className="mt-1 text-sm text-[#0a1628]">{plan.bestFor}</p>
                       </div>
-                    )}
 
-                    {plan.id === "free" && (
-                      <div className="text-[11px] text-gray-500 leading-relaxed -mt-3 mb-6">
-                        Every listing helps show the world that Pacific business is active, valuable, and growing.
-                      </div>
-                    )}
-
-                    {/* Identity block */}
-                    {plan.identity?.length ? (
-                      <div className="mb-5 rounded-xl border border-[#00c4cc]/25 bg-[#00c4cc]/5 p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-[#0d4f4f]">
-                            Identity Upgrade
-                          </div>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/70 border border-[#00c4cc]/20 text-[#0a1628]">
-                            Verified
-                          </span>
-                        </div>
-
-                        <div className="grid gap-2">
-                          {plan.identity.map((x) => (
-                            <div key={x.title} className="rounded-lg bg-white border border-gray-200 p-3">
-                              <div className="text-xs font-semibold text-[#0a1628]">{x.title}</div>
-                              <div className="text-[11px] text-gray-500 mt-1">{x.desc}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {/* Apps block */}
-                    {plan.apps?.length ? (
-                      <div className="mb-5 rounded-xl border border-[#c9a84c]/35 bg-[#fff7db] p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-[#0a1628]">
-                            Included Apps
-                          </div>
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/70 border border-[#c9a84c]/30 text-[#0a1628]">
-                            Featured+
-                          </span>
-                        </div>
-
-                        <div className="grid gap-2">
-                          {plan.apps.map((x) => (
-                            <div key={x.title} className="rounded-lg bg-white border border-[#c9a84c]/25 p-3">
-                              <div className="text-xs font-semibold text-[#0a1628]">{x.title}</div>
-                              <div className="text-[11px] text-gray-600 mt-1">{x.desc}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {/* Includes + Adds */}
-                    <div className="flex-1">
-                      {plan.id === "free" ? (
-                        <ul className="space-y-2.5">
-                          {plan.features.map((f) => (
-                            <li key={f.label} className="flex items-center gap-2.5">
-                              {f.included ? (
-                                <CheckCircle className="w-4 h-4 text-[#0d4f4f] flex-shrink-0" />
-                              ) : (
-                                <X className="w-4 h-4 text-gray-200 flex-shrink-0" />
-                              )}
-                              <span className={`text-xs ${f.included ? "text-gray-700" : "text-gray-300"}`}>
-                                {f.label}
-                              </span>
+                      <div className="mt-6">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                          Highlights
+                        </p>
+                        <ul className="mt-3 space-y-3">
+                          {plan.highlights.map((item) => (
+                            <li key={item} className="flex items-start gap-2.5">
+                              <CheckCircle
+                                className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
+                                  plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                                }`}
+                              />
+                              <span className="text-sm text-slate-700">{item}</span>
                             </li>
                           ))}
                         </ul>
-                      ) : (
-                        <div className="rounded-xl border border-gray-200 bg-white p-4">
-                          <div className="flex items-center gap-2 text-xs font-semibold text-[#0a1628]">
-                            <CheckCircle className="w-4 h-4 text-[#0d4f4f]" />
-                            {plan.includesLabel}
-                          </div>
+                      </div>
 
-                          <p className="text-[11px] text-gray-500 mt-1">
-                            Includes all core registry visibility and public discoverability.
-                          </p>
-
-                          <div className="mt-4">
-                            <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-2">
-                              Adds
-                            </div>
-                            <ul className="space-y-2">
-                              {plan.adds?.map((item) => (
-                                <li key={item} className="flex items-start gap-2">
-                                  <Star
-                                    className={`w-4 h-4 flex-shrink-0 ${
-                                      plan.id === "featured_plus" ? "text-[#c9a84c]" : "text-[#00c4cc]"
-                                    }`}
-                                  />
-                                  <span className="text-xs text-gray-700">{item}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* CTA */}
-                    <div className="mt-6">
-                      <button
-                        onClick={() => handleUpgrade(plan.id)}
-                        disabled={processingPlan !== null || (plan.id === "free" && !!user)}
-                        className={`inline-flex w-full justify-center items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${
-                          plan.id === "free" && user
-                            ? "bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
-                            : processingPlan !== null
-                            ? "opacity-50 cursor-not-allowed"
-                            : plan.ctaClass
-                        }`}
-                      >
-                        {processingPlan === plan.id ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            {plan.id === "free" && user ? (
-                              "Current Plan"
-                            ) : user ? (
-                              <>
-                                {plan.cta} {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
-                              </>
-                            ) : (
-                              <>
-                                {plan.id === "free" ? "Create Free Account" : "Create Account to Upgrade"}
-                                {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
-                              </>
-                            )}
-                          </>
-                        )}
-                      </button>
+                      <div className="mt-6 border-t border-slate-200 pt-6">
+                        <button
+                          onClick={() => handleUpgrade(plan.id)}
+                          disabled={processingPlan !== null}
+                          className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition ${
+                            processingPlan !== null ? "opacity-60 cursor-not-allowed" : plan.ctaClass
+                          }`}
+                        >
+                          {processingPlan === plan.id ? (
+                            <>
+                              <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              {plan.cta}
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Comparison Table */}
-      <section className="py-16 bg-[#f0f2f8] px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-[#0a1628] mb-3 text-center">
-            Compare Your Options
-          </h2>
-          <p className="text-sm text-gray-500 text-center max-w-2xl mx-auto mb-10">
-            See which level of visibility, trust, and business support is right for where your business is now.
-          </p>
+      <section className="bg-[#f1f4f8] py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-8 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
+              Compare features
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-[#0a1628]">
+              See what grows with each plan
+            </h2>
+            <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
+              Choose the level that matches where your business is now, then upgrade when you are ready for stronger identity or wider visibility.
+            </p>
+          </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white">
+          <div className="overflow-x-auto rounded-[24px] border border-slate-200 bg-white shadow-[0_18px_50px_rgba(10,22,40,0.06)]">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#0a1628]">
-                  <th className="text-left py-4 px-6 text-gray-400 font-medium text-xs uppercase tracking-wider w-1/2">
+                  <th className="w-[42%] px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
                     Feature
                   </th>
                   {plans.map((p) => (
-                    <th key={p.id} className="text-center py-4 px-4">
-                      <div
-                        className={`inline-block font-bold text-xs px-3 py-1 rounded-full ${
-                          p.id === "free"
-                            ? "bg-white/10 text-gray-300"
-                            : p.id === "verified"
-                            ? "bg-[#00c4cc]/20 text-[#00c4cc]"
-                            : "bg-[#c9a84c]/25 text-[#c9a84c]"
+                    <th key={p.id} className="px-4 py-4 text-center">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
+                          p.id === "vaka"
+                            ? "bg-white/10 text-slate-300"
+                            : p.id === "mana"
+                            ? "bg-[#00c4cc]/20 text-[#8df3f6]"
+                            : "bg-[#c9a84c]/20 text-[#f4e3a8]"
                         }`}
                       >
                         {p.name}
-                      </div>
+                      </span>
                     </th>
                   ))}
                 </tr>
               </thead>
-
               <tbody>
-                {plans[2].features.map((f, i) => {
-                  const rowLabel = f.label;
-                  const isKeyRow =
-                    rowLabel === "Logo + banner image" ||
-                    rowLabel === "Invoice generator" ||
-                    rowLabel === "QR code generator";
+                {plans[2].features.map((feature, i) => {
+                  const label = feature.label;
+                  const highlighted =
+                    label === "Logo upload" ||
+                    label === "Banner image" ||
+                    label === "Invoice generator" ||
+                    label === "QR code generator" ||
+                    label === "Homepage spotlight";
 
                   return (
                     <tr
-                      key={i}
-                      className={`border-b border-gray-100 transition-colors
-                      ${isKeyRow ? "bg-[#fff7db]" : i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-                      hover:bg-gray-50`}
+                      key={label}
+                      className={`border-b border-slate-100 ${
+                        highlighted ? "bg-[#fffaf0]" : i % 2 === 0 ? "bg-white" : "bg-slate-50/60"
+                      }`}
                     >
-                      <td
-                        className={`py-3 px-6 text-xs font-medium ${
-                          isKeyRow ? "text-[#0a1628]" : "text-gray-700"
-                        }`}
-                      >
+                      <td className="px-6 py-3 text-xs font-medium text-slate-700">
                         <div className="flex items-center gap-2">
-                          {isKeyRow && <Star className="w-4 h-4 text-[#c9a84c]" />}
-                          {rowLabel}
-                          {rowLabel === "Logo + banner image" && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#00c4cc]/15 text-[#0d4f4f]">
-                              Verified key benefit
-                            </span>
-                          )}
-                          {(rowLabel === "Invoice generator" || rowLabel === "QR code generator") && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#c9a84c]/25 text-[#0a1628]">
-                              Featured+ key benefit
-                            </span>
-                          )}
+                          {highlighted && <Sparkles className="w-4 h-4 text-[#c9a84c]" />}
+                          {label}
                         </div>
                       </td>
 
                       {plans.map((plan) => (
-                        <td key={plan.id} className="text-center py-3 px-4">
+                        <td key={plan.id} className="px-4 py-3 text-center">
                           {plan.features[i].included ? (
                             <CheckCircle
-                              className={`w-4 h-4 ${isKeyRow ? "text-[#c9a84c]" : "text-[#0d4f4f]"} mx-auto`}
+                              className={`mx-auto h-4 w-4 ${
+                                plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                              }`}
                             />
                           ) : (
-                            <X className="w-4 h-4 text-gray-300 mx-auto" />
+                            <X className="mx-auto h-4 w-4 text-slate-300" />
                           )}
                         </td>
                       ))}
@@ -499,7 +426,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Modal */}
       <ClaimAddBusinessModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

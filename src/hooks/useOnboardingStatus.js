@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { pacificMarket } from '../lib/pacificMarketClient';
+import { getSupabase } from '../lib/supabase/client';
 
 /**
  * Hook to compute onboarding status and next actions
@@ -29,7 +29,8 @@ export function useOnboardingStatus() {
         setLoading(true);
         
         // Get authenticated user
-        const userData = await pacificMarket.auth.me();
+        const supabase = getSupabase();
+        const { data: { user: userData } } = await supabase.auth.getUser();
         if (!userData) {
           setLoading(false);
           return;
@@ -38,8 +39,6 @@ export function useOnboardingStatus() {
         setUser(userData);
 
         // Fetch user profile using direct Supabase client
-        const { getSupabase } = await import('../lib/supabase/client');
-        const supabase = getSupabase();
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -53,11 +52,17 @@ export function useOnboardingStatus() {
         setProfile(profileData);
 
         // Fetch user's businesses
-        const businessesData = await pacificMarket.entities.Business.filter({ owner_user_id: userData.id });
+        const { data: businessesData } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('owner_user_id', userData.id);
         setBusinesses(businessesData || []);
 
         // Fetch user's claim requests
-        const claimsData = await pacificMarket.entities.ClaimRequest.filter({ user_id: userData.id });
+        const { data: claimsData } = await supabase
+          .from('claim_requests')
+          .select('*')
+          .eq('user_id', userData.id);
         setClaims(claimsData || []);
 
       } catch (err) {

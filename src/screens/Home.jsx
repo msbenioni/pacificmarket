@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { ArrowRight, CheckCircle, Globe, Shield, Star, BookOpen, Award, ChevronRight } from "lucide-react";
 import { BUSINESS_STATUS } from "@/constants/business";
 import StatsBar from "../components/home/StatsBar";
@@ -14,17 +14,24 @@ export default function Home() {
   const [featured, setFeatured] = useState([]);
 
   useEffect(() => {
-    pacificMarket.entities.Business.filter(
-      { status: BUSINESS_STATUS.ACTIVE, visibility_tier: "homepage" },
-      "-updated_at"
-    )
-      .then((data) => {
+    const loadFeaturedBusinesses = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('status', BUSINESS_STATUS.ACTIVE)
+          .eq('visibility_tier', 'homepage')
+          .order('updated_at', { ascending: false });
+        
         console.log("Homepage featured businesses:", data);
-        setFeatured(data);
-      })
-      .catch((error) => {
+        setFeatured(data || []);
+      } catch (error) {
         console.error("Error fetching featured businesses:", error);
-      });
+      }
+    };
+
+    loadFeaturedBusinesses();
   }, []);
 
   const values = [

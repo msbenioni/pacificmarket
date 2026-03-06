@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { pacificMarket } from '@/lib/pacificMarketClient';
+import { getSupabase } from '@/lib/supabase/client';
 
 export function useStripeCheckout() {
   const [loading, setLoading] = useState(false);
@@ -11,7 +11,8 @@ export function useStripeCheckout() {
 
     try {
       // Get current user
-      const user = await pacificMarket.auth.me();
+      const supabase = getSupabase();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('You must be logged in to upgrade');
       }
@@ -25,9 +26,7 @@ export function useStripeCheckout() {
       const cancelUrl = `${baseUrl}/Pricing?cancelled=true`;
 
       // Get session token for authentication
-    const { getSupabase } = await import('../lib/supabase/client');
-    const supabase = getSupabase();
-    const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
       throw new Error('No active session found');

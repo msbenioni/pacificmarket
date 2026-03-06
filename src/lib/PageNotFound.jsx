@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
-import { pacificMarket } from '@/lib/pacificMarketClient';
+import { getSupabase } from '@/lib/supabase/client';
 
 
 export default function PageNotFound({}) {
@@ -13,7 +13,8 @@ export default function PageNotFound({}) {
         queryKey: ['user'],
         queryFn: async () => {
             try {
-                const user = await pacificMarket.auth.me();
+                const supabase = getSupabase();
+                const { data: { user } } = await supabase.auth.getUser();
                 return { user, isAuthenticated: true };
             } catch (error) {
                 return { user: null, isAuthenticated: false };

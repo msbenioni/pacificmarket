@@ -1,0 +1,359 @@
+# Pacific Market Data Model Unification Plan
+
+## Overview
+
+Start by **locking the data model and workflows first**, then connect both portals (Business + Admin) to that same model. Styling should come last. If you don't stabilize the dataset now, every UI change later will create inconsistencies.
+
+The correct order is:
+1. **Define the registry data model (dataset)**
+2. **Define founder insights dataset**
+3. **Unify field names across forms, portals, and admin**
+4. **Build shared business form system**
+5. **Update Business Portal to use the unified model**
+6. **Update Admin Console to manage the full dataset**
+7. **Add Founder Snapshot flow**
+8. **Connect dataset to Insights page**
+
+---
+
+## Phase 1 — Lock the Dataset (HIGH PRIORITY)
+
+### Task 1: Define Final Canonical Business Schema
+- [ ] **Identity Fields**
+  - [ ] `id` (UUID, primary key)
+  - [ ] `name` (text, required)
+  - [ ] `business_handle` (text, unique, slug-friendly)
+  - [ ] `industry` (text, required) *← formerly category*
+  - [ ] `country` (text, required)
+  - [ ] `city` (text, required)
+  - [ ] `year_started` (integer, optional)
+
+- [ ] **Media Fields**
+  - [ ] `logo_url` (text, optional)
+  - [ ] `banner_url` (text, optional)
+
+- [ ] **Public Contact Fields**
+  - [ ] `contact_email` (text, optional) *← formerly email*
+  - [ ] `contact_phone` (text, optional) *← formerly phone*
+  - [ ] `website` (text, optional)
+  - [ ] `social_links` (jsonb, optional) - structured social media data
+
+- [ ] **Description Fields**
+  - [ ] `tagline` (text, optional)
+  - [ ] `description` (text, optional)
+
+- [ ] **Registry Status Fields**
+  - [ ] `status` (enum: pending | active | rejected)
+  - [ ] `subscription_tier` (enum: basic | verified | featured_plus) *← formerly tier*
+  - [ ] `verified` (boolean, default false)
+  - [ ] `claimed` (boolean, default false)
+
+- [ ] **Ownership Fields**
+  - [ ] `owner_user_id` (uuid, nullable, references auth.users)
+
+- [ ] **Operational Metadata Fields**
+  - [ ] `created_date` (timestamp with time zone, default now())
+  - [ ] `updated_date` (timestamp with time zone, default now())
+  - [ ] `created_by` (uuid, references auth.users)
+  - [ ] `source` (enum: user | admin | import | claim)
+
+- [ ] **Quality Metrics (Computed)**
+  - [ ] `profile_completeness` (decimal, computed trigger)
+
+### Task 2: Define Founder Insights Dataset Schema
+- [ ] **Create `business_insights_snapshots` Table**
+  - [ ] **Core Identifiers**
+    - [ ] `id` (UUID, primary key)
+    - [ ] `business_id` (uuid, references businesses.id)
+    - [ ] `snapshot_year` (integer)
+    - [ ] `submitted_date` (timestamp with time zone, default now())
+
+  - [ ] **Founder Journey Fields**
+    - [ ] `year_started` (integer)
+    - [ ] `founder_motivation` (text)
+    - [ ] `problem_solved` (text)
+
+  - [ ] **Business Operations Fields**
+    - [ ] `team_size_band` (enum: solo | 2-5 | 6-10 | 11-50 | 51+)
+    - [ ] `business_model` (text)
+    - [ ] `family_involvement` (boolean)
+
+  - [ ] **Markets Fields**
+    - [ ] `customer_region` (text)
+    - [ ] `sales_channels` (jsonb)
+    - [ ] `import_export_status` (enum: none | import_only | export_only | both)
+    - [ ] `import_countries` (jsonb)
+    - [ ] `export_countries` (jsonb)
+
+  - [ ] **Growth Stage Fields**
+    - [ ] `business_stage` (enum: idea | startup | growth | mature)
+
+  - [ ] **Challenges Fields**
+    - [ ] `top_challenges` (jsonb)
+    - [ ] `support_needed` (jsonb)
+
+  - [ ] **Future Outlook Fields**
+    - [ ] `goals_next_12_months` (text)
+    - [ ] `hiring_intentions` (boolean)
+
+  - [ ] **Community Impact Fields**
+    - [ ] `community_impact_areas` (jsonb)
+    - [ ] `collaboration_interest` (boolean)
+
+### Task 3: Create SQL Migration for Business Schema
+- [ ] **Migration File**: `update_businesses_canonical_schema.sql`
+- [ ] **Add new columns** for missing fields
+- [ ] **Rename existing columns** (category → industry, tier → subscription_tier, etc.)
+- [ ] **Update constraints** and indexes
+- [ ] **Create triggers** for updated_date and profile_completeness
+- [ ] **Data migration script** to preserve existing data
+
+### Task 4: Create Business Insights Table
+- [ ] **Migration File**: `create_business_insights_snapshots.sql`
+- [ ] **Create table** with all founder insights fields
+- [ ] **Add foreign key constraints** to businesses table
+- [ ] **Create indexes** for performance
+- [ ] **Add RLS policies** for data access control
+
+---
+
+## Phase 2 — Fix Field Inconsistencies (HIGH PRIORITY)
+
+### Task 5: Normalize Field Names Across Codebase
+- [ ] **Update Constants Files**
+  - [ ] Update `src/constants/business.js` with new field names
+  - [ ] Update `src/constants/businessProfile.js` if exists
+  - [ ] Create new constants for insights fields
+
+- [ ] **Update Database Queries**
+  - [ ] `pacificMarketClient.js` - update all entity references
+  - [ ] Admin Dashboard - update filtering and display logic
+  - [ ] Business Portal - update data fetching
+  - [ ] CSV export - update field mappings
+
+- [ ] **Update Form Components**
+  - [ ] `DetailedBusinessForm.jsx` - field names and validation
+  - [ ] Any other business forms
+  - [ ] Claim forms if they reference business fields
+
+- [ ] **Update Display Components**
+  - [ ] Business cards/listings
+  - [ ] Search/filter components
+  - [ ] Admin table headers
+
+---
+
+## Phase 3 — Build Shared Business Form System (MEDIUM PRIORITY)
+
+### Task 6: Refactor DetailedBusinessForm as Master Form
+- [ ] **Add Mode Support**
+  - [ ] `business-create` - standard user business creation
+  - [ ] `business-edit` - user editing their own business
+  - [ ] `admin-create` - admin creating business listings
+  - [ ] `admin-edit` - admin editing any business
+
+- [ ] **Conditional Field Rendering**
+  - [ ] Admin-only fields: status, subscription_tier, verified, claimed, owner assignment
+  - [ ] User fields: all core business information
+  - [ ] Validation rules per mode
+
+- [ ] **Unified Submission Logic**
+  - [ ] Single submit handler that routes to correct API
+  - [ ] Proper field mapping to canonical schema
+  - [ ] Error handling consistent across modes
+
+- [ ] **Form Validation**
+  - [ ] Required fields per mode
+  - [ ] Format validation (emails, URLs, etc.)
+  - [ ] Business handle uniqueness checking
+
+---
+
+## Phase 4 — Update Business Portal (MEDIUM PRIORITY)
+
+### Task 7: Business Portal Integration
+- [ ] **My Listings Page**
+  - [ ] Display businesses with new field names
+  - [ ] Use canonical data structure
+  - [ ] Proper status and tier display
+
+- [ ] **Edit Listing Flow**
+  - [ ] Integrate shared DetailedBusinessForm
+  - [ ] Pass correct mode and business data
+  - [ ] Handle updates with new schema
+
+- [ ] **Add Business Flow**
+  - [ ] Use shared form in create mode
+  - [ ] Set default values for new businesses
+  - [ ] Proper user association
+
+- [ ] **Claim Business Flow**
+  - [ ] Update to work with new schema
+  - [ ] Maintain existing claim logic
+  - [ ] Update business status on claim approval
+
+### Task 8: Founder Snapshot Integration
+- [ ] **Create Founder Snapshot Form**
+  - [ ] New form component for insights data
+  - [ ] Multi-step wizard interface
+  - [ ] Save to business_insights_snapshots table
+
+- [ ] **Trigger Logic**
+  - [ ] Prompt users after business creation
+  - [ ] Auto-upgrade to verified tier on completion
+  - [ ] Track completion status
+
+- [ ] **Business Tools Page**
+  - [ ] Invoice/QR code tools
+  - [ ] Profile completeness indicators
+  - [ ] Upgrade prompts for premium features
+
+---
+
+## Phase 5 — Update Admin Console (MEDIUM PRIORITY)
+
+### Task 9: Admin Dashboard Full Dataset Management
+- [ ] **Overview Page**
+  - [ ] Real-time stats from canonical schema
+  - [ ] Operational queues (pending, claims, etc.)
+  - [ ] Data quality indicators
+
+- [ ] **Businesses Management**
+  - [ ] Full searchable registry with new fields
+  - [ ] Advanced filters: status, tier, verified, claimed, country, industry
+  - [ ] Bulk operations for data management
+  - [ ] Missing data identification tools
+
+- [ ] **Claims Management**
+  - [ ] Updated claim approval flow
+  - [ ] Automatic business status updates
+  - [ ] Owner assignment tools
+
+- [ ] **Create Listing**
+  - [ ] Use shared DetailedBusinessForm in admin mode
+  - [ ] Admin-only field access
+  - [ ] Direct database creation
+
+- [ ] **Data Quality Tools**
+  - [ ] Missing field reports
+  - [ ] Data validation dashboard
+  - [ ] Bulk data correction tools
+
+- [ ] **Insights Data Management**
+  - [ ] View founder snapshots
+  - [ ] Export insights data
+  - [ ] Trend analysis tools
+
+---
+
+## Phase 6 — Founder Snapshot Flow (LOW PRIORITY)
+
+### Task 10: Complete Founder Survey System
+- [ ] **Survey Wizard**
+  - [ ] Multi-step form with progress indicators
+  - [ ] Save progress functionality
+  - [ ] Validation per section
+
+- [ ] **Integration Points**
+  - [ ] Trigger after business creation
+  - [ ] Link in Business Portal menu
+  - [ ] Upgrade incentives
+
+- [ ] **Data Collection**
+  - [ ] All founder journey fields
+  - [ ] Business operations data
+  - [ ] Market and growth information
+
+---
+
+## Phase 7 — Connect to Insights Page (LOW PRIORITY)
+
+### Task 11: Real Metrics Engine
+- [ ] **Entrepreneurship Origins**
+  - [ ] % started to solve community problems
+  - [ ] % passion projects
+  - [ ] % family businesses
+  - [ ] Motivation trends over time
+
+- [ ] **Business Maturity**
+  - [ ] Average years operating
+  - [ ] Distribution of business stages
+  - [ ] Team size analysis
+  - [ ] Growth patterns
+
+- [ ] **Economic Contribution**
+  - [ ] Average team size by industry
+  - [ ] Estimated employment impact
+  - [ ] Revenue ranges (if available)
+
+- [ ] **Trade Analysis**
+  - [ ] % exporting businesses
+  - [ ] % importing businesses
+  - [ ] Top trade partners
+  - [ ] Industry-specific trade patterns
+
+- [ ] **Challenges & Support**
+  - [ ] Top founder challenges by region/industry
+  - [ ] Support needs analysis
+  - [ ] Resource allocation insights
+
+- [ ] **Future Trends**
+  - [ ] Hiring intentions
+  - [ ] Growth goals
+  - [ ] Market expansion plans
+  - [ ] Collaboration opportunities
+
+---
+
+## The Single Biggest Rule
+
+Everything must flow from **one data model**:
+
+```
+Business Form → Database → Business Portal → Admin Console → Insights Engine
+```
+
+If we design it in this order, Pacific Market becomes extremely scalable.
+
+---
+
+## Progress Tracking
+
+### Completed Tasks
+- [x] **Phase 1, Task 1**: Define final canonical business schema with all required fields
+- [x] **Phase 1, Task 2**: Define founder insights dataset schema separate from businesses table
+- [x] **Phase 1, Task 3**: Create SQL migration to update businesses table with new schema
+- [x] **Phase 1, Task 4**: Create business_insights_snapshots table with founder journey fields
+- [x] **Phase 2, Task 5a**: Update constants files with new field names and enums
+- [x] **Phase 2, Task 5b**: Update Admin Dashboard to use canonical field names
+- [x] **Phase 2, Task 5c**: Update Business Portal to use canonical field names
+- [x] **Phase 2, Task 5d**: Update pacificMarketClient.js entity references
+- [x] **Phase 3, Task 6**: Update DetailedBusinessForm to be the single source of truth with multiple modes
+- [x] **Phase 4, Task 7**: Update Business Portal to use shared form and new field names
+- [x] **Phase 5, Task 8**: Update Admin Dashboard to manage full dataset with new schema
+- [x] **DATABASE MIGRATIONS**: Applied all canonical schema changes to production database
+- [x] **DATA MODEL UNIFICATION**: Complete canonical schema deployed and verified
+
+### In Progress
+- [ ] **Phase 2, Task 5**: Normalize field names across remaining codebase
+
+### Blocked
+- [ ] *No blocked tasks* yet*
+
+### Notes
+- Start with Phase 1, Task 1 - defining the canonical business schema
+- Do not proceed to UI changes until data model is stable
+- Each phase builds on the previous one - don't skip ahead
+- Test data migrations thoroughly before production deployment
+
+---
+
+## Next Steps
+
+1. **Start with Task 1**: Define final canonical business schema
+2. **Create migration scripts** for database changes
+3. **Test migrations** on development environment
+4. **Update constants and field names** across codebase
+5. **Proceed to shared form system** once data model is stable
+
+This approach ensures we build Pacific Market on a solid, scalable foundation that won't require constant refactoring as features grow.

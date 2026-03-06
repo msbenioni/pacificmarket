@@ -1,8 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { COUNTRIES, CATEGORIES } from "@/constants/businessProfile";
+import { BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE } from "@/constants/business";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import PremiumStepper from "@/components/shared/PremiumStepper";
+
+const FORM_MODES = {
+  BUSINESS_CREATE: 'business-create',
+  BUSINESS_EDIT: 'business-edit', 
+  ADMIN_CREATE: 'admin-create',
+  ADMIN_EDIT: 'admin-edit'
+};
+
+export { FORM_MODES };
 
 const STEPS = [
   { key: "identity", label: "Business Identity" },
@@ -12,18 +22,89 @@ const STEPS = [
   { key: "review", label: "Review" },
 ];
 
-export default function DetailedBusinessForm({ onSubmit, isLoading, excludeFields = [], initialData = null, onStepChange }) {
+export default function DetailedBusinessForm({ 
+  onSubmit, 
+  isLoading, 
+  excludeFields = [], 
+  initialData = null, 
+  onStepChange,
+  mode = FORM_MODES.BUSINESS_CREATE 
+}) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialData || {
-    name: "", business_handle: "", country: "", city: "", industry: "",
-    logo_url: "", banner_url: "",
-    email: "", contact_email: "", phone: "", website: "", 
-    social_links: [], // Array for all social media links
-    tagline: "", description: "",
-    tier: "free", claimed: true, // Auto-claim when user adds their own business
+    // Identity fields
+    name: "", 
+    business_handle: "", 
+    industry: "", 
+    country: "", 
+    city: "", 
+    year_started: "",
+    
+    // Media fields
+    logo_url: "", 
+    banner_url: "",
+    
+    // Contact fields
+    contact_email: "", 
+    contact_phone: "", 
+    website: "", 
+    social_links: [],
+    
+    // Description fields
+    tagline: "", 
+    description: "",
+    
+    // Registry status fields (admin-only)
+    status: BUSINESS_STATUS.PENDING,
+    subscription_tier: BUSINESS_TIER.BASIC,
+    verified: false,
+    claimed: false,
+    owner_user_id: null,
+    
+    // Metadata
+    source: BUSINESS_SOURCE.USER
   });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
+
+  // Helper functions for mode-based field visibility
+  const isAdminMode = () => {
+    return mode === FORM_MODES.ADMIN_CREATE || mode === FORM_MODES.ADMIN_EDIT;
+  };
+
+  const isEditMode = () => {
+    return mode === FORM_MODES.BUSINESS_EDIT || mode === FORM_MODES.ADMIN_EDIT;
+  };
+
+  const shouldShowField = (fieldName) => {
+    // Admin-only fields
+    const adminFields = ['status', 'subscription_tier', 'verified', 'claimed', 'owner_user_id'];
+    if (adminFields.includes(fieldName) && !isAdminMode()) {
+      return false;
+    }
+    
+    // Fields to exclude
+    if (excludeFields.includes(fieldName)) {
+      return false;
+    }
+    
+    return true;
+  };
+
+  // Set default values based on mode
+  useEffect(() => {
+    if (!initialData) {
+      setForm(prev => ({
+        ...prev,
+        // User-created businesses are auto-claimed and start as basic
+        claimed: mode === FORM_MODES.BUSINESS_CREATE ? true : prev.claimed,
+        subscription_tier: mode === FORM_MODES.BUSINESS_CREATE ? BUSINESS_TIER.BASIC : prev.subscription_tier,
+        source: mode === FORM_MODES.ADMIN_CREATE ? BUSINESS_SOURCE.ADMIN : BUSINESS_SOURCE.USER,
+        // Admin-created businesses start as pending
+        status: mode === FORM_MODES.ADMIN_CREATE ? BUSINESS_STATUS.PENDING : prev.status
+      }));
+    }
+  }, [mode, initialData]);
 
   // Notify parent of step changes
   const updateStep = (newStep) => {
@@ -93,7 +174,25 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, excludeField
     else setUploadingBanner(true);
 
     try {
-      const { file_url } = await pacificMarket.integrations.Core.UploadFile({ file, type });
+      // Upload file to Supabase storage
+      const bucket = "admin-listings";
+      const folder = type === "logo" ? "logos" : "banners";
+      const filePath = `${folder}/${Date.now()}-${file.name}`;
+      
+      const supabase = getSupabase();
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+      
+      const file_url = data.publicUrl;
+      
       set(type === "logo" ? "logo_url" : "banner_url", file_url);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -171,6 +270,22 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, excludeField
                 <option value="">Select industry</option>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
+            </div>
+          )}
+          
+          {/* Admin-only fields */}
+          {isAdminMode() && shouldShowField("year_started") && (
+            <div>
+              <label className={labelCls}>Year Started</label>
+              <input 
+                value={form.year_started || ""} 
+                onChange={e => set("year_started", e.target.value)} 
+                type="number" 
+                placeholder="e.g. 2020" 
+                min="1900" 
+                max={new Date().getFullYear() + 1}
+                className={inputCls} 
+              />
             </div>
           )}
         </div>
@@ -315,6 +430,53 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, excludeField
               <textarea value={form.description || ""} onChange={e => set("description", e.target.value)} rows={5} placeholder="Describe your products or services, your story, and your connection to the Pacific community..." className={`${inputCls} resize-none`} />
             </div>
           )}
+          
+          {/* Admin-only fields */}
+          {isAdminMode() && (
+            <div className="border-t border-gray-200 pt-5 mt-5">
+              <h4 className="font-semibold text-[#0a1628] text-sm mb-4">Admin Settings</h4>
+              <div className="grid grid-cols-2 gap-4">
+                {shouldShowField("status") && (
+                  <div>
+                    <label className={labelCls}>Status</label>
+                    <select value={form.status || ""} onChange={e => set("status", e.target.value)} className={inputCls}>
+                      <option value={BUSINESS_STATUS.PENDING}>Pending</option>
+                      <option value={BUSINESS_STATUS.ACTIVE}>Active</option>
+                      <option value={BUSINESS_STATUS.REJECTED}>Rejected</option>
+                    </select>
+                  </div>
+                )}
+                {shouldShowField("subscription_tier") && (
+                  <div>
+                    <label className={labelCls}>Subscription Tier</label>
+                    <select value={form.subscription_tier || ""} onChange={e => set("subscription_tier", e.target.value)} className={inputCls}>
+                      <option value={BUSINESS_TIER.BASIC}>Basic</option>
+                      <option value={BUSINESS_TIER.VERIFIED}>Verified</option>
+                      <option value={BUSINESS_TIER.FEATURED_PLUS}>Featured+</option>
+                    </select>
+                  </div>
+                )}
+                {shouldShowField("verified") && (
+                  <div>
+                    <label className={labelCls}>Verified</label>
+                    <select value={form.verified ? "true" : "false"} onChange={e => set("verified", e.target.value === "true")} className={inputCls}>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </select>
+                  </div>
+                )}
+                {shouldShowField("claimed") && (
+                  <div>
+                    <label className={labelCls}>Claimed</label>
+                    <select value={form.claimed ? "true" : "false"} onChange={e => set("claimed", e.target.value === "true")} className={inputCls}>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -438,6 +600,41 @@ export default function DetailedBusinessForm({ onSubmit, isLoading, excludeField
                       <span className="font-medium text-[#0a1628] line-clamp-3">{form.description}</span>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Admin-only fields */}
+            {isAdminMode() && (
+              <div className="px-4 py-3 bg-amber-50 border border-amber-200">
+                <h4 className="text-sm font-semibold text-amber-900 mb-2">Admin Settings</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Status</span>
+                    <span className="font-medium text-amber-900">{form.status}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Subscription Tier</span>
+                    <span className="font-medium text-amber-900">{form.subscription_tier}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Verified</span>
+                    <span className="font-medium text-amber-900">{form.verified ? 'Yes' : 'No'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Claimed</span>
+                    <span className="font-medium text-amber-900">{form.claimed ? 'Yes' : 'No'}</span>
+                  </div>
+                  {form.owner_user_id && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-amber-700">Owner ID</span>
+                      <span className="font-medium text-amber-900">{form.owner_user_id}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Source</span>
+                    <span className="font-medium text-amber-900">{form.source}</span>
+                  </div>
                 </div>
               </div>
             )}

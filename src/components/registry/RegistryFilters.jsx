@@ -1,6 +1,6 @@
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_STATUS } from "@/constants/business";
 import { CATEGORIES } from "@/constants/businessProfile";
 import { IDENTITIES } from "@/constants/profileOnboarding";
@@ -10,9 +10,21 @@ export default function RegistryFilters({ filters, onChange }) {
   const [businesses, setBusinesses] = useState([]);
 
   useEffect(() => {
-    pacificMarket.entities.Business.filter({ status: BUSINESS_STATUS.ACTIVE }).then(data => {
-      setBusinesses(data);
-    });
+    const loadBusinesses = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('status', BUSINESS_STATUS.ACTIVE);
+        
+        setBusinesses(data || []);
+      } catch (error) {
+        console.error("Error loading businesses for filters:", error);
+      }
+    };
+
+    loadBusinesses();
   }, []);
 
   useEffect(() => {

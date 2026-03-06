@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_STATUS } from "@/constants/business";
 import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
 import BusinessCard from "../components/registry/BusinessCard";
@@ -22,10 +22,25 @@ export default function Registry() {
   const [filters, setFilters] = useState({ search: "", country: "", category: "", verified: false, identity: "" });
 
   useEffect(() => {
-    pacificMarket.entities.Business.filter({ status: BUSINESS_STATUS.ACTIVE }, "-created_date", 100).then(data => {
-      setBusinesses(data);
-      setLoading(false);
-    });
+    const loadBusinesses = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('status', BUSINESS_STATUS.ACTIVE)
+          .order('created_date', { ascending: false })
+          .limit(100);
+        
+        setBusinesses(data || []);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading businesses:", error);
+        setLoading(false);
+      }
+    };
+
+    loadBusinesses();
   }, []);
 
   const filtered = useMemo(() => {

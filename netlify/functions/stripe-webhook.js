@@ -75,6 +75,7 @@ async function updateBusinessSubscription(subscription) {
   
   // TODO: Update your database here
   // Example: Update businesses table subscription_tier field
+  // Note: New tier system uses vaka/mana/moana instead of basic/verified/featured_plus
   // await updateBusinessTier(businessId, tier);
 }
 
@@ -83,8 +84,9 @@ async function downgradeBusinessToBasic(subscription) {
   const userId = metadata.user_id;
   const businessId = metadata.business_id;
 
-  console.log(`Downgrading user ${userId} business ${businessId} to basic`);
+  console.log(`Downgrading user ${userId} business ${businessId} to vaka`);
   
-  // TODO: Update your database to basic tier
-  // await updateBusinessTier(businessId, 'basic');
+  // TODO: Update your database to vaka tier (new basic)
+  // Note: New tier system uses 'vaka' instead of 'basic'
+  // await updateBusinessTier(businessId, 'vaka');
 }

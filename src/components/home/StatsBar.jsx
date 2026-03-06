@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { pacificMarket } from "@/lib/pacificMarketClient";
+import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_STATUS } from "@/constants/business";
 import { Building2, Globe, CheckCircle, LayoutGrid } from "lucide-react";
 
@@ -8,14 +8,27 @@ export default function StatsBar() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    pacificMarket.entities.Business.filter({ status: BUSINESS_STATUS.ACTIVE }).then(data => {
-      const businesses = data;
-      const countries = new Set(businesses.map(b => b.country)).size;
-      const categories = new Set(businesses.map(b => b.category)).size;
-      const verified = businesses.filter(b => b.verified).length;
-      setStats({ total: businesses.length, countries, categories, verified });
-      setLoading(false);
-    });
+    const loadStats = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('status', BUSINESS_STATUS.ACTIVE);
+        
+        const businesses = data || [];
+        const countries = new Set(businesses.map(b => b.country)).size;
+        const categories = new Set(businesses.map(b => b.category)).size;
+        const verified = businesses.filter(b => b.verified).length;
+        setStats({ total: businesses.length, countries, categories, verified });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading stats:", error);
+        setLoading(false);
+      }
+    };
+
+    loadStats();
   }, []);
 
   const items = [
