@@ -1,8 +1,22 @@
 import { ChevronRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Search, CheckCircle } from "lucide-react";
+import BusinessSearch from "@/components/BusinessSearch";
+import { useState } from "react";
 
 export default function HeroHomepage() {
+  const [selectedBusiness, setSelectedBusiness] = useState(null);
+
+  const handleBusinessSelect = (business) => {
+    setSelectedBusiness(business);
+    // Redirect to business profile page
+    window.location.href = createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`;
+  };
+
+  const handleSearchChange = (searchTerm) => {
+    // Optional: Handle search term changes if needed
+    console.log('Search term changed:', searchTerm);
+  };
   return (
     <section className="relative overflow-hidden min-h-[720px]">
       <div className="absolute inset-0">
@@ -59,30 +73,23 @@ export default function HeroHomepage() {
                   </div>
                 </div>
 
-                {/* Single search field */}
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by business name, keyword, country, or industry…"
-                      className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3.5
-                                 focus:outline-none focus:ring-2 focus:ring-[#00c4cc]
-                                 text-[#0a1628] placeholder:text-slate-400"
-                      suppressHydrationWarning
-                    />
-                  </div>
+                {/* BusinessSearch component */}
+                <BusinessSearch
+                  onSelect={handleBusinessSelect}
+                  onError={(error) => console.error('Search error:', error)}
+                  onSearchChange={handleSearchChange}
+                  placeholder="Search by business name, keyword, country, or industry…"
+                  showSelectedPreview={false}
+                  initialSearchTerm=""
+                />
 
-                  {/* Icon-only button */}
+                {/* Browse all businesses link */}
+                <div className="mt-3 text-center">
                   <a
                     href={createPageUrl("Registry")}
-                    className="shrink-0 inline-flex items-center justify-center
-                               w-12 h-12 rounded-xl
-                               bg-[#00c4cc] hover:bg-[#00aab0]
-                               text-[#0a1628] transition-all"
-                    aria-label="Search registry"
+                    className="inline-flex items-center gap-1 text-sm text-[#00c4cc] hover:text-[#00aab0] transition-colors"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    Browse all businesses <ChevronRight className="w-3 h-3" />
                   </a>
                 </div>
               </div>

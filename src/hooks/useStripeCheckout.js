@@ -22,7 +22,7 @@ export function useStripeCheckout() {
         : process.env.NEXT_PUBLIC_APP_DEV_URL;
 
       const successUrl = `${baseUrl}/business-portal?success=true&session_id={CHECKOUT_SESSION_ID}`;
-      const cancelUrl = `${baseUrl}/pricing?cancelled=true`;
+      const cancelUrl = `${baseUrl}/Pricing?cancelled=true`;
 
       // Get session token for authentication
     const { getSupabase } = await import('../lib/supabase/client');
@@ -64,6 +64,7 @@ export function useStripeCheckout() {
 
     } catch (err) {
       console.error('Checkout error:', err);
+      console.error('Error details:', err.response ? await err.response.text() : 'No response');
       setError(err.message || 'Failed to start checkout');
     } finally {
       setLoading(false);

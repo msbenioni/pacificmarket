@@ -115,8 +115,9 @@ const plans = [
 export default function Pricing() {
   const [showModal, setShowModal] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const { createCheckoutSession, loading: checkoutLoading, error } = useStripeCheckout();
+  const [pageLoading, setPageLoading] = useState(true);
+  const [processingPlan, setProcessingPlan] = useState(null);
+  const { createCheckoutSession, error } = useStripeCheckout();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -126,7 +127,7 @@ export default function Pricing() {
       } catch (error) {
         setUser(null);
       } finally {
-        setLoading(false);
+        setPageLoading(false);
       }
     };
     
@@ -135,19 +136,29 @@ export default function Pricing() {
 
   const handleUpgrade = async (tier) => {
     if (!user) {
-      // Redirect to login/signup
-      window.location.href = createPageUrl("Login");
+      // Redirect to signup for free, login for paid plans
+      if (tier === 'free') {
+        window.location.href = createPageUrl('SignUp');
+      } else {
+        window.location.href = createPageUrl('Login');
+      }
       return;
     }
     
-    if (tier === 'free') {
-      setShowModal(true);
-    } else {
-      await createCheckoutSession({ tier });
+    setProcessingPlan(tier);
+    
+    try {
+      if (tier === 'free') {
+        setShowModal(true);
+      } else {
+        await createCheckoutSession({ tier });
+      }
+    } finally {
+      setProcessingPlan(null);
     }
   };
 
-  if (loading) {
+  if (pageLoading) {
     return (
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" />
@@ -159,7 +170,7 @@ export default function Pricing() {
     <div className="bg-[#f8f9fc]">
       {/* Hero */}
       <HeroRegistry
-        badge="Pricing Plans"
+        badge="Pricing"
         title="Invest in Your Pacific Business Identity"
         subtitle=""
         description="Start free, upgrade when ready. Verified builds trust with a complete branded profile. Featured+ adds tools that help you sell and scale."
@@ -168,6 +179,12 @@ export default function Pricing() {
       {/* Plans */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
+          {error && (
+            <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+          
           <div className="grid md:grid-cols-3 gap-6 items-stretch">
             {plans.map(plan => (
               <div key={plan.id} className="relative pt-4">
@@ -330,37 +347,34 @@ export default function Pricing() {
 
                     {/* CTA always at bottom */}
                     <div className="mt-6">
-                      {error && (
-                        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <p className="text-sm text-red-600">{error}</p>
-                        </div>
-                      )}
-                      
                       <button 
                         onClick={() => handleUpgrade(plan.id)}
-                        disabled={loading || (checkoutLoading && plan.id !== 'free')}
+                        disabled={processingPlan !== null || (plan.id === "free" && !!user)}
                         className={`inline-flex w-full justify-center items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${
-                          loading || (checkoutLoading && plan.id !== 'free')
-                            ? 'opacity-50 cursor-not-allowed' 
+                          plan.id === "free" && user
+                            ? 'bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed'
+                            : processingPlan !== null
+                            ? 'opacity-50 cursor-not-allowed'
                             : plan.ctaClass
                         }`}
                       >
-                        {loading ? (
-                          <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-                        ) : checkoutLoading && plan.id !== 'free' ? (
+                        {processingPlan === plan.id ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             Processing...
                           </>
                         ) : (
                           <>
-                            {user ? (
+                            {plan.id === "free" && user ? (
+                              "Current Plan"
+                            ) : user ? (
                               <>
                                 {plan.cta} {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
                               </>
                             ) : (
                               <>
-                                {plan.id === 'free' ? 'Sign Up Free' : 'Sign Up to Upgrade'} {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
+                                {plan.id === 'free' ? 'Create Free Account' : 'Sign Up to Upgrade'}
+                                {plan.id !== "free" && <ArrowRight className="w-4 h-4" />}
                               </>
                             )}
                           </>

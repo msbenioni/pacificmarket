@@ -87,7 +87,14 @@ export async function POST(request) {
     });
 
     // Fallback to test price if your price doesn't exist
-    const priceId = STRIPE_PRICE_IDS[tier].NZD || 'price_1OaX3kFuLojGHmXuLuwUvOjQ'; // Stripe test price
+    const priceId = STRIPE_PRICE_IDS[tier].NZD || 'price_1PMEbxFuLojGHmXuLuwUvOjQ'; // Stripe's official test price
+    
+    console.log('Using price ID:', priceId);
+
+    // Use correct base URL for environment
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_APP_PROD_URL 
+      : process.env.NEXT_PUBLIC_APP_DEV_URL;
 
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
@@ -97,8 +104,8 @@ export async function POST(request) {
         price: priceId, // Use NZD price or fallback test price
         quantity: 1 
       }],
-      success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_PROD_URL}/business-portal?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_PROD_URL}/pricing?cancelled=true`,
+      success_url: successUrl || `${baseUrl}/business-portal?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${baseUrl}/Pricing?cancelled=true`,
       subscription_data: {
         metadata: {
           tier: tier,

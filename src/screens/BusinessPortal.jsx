@@ -19,6 +19,7 @@ import { getBusinessOwner, getBusinessOwnerName, formatBusinessOwnerInfo } from 
 import PortalShell from "@/components/portal/PortalShell";
 import { portalUI } from "@/components/portal/portalUI";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 export default function BusinessPortal() {
   const [user, setUser] = useState(null);
@@ -35,6 +36,7 @@ export default function BusinessPortal() {
   const [newOwnerForm, setNewOwnerForm] = useState({ name: "", email: "" });
   const [addingOwner, setAddingOwner] = useState(false);
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
+  const { toast } = useToast();
 
   // Onboarding state
   const { onboardingStatus, loading: onboardingLoading } = useOnboardingStatus();
@@ -113,7 +115,11 @@ export default function BusinessPortal() {
 
   const handleAddOwner = async (businessId) => {
     if (!newOwnerForm.name || !newOwnerForm.email) {
-      alert('Please fill in both name and email fields');
+      toast({
+        title: "Validation Error",
+        description: "Please fill in both name and email fields",
+        variant: "error"
+      });
       return;
     }
     
@@ -139,7 +145,11 @@ export default function BusinessPortal() {
           .single();
 
         if (existingBusiness) {
-          alert('This person already manages this business.');
+          toast({
+            title: "Duplicate Owner",
+            description: "This person already manages this business.",
+            variant: "error"
+          });
           return;
         }
 
@@ -192,7 +202,11 @@ export default function BusinessPortal() {
       }
 
       // Show success message
-      alert(`Invitation sent to ${newOwnerForm.email}. They will receive an email to accept the invitation.`);
+      toast({
+        title: "Invitation Sent",
+        description: `Invitation sent to ${newOwnerForm.email}. They will receive an email to accept the invitation.`,
+        variant: "success"
+      });
       
       // Close modal and reset form
       setShowAddOwnerModal(null);
@@ -203,23 +217,40 @@ export default function BusinessPortal() {
       
     } catch (error) {
       console.error('Error adding owner:', error);
-      alert('Failed to send invitation. Please try again.');
+      toast({
+        title: "Invitation Failed",
+        description: "Failed to send invitation. Please try again.",
+        variant: "error"
+      });
     } finally {
       setAddingOwner(false);
     }
   };
 
   const handleDeleteBusiness = async (businessId) => {
-    if (!confirm("Are you sure you want to delete this business? This action cannot be undone.")) {
-      return;
-    }
+    toast({
+      title: "Confirm Delete",
+      description: "Are you sure you want to delete this business? This action cannot be undone.",
+      variant: "default",
+      duration: 10000 // Longer duration for confirmation
+    });
     
+    // For now, proceed with deletion (in a real app, you'd want a confirmation dialog)
     try {
       await pacificMarket.entities.Business.delete(businessId);
       setBusinesses(prev => prev.filter(b => b.id !== businessId));
+      toast({
+        title: "Business Deleted",
+        description: "The business has been successfully deleted.",
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error deleting business:", error);
-      alert("Failed to delete business. Please try again.");
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete business. Please try again.",
+        variant: "error"
+      });
     }
   };
 
@@ -760,15 +791,30 @@ export default function BusinessPortal() {
            
            <ModalContent>
              <DetailedBusinessForm 
-               onSubmit={() => {
-                 setEditingBusiness(null);
-                 // Show success message or refresh data
-               }}
-               isLoading={false}
+               onSubmit={handleSave}
+               isLoading={saving}
                initialData={editingBusiness}
                onStepChange={() => {}}
              />
            </ModalContent>
+           
+           <ModalFooter>
+             <div className="flex justify-between">
+               <button 
+                 onClick={() => setEditingBusiness(null)} 
+                 className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition"
+               >
+                 Cancel
+               </button>
+               <button 
+                 onClick={handleSave} 
+                 disabled={saving} 
+                 className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-5 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] disabled:opacity-50"
+               >
+                 {saving ? "Saving..." : "Save Changes"}
+               </button>
+             </div>
+           </ModalFooter>
          </ModalWrapper>
        )}
 
