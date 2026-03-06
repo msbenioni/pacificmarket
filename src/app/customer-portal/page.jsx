@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -9,7 +9,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default function CustomerPortal() {
+function CustomerPortalContent() {
   const [loading, setLoading] = useState(true);
   const [business, setBusiness] = useState(null);
   const [owner, setOwner] = useState(null);
@@ -310,5 +310,17 @@ function SignUpForm({ onSignUp, defaultEmail, defaultName }) {
         {loading ? 'Creating Account...' : 'Create Account & Accept Invitation'}
       </button>
     </form>
+  );
+}
+
+export default function CustomerPortal() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <CustomerPortalContent />
+    </Suspense>
   );
 }
