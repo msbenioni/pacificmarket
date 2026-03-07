@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { getSupabase } from "@/lib/supabase/client";
-import { BUSINESS_TIER, getTierDisplayName } from "@/constants/business";
+import { BUSINESS_TIER, getTierDisplayName } from "@/constants/unifiedConstants";
 import { TIER_BENEFITS } from "@/constants/tierBenefits";
 import HeroRegistry from "../components/shared/HeroRegistry";
 

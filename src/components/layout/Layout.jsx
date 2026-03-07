@@ -4,12 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { getSupabase } from "@/lib/supabase/client";
-import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
 import CookieConsent from "../shared/CookieConsent";
-import { User, LogOut, Settings, CreditCard, AlertCircle, AlertTriangle, Home, Shield } from "lucide-react";
-import * as AuthContext from "@/lib/AuthContext";
+import { User, LogOut, Home, Shield } from "lucide-react";
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);

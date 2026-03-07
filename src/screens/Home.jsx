@@ -3,7 +3,7 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { getSupabase } from "@/lib/supabase/client";
 import { ArrowRight, CheckCircle, Globe, Shield, Star, BookOpen, Award, ChevronRight } from "lucide-react";
-import { BUSINESS_STATUS } from "@/constants/business";
+import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import StatsBar from "../components/home/StatsBar";
 import FeaturedSpotlight from "../components/home/FeaturedSpotlight";
 import HeroHomepage from "../components/shared/HeroHomepage";

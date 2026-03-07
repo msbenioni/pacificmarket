@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { getSupabase } from "@/lib/supabase/client";
-import { BUSINESS_STATUS } from "@/constants/business";
+import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
 import BusinessCard from "../components/registry/BusinessCard";
 import RegistryFilters from "../components/registry/RegistryFilters";

@@ -1,38 +1,36 @@
 import React from "react";
 import { Globe } from "lucide-react";
-import { IDENTITIES } from "@/constants/profileOnboarding";
+import { COUNTRIES } from "@/constants/unifiedConstants";
 
-// Map cultural identity to ISO 3166-1 alpha-2 country codes
+// Map country values to ISO 3166-1 alpha-2 country codes
 export const IDENTITY_TO_CODE = {
-  "Australia": "AU",
-  "Australia (Aboriginal & Torres Strait Islander)": "AU",
-  "New Zealand": "NZ",
-  "New Zealand (Māori)": "NZ",
-  "New Zealand (Maori)": "NZ", // Without macron
-  "New Zealand Maori": "NZ", // Without parentheses and macron
-  "Fiji": "FJ",
-  "Samoa": "WS",
   "American Samoa": "AS",
-  "Tonga": "TO",
-  "Cook Islands": "CK",
-  "Niue": "NU",
-  "Tokelau": "TK",
-  "Tuvalu": "TV",
-  "Kiribati": "KI",
-  "Nauru": "NR",
-  "Papua New Guinea": "PG",
-  "Solomon Islands": "SB",
-  "Vanuatu": "VU",
-  "New Caledonia": "NC",
+  "Australia": "AU",
+  "Australia Aboriginal": "AU",
+  "Cook Islands": "CK", 
+  "Fiji": "FJ",
   "French Polynesia": "PF",
-  "Wallis and Futuna": "WF",
-  "Palau": "PW",
+  "Guam": "GU",
+  "Kiribati": "KI",
   "Marshall Islands": "MH",
   "Micronesia": "FM",
-  "Guam": "GU",
+  "Nauru": "NR",
+  "New Caledonia": "NC",
+  "New Zealand": "NZ",
+  "New Zealand Māori": "NZ",
+  "Niue": "NU",
   "Northern Mariana Islands": "MP",
+  "Palau": "PW",
+  "Papua New Guinea": "PG",
+  "Samoa": "WS",
+  "Solomon Islands": "SB",
+  "Tokelau": "TK",
+  "Tonga": "TO",
+  "Tuvalu": "TV",
+  "United States": "US",
+  "Vanuatu": "VU",
+  "Wallis and Futuna": "WF",
   "Hawaii": "US",
-  "Rotuma": "FJ",
   "Other": "GLOBE",
 };
 
@@ -92,6 +90,15 @@ function SingleFlagIcon({ identity, size = 24, className = "" }) {
     ) ? IDENTITY_TO_CODE[Object.keys(IDENTITY_TO_CODE).find(key => 
       key.toLowerCase() === lowerIdentity
     )] : null;
+  }
+  
+  // Special handling for variations
+  if (!code) {
+    // Handle value to label mapping
+    const country = COUNTRIES.find(c => c.value === normalizedIdentity);
+    if (country) {
+      code = IDENTITY_TO_CODE[country.label];
+    }
   }
   
   // Special handling for New Zealand variations

@@ -4,8 +4,7 @@ import { createPageUrl } from "@/utils";
 import { getSupabase } from "@/lib/supabase/client";
 import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users, X, Filter, Calendar, TrendingUp, Globe, Award, Clock, XCircle, AlertTriangle, Download, Eye } from "lucide-react";
 import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
-import { COUNTRIES, CATEGORIES } from "@/constants/businessProfile";
-import { BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName } from "@/constants/business";
+import { COUNTRIES, INDUSTRIES, BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName } from "@/constants/unifiedConstants";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
@@ -533,7 +532,7 @@ const createBusiness = async (formData) => {
                   >
                     <option value="">All Countries</option>
                     {COUNTRIES.map(country => (
-                      <option key={country} value={country}>{country}</option>
+                      <option key={`country-${country.value}`} value={country.value}>{country.label}</option>
                     ))}
                   </select>
                   <select
@@ -542,8 +541,8 @@ const createBusiness = async (formData) => {
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0d4f4f]"
                   >
                     <option value="">All Industries</option>
-                    {CATEGORIES.map(industry => (
-                      <option key={industry} value={industry}>{industry}</option>
+                    {INDUSTRIES.map(industry => (
+                      <option key={`industry-${industry.value}`} value={industry.value}>{industry.label}</option>
                     ))}
                   </select>
                   <select

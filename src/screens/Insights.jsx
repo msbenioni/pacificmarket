@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase/client";
 import { Building2, Users, ShieldCheck, Globe, TrendingUp, Target, Lightbulb, Rocket, BarChart3, PieChart, Activity } from "lucide-react";
-import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/business";
+import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/unifiedConstants";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import HorizontalBar from "../components/insights/HorizontalBar";
 

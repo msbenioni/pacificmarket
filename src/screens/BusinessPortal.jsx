@@ -6,8 +6,9 @@ import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrC
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { TIER_BENEFITS } from "@/constants/businessProfile";
-import { BUSINESS_TIER, BUSINESS_STATUS, getTierDisplayName } from "@/constants/business";
+import { BUSINESS_TIER, BUSINESS_STATUS, getTierDisplayName } from "@/constants/unifiedConstants";
 import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
+import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
 import FounderInsightsForm from "@/components/forms/FounderInsightsForm";
 import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
@@ -1026,16 +1027,26 @@ export default function BusinessPortal() {
                         <p className="text-sm text-gray-600">
                           It only takes a few minutes, and you can view your responses again later.
                         </p>
-                        <button
-                          onClick={() => {
-                            setSelectedBusinessForInsights(null); // General survey only
-                            setShowInsightsModal(true);
-                          }}
-                          className="inline-flex items-center gap-2 bg-[#0d4f4f] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#1a6b6b] transition"
-                        >
-                          <Users className="w-4 h-4" />
-                          {insightSnapshots.length > 0 ? "View Responses" : "Start Survey"}
-                        </button>
+                        <div className={`${portalUI.card} p-8 mt-4`}>
+                          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                            <div className="flex items-start gap-3">
+                              <Users className="w-5 h-5 text-blue-600 mt-0.5" />
+                              <div>
+                                <h4 className="text-sm font-semibold text-blue-900">Share Your Founder Journey</h4>
+                                <p className="text-sm text-blue-700 mt-1">
+                                  Your responses help build a clearer picture of Pacific founder experiences, challenges, and opportunities.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <FounderInsightsAccordion 
+                            businessId={null}
+                            onSubmit={handleFounderInsightsSubmit}
+                            isLoading={insightsSubmitting}
+                            initialData={insightSnapshots[0]}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1247,6 +1258,7 @@ export default function BusinessPortal() {
               <FounderInsightsSummary 
                 snapshot={insightSnapshots[0]} // Show latest general insights
                 business={null} // General survey, no business
+                onEdit={() => {}} // No-op since we removed modal
               />
             ) : (
               <>

@@ -1,9 +1,7 @@
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase/client";
-import { BUSINESS_STATUS } from "@/constants/business";
-import { CATEGORIES } from "@/constants/businessProfile";
-import { IDENTITIES } from "@/constants/profileOnboarding";
+import { BUSINESS_STATUS, INDUSTRIES, COUNTRIES } from "@/constants/unifiedConstants";
 
 export default function RegistryFilters({ filters, onChange }) {
   const [countries, setCountries] = useState([]);
@@ -78,7 +76,7 @@ export default function RegistryFilters({ filters, onChange }) {
           <select value={filters.industry} onChange={e => set("industry", e.target.value)}
             className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#0d4f4f] bg-white">
             <option value="">All Industries</option>
-            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            {INDUSTRIES.map(c => <option key={`industry-${c.value}`} value={c.value}>{c.label}</option>)}
           </select>
         </div>
 
@@ -88,7 +86,7 @@ export default function RegistryFilters({ filters, onChange }) {
           <select value={filters.identity} onChange={e => set("identity", e.target.value)}
             className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#0d4f4f] bg-white">
             <option value="">All Identities</option>
-            {IDENTITIES.map(i => <option key={i} value={i}>{i}</option>)}
+            {COUNTRIES.map(c => <option key={`country-${c.value}`} value={c.value}>{c.label}</option>)}
           </select>
         </div>
 

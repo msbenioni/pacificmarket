@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { COUNTRIES, CATEGORIES } from "@/constants/businessProfile";
-import { BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName } from "@/constants/business";
+import { IDENTITIES } from "@/constants/businessProfile";
+import { COUNTRIES, INDUSTRIES, BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName, TEAM_SIZE_BAND, BUSINESS_STAGE, IMPORT_EXPORT_STATUS, BUSINESS_OPERATING_STATUS, SALES_CHANNELS, REVENUE_BAND } from "@/constants/unifiedConstants";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
 import { getSupabase } from "@/lib/supabase/client";
 import PremiumStepper from "@/components/shared/PremiumStepper";
@@ -16,6 +16,7 @@ export { FORM_MODES };
 
 const STEPS = [
   { key: "identity", label: "Business Identity" },
+  { key: "operations", label: "Business Operations" },
   { key: "media", label: "Media & Details" },
   { key: "contact", label: "Contact Info" },
   { key: "description", label: "Description" },
@@ -99,6 +100,16 @@ export default function DetailedBusinessForm({
     country: "", 
     city: "", 
     year_started: "",
+    
+    // Business Operations fields
+    business_operating_status: "",
+    business_age: "",
+    team_size_band: "",
+    business_registered: false,
+    employs_anyone: false,
+    employs_family_community: false,
+    sales_channels: [],
+    revenue_band: "",
     
     // Media fields
     logo_url: "", 
@@ -330,7 +341,7 @@ export default function DetailedBusinessForm({
                 <label className={labelCls}>Country *</label>
                 <select value={form.country || ""} onChange={e => set("country", e.target.value)} className={inputCls}>
                   <option value="">Select country</option>
-                  {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {COUNTRIES.map(c => <option key={`country-${c.value}`} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
               <div>
@@ -344,7 +355,7 @@ export default function DetailedBusinessForm({
               <label className={labelCls}>Industry *</label>
               <select value={form.industry || ""} onChange={e => set("industry", e.target.value)} className={inputCls}>
                 <option value="">Select industry</option>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {INDUSTRIES.map(c => <option key={`industry-${c.value}`} value={c.value}>{c.label}</option>)}
               </select>
             </div>
           )}

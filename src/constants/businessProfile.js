@@ -1,6 +1,8 @@
 // Business Profile Setup Configuration
 // Enterprise-focused profile for Pacific Market
 
+import { COUNTRIES, INDUSTRIES } from './unifiedConstants';
+
 export const BUSINESS_PROFILE_STEPS = [
   {
     id: 'business-identity',
@@ -34,30 +36,7 @@ export const BUSINESS_PROFILE_STEPS = [
         required: true,
         placeholder: 'Select your industry',
         description: 'Primary industry for your business',
-        options: [
-          { value: 'agriculture', label: 'Agriculture' },
-          { value: 'arts-crafts', label: 'Arts & Crafts' },
-          { value: 'beauty-personal-care', label: 'Beauty & Personal Care' },
-          { value: 'books-publishing', label: 'Books & Publishing' },
-          { value: 'clothing-fashion', label: 'Clothing & Fashion' },
-          { value: 'coaching-business-personal', label: 'Coaching (Business & Personal)' },
-          { value: 'construction-trade', label: 'Construction & Trade' },
-          { value: 'digital-it-technology', label: 'Digital & IT Technology' },
-          { value: 'education-training', label: 'Education & Training' },
-          { value: 'fashion-accessories', label: 'Fashion Accessories' },
-          { value: 'finance-insurance', label: 'Finance & Insurance' },
-          { value: 'food-beverage', label: 'Food & Beverage' },
-          { value: 'health-wellness', label: 'Health & Wellness' },
-          { value: 'hospitality-tourism', label: 'Hospitality & Tourism' },
-          { value: 'jewellery-watches', label: 'Jewellery & Watches' },
-          { value: 'legal-services', label: 'Legal Services' },
-          { value: 'manufacturing', label: 'Manufacturing' },
-          { value: 'media-entertainment', label: 'Media & Entertainment' },
-          { value: 'professional-services', label: 'Professional Services' },
-          { value: 'stationery-office', label: 'Stationery & Office Supplies' },
-          { value: 'transport-logistics', label: 'Transport & Logistics' },
-          { value: 'other', label: 'Other' }
-        ]
+        options: INDUSTRIES
       },
       {
         id: 'year_founded',
@@ -102,33 +81,7 @@ export const BUSINESS_PROFILE_STEPS = [
         required: true,
         placeholder: 'Select your country',
         description: 'Primary country of business operations',
-        options: [
-          { value: 'american-samoa', label: 'American Samoa' },
-          { value: 'australia', label: 'Australia' },
-          { value: 'cook-islands', label: 'Cook Islands' },
-          { value: 'fiji', label: 'Fiji' },
-          { value: 'french-polynesia', label: 'French Polynesia' },
-          { value: 'guam', label: 'Guam' },
-          { value: 'kiribati', label: 'Kiribati' },
-          { value: 'marshall-islands', label: 'Marshall Islands' },
-          { value: 'micronesia', label: 'Micronesia' },
-          { value: 'nauru', label: 'Nauru' },
-          { value: 'new-caledonia', label: 'New Caledonia' },
-          { value: 'new-zealand', label: 'New Zealand' },
-          { value: 'niue', label: 'Niue' },
-          { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
-          { value: 'palau', label: 'Palau' },
-          { value: 'papua-new-guinea', label: 'Papua New Guinea' },
-          { value: 'samoa', label: 'Samoa' },
-          { value: 'solomon-islands', label: 'Solomon Islands' },
-          { value: 'tokelau', label: 'Tokelau' },
-          { value: 'tonga', label: 'Tonga' },
-          { value: 'tuvalu', label: 'Tuvalu' },
-          { value: 'usa', label: 'United States' },
-          { value: 'vanuatu', label: 'Vanuatu' },
-          { value: 'wallis-futuna', label: 'Wallis and Futuna' },
-          { value: 'other', label: 'Other' }
-        ]
+        options: COUNTRIES
       },
       {
         id: 'city',
@@ -203,36 +156,7 @@ export const BUSINESS_PROFILE_STEPS = [
         required: false,
         placeholder: 'Select cultural identities',
         description: 'Pacific cultural identities represented by your business',
-        options: [
-          { value: 'australia', label: 'Australia' },
-          { value: 'australia-aboriginal-torres-strait-islander', label: 'Australia (Aboriginal & Torres Strait Islander)' },
-          { value: 'new-zealand', label: 'New Zealand' },
-          { value: 'new-zealand-maori', label: 'New Zealand (Māori)' },
-          { value: 'fiji', label: 'Fiji' },
-          { value: 'samoa', label: 'Samoa' },
-          { value: 'american-samoa', label: 'American Samoa' },
-          { value: 'tonga', label: 'Tonga' },
-          { value: 'cook-islands', label: 'Cook Islands' },
-          { value: 'niue', label: 'Niue' },
-          { value: 'tokelau', label: 'Tokelau' },
-          { value: 'tuvalu', label: 'Tuvalu' },
-          { value: 'kiribati', label: 'Kiribati' },
-          { value: 'nauru', label: 'Nauru' },
-          { value: 'papua-new-guinea', label: 'Papua New Guinea' },
-          { value: 'solomon-islands', label: 'Solomon Islands' },
-          { value: 'vanuatu', label: 'Vanuatu' },
-          { value: 'new-caledonia', label: 'New Caledonia' },
-          { value: 'french-polynesia', label: 'French Polynesia' },
-          { value: 'wallis-futuna', label: 'Wallis and Futuna' },
-          { value: 'palau', label: 'Palau' },
-          { value: 'marshall-islands', label: 'Marshall Islands' },
-          { value: 'micronesia', label: 'Micronesia' },
-          { value: 'guam', label: 'Guam' },
-          { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
-          { value: 'hawaii', label: 'Hawaii' },
-          { value: 'rotuma', label: 'Rotuma' },
-          { value: 'other', label: 'Other' }
-        ]
+        options: COUNTRIES
       },
       {
         id: 'community',
@@ -249,7 +173,7 @@ export const BUSINESS_PROFILE_STEPS = [
         label: 'Languages used in the business',
         type: 'text',
         required: false,
-        placeholder: 'English, Samoan, French',
+        placeholder: 'English, Cook Island, French',
         description: 'Languages used in your business operations',
         helper: 'Enter languages separated by commas',
         maxLength: 500
@@ -604,8 +528,6 @@ export const DASHBOARD_DATA_MAPPING = {
 };
 
 // Export commonly used constants for backward compatibility
-export const CATEGORIES = BUSINESS_PROFILE_STEPS[0].fields.find(f => f.id === 'industry').options.map(o => o.label);
-export const COUNTRIES = BUSINESS_PROFILE_STEPS[1].fields.find(f => f.id === 'country').options.map(o => o.label);
 export const IDENTITIES = BUSINESS_PROFILE_STEPS[2].fields.find(f => f.id === 'cultural_identity').options.map(o => o.label);
 
 // Import tier benefits from dedicated constants file

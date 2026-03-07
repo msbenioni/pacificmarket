@@ -1,11 +1,7 @@
 // Profile Onboarding Configuration
 // Business Owner Profile Onboarding Flow
 
-export const COUNTRIES = [
-  "Australia", "New Zealand", "Fiji", "Samoa", "Tonga", "Papua New Guinea", "Vanuatu", "Solomon Islands",
-  "Cook Islands", "Kiribati", "Nauru", "Palau", "Marshall Islands", "Micronesia", "Tuvalu", "Niue",
-  "United States", "United Kingdom", "Canada", "Other"
-];
+import { COUNTRIES, INDUSTRIES } from './unifiedConstants';
 
 export const ONBOARDING_STEPS = [
   {
@@ -38,33 +34,7 @@ export const ONBOARDING_STEPS = [
         required: true,
         placeholder: 'Select your country',
         description: 'Your current country of residence',
-        options: [
-          { value: 'american-samoa', label: 'American Samoa' },
-          { value: 'australia', label: 'Australia' },
-          { value: 'cook-islands', label: 'Cook Islands' },
-          { value: 'fiji', label: 'Fiji' },
-          { value: 'french-polynesia', label: 'French Polynesia' },
-          { value: 'guam', label: 'Guam' },
-          { value: 'kiribati', label: 'Kiribati' },
-          { value: 'marshall-islands', label: 'Marshall Islands' },
-          { value: 'micronesia', label: 'Micronesia' },
-          { value: 'nauru', label: 'Nauru' },
-          { value: 'new-caledonia', label: 'New Caledonia' },
-          { value: 'new-zealand', label: 'New Zealand' },
-          { value: 'niue', label: 'Niue' },
-          { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
-          { value: 'palau', label: 'Palau' },
-          { value: 'papua-new-guinea', label: 'Papua New Guinea' },
-          { value: 'samoa', label: 'Samoa' },
-          { value: 'solomon-islands', label: 'Solomon Islands' },
-          { value: 'tokelau', label: 'Tokelau' },
-          { value: 'tonga', label: 'Tonga' },
-          { value: 'tuvalu', label: 'Tuvalu' },
-          { value: 'usa', label: 'United States' },
-          { value: 'vanuatu', label: 'Vanuatu' },
-          { value: 'wallis-futuna', label: 'Wallis and Futuna' },
-          { value: 'other', label: 'Other' }
-        ]
+        options: COUNTRIES
       }
     ]
   },
@@ -81,36 +51,7 @@ export const ONBOARDING_STEPS = [
         required: true,
         placeholder: 'Select your cultural identities',
         description: 'Select all cultural identities that apply to you',
-        options: [
-          { value: 'australia', label: 'Australia' },
-          { value: 'australia-aboriginal-torres-strait-islander', label: 'Australia (Aboriginal & Torres Strait Islander)' },
-          { value: 'new-zealand', label: 'New Zealand' },
-          { value: 'new-zealand-maori', label: 'New Zealand (Māori)' },
-          { value: 'fiji', label: 'Fiji' },
-          { value: 'samoa', label: 'Samoa' },
-          { value: 'american-samoa', label: 'American Samoa' },
-          { value: 'tonga', label: 'Tonga' },
-          { value: 'cook-islands', label: 'Cook Islands' },
-          { value: 'niue', label: 'Niue' },
-          { value: 'tokelau', label: 'Tokelau' },
-          { value: 'tuvalu', label: 'Tuvalu' },
-          { value: 'kiribati', label: 'Kiribati' },
-          { value: 'nauru', label: 'Nauru' },
-          { value: 'papua-new-guinea', label: 'Papua New Guinea' },
-          { value: 'solomon-islands', label: 'Solomon Islands' },
-          { value: 'vanuatu', label: 'Vanuatu' },
-          { value: 'new-caledonia', label: 'New Caledonia' },
-          { value: 'french-polynesia', label: 'French Polynesia' },
-          { value: 'wallis-futuna', label: 'Wallis and Futuna' },
-          { value: 'palau', label: 'Palau' },
-          { value: 'marshall-islands', label: 'Marshall Islands' },
-          { value: 'micronesia', label: 'Micronesia' },
-          { value: 'guam', label: 'Guam' },
-          { value: 'northern-mariana-islands', label: 'Northern Mariana Islands' },
-          { value: 'hawaii', label: 'Hawaii' },
-          { value: 'rotuma', label: 'Rotuma' },
-          { value: 'other', label: 'Other' }
-        ]
+        options: COUNTRIES
       }
     ]
   },
@@ -125,9 +66,9 @@ export const ONBOARDING_STEPS = [
         label: 'Languages spoken',
         type: 'text',
         required: false,
-        placeholder: 'English, Samoan, French',
+        placeholder: 'English, Cook Island, French',
         description: 'Enter languages separated by commas',
-        helper: 'Example: English, Samoan, French'
+        helper: 'Example: English, Cook Island, French'
       }
     ]
   },
