@@ -54,33 +54,30 @@ export default function DetailedBusinessForm({
     }, {});
   };
 
-  // Helper function to map legacy industry names to current form options
-  const mapLegacyIndustry = (industry) => {
-    if (!industry) return industry;
+  // Helper function to find industry value by label from constants
+  const findIndustryValue = (industryLabel) => {
+    if (!industryLabel) return industryLabel;
     
-    const industryMapping = {
-      "Digital Media & Technology": "Digital & IT Technology",
-      "Construction & Trades": "Construction & Trade", 
-      "Information Technology": "Digital & IT Technology",
-      "Technology": "Digital & IT Technology",
-      "Information Media & Telecommunications": "Media & Entertainment",
-      "Arts & Culture": "Arts & Crafts",
-      "Culture & Heritage": "Arts & Crafts",
-      "Food & Agriculture": "Agriculture",
-      "Home & Decor": "Other",
-      "Logistics": "Transport & Logistics",
-      "Marketing": "Professional Services",
-      "Consulting & Professional Services": "Professional Services",
-      "Trading": "Other",
-      "Travel & Tourism": "Hospitality & Tourism",
-      "Tourism": "Hospitality & Tourism",
-      "Trades & Industry": "Construction & Trade",
-      "Beauty": "Beauty & Personal Care",
-      "Hospitality": "Hospitality & Tourism",
-      "Agriculture, Forestry & Fishing": "Agriculture"
-    };
+    // First check if it's already a valid value (matches any industry value)
+    const isAlreadyValue = INDUSTRIES.some(ind => ind.value === industryLabel);
+    if (isAlreadyValue) return industryLabel;
     
-    return industryMapping[industry] || industry;
+    // Otherwise, try to find by label
+    const industry = INDUSTRIES.find(ind => ind.label === industryLabel);
+    return industry ? industry.value : industryLabel;
+  };
+
+  // Helper function to find country value by label from constants
+  const findCountryValue = (countryLabel) => {
+    if (!countryLabel) return countryLabel;
+    
+    // First check if it's already a valid value (matches any country value)
+    const isAlreadyValue = COUNTRIES.some(c => c.value === countryLabel);
+    if (isAlreadyValue) return countryLabel;
+    
+    // Otherwise, try to find by label
+    const country = COUNTRIES.find(c => c.label === countryLabel);
+    return country ? country.value : countryLabel;
   };
 
   const [form, setForm] = useState(initialData ? {
@@ -90,8 +87,16 @@ export default function DetailedBusinessForm({
     website: initialData.contact_website || initialData.website || "",
     // Transform social_links from database format to form format
     social_links: transformSocialLinksFromDB(initialData.social_links),
-    // Map legacy industry names to current form options
-    industry: mapLegacyIndustry(initialData.industry),
+    // Use constants to find correct values
+    industry: findIndustryValue(initialData.industry),
+    // Ensure country and city are properly set
+    country: findCountryValue(initialData.country) || "",
+    city: initialData.city || "",
+    // Map other important fields
+    year_started: initialData.year_started || "",
+    description: initialData.description || "",
+    contact_email: initialData.contact_email || "",
+    contact_phone: initialData.contact_phone || "",
   } : {
     // Identity fields
     name: "", 
@@ -122,17 +127,25 @@ export default function DetailedBusinessForm({
     social_links: [],
     
     // Description fields
-    tagline: "", 
-    description: "",
+    description: "", 
+    short_description: "",
     
-    // Registry status fields (admin-only)
-    status: BUSINESS_STATUS.PENDING,
-    subscription_tier: BUSINESS_TIER.VAKA,
-    verified: false,
-    owner_user_id: null,
-    
-    // Metadata
-    source: BUSINESS_SOURCE.USER
+    // Additional fields
+    business_structure: "",
+    primary_market: "",
+    growth_stage: "",
+    funding_source: "",
+    competitive_advantage: "",
+    future_plans: "",
+    customer_segments: "",
+    business_challenges: "",
+    tech_stack: "",
+    full_time_employees: null,
+    part_time_employees: null,
+    annual_revenue_exact: null,
+    cultural_identity: "",
+    languages_spoken: [],
+    tagline: "",
   });
 
   const [uploadingLogo, setUploadingLogo] = useState(false);

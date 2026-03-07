@@ -208,25 +208,36 @@ export default function AdminDashboard() {
     try {
       const supabase = getSupabase();
       
+      console.log('saveBusiness called with formData:', formData);
+      
       // Filter out any fields that might cause database issues
       const { id, ...updateData } = formData;
+      
+      console.log('updateData before filtering:', updateData);
       
       // Remove potentially problematic fields
       const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
         // Only include fields that we know exist in the database
-        if (!['updated_date', 'created_date', 'verification_source'].includes(key)) {
+        if (!['updated_date', 'created_date', 'verification_source', 'tagline', 'website'].includes(key)) {
           acc[key] = updateData[key];
         }
         return acc;
       }, {});
+      
+      console.log('safeUpdateData after filtering:', safeUpdateData);
       
       const { error } = await supabase
         .from('businesses')
         .update(safeUpdateData)
         .eq('id', id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        throw error;
+      }
       
+      console.log('Business updated successfully');
       setBusinesses(prev => prev.map(b => b.id === id ? { ...b, ...safeUpdateData } : b));
       setEditingBusiness(null);
       setCurrentEditStep(1); // Reset step when closing
@@ -237,6 +248,7 @@ export default function AdminDashboard() {
       });
     } catch (error) {
       console.error("Error updating business:", error);
+      console.error("Full error details:", JSON.stringify(error, null, 2));
       toast({
         title: "Update Failed",
         description: "Failed to update business. Please try again.",
