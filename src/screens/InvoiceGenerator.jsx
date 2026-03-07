@@ -717,9 +717,9 @@ export default function InvoiceGenerator() {
                 <div className="space-y-2">
                   {invoice.items.map((item, i) => (
                     <div key={i} className="flex gap-2">
-                      <input value={item.description} onChange={e => setItem(i, "description", e.target.value)} placeholder="Description" className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]" />
-                      <input type="number" value={item.quantity} onChange={e => setItem(i, "quantity", parseFloat(e.target.value)||0)} placeholder="Qty" className="w-16 text-center text-sm border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" />
-                      <input type="number" value={item.unit_price} onChange={e => setItem(i, "unit_price", e.target.value)} placeholder="Price" className="w-24 text-right text-sm border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" />
+                      <input value={item.description} onChange={e => setItem(i, "description", e.target.value)} placeholder="Description" className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]" />
+                      <input type="number" value={item.quantity} onChange={e => setItem(i, "quantity", parseFloat(e.target.value)||0)} placeholder="Qty" className="w-16 text-center text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" />
+                      <input type="number" value={item.unit_price} onChange={e => setItem(i, "unit_price", e.target.value)} placeholder="Price" className="w-24 text-right text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" />
                       <button onClick={() => removeItem(i)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -828,8 +828,8 @@ export default function InvoiceGenerator() {
               {/* Brand & Footer */}
               <InvoiceAccordionSection
                 id="brand"
-                title="Brand & Footer"
-                subtitle="Colours, notes, and footer text"
+                title="Brand & Notes"
+                subtitle="Colours & notes"
                 summary={getBrandSummary()}
                 icon={Palette}
                 isOpen={openSections.includes("brand")}
