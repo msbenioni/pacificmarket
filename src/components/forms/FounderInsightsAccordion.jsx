@@ -31,7 +31,13 @@ const SECTIONS = [
 
 export default function FounderInsightsForm({ businessId, onSubmit, isLoading, initialData = null }) {
   const [expandedSections, setExpandedSections] = useState(new Set(['founder']));
-  const [form, setForm] = useState(initialData || {
+  
+  // Create a stable initial form state to avoid controlled/uncontrolled input issues
+  const getInitialForm = () => {
+    if (initialData) {
+      return { ...initialData };
+    }
+    return {
     // Founder Background (unique to business insights)
     businesses_founded: "",
     founder_role: "",
@@ -71,7 +77,17 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     collaboration_interest: false,
     mentorship_offering: false,
     open_to_future_contact: false,
-  });
+    };
+  };
+  
+  const [form, setForm] = useState(getInitialForm());
+
+  // Update form when initialData changes (fixes controlled input issue)
+  useEffect(() => {
+    if (initialData) {
+      setForm(initialData);
+    }
+  }, [initialData]);
 
   const [submitting, setSubmitting] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState(null);
@@ -284,6 +300,49 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     return errors;
   };
 
+  const isFieldRequiredAndEmpty = (sectionKey, fieldName, isArray = false) => {
+    if (!submitAttempted) return false;
+    
+    const errors = getSectionErrors(sectionKey);
+    const errorMessages = {
+      'founder': {
+        'businesses_founded': 'Number of businesses founded',
+        'founder_role': 'Founder role',
+        'founder_motivation_array': 'Founder motivations'
+      },
+      'pacific': {
+        'serves_pacific_communities': 'Main audience'
+      },
+      'financial': {
+        'current_funding_source': 'Current funding source'
+      },
+      'challenges': {
+        'top_challenges': 'Top challenges',
+        'support_needed_next': 'Support needed'
+      },
+      'growth': {
+        'business_stage': 'Business stage',
+        'goals_next_12_months_array': '12-month goals'
+      }
+    };
+    
+    const sectionErrors = errorMessages[sectionKey];
+    if (!sectionErrors) return false;
+    
+    const hasError = errors.includes(sectionErrors[fieldName]);
+    const isEmpty = isArray 
+      ? !form[fieldName] || form[fieldName].length === 0
+      : !form[fieldName];
+    
+    return hasError && isEmpty;
+  };
+
+  const getLabelClass = (sectionKey, fieldName, isArray = false) => {
+    const baseClass = "block text-xs font-semibold uppercase tracking-wider mb-1.5";
+    const isError = isFieldRequiredAndEmpty(sectionKey, fieldName, isArray);
+    return isError ? `${baseClass} text-red-600` : baseClass;
+  };
+
   const hasSectionErrors = (sectionKey) => {
     return submitAttempted && getSectionErrors(sectionKey).length > 0;
   };
@@ -339,18 +398,18 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className={labelCls}>Years as entrepreneur *</label>
+                    <label className={getLabelClass('founder', 'years_entrepreneurial')}>Years as entrepreneur *</label>
                     <select value={form.years_entrepreneurial || ""} onChange={e => setForm({ ...form, years_entrepreneurial: e.target.value })} className={selectCls}>
                       <option value="">Select years</option>
                       <option value="0-1">Less than 1 year</option>
                       <option value="1-3">1-3 years</option>
                       <option value="3-5">3-5 years</option>
                       <option value="5-10">5-10 years</option>
-                      <option value="10+">More than 10 years</option>
+                      <option value="10+">10+ years</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelCls}>First business? *</label>
+                    <label className={getLabelClass('founder', 'businesses_founded')}>First business? *</label>
                     <select value={form.businesses_founded || ""} onChange={e => setForm({ ...form, businesses_founded: e.target.value })} className={selectCls}>
                       <option value="">Select option</option>
                       <option value="first">Yes, first business</option>
@@ -358,7 +417,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                     </select>
                   </div>
                   <div>
-                    <label className={labelCls}>Your role *</label>
+                    <label className={getLabelClass('founder', 'founder_role')}>Your role *</label>
                     <select value={form.founder_role || ""} onChange={e => setForm({ ...form, founder_role: e.target.value })} className={selectCls}>
                       <option value="">Select role</option>
                       <option value="founder">Founder/Owner</option>
@@ -372,7 +431,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </div>
 
                 <div>
-                  <label className={labelCls}>What motivates you most? (Select up to 3) *</label>
+                  <label className={getLabelClass('founder', 'founder_motivation_array', true)}>What motivates you most? (Select up to 3) *</label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                     {FOUNDER_MOTIVATIONS.map(motivation => (
                       <label key={motivation.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
@@ -414,7 +473,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </div>
 
                 <div>
-                  <label className={labelCls}>Main audience *</label>
+                  <label className={getLabelClass('pacific', 'serves_pacific_communities')}>Main audience *</label>
                   <select value={form.serves_pacific_communities || ""} onChange={e => setForm({ ...form, serves_pacific_communities: e.target.value })} className={selectCls}>
                     <option value="">Select audience</option>
                     <option value="mainly-pacific">Mainly Pacific communities</option>
@@ -471,7 +530,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Current funding source *</label>
+                    <label className={getLabelClass('financial', 'current_funding_source')}>Current funding source *</label>
                     <select value={form.current_funding_source || ""} onChange={e => setForm({ ...form, current_funding_source: e.target.value })} className={selectCls}>
                       <option value="">Select funding source</option>
                       {FUNDING_SOURCES.map(source => (
@@ -579,8 +638,8 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
             {section.key === 'challenges' && (
               <div className="space-y-4">
                 <div>
-                  <label className={labelCls}>Biggest challenges (Select up to 5) *</label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
+                  <label className={getLabelClass('challenges', 'top_challenges', true)}>Biggest challenges (Select up to 5) *</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                     {BUSINESS_CHALLENGES.map(challenge => (
                       <label key={challenge.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
                         <input
@@ -593,30 +652,27 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                       </label>
                     ))}
                   </div>
-                  {form.top_challenges?.length > 0 && (
-                    <p className="text-xs text-gray-500 mt-1">Selected: {form.top_challenges.length}/5</p>
-                  )}
                 </div>
 
                 <div>
-                  <label className={labelCls}>Support needed (Select up to 3) *</label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {SUPPORT_NEEDS.map(support => (
-                      <label key={support.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
+                  <label className={getLabelClass('challenges', 'support_needed_next', true)}>Support needed (Select up to 5) *</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                    {SUPPORT_NEEDS.map(need => (
+                      <label key={need.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
                         <input
                           type="checkbox"
-                          checked={form.support_needed_next?.includes(support.value)}
-                          onChange={() => toggleArrayItem('support_needed_next', support.value)}
+                          checked={form.support_needed_next?.includes(need.value)}
+                          onChange={() => toggleArrayItem('support_needed_next', need.value)}
                           className="rounded border-gray-300 text-[#0d4f4f]"
                         />
-                        <span>{support.label}</span>
+                        <span>{need.label}</span>
                       </label>
                     ))}
                   </div>
-                  {form.support_needed_next?.length > 0 && (
+                </div>
+                {form.support_needed_next?.length > 0 && (
                     <p className="text-xs text-gray-500 mt-1">Selected: {form.support_needed_next.length}/3</p>
                   )}
-                </div>
               </div>
             )}
 
@@ -624,7 +680,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Business stage *</label>
+                    <label className={getLabelClass('growth', 'business_stage')}>Business stage *</label>
                     <select value={form.business_stage || ""} onChange={e => setForm({ ...form, business_stage: e.target.value })} className={selectCls}>
                       <option value="">Select stage</option>
                       <option value={BUSINESS_STAGE.IDEA}>Idea/Planning</option>
@@ -649,7 +705,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </div>
 
                 <div>
-                  <label className={labelCls}>Goals for next 12 months (Select up to 3) *</label>
+                  <label className={getLabelClass('growth', 'goals_next_12_months_array', true)}>Goals for next 12 months (Select up to 3) *</label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {GOALS_NEXT_12_MONTHS.map(goal => (
                       <label key={goal.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">

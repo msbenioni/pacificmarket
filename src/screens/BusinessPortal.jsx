@@ -1022,24 +1022,11 @@ export default function BusinessPortal() {
                           </div>
                         </div>
                       </div>
-
                       <div className="space-y-4">
                         <p className="text-sm text-gray-600">
                           It only takes a few minutes, and you can view your responses again later.
                         </p>
                         <div className={`${portalUI.card} p-8 mt-4`}>
-                          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                            <div className="flex items-start gap-3">
-                              <Users className="w-5 h-5 text-blue-600 mt-0.5" />
-                              <div>
-                                <h4 className="text-sm font-semibold text-blue-900">Share Your Founder Journey</h4>
-                                <p className="text-sm text-blue-700 mt-1">
-                                  Your responses help build a clearer picture of Pacific founder experiences, challenges, and opportunities.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          
                           <FounderInsightsAccordion 
                             businessId={null}
                             onSubmit={handleFounderInsightsSubmit}
