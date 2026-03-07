@@ -3,6 +3,8 @@ import { getSupabase } from "@/lib/supabase/client";
 import { Plus, Trash2, Download, ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
+import HeroRegistry from "../components/shared/HeroRegistry";
+import { BUSINESS_TIER } from "@/constants/unifiedConstants";
 
 export default function InvoiceGenerator() {
   const [user, setUser] = useState(null);
@@ -35,7 +37,7 @@ export default function InvoiceGenerator() {
           .from('businesses')
           .select('*')
           .eq('owner_user_id', user.id)
-          .eq('subscription_tier', 'moana');
+          .eq('subscription_tier', BUSINESS_TIER.MOANA);
         
         if (businesses && businesses.length > 0) {
           setBusiness(businesses[0]);
@@ -62,21 +64,27 @@ export default function InvoiceGenerator() {
   const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc]">
-      <div className="bg-[#0a1628] text-white py-8 px-4 sm:px-6 lg:px-8 no-print">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div>
-            <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-1 text-gray-400 hover:text-white text-sm mb-2 transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back to Portal
+    <>
+      <HeroRegistry
+        badge="Business Tool"
+        title="Invoice Generator"
+        subtitle="Create professional invoices with your Pacific business branding."
+        description="Generate customized invoices for your clients with automatic calculations and professional formatting."
+        actions={
+          <div className="flex items-center gap-3">
+            <Link href={createPageUrl("BusinessPortal")} className="inline-flex items-center gap-2 bg-white text-[#0a1628] px-6 py-3 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Portal
             </Link>
-            <h1 className="text-2xl font-bold">Invoice Generator</h1>
+            <button onClick={handlePrint}
+              className="flex items-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-5 py-3 rounded-xl transition-all text-sm">
+              <Download className="w-4 h-4" /> Download / Print
+            </button>
           </div>
-          <button onClick={handlePrint}
-            className="flex items-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-5 py-2.5 rounded-xl transition-all text-sm">
-            <Download className="w-4 h-4" /> Download / Print
-          </button>
-        </div>
-      </div>
+        }
+      />
+
+      <div className="min-h-screen bg-[#f8f9fc]">
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-5 gap-8">
@@ -218,7 +226,8 @@ export default function InvoiceGenerator() {
           </div>
         </div>
       </div>
+      </div>
       <style>{`@media print { .no-print { display: none !important; } body { background: white; } .invoice-preview { box-shadow: none; border: none; } }`}</style>
-    </div>
+    </>
   );
 }

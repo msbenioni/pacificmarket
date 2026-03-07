@@ -524,11 +524,6 @@ export default function BusinessPortal() {
     [BUSINESS_TIER.VAKA]: { label: getTierDisplayName(BUSINESS_TIER.VAKA), color: "text-gray-500 bg-gray-100" },
     [BUSINESS_TIER.MANA]: { label: getTierDisplayName(BUSINESS_TIER.MANA), color: "text-[#0d4f4f] bg-[#0d4f4f]/10", icon: Shield },
     [BUSINESS_TIER.MOANA]: { label: getTierDisplayName(BUSINESS_TIER.MOANA), color: "text-[#c9a84c] bg-[#c9a84c]/10", icon: Star },
-    
-    // Legacy support
-    basic: { label: getTierDisplayName(BUSINESS_TIER.BASIC), color: "text-gray-500 bg-gray-100" },
-    verified: { label: getTierDisplayName(BUSINESS_TIER.VERIFIED), color: "text-[#0d4f4f] bg-[#0d4f4f]/10", icon: Shield },
-    featured_plus: { label: getTierDisplayName(BUSINESS_TIER.FEATURED_PLUS), color: "text-[#c9a84c] bg-[#c9a84c]/10", icon: Star },
   };
 
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
@@ -650,7 +645,7 @@ export default function BusinessPortal() {
               </div>
 
               {/* Upgrade Banner */}
-              {businesses.length > 0 && !businesses.some((b) => b.subscription_tier !== "basic") && (
+              {businesses.length > 0 && !businesses.some((b) => b.subscription_tier !== BUSINESS_TIER.VAKA) && (
                 <div className="rounded-[28px] border border-[#00c4cc]/20 bg-gradient-to-r from-[#00c4cc]/10 via-white to-[#c9a84c]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex items-start gap-4">
@@ -663,7 +658,7 @@ export default function BusinessPortal() {
                           Growth Opportunity
                         </p>
                         <h3 className="mt-1 text-lg font-bold text-[#0a1628]">
-                          Unlock more with Verified or Featured+
+                          Unlock more with Mana or Moana
                         </h3>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
                           Increase trust, showcase your visual identity, and unlock practical business tools designed to help Pacific businesses stand out.
@@ -673,7 +668,7 @@ export default function BusinessPortal() {
                   </div>
 
                   <button
-                    onClick={() => handleUpgradeClick("verified")}
+                    onClick={() => handleUpgradeClick(BUSINESS_TIER.MANA)}
                     disabled={checkoutLoading}
                     className="inline-flex items-center gap-2 rounded-xl bg-[#c9a84c] px-5 py-3 text-sm font-bold text-[#0a1628] hover:bg-[#d8b865] transition disabled:opacity-50"
                   >
@@ -693,10 +688,10 @@ export default function BusinessPortal() {
                   <div className="mt-5 grid gap-4 sm:grid-cols-2">
                     <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
                       <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#00c4cc]">
-                        Verified
+                        Mana
                       </p>
                       <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                        ${TIER_BENEFITS.verified.price.split("/")[0].slice(1)}/mo
+                        ${TIER_BENEFITS[BUSINESS_TIER.MANA].price.split("/")[0].slice(1)}/mo
                       </p>
                       <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                         <li>• Verified badge</li>
@@ -707,10 +702,10 @@ export default function BusinessPortal() {
 
                     <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
                       <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#00c4cc]">
-                        Featured+
+                        Moana
                       </p>
                       <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                        ${TIER_BENEFITS.featured_plus.price.split("/")[0].slice(1)}/mo
+                        ${TIER_BENEFITS[BUSINESS_TIER.MOANA].price.split("/")[0].slice(1)}/mo
                       </p>
                       <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                         <li>• Everything in Verified</li>
@@ -807,9 +802,9 @@ export default function BusinessPortal() {
                 <div className="space-y-5">
                   {businesses.map((b) => {
                     const tierStyles =
-                      b.subscription_tier === "featured_plus"
+                      b.subscription_tier === BUSINESS_TIER.MOANA
                         ? "bg-[#c9a84c]/14 text-[#f4e3a8] border border-[#c9a84c]/20"
-                        : b.subscription_tier === "verified"
+                        : b.subscription_tier === BUSINESS_TIER.MANA
                         ? "bg-[#00c4cc]/12 text-[#8df3f6] border border-[#00c4cc]/20"
                         : "bg-gray-100/80 text-gray-600 border border-gray-200";
 
@@ -878,7 +873,7 @@ export default function BusinessPortal() {
                                   <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
                                 )}
 
-                                {(b.subscription_tier === "verified" || b.subscription_tier === "featured_plus") && (
+                                {b.subscription_tier && (
                                   <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tierStyles}`}>
                                     {tierInfo[b.subscription_tier]?.label}
                                   </span>
@@ -924,7 +919,7 @@ export default function BusinessPortal() {
                           </div>
                         </div>
 
-                        {b.subscription_tier === "basic" && (
+                        {b.subscription_tier === BUSINESS_TIER.VAKA && (
                           <div className="mt-5 border-t border-gray-200 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                               <p className="text-sm font-semibold text-[#0a1628]">
@@ -1093,8 +1088,8 @@ Your responses help Pacific Market build a clearer understanding of founder expe
           {activeTab === "tools" && (
             <div>
               <h2 className="font-bold text-[#0a1628] mb-2">Business Tools</h2>
-              <p className="text-slate-600 text-sm mb-6">Available to Featured+ subscribers.</p>
-              {businesses.some((b) => b.subscription_tier === "featured_plus") ? (
+              <p className="text-slate-600 text-sm mb-6">Available to Moana subscribers.</p>
+              {businesses.some((b) => b.subscription_tier === BUSINESS_TIER.MOANA) ? (
                 <div className="grid sm:grid-cols-2 gap-5">
                   <Link href={createPageUrl("InvoiceGenerator")}
                     className={`${portalUI.card} hover:shadow-[0_18px_45px_rgba(10,22,40,0.12)] hover:border-[#0d4f4f]/30 transition-all group`}
