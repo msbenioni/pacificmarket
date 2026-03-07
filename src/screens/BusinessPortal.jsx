@@ -1002,30 +1002,13 @@ export default function BusinessPortal() {
               <div className="space-y-4">
                 <div className={`${portalUI.card} p-8`}>
                   <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/10">
-                      <Users className="w-6 h-6 text-[#0d4f4f]" />
-                    </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-[#0a1628] mb-2">Help shape what Pacific founders need</h3>
-                      <p className="text-gray-600 mb-4">
-                        This short survey captures your experience as a founder, from challenges and growth goals to community impact. Your input helps Pacific Market build a stronger picture of Pacific entrepreneurship.
-                      </p>
                       
-                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 mb-4">
-                        <div className="flex items-start gap-3">
-                          <Users className="w-5 h-5 text-blue-600 mt-0.5" />
-                          <div>
-                            <h4 className="font-semibold text-blue-900 text-sm">Why this matters</h4>
-                            <p className="text-blue-700 text-sm mt-1">
-                              Your responses help identify common barriers, growth patterns, and opportunities for Pacific founders.
-                            </p>
-                          </div>
+                      <div>
+                        <div>
                         </div>
                       </div>
                       <div className="space-y-4">
-                        <p className="text-sm text-gray-600">
-                          It only takes a few minutes, and you can view your responses again later.
-                        </p>
                         <div className={`${portalUI.card} p-8 mt-4`}>
                           <FounderInsightsAccordion 
                             businessId={null}
