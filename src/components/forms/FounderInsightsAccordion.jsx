@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, ChevronRight, Users, TrendingUp, Globe, AlertCircle, Rocket, Lightbulb } from "lucide-react";
-import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, COUNTRIES, FUNDING_SOURCES, FUNDING_AMOUNTS, FUNDING_PURPOSES, INVESTMENT_STAGES, INVESTMENT_EXPLORATION, ANGEL_INVESTOR_INTEREST, INVESTOR_CAPACITY, REVENUE_STREAMS } from "@/constants/unifiedConstants";
+import { BUSINESS_STAGE, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, FUNDING_SOURCES, FUNDING_AMOUNTS, FUNDING_PURPOSES, INVESTMENT_STAGES, ANGEL_INVESTOR_INTEREST, INVESTOR_CAPACITY, REVENUE_STREAMS } from "@/constants/unifiedConstants";
 import { getSupabase } from "@/lib/supabase/client";
 
 const SECTIONS = [
@@ -26,7 +26,6 @@ const SECTION_FIELDS = {
     "culture_influence_details",
     "family_community_responsibilities_affect_business",
     "responsibilities_impact_details",
-    "pacific_identity",
   ],
   financial: [
     "current_funding_source",
@@ -41,17 +40,11 @@ const SECTION_FIELDS = {
   challenges: [
     "top_challenges",
     "support_needed_next",
-    "current_support_sources",
-    "mentorship_access",
-    "barriers_to_mentorship",
   ],
   growth: [
     "business_stage",
     "goals_next_12_months_array",
     "goals_details",
-    "hiring_intentions",
-    "expansion_plans",
-    "collaboration_interest",
   ],
   community: [
     "community_impact_areas",
@@ -77,12 +70,10 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
       culture_influence_details: "",
       family_community_responsibilities_affect_business: false,
       responsibilities_impact_details: "",
-      pacific_identity: [],
 
       // Financial & Investment (unique insights - not duplicated from profile)
       current_funding_source: "",
       investment_stage: "",
-      revenue_streams: [],
       financial_challenges: "",
       funding_amount_needed: "",
       funding_purpose: "",
@@ -92,26 +83,19 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
       // Challenges & Support (unique insights - not duplicated from profile)
       top_challenges: [],
       support_needed_next: [],
-      current_support_sources: [],
-      mentorship_access: false,
-      barriers_to_mentorship: "",
 
       // Growth & Future (unique insights - not duplicated from profile)
       business_stage: "",
       goals_next_12_months_array: [],
       goals_details: "",
-      hiring_intentions: false,
-      expansion_plans: false,
-      collaboration_interest: false,
 
       // Community & Impact (unique to business insights)
       community_impact_areas: [],
       mentorship_offering: false,
       open_to_future_contact: false,
 
-      // Optional arrays
-      sales_channels: [],
-      team_size_band: "",
+      // Optional arrays (keep for data preservation)
+      revenue_streams: [],
     };
     
     if (initialData) {
@@ -227,23 +211,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
 
         top_challenges: form.top_challenges ?? [],
         support_needed_next: form.support_needed_next ?? [],
-        current_support_sources: form.current_support_sources ?? [],
-        mentorship_access: form.mentorship_access,
-        barriers_to_mentorship: form.barriers_to_mentorship,
 
         business_stage: form.business_stage,
         goals_next_12_months_array: form.goals_next_12_months_array ?? [],
         goals_details: form.goals_details,
-        hiring_intentions: form.hiring_intentions,
-        expansion_plans: form.expansion_plans,
-        collaboration_interest: form.collaboration_interest,
 
         community_impact_areas: form.community_impact_areas ?? [],
         mentorship_offering: form.mentorship_offering,
         open_to_future_contact: form.open_to_future_contact,
-        pacific_identity: form.pacific_identity ?? [],
-        sales_channels: form.sales_channels ?? [],
-        team_size_band: form.team_size_band,
       };
 
       console.log("Submitting all founder insights", payload);
@@ -345,9 +320,298 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
         
         {isExpanded && (
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <div className="text-center py-8">
-              <p className="text-gray-500">Form content would go here</p>
-            </div>
+            {section.key === 'founder' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className={getLabelClass('founder', 'years_entrepreneurial')}>Years as entrepreneur</label>
+                    <select value={form.years_entrepreneurial || ""} onChange={e => setFormState(prev => ({ ...prev, years_entrepreneurial: e.target.value }))} className={selectCls}>
+                      <option value="">Select years</option>
+                      <option value="0-1">Less than 1 year</option>
+                      <option value="1-3">1-3 years</option>
+                      <option value="3-5">3-5 years</option>
+                      <option value="5-10">5-10 years</option>
+                      <option value="10+">10+ years</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={getLabelClass('founder', 'businesses_founded')}>First business?</label>
+                    <select value={form.businesses_founded || ""} onChange={e => setFormState(prev => ({ ...prev, businesses_founded: e.target.value }))} className={selectCls}>
+                      <option value="">Select option</option>
+                      <option value="first">Yes, first business</option>
+                      <option value="multiple">No, founded others before</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={getLabelClass('founder', 'founder_role')}>Your role</label>
+                    <select value={form.founder_role || ""} onChange={e => setFormState(prev => ({ ...prev, founder_role: e.target.value }))} className={selectCls}>
+                      <option value="">Select role</option>
+                      <option value="founder">Founder/Owner</option>
+                      <option value="cofounder">Co-founder</option>
+                      <option value="partner">Partner</option>
+                      <option value="director">Director</option>
+                      <option value="manager">Manager</option>
+                      <option value="employee">Employee</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className={getLabelClass('founder', 'founder_motivation_array')}>What motivates you as a founder? (Select up to 3)</label>
+                  <div className="space-y-2">
+                    {FOUNDER_MOTIVATIONS.map((motivation) => (
+                      <label key={motivation.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={form.founder_motivation_array?.includes(motivation.value) || false}
+                          onChange={() => toggleArrayItem('founder_motivation_array', motivation.value)}
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                        />
+                        <span className="text-sm text-gray-700">{motivation.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={getLabelClass('founder', 'founder_story')}>Your founder story (optional)</label>
+                  <textarea
+                    value={form.founder_story || ""}
+                    onChange={e => setFormState(prev => ({ ...prev, founder_story: e.target.value }))}
+                    placeholder="Briefly share your journey as a founder..."
+                    rows={4}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+            )}
+
+            {section.key === 'pacific' && (
+              <div className="space-y-4">
+                <div>
+                  <label className={getLabelClass('pacific', 'serves_pacific_communities')}>Which Pacific communities does your business serve?</label>
+                  <select value={form.serves_pacific_communities || ""} onChange={e => setFormState(prev => ({ ...prev, serves_pacific_communities: e.target.value }))} className={selectCls}>
+                    <option value="">Select communities</option>
+                    <option value="fiji">Fiji</option>
+                    <option value="samoa">Samoa</option>
+                    <option value="tonga">Tonga</option>
+                    <option value="cook-islands">Cook Islands</option>
+                    <option value="vanuatu">Vanuatu</option>
+                    <option value="solomon-islands">Solomon Islands</option>
+                    <option value="kiribati">Kiribati</option>
+                    <option value="tuvalu">Tuvalu</option>
+                    <option value="nauru">Nauru</option>
+                    <option value="pacific-diaspora">Pacific diaspora</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.culture_influences_business || false}
+                      onChange={e => setFormState(prev => ({ ...prev, culture_influences_business: e.target.checked }))}
+                      className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                    />
+                    <span className="text-sm text-gray-700">Pacific culture influences how I run my business</span>
+                  </label>
+                </div>
+
+                {form.culture_influences_business && (
+                  <div>
+                    <label className={getLabelClass('pacific', 'culture_influence_details')}>How does Pacific culture influence your business?</label>
+                    <textarea
+                      value={form.culture_influence_details || ""}
+                      onChange={e => setFormState(prev => ({ ...prev, culture_influence_details: e.target.value }))}
+                      placeholder="Describe how Pacific cultural values, practices, or traditions shape your business approach..."
+                      rows={3}
+                      className={inputCls}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {section.key === 'financial' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={getLabelClass('financial', 'current_funding_source')}>Current funding source</label>
+                    <select value={form.current_funding_source || ""} onChange={e => setFormState(prev => ({ ...prev, current_funding_source: e.target.value }))} className={selectCls}>
+                      <option value="">Select funding source</option>
+                      {FUNDING_SOURCES.map((source) => (
+                        <option key={source.value} value={source.value}>{source.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={getLabelClass('financial', 'investment_stage')}>Current investment stage</label>
+                    <select value={form.investment_stage || ""} onChange={e => setFormState(prev => ({ ...prev, investment_stage: e.target.value }))} className={selectCls}>
+                      <option value="">Select stage</option>
+                      {INVESTMENT_STAGES.map((stage) => (
+                        <option key={stage.value} value={stage.value}>{stage.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className={getLabelClass('financial', 'revenue_streams')}>Revenue streams (select all that apply)</label>
+                  <div className="space-y-2">
+                    {REVENUE_STREAMS.map((stream) => (
+                      <label key={stream.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={form.revenue_streams?.includes(stream.value) || false}
+                          onChange={() => toggleArrayItem('revenue_streams', stream.value)}
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                        />
+                        <span className="text-sm text-gray-700">{stream.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={getLabelClass('financial', 'financial_challenges')}>Biggest financial challenges</label>
+                  <textarea
+                    value={form.financial_challenges || ""}
+                    onChange={e => setFormState(prev => ({ ...prev, financial_challenges: e.target.value }))}
+                    placeholder="What are your main financial challenges right now?"
+                    rows={3}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+            )}
+
+            {section.key === 'challenges' && (
+              <div className="space-y-4">
+                <div>
+                  <label className={getLabelClass('challenges', 'top_challenges')}>Top 5 challenges (select up to 5)</label>
+                  <div className="space-y-2">
+                    {BUSINESS_CHALLENGES.map((challenge) => (
+                      <label key={challenge.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={form.top_challenges?.includes(challenge.value) || false}
+                          onChange={() => toggleArrayItem('top_challenges', challenge.value)}
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                        />
+                        <span className="text-sm text-gray-700">{challenge.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={getLabelClass('challenges', 'support_needed_next')}>Support needed for next 12 months (select up to 3)</label>
+                  <div className="space-y-2">
+                    {SUPPORT_NEEDS.map((support) => (
+                      <label key={support.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={form.support_needed_next?.includes(support.value) || false}
+                          onChange={() => toggleArrayItem('support_needed_next', support.value)}
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                        />
+                        <span className="text-sm text-gray-700">{support.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {section.key === 'growth' && (
+              <div className="space-y-4">
+                <div>
+                  <label className={getLabelClass('growth', 'business_stage')}>Current business stage</label>
+                  <select value={form.business_stage || ""} onChange={e => setFormState(prev => ({ ...prev, business_stage: e.target.value }))} className={selectCls}>
+                    <option value="">Select stage</option>
+                    <option value={BUSINESS_STAGE.IDEA}>Idea / Planning</option>
+                    <option value={BUSINESS_STAGE.STARTUP}>Startup</option>
+                    <option value={BUSINESS_STAGE.GROWTH}>Growth</option>
+                    <option value={BUSINESS_STAGE.MATURE}>Mature</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={getLabelClass('growth', 'goals_next_12_months_array')}>Goals for next 12 months (select up to 3)</label>
+                  <div className="space-y-2">
+                    {GOALS_NEXT_12_MONTHS.map((goal) => (
+                      <label key={goal.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={form.goals_next_12_months_array?.includes(goal.value) || false}
+                          onChange={() => toggleArrayItem('goals_next_12_months_array', goal.value)}
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                        />
+                        <span className="text-sm text-gray-700">{goal.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={getLabelClass('growth', 'goals_details')}>Additional goals details</label>
+                  <textarea
+                    value={form.goals_details || ""}
+                    onChange={e => setFormState(prev => ({ ...prev, goals_details: e.target.value }))}
+                    placeholder="Any specific goals or milestones you're working towards?"
+                    rows={3}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+            )}
+
+            {section.key === 'community' && (
+              <div className="space-y-4">
+                <div>
+                  <label className={getLabelClass('community', 'community_impact_areas')}>Community impact areas (select all that apply)</label>
+                  <div className="space-y-2">
+                    {COMMUNITY_IMPACT_AREAS.map((area) => (
+                      <label key={area.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={form.community_impact_areas?.includes(area.value) || false}
+                          onChange={() => toggleArrayItem('community_impact_areas', area.value)}
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                        />
+                        <span className="text-sm text-gray-700">{area.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.mentorship_offering || false}
+                        onChange={e => setFormState(prev => ({ ...prev, mentorship_offering: e.target.checked }))}
+                        className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                      />
+                      <span className="text-sm text-gray-700">Willing to mentor other founders</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.open_to_future_contact || false}
+                        onChange={e => setFormState(prev => ({ ...prev, open_to_future_contact: e.target.checked }))}
+                        className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                      />
+                      <span className="text-sm text-gray-700">Open to future contact from Pacific Market</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

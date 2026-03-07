@@ -9,7 +9,6 @@ import { TIER_BENEFITS } from "@/constants/businessProfile";
 import { BUSINESS_TIER, BUSINESS_STATUS, getTierDisplayName, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
 import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
-import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import CancelClaimButton from "@/components/claims/CancelClaimButton";
@@ -30,20 +29,18 @@ export default function BusinessPortal() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("my-businesses");
   const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const [claiming, setClaiming] = useState(false);
-  const [selectedBusinessForInsights, setSelectedBusinessForInsights] = useState(null);
-  const [insightsSubmitting, setInsightsSubmitting] = useState(false);
-  const [insightsStarted, setInsightsStarted] = useState(false);
   const [deleteConfirmBusiness, setDeleteConfirmBusiness] = useState(null);
   const [showAddOwnerModal, setShowAddOwnerModal] = useState(null);
   const [addingOwner, setAddingOwner] = useState(false);
-  const [newOwnerForm, setNewOwnerForm] = useState({ name: '', email: '' });
+  const [newOwnerForm, setNewOwnerForm] = useState({ name: "", email: "" });
   const [showClaimAddModal, setShowClaimAddModal] = useState(false);
-  const [claimAddDefaultView, setClaimAddDefaultView] = useState('search');
+  const [claimAddDefaultView, setClaimAddDefaultView] = useState("claim");
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showInsightsModal, setShowInsightsModal] = useState(false);
-  const [editingBusiness, setEditingBusiness] = useState(null);
+  const [insightsSubmitting, setInsightsSubmitting] = useState(false);
+  const [insightsStarted, setInsightsStarted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState(null);
+  const [claiming, setClaiming] = useState(false);
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
   const { toast } = useToast();
@@ -58,10 +55,6 @@ export default function BusinessPortal() {
     const industry = INDUSTRIES.find(i => i.value === industryValue);
     return industry ? industry.label : industryValue;
   };
-
-  // Helper to get latest snapshot for a business
-  const getLatestSnapshot = (businessId) =>
-    insightSnapshots.find(s => s.business_id === businessId);
 
   // Onboarding state
   const {
