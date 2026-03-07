@@ -88,7 +88,6 @@ const createEmptyInvoice = () => ({
   payment_reference_label: "",
   payment_terms: "",
 
-  footer_note: "",
   notes: "",
 
   brand_primary: "#0a1628",
@@ -234,7 +233,6 @@ export default function InvoiceGenerator() {
             payment_account_number: prev.payment_account_number || settings.account_number || "",
             payment_reference_label: prev.payment_reference_label || settings.payment_reference_label || "",
             payment_terms: prev.payment_terms || settings.payment_terms || "",
-            footer_note: prev.footer_note || settings.footer_note || "",
             brand_primary: prev.brand_primary || settings.invoice_primary_color || "#0a1628",
             brand_accent: prev.brand_accent || settings.invoice_accent_color || "#c9a84c",
             brand_text: prev.brand_text || settings.invoice_text_color || "#0f172a",
@@ -339,7 +337,6 @@ export default function InvoiceGenerator() {
         account_number: invoice.payment_account_number,
         payment_reference_label: invoice.payment_reference_label,
         payment_terms: invoice.payment_terms,
-        footer_note: invoice.footer_note,
         default_tax_rate: invoice.tax_rate || null,
         default_withholding_tax_rate: invoice.withholding_tax_rate || null,
         invoice_primary_color: invoice.brand_primary,
@@ -644,7 +641,6 @@ export default function InvoiceGenerator() {
                           payment_account_number: "",
                           payment_reference_label: "",
                           payment_terms: "",
-                          footer_note: "",
                           brand_primary: "#0a1628",
                           brand_accent: "#c9a84c",
                           brand_text: "#0f172a",
@@ -860,10 +856,6 @@ export default function InvoiceGenerator() {
                     <textarea value={invoice.notes} onChange={e => setField("notes", e.target.value)} rows={3} placeholder="Payment terms, thank you note, etc..." className={`${inputCls} resize-none`} />
                   </div>
                   
-                  <div>
-                    <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Footer Note</label>
-                    <input value={invoice.footer_note} onChange={e => setField("footer_note", e.target.value)} placeholder="Generated with Pacific Market business tools" className={inputCls} />
-                  </div>
                 </div>
               </InvoiceAccordionSection>
 
@@ -1062,15 +1054,8 @@ export default function InvoiceGenerator() {
                     </div>
                   )}
 
-                  {invoice.footer_note && (
-                    <div className="mt-8 pt-6 border-t border-gray-100">
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Footer</p>
-                      <p className="text-gray-500 text-sm">{invoice.footer_note}</p>
-                    </div>
-                  )}
-
                   <div className="mt-8 pt-4 border-t border-gray-50 text-center">
-                    <p className="text-xs text-gray-300">Pacific Market · pacific-market.com</p>
+                    <p className="text-xs text-gray-300">Thank You For Your Business</p>
                   </div>
                 </div>
               </div>
@@ -1079,7 +1064,7 @@ export default function InvoiceGenerator() {
         </div>
       </div>
     </div>
-    <style>{`@media print { .no-print { display: none !important; } body { background: white; } .invoice-preview { box-shadow: none; border: none; } }`}</style>
+    <style>{`@media print { .no-print { display: none !important; } body { background: white; } .invoice-preview { box-shadow: none; border: none; transform: scale(0.9); transform-origin: top left; font-size: 12px; } .invoice-preview * { font-size: 0.92em; } }`}</style>
   </div>
 );
 }
