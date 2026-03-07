@@ -12,58 +12,90 @@ const STEPS = [
   { key: "community", label: "Community & Impact", icon: Lightbulb },
 ];
 
+const DEFAULT_FORM_STATE = {
+  // Founder Background
+  years_entrepreneurial: "",
+  businesses_founded: "",
+  founder_role: "",
+  founder_motivation_array: [],
+  founder_story: "",
+
+  // Business Reality
+  business_operating_status: "",
+  business_age: "",
+  primary_industry: "",
+  team_size_band: "",
+  business_registered: false,
+  employs_anyone: false,
+  employs_family_community: false,
+  sales_channels: [],
+  revenue_band: "",
+
+  // Pacific Context
+  pacific_identity: [],
+  based_in_country: "",
+  based_in_city: "",
+  serves_pacific_communities: "",
+  culture_influences_business: false,
+  culture_influence_details: "",
+  family_community_responsibilities_affect_business: false,
+  responsibilities_impact_details: "",
+
+  // Challenges & Support
+  top_challenges: [],
+  support_needed_next: [],
+  current_support_sources: [],
+  mentorship_access: false,
+
+  // Growth & Future
+  business_stage: "",
+  goals_next_12_months_array: [],
+  goals_details: "",
+  hiring_intentions: false,
+  expansion_plans: false,
+
+  // Community & Impact
+  community_impact_areas: [],
+  collaboration_interest: false,
+  mentorship_offering: false,
+  open_to_future_contact: false,
+};
+
+const buildInitialFormState = (data) => {
+  if (!data) return { ...DEFAULT_FORM_STATE };
+
+  return {
+    ...DEFAULT_FORM_STATE,
+    ...data,
+    founder_motivation_array:
+      data.founder_motivation_array ?? data.founder_motivation ?? DEFAULT_FORM_STATE.founder_motivation_array,
+    goals_next_12_months_array:
+      data.goals_next_12_months_array ?? data.goals_next_12_months ?? DEFAULT_FORM_STATE.goals_next_12_months_array,
+    sales_channels: data.sales_channels ?? DEFAULT_FORM_STATE.sales_channels,
+    top_challenges: data.top_challenges ?? DEFAULT_FORM_STATE.top_challenges,
+    support_needed_next: data.support_needed_next ?? DEFAULT_FORM_STATE.support_needed_next,
+    current_support_sources: data.current_support_sources ?? DEFAULT_FORM_STATE.current_support_sources,
+    pacific_identity: data.pacific_identity ?? DEFAULT_FORM_STATE.pacific_identity,
+    community_impact_areas: data.community_impact_areas ?? DEFAULT_FORM_STATE.community_impact_areas,
+  };
+};
+
 export default function FounderInsightsForm({ businessId, onSubmit, isLoading, initialData = null }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState(initialData || {
-    // Founder Background
-    years_entrepreneurial: "",
-    businesses_founded: "",
-    founder_role: "",
-    founder_motivation_array: [], // structured multi-select
-    founder_story: "", // optional text
-    
-    // Business Reality
-    business_operating_status: "", // full-time, part-time, seasonal
-    business_age: "",
-    primary_industry: "",
-    team_size_band: "",
-    business_registered: false,
-    employs_anyone: false,
-    employs_family_community: false,
-    sales_channels: [], // in-person, online, wholesale, services, mixed
-    revenue_band: "", // banded options
-    
-    // Pacific Context
-    pacific_identity: [], // multi-select communities
-    based_in_country: "",
-    based_in_city: "",
-    serves_pacific_communities: "", // mainly, mixed, broader
-    culture_influences_business: false,
-    culture_influence_details: "",
-    family_community_responsibilities_affect_business: false,
-    responsibilities_impact_details: "",
-    
-    // Challenges & Support
-    top_challenges: [], // updated Pacific-specific options
-    support_needed_next: [], // new structured field
-    current_support_sources: [],
-    mentorship_access: false,
-    
-    // Growth & Future
-    business_stage: "",
-    goals_next_12_months_array: [], // structured multi-select
-    goals_details: "", // optional text
-    hiring_intentions: false,
-    expansion_plans: false,
-    
-    // Community & Impact
-    community_impact_areas: [], // updated options
-    collaboration_interest: false,
-    mentorship_offering: false,
-    open_to_future_contact: false,
-  });
+  const [form, setForm] = useState(() => buildInitialFormState(initialData));
+
+  useEffect(() => {
+    setForm(buildInitialFormState(initialData));
+  }, [initialData]);
 
   const [submitting, setSubmitting] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState(null);
+
+  useEffect(() => {
+    if (!autoSaveStatus) return;
+    const timer = setTimeout(() => setAutoSaveStatus(null), 2000);
+    return () => clearTimeout(timer);
+  }, [autoSaveStatus]);
 
   const updateStep = (newStep) => {
     setStep(newStep);
@@ -71,6 +103,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    setAutoSaveStatus("saving");
     try {
       const supabase = getSupabase();
       const {
@@ -88,41 +121,20 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
         business_id: businessId ?? null,
         snapshot_year: new Date().getFullYear(),
         submitted_date: new Date().toISOString(),
-        // Map array fields to correct database columns
-        founder_motivation: form.founder_motivation_array,
-        goals_next_12_months: form.goals_next_12_months_array,
-        // Remove the temporary array fields
-        founder_motivation_array: undefined,
-        goals_next_12_months_array: undefined,
       };
 
       await onSubmit(snapshotData);
+      setAutoSaveStatus("saved");
     } catch (error) {
       console.error("Failed to submit founder insights:", error);
+      setAutoSaveStatus("error");
       alert("Failed to submit insights. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const canGoNext = () => {
-    switch (step) {
-      case 1: // Founder Background
-        return form.years_entrepreneurial && form.businesses_founded && form.founder_role && form.founder_motivation_array?.length > 0;
-      case 2: // Business Reality
-        return form.business_operating_status && form.business_age && form.primary_industry && form.team_size_band;
-      case 3: // Pacific Context
-        return form.pacific_identity?.length > 0 && form.based_in_country && form.serves_pacific_communities;
-      case 4: // Challenges & Support
-        return form.top_challenges?.length > 0 && form.support_needed_next?.length > 0;
-      case 5: // Growth & Future
-        return form.business_stage && form.goals_next_12_months_array?.length > 0;
-      case 6: // Community & Impact
-        return true; // All optional in final step
-      default:
-        return true;
-    }
-  };
+  const canGoNext = () => true;
 
   const addArrayItem = (field, item) => {
     setForm(prev => ({
@@ -178,7 +190,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className={labelCls}>How many years have you been an entrepreneur? *</label>
+              <label className={labelCls}>How many years have you been an entrepreneur?</label>
               <select value={form.years_entrepreneurial || ""} onChange={e => setForm({ ...form, years_entrepreneurial: e.target.value })} className={inputCls}>
                 <option value="">Select years</option>
                 <option value="0-1">Less than 1 year</option>
@@ -190,7 +202,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
             </div>
 
             <div>
-              <label className={labelCls}>Is this your first business? *</label>
+              <label className={labelCls}>Is this your first business?</label>
               <select value={form.businesses_founded || ""} onChange={e => setForm({ ...form, businesses_founded: e.target.value })} className={inputCls}>
                 <option value="">Select option</option>
                 <option value="first">Yes, this is my first business</option>
@@ -199,7 +211,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
             </div>
 
             <div>
-              <label className={labelCls}>What best describes your current business role? *</label>
+              <label className={labelCls}>What best describes your current business role?</label>
               <select value={form.founder_role || ""} onChange={e => setForm({ ...form, founder_role: e.target.value })} className={inputCls}>
                 <option value="">Select role</option>
                 <option value="founder">Founder/Owner</option>
@@ -213,7 +225,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           </div>
 
           <div>
-            <label className={labelCls}>What motivates you most as a founder? (Select up to 3) *</label>
+            <label className={labelCls}>What motivates you most as a founder? (Select up to 3)</label>
             <div className="space-y-2">
               {[
                 "Financial independence",
@@ -255,7 +267,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           </div>
 
           <div>
-            <label className={labelCls}>Tell us a little about your founder journey (Optional)</label>
+            <label className={labelCls}>Tell us a little about your founder journey</label>
             <textarea
               value={form.founder_story || ""}
               onChange={e => setForm({ ...form, founder_story: e.target.value })}
@@ -277,7 +289,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className={labelCls}>Is this business full-time, part-time, or seasonal? *</label>
+              <label className={labelCls}>Is this business full-time, part-time, or seasonal?</label>
               <select value={form.business_operating_status || ""} onChange={e => setForm({ ...form, business_operating_status: e.target.value })} className={inputCls}>
                 <option value="">Select status</option>
                 <option value="full-time">Full-time</option>
@@ -288,7 +300,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
             </div>
 
             <div>
-              <label className={labelCls}>How long has this business been operating? *</label>
+              <label className={labelCls}>How long has this business been operating?</label>
               <select value={form.business_age || ""} onChange={e => setForm({ ...form, business_age: e.target.value })} className={inputCls}>
                 <option value="">Select age</option>
                 <option value="0-6months">Less than 6 months</option>

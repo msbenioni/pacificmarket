@@ -1,7 +1,8 @@
-export default function HorizontalBar({ title, data, color = "#0d4f4f", limit = null, maxHeight = "320px" }) {
+export default function HorizontalBar({ title, data, color = "#0d4f4f", limit = null, maxHeight = "320px", valueFormatter = (value) => value }) {
   if (!data || data.length === 0) return null;
   const items = typeof limit === "number" ? data.slice(0, limit) : data;
   const max = Math.max(...items.map(d => d.value));
+  const denominator = max === 0 ? 1 : max;
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md h-full">
@@ -13,10 +14,10 @@ export default function HorizontalBar({ title, data, color = "#0d4f4f", limit = 
             <div className="flex-1 bg-gray-100 rounded-full h-2.5 overflow-hidden">
               <div
                 className="h-2.5 rounded-full transition-all duration-700"
-                style={{ width: `${Math.max((value / max) * 100, 4)}%`, backgroundColor: color }}
+                style={{ width: `${Math.max((value / denominator) * 100, 4)}%`, backgroundColor: color }}
               />
             </div>
-            <span className="text-xs font-bold text-[#0a1628] w-8 text-right">{value}</span>
+            <span className="text-xs font-bold text-[#0a1628] w-10 text-right">{valueFormatter(value)}</span>
           </div>
         ))}
       </div>

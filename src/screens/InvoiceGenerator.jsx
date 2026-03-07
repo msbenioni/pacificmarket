@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 // Premium accordion component (defined at module scope to prevent remounting)
 function InvoiceAccordionSection({
@@ -108,6 +109,7 @@ export default function InvoiceGenerator() {
   const printRef = useRef(null);
   const loadedBusinessIdRef = useRef(null);
   const isUserEditingRef = useRef(false);
+  const { toast } = useToast();
 
   // Accordion state - multiple sections can be open
   const [openSections, setOpenSections] = useState(["business", "invoice", "items"]);
@@ -353,11 +355,19 @@ export default function InvoiceGenerator() {
       if (error) throw error;
       
       // Show success message
-      alert('Business settings saved successfully!');
+      toast({
+        variant: "success",
+        title: "Invoice settings saved",
+        description: "Business settings saved successfully.",
+      });
       
     } catch (error) {
       console.error('Error saving business settings:', error);
-      alert('Failed to save business settings. Please try again.');
+      toast({
+        variant: "error",
+        title: "Failed to save settings",
+        description: error?.message || 'Please try again.',
+      });
     }
   };
 
@@ -407,7 +417,11 @@ export default function InvoiceGenerator() {
       
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      toast({
+        variant: "error",
+        title: "PDF export failed",
+        description: error?.message || 'Please try again.',
+      });
     } finally {
       setExportingPdf(false);
     }

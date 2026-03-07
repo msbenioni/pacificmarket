@@ -85,6 +85,13 @@ export default function Insights() {
   const byCountry = tally(businesses, "country");
   const byIndustry = tally(businesses, "industry");
   const byTier = tally(businesses, "subscription_tier");
+  const totalTierCount = byTier.reduce((sum, tier) => sum + tier.value, 0);
+  const byTierPercentage = totalTierCount > 0
+    ? byTier.map(tier => ({
+        label: tier.label,
+        value: Math.round((tier.value / totalTierCount) * 100),
+      }))
+    : [];
   
   // Founder insights metrics
   const byTeamSize = tally(insights, "team_size_band");
@@ -324,7 +331,12 @@ export default function Insights() {
               <h3 className={UI.sectionTitle}>Subscription Tiers</h3>
               <p className={UI.sectionDesc}>Business registry participation levels</p>
               <div className="mt-4">
-                <HorizontalBar title="Subscription Tiers" data={byTier} color="#c9a84c" />
+                <HorizontalBar
+                  title="Subscription Tiers"
+                  data={byTierPercentage}
+                  color="#c9a84c"
+                  valueFormatter={(value) => `${value}%`}
+                />
               </div>
             </div>
           </>
