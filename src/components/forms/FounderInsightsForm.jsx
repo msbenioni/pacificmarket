@@ -3,11 +3,12 @@ import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp,
 import { BUSINESS_STAGE, TEAM_SIZE_BAND, IMPORT_EXPORT_STATUS } from "@/constants/business";
 import { COUNTRIES } from "@/constants/businessProfile";
 import PremiumStepper from "@/components/shared/PremiumStepper";
+import { getSupabase } from "@/lib/supabase/client";
 
 const STEPS = [
-  { key: "founder", label: "Founder Journey", icon: Users },
-  { key: "operations", label: "Business Operations", icon: TrendingUp },
-  { key: "markets", label: "Markets & Trade", icon: Globe },
+  { key: "founder", label: "Your Journey", icon: Users },
+  { key: "experience", label: "Entrepreneurial Experience", icon: TrendingUp },
+  { key: "challenges", label: "Challenges & Support", icon: Globe },
   { key: "growth", label: "Growth & Future", icon: Rocket },
   { key: "impact", label: "Community Impact", icon: Lightbulb },
 ];
@@ -15,37 +16,31 @@ const STEPS = [
 export default function FounderInsightsForm({ businessId, onSubmit, isLoading, initialData = null }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialData || {
-    // Founder journey
-    year_started: "",
+    // Your Journey
+    years_entrepreneurial: "",
     founder_motivation: "",
-    problem_solved: "",
+    entrepreneurial_background: "",
     
-    // Business operations
+    // Entrepreneurial Experience
+    businesses_founded: "",
+    primary_industry: "",
     team_size_band: "",
-    business_model: "",
-    family_involvement: false,
+    family_entrepreneurial_background: false,
     
-    // Markets
-    customer_region: "",
-    sales_channels: [],
-    import_export_status: IMPORT_EXPORT_STATUS.NONE,
-    import_countries: [],
-    export_countries: [],
-    
-    // Growth stage
-    business_stage: "",
-    
-    // Challenges
+    // Challenges & Support
     top_challenges: [],
-    support_needed: [],
+    support_sources: [],
+    mentorship_access: false,
     
-    // Future outlook
+    // Growth & Future
+    business_stage: "",
     goals_next_12_months: "",
     hiring_intentions: false,
     
-    // Community impact
+    // Community Impact
     community_impact_areas: [],
     collaboration_interest: false,
+    mentorship_offering: false,
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -57,18 +52,28 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
+      const supabase = getSupabase();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
       // Set snapshot year to current year
       const snapshotData = {
         ...form,
-        business_id: businessId,
+        user_id: user.id,
+        business_id: businessId ?? null,
         snapshot_year: new Date().getFullYear(),
         submitted_date: new Date().toISOString(),
       };
 
       await onSubmit(snapshotData);
     } catch (error) {
-      console.error('Failed to submit founder insights:', error);
-      alert('Failed to submit insights. Please try again.');
+      console.error("Failed to submit founder insights:", error);
+      alert("Failed to submit insights. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -76,14 +81,14 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
   const canGoNext = () => {
     switch (step) {
-      case 1: // Founder journey
-        return form.year_started && form.founder_motivation && form.problem_solved;
-      case 2: // Operations
-        return form.team_size_band && form.business_model;
-      case 3: // Markets
-        return form.customer_region && form.sales_channels.length > 0;
+      case 1: // Your Journey
+        return form.years_entrepreneurial && form.founder_motivation && form.entrepreneurial_background;
+      case 2: // Experience
+        return form.businesses_founded && form.primary_industry && form.team_size_band;
+      case 3: // Challenges
+        return form.top_challenges.length > 0 && form.support_sources.length > 0;
       case 4: // Growth
-        return form.business_stage;
+        return form.business_stage && form.goals_next_12_months;
       case 5: // Impact
         return true;
       default:
@@ -120,245 +125,125 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
         }}
       />
 
-      {/* Step 1: Founder Journey */}
+      {/* Step 1: Your Journey */}
       {step === 1 && (
         <div className="space-y-6">
           <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
-            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Founder Journey</h3>
-            <p className="text-gray-600 text-sm">Tell us about your entrepreneurial story and what drives your business.</p>
+            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Your Journey</h3>
+            <p className="text-gray-600 text-sm">Tell us about your entrepreneurial story and what drives you as a founder.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className={labelCls}>Year Started *</label>
-              <input
-                type="number"
-                value={form.year_started || ""}
-                onChange={e => setForm({ ...form, year_started: e.target.value })}
-                placeholder="e.g. 2020"
-                min="1900"
-                max={new Date().getFullYear() + 1}
-                className={inputCls}
-              />
+              <label className={labelCls}>How many years have you been an entrepreneur? *</label>
+              <select value={form.years_entrepreneurial || ""} onChange={e => setForm({ ...form, years_entrepreneurial: e.target.value })} className={inputCls}>
+                <option value="">Select years</option>
+                <option value="0-1">Less than 1 year</option>
+                <option value="1-3">1-3 years</option>
+                <option value="3-5">3-5 years</option>
+                <option value="5-10">5-10 years</option>
+                <option value="10+">More than 10 years</option>
+              </select>
             </div>
           </div>
 
           <div>
-            <label className={labelCls}>What motivated you to start this business? *</label>
+            <label className={labelCls}>What motivates you as an entrepreneur? *</label>
             <textarea
               value={form.founder_motivation || ""}
               onChange={e => setForm({ ...form, founder_motivation: e.target.value })}
               rows={3}
-              placeholder="Share your story - what inspired you to become an entrepreneur?"
+              placeholder="Share what drives you - passion, impact, innovation, community, etc."
               className={`${inputCls} resize-none`}
             />
           </div>
 
           <div>
-            <label className={labelCls}>What problem does your business solve? *</label>
+            <label className={labelCls}>Describe your entrepreneurial background *</label>
             <textarea
-              value={form.problem_solved || ""}
-              onChange={e => setForm({ ...form, problem_solved: e.target.value })}
+              value={form.entrepreneurial_background || ""}
+              onChange={e => setForm({ ...form, entrepreneurial_background: e.target.value })}
               rows={3}
-              placeholder="Describe the main challenge your business addresses for customers or the community."
+              placeholder="Tell us about your journey - education, previous experience, what led you to entrepreneurship."
               className={`${inputCls} resize-none`}
             />
           </div>
         </div>
       )}
 
-      {/* Step 2: Business Operations */}
+      {/* Step 2: Entrepreneurial Experience */}
       {step === 2 && (
         <div className="space-y-6">
           <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
-            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Business Operations</h3>
-            <p className="text-gray-600 text-sm">Help us understand how your business operates day-to-day.</p>
+            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Entrepreneurial Experience</h3>
+            <p className="text-gray-600 text-sm">Tell us about your experience as an entrepreneur and the businesses you've founded.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className={labelCls}>Team Size *</label>
-              <select value={form.team_size_band || ""} onChange={e => setForm({ ...form, team_size_band: e.target.value })} className={inputCls}>
-                <option value="">Select team size</option>
-                <option value={TEAM_SIZE_BAND.SOLO}>Just me (solo)</option>
-                <option value={TEAM_SIZE_BAND.SMALL}>2-5 people</option>
-                <option value={TEAM_SIZE_BAND.MEDIUM}>6-10 people</option>
-                <option value={TEAM_SIZE_BAND.LARGE}>11-50 people</option>
-                <option value={TEAM_SIZE_BAND.ENTERPRISE}>50+ people</option>
+              <label className={labelCls}>How many businesses have you founded? *</label>
+              <select value={form.businesses_founded || ""} onChange={e => setForm({ ...form, businesses_founded: e.target.value })} className={inputCls}>
+                <option value="">Select number</option>
+                <option value="1">This is my first business</option>
+                <option value="2-3">2-3 businesses</option>
+                <option value="4-5">4-5 businesses</option>
+                <option value="6+">6 or more businesses</option>
               </select>
             </div>
 
             <div>
-              <label className={labelCls}>Business Model *</label>
+              <label className={labelCls}>Primary Industry *</label>
               <input
                 type="text"
-                value={form.business_model || ""}
-                onChange={e => setForm({ ...form, business_model: e.target.value })}
-                placeholder="e.g. B2B services, e-commerce, consulting, manufacturing"
+                value={form.primary_industry || ""}
+                onChange={e => setForm({ ...form, primary_industry: e.target.value })}
+                placeholder="e.g. Retail, Technology, Hospitality, Agriculture"
                 className={inputCls}
               />
             </div>
           </div>
 
           <div>
-            <label className={labelCls}>Family Involvement</label>
+            <label className={labelCls}>Current Team Size *</label>
+            <select value={form.team_size_band || ""} onChange={e => setForm({ ...form, team_size_band: e.target.value })} className={inputCls}>
+              <option value="">Select team size</option>
+              <option value={TEAM_SIZE_BAND.SOLO}>Just me (solo)</option>
+              <option value={TEAM_SIZE_BAND.SMALL}>2-5 people</option>
+              <option value={TEAM_SIZE_BAND.MEDIUM}>6-10 people</option>
+              <option value={TEAM_SIZE_BAND.LARGE}>11-50 people</option>
+              <option value={TEAM_SIZE_BAND.ENTERPRISE}>50+ people</option>
+            </select>
+          </div>
+
+          <div>
+            <label className={labelCls}>Family Entrepreneurial Background</label>
             <div className="flex items-center space-x-4">
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={form.family_involvement || false}
-                  onChange={e => setForm({ ...form, family_involvement: e.target.checked })}
+                  checked={form.family_entrepreneurial_background || false}
+                  onChange={e => setForm({ ...form, family_entrepreneurial_background: e.target.checked })}
                   className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
                 />
-                <span className="ml-2 text-sm text-gray-700">Family members are involved in the business</span>
+                <span className="ml-2 text-sm text-gray-700">I come from a family of entrepreneurs</span>
               </label>
             </div>
           </div>
         </div>
       )}
 
-      {/* Step 3: Markets & Trade */}
+      {/* Step 3: Challenges & Support */}
       {step === 3 && (
         <div className="space-y-6">
           <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
-            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Markets & Trade</h3>
-            <p className="text-gray-600 text-sm">Tell us about your customer base and international trade activities.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={labelCls}>Primary Customer Region *</label>
-              <select value={form.customer_region || ""} onChange={e => setForm({ ...form, customer_region: e.target.value })} className={inputCls}>
-                <option value="">Select region</option>
-                <option value="Local">Local community</option>
-                <option value="National">National</option>
-                <option value="Regional">Regional (Pacific islands)</option>
-                <option value="International">International</option>
-              </select>
-            </div>
-
-            <div>
-              <label className={labelCls}>Import/Export Status *</label>
-              <select value={form.import_export_status || ""} onChange={e => setForm({ ...form, import_export_status: e.target.value })} className={inputCls}>
-                <option value={IMPORT_EXPORT_STATUS.NONE}>No import/export</option>
-                <option value={IMPORT_EXPORT_STATUS.IMPORT_ONLY}>Import only</option>
-                <option value={IMPORT_EXPORT_STATUS.EXPORT_ONLY}>Export only</option>
-                <option value={IMPORT_EXPORT_STATUS.BOTH}>Both import and export</option>
-              </select>
-            </div>
+            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Challenges & Support</h3>
+            <p className="text-gray-600 text-sm">Tell us about the challenges you face and where you find support as an entrepreneur.</p>
           </div>
 
           <div>
-            <label className={labelCls}>Sales Channels *</label>
+            <label className={labelCls}>Top Challenges *</label>
             <div className="space-y-2">
-              {['Online store', 'Physical store', 'Social media', 'Direct sales', 'Marketplace', 'Wholesale', 'Other'].map(channel => (
-                <label key={channel} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={form.sales_channels?.includes(channel) || false}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        addArrayItem('sales_channels', channel);
-                      } else {
-                        const index = form.sales_channels?.indexOf(channel);
-                        if (index > -1) removeArrayItem('sales_channels', index);
-                      }
-                    }}
-                    className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">{channel}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {(form.import_export_status === IMPORT_EXPORT_STATUS.IMPORT_ONLY || form.import_export_status === IMPORT_EXPORT_STATUS.BOTH) && (
-            <div>
-              <label className={labelCls}>Import Countries</label>
-              <div className="space-y-2">
-                {COUNTRIES.slice(0, 10).map(country => (
-                  <label key={country} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={form.import_countries?.includes(country) || false}
-                      onChange={e => {
-                        if (e.target.checked) {
-                          addArrayItem('import_countries', country);
-                        } else {
-                          const index = form.import_countries?.indexOf(country);
-                          if (index > -1) removeArrayItem('import_countries', index);
-                        }
-                      }}
-                      className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">{country}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {(form.import_export_status === IMPORT_EXPORT_STATUS.EXPORT_ONLY || form.import_export_status === IMPORT_EXPORT_STATUS.BOTH) && (
-            <div>
-              <label className={labelCls}>Export Countries</label>
-              <div className="space-y-2">
-                {COUNTRIES.slice(0, 10).map(country => (
-                  <label key={country} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={form.export_countries?.includes(country) || false}
-                      onChange={e => {
-                        if (e.target.checked) {
-                          addArrayItem('export_countries', country);
-                        } else {
-                          const index = form.export_countries?.indexOf(country);
-                          if (index > -1) removeArrayItem('export_countries', index);
-                        }
-                      }}
-                      className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">{country}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Step 4: Growth & Future */}
-      {step === 4 && (
-        <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
-            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Growth & Future</h3>
-            <p className="text-gray-600 text-sm">Share your challenges and future aspirations.</p>
-          </div>
-
-          <div>
-            <label className={labelCls}>Business Stage *</label>
-            <select value={form.business_stage || ""} onChange={e => setForm({ ...form, business_stage: e.target.value })} className={inputCls}>
-              <option value="">Select stage</option>
-              <option value={BUSINESS_STAGE.IDEA}>Idea</option>
-              <option value={BUSINESS_STAGE.STARTUP}>Startup</option>
-              <option value={BUSINESS_STAGE.GROWTH}>Growth</option>
-              <option value={BUSINESS_STAGE.MATURE}>Mature</option>
-            </select>
-          </div>
-
-          <div>
-            <label className={labelCls}>Top Challenges</label>
-            <div className="space-y-2">
-              {[
-                'Access to capital/funding',
-                'Finding skilled talent',
-                'Market competition',
-                'Regulatory compliance',
-                'Technology adoption',
-                'Supply chain issues',
-                'Customer acquisition',
-                'Scaling operations',
-                'Other'
-              ].map(challenge => (
+              {['Access to capital', 'Finding customers', 'Regulations/compliance', 'Talent acquisition', 'Market competition', 'Technology adoption', 'Supply chain issues', 'Marketing', 'Work-life balance', 'Digital presence development', 'Financial management systems', 'Business process automation', 'Other'].map(challenge => (
                 <label key={challenge} className="flex items-center">
                   <input
                     type="checkbox"
@@ -380,47 +265,72 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           </div>
 
           <div>
-            <label className={labelCls}>Support Needed</label>
+            <label className={labelCls}>Support Sources *</label>
             <div className="space-y-2">
-              {[
-                'Business mentoring',
-                'Financial advice',
-                'Marketing support',
-                'Technology assistance',
-                'Legal guidance',
-                'Networking opportunities',
-                'Training programs',
-                'Market research',
-                'Export/import assistance',
-                'Other'
-              ].map(support => (
-                <label key={support} className="flex items-center">
+              {['Family & friends', 'Business networks', 'Government programs', 'Mentors/advisors', 'Online communities', 'Industry associations', 'Financial institutions', 'Incubators/accelerators', 'Educational institutions', 'Other'].map(source => (
+                <label key={source} className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={form.support_needed?.includes(support) || false}
+                    checked={form.support_sources?.includes(source) || false}
                     onChange={e => {
                       if (e.target.checked) {
-                        addArrayItem('support_needed', support);
+                        addArrayItem('support_sources', source);
                       } else {
-                        const index = form.support_needed?.indexOf(support);
-                        if (index > -1) removeArrayItem('support_needed', index);
+                        const index = form.support_sources?.indexOf(source);
+                        if (index > -1) removeArrayItem('support_sources', index);
                       }
                     }}
                     className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
                   />
-                  <span className="ml-2 text-sm text-gray-700">{support}</span>
+                  <span className="ml-2 text-sm text-gray-700">{source}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className={labelCls}>Goals for Next 12 Months</label>
+            <label className={labelCls}>Mentorship Access</label>
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={form.mentorship_access || false}
+                  onChange={e => setForm({ ...form, mentorship_access: e.target.checked })}
+                  className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                />
+                <span className="ml-2 text-sm text-gray-700">I have access to mentors or advisors</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4: Growth & Future */}
+      {step === 4 && (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
+            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Growth & Future</h3>
+            <p className="text-gray-600 text-sm">Tell us about your current stage and future goals as an entrepreneur.</p>
+          </div>
+
+          <div>
+            <label className={labelCls}>Current Business Stage *</label>
+            <select value={form.business_stage || ""} onChange={e => setForm({ ...form, business_stage: e.target.value })} className={inputCls}>
+              <option value="">Select stage</option>
+              <option value={BUSINESS_STAGE.IDEA}>Idea/Planning</option>
+              <option value={BUSINESS_STAGE.STARTUP}>Startup (0-2 years)</option>
+              <option value={BUSINESS_STAGE.GROWTH}>Growth (2-5 years)</option>
+              <option value={BUSINESS_STAGE.MATURE}>Mature (5+ years)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className={labelCls}>Goals for Next 12 Months *</label>
             <textarea
               value={form.goals_next_12_months || ""}
               onChange={e => setForm({ ...form, goals_next_12_months: e.target.value })}
               rows={3}
-              placeholder="What are your main business objectives for the coming year?"
+              placeholder="What are your main goals for the next year? (e.g., revenue targets, team expansion, new markets, product launches)"
               className={`${inputCls} resize-none`}
             />
           </div>
@@ -435,7 +345,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                   onChange={e => setForm({ ...form, hiring_intentions: e.target.checked })}
                   className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
                 />
-                <span className="ml-2 text-sm text-gray-700">Planning to hire staff in the next 12 months</span>
+                <span className="ml-2 text-sm text-gray-700">I plan to hire new team members in the next 12 months</span>
               </label>
             </div>
           </div>
@@ -494,7 +404,22 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                   onChange={e => setForm({ ...form, collaboration_interest: e.target.checked })}
                   className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
                 />
-                <span className="ml-2 text-sm text-gray-700">Interested in collaborating with other Pacific businesses</span>
+                <span className="ml-2 text-sm text-gray-700">I'm interested in collaborating with other Pacific entrepreneurs</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className={labelCls}>Mentorship Offering</label>
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={form.mentorship_offering || false}
+                  onChange={e => setForm({ ...form, mentorship_offering: e.target.checked })}
+                  className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                />
+                <span className="ml-2 text-sm text-gray-700">I'm willing to mentor other entrepreneurs</span>
               </label>
             </div>
           </div>

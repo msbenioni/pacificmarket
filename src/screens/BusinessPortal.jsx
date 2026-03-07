@@ -86,17 +86,20 @@ export default function BusinessPortal() {
       setClaims(claims);
       setProfiles(profiles);
 
-      // Fetch insight snapshots for owned businesses
-      const businessIds = businesses.map(b => b.id);
+      // Fetch general founder insights for this user
       let snapshots = [];
-      if (businessIds.length) {
-        const { data } = await supabase
-          .from("business_insights_snapshots")
-          .select("*")
-          .in("business_id", businessIds)
-          .order("submitted_date", { ascending: false });
-        snapshots = data || [];
+      const { data: snapshotData, error: snapshotError } = await supabase
+        .from("business_insights_snapshots")
+        .select("*")
+        .eq("user_id", u.id)
+        .order("submitted_date", { ascending: false });
+
+      if (snapshotError) {
+        console.error("Error fetching founder insights snapshots:", snapshotError);
+      } else {
+        snapshots = snapshotData || [];
       }
+
       setInsightSnapshots(snapshots);
     } catch (e) {
       console.error("Refetch portal data error:", e);
@@ -430,17 +433,30 @@ export default function BusinessPortal() {
     try {
       const supabase = getSupabase();
 
-      // Save insights to database
-      const { error } = await supabase
-        .from('business_insights_snapshots')
-        .insert(insightsData);
+      // Log the data being submitted for debugging
+      console.log('Submitting insights data:', insightsData);
+      console.log('Data keys:', Object.keys(insightsData));
 
-      if (error) throw error;
+      // Save insights to database
+      const { data, error } = await supabase
+        .from('business_insights_snapshots')
+        .insert(insightsData)
+        .select();
+
+      console.log('Supabase response:', { data, error });
+
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
+
+      // Refresh the insights data to include the newly submitted record
+      await refetchPortalData();
 
       // Show success message
       toast({
         title: "Founder Insights Submitted!",
-        description: "Thank you for sharing your business journey. Your insights will help us better support Pacific entrepreneurs.",
+        description: "Thank you for sharing your founder journey. Your insights will help us better support Pacific entrepreneurs.",
         variant: "success"
       });
 
@@ -448,46 +464,11 @@ export default function BusinessPortal() {
       setShowInsightsModal(false);
       setSelectedBusinessForInsights(null);
       
-      // Upgrade business to Mana tier with comprehensive fields
-      if (selectedBusinessForInsights) {
-        const businessUpdates = {
-          subscription_tier: BUSINESS_TIER.MANA,
-          verified: true,
-          founder_snapshot_completed: true,
-          founder_snapshot_completed_at: new Date().toISOString()
-        };
-        
-        const { error: updateError } = await supabase
-          .from('businesses')
-          .update(businessUpdates)
-          .eq('id', selectedBusinessForInsights.id);
-        
-        if (updateError) throw updateError;
-        
-        setBusinesses(prev => prev.map(b => 
-          b.id === selectedBusinessForInsights.id 
-            ? { 
-                ...b, 
-                ...businessUpdates
-              }
-            : b
-        ));
-        
-        // Refresh insight snapshots to include the new submission
-        await refetchPortalData();
-        
-        toast({
-          title: "Verified Upgrade Complete!",
-          description: "Your business has been upgraded to Verified tier. Thank you for sharing your founder journey!",
-          variant: "success"
-        });
-      }
-      
     } catch (error) {
       console.error('Error submitting insights:', error);
       toast({
         title: "Submission Failed",
-        description: "Failed to submit insights. Please try again.",
+        description: `Failed to submit insights: ${error.message || 'Unknown error'}`,
         variant: "error"
       });
     } finally {
@@ -563,9 +544,9 @@ export default function BusinessPortal() {
           {/* Tabs */}
           <div className={portalUI.tabsWrap}>
             {[
-              { id: "my-businesses", label: "My Businesses", icon: Building2 },
-              { id: "insights", label: "Founder Insights", icon: Users },
-              { id: "claims", label: "Claim Requests", icon: CheckCircle },
+              { id: "my-businesses", label: "My Businesses", icon: Building2, count: businesses.length },
+              { id: "claims", label: "Claim Requests", icon: CheckCircle, count: claims.length },
+              { id: "insights", label: "Founder Insights", icon: Users, status: insightSnapshots.length > 0 ? "completed" : "incomplete" },
               { id: "tools", label: "Business Tools", icon: FileText },
             ].map((tab) => (
               <button
@@ -575,6 +556,19 @@ export default function BusinessPortal() {
               >
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
+                {tab.count !== undefined && (
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
+                    {tab.count}
+                  </span>
+                )}
+                {tab.status === "completed" && (
+                  <CheckCircle className="w-4 h-4 ml-2 text-green-600" />
+                )}
+                {tab.status === "incomplete" && (
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-gray-300 text-gray-500">
+                    not started
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -995,103 +989,57 @@ export default function BusinessPortal() {
                     Founder Journey
                   </p>
                   <h2 className={portalUI.sectionTitle}>
-                    Share Your Business Story
+                    Share Your Founder Journey
                   </h2>
                   <p className={portalUI.sectionDesc}>
-                    Help us build the first comprehensive dataset of Pacific entrepreneurship. Your insights will strengthen support programs and research across the region.
+                    Help us understand the real experiences behind Pacific businesses so we can better highlight needs, strengths, and opportunities across our communities.
                   </p>
                 </div>
               </div>
 
               {/* Insights Status Cards */}
               <div className="space-y-4">
-                {businesses.length === 0 ? (
-                  <div className={`${portalUI.card} p-8 text-center`}>
-                    <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-[#0a1628] mb-2">No Businesses Yet</h3>
-                    <p className="text-gray-600 mb-4">Add your first business to access the Founder Insights survey.</p>
-                    <button
-                      onClick={() => {
-                        setClaimAddDefaultView("add");
-                        setShowClaimAddModal(true);
-                      }}
-                      className="inline-flex items-center gap-2 bg-[#0d4f4f] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#1a6b6b] transition"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Business
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {businesses.map((business) => (
-                      <div key={business.id} className={`${portalUI.card} p-6`}>
-                        <div className="flex items-start justify-between gap-6">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              {business.logo_url ? (
-                                <img src={business.logo_url} alt={business.name} className="w-12 h-12 rounded-xl object-cover" />
-                              ) : (
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
-                                  <span className="text-white font-bold text-lg">{business.name?.[0] || "?"}</span>
-                                </div>
-                              )}
-                              <div>
-                                <h3 className="font-bold text-[#0a1628]">{business.name}</h3>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                    business.subscription_tier === "verified"
-                                      ? "bg-[#0d4f4f]/10 text-[#0d4f4f]"
-                                      : "bg-gray-100 text-gray-600"
-                                  }`}>
-                                    {business.subscription_tier === "verified" ? "Verified" : "Basic"}
-                                  </span>
-                                  <span className="text-xs text-gray-500">
-                                    {business.country || "Unknown"} • {business.industry || "Unknown"}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
-                              <div className="flex items-start gap-3">
-                                <Users className="w-5 h-5 text-blue-600 mt-0.5" />
-                                <div>
-                                  <h4 className="font-semibold text-blue-900 text-sm">Founder Insights Reward</h4>
-                                  <p className="text-blue-700 text-sm mt-1">
-                                    Complete this survey to receive a <strong>complimentary Verified upgrade</strong> and help strengthen Pacific entrepreneurship data.
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => {
-                                  setSelectedBusinessForInsights(business);
-                                  setShowInsightsModal(true);
-                                }}
-                                className="inline-flex items-center gap-2 bg-[#0d4f4f] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#1a6b6b] transition"
-                              >
-                                <Users className="w-4 h-4" />
-                                {business.founder_snapshot_completed ? "View Submitted Insights" : "Start Founder Insights"}
-                              </button>
-
-                              {business.founder_snapshot_completed && (
-                                <span className="text-xs text-green-600 font-medium flex items-center gap-1">
-                                  <CheckCircle className="w-4 h-4" />
-                                  Submitted {getLatestSnapshot(business.id)?.submitted_date ? 
-                                    new Date(getLatestSnapshot(business.id).submitted_date).toLocaleDateString() : 
-                                    'Recently'
-                                  }
-                                </span>
-                              )}
-                            </div>
+                <div className={`${portalUI.card} p-8`}>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/10">
+                      <Users className="w-6 h-6 text-[#0d4f4f]" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-[#0a1628] mb-2">Help shape what Pacific founders need</h3>
+                      <p className="text-gray-600 mb-4">
+                        This short survey captures your experience as a founder, from challenges and growth goals to community impact. Your input helps Pacific Market build a stronger picture of Pacific entrepreneurship.
+                      </p>
+                      
+                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 mb-4">
+                        <div className="flex items-start gap-3">
+                          <Users className="w-5 h-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-semibold text-blue-900 text-sm">Why this matters</h4>
+                            <p className="text-blue-700 text-sm mt-1">
+                              Your responses help identify common barriers, growth patterns, and opportunities for Pacific founders.
+                            </p>
                           </div>
                         </div>
                       </div>
-                    ))}
+
+                      <div className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                          It only takes a few minutes, and you can view your responses again later.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setSelectedBusinessForInsights(null); // General survey only
+                            setShowInsightsModal(true);
+                          }}
+                          className="inline-flex items-center gap-2 bg-[#0d4f4f] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#1a6b6b] transition"
+                        >
+                          <Users className="w-4 h-4" />
+                          {insightSnapshots.length > 0 ? "View Responses" : "Start Survey"}
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Benefits Section */}
@@ -1104,13 +1052,13 @@ export default function BusinessPortal() {
 
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
-                        Community Impact
+                        Why We Collect This
                       </p>
                       <h3 className="mt-1 text-lg font-bold text-[#0a1628]">
-                        Why Your Journey Matters
+                        Turning founder insight into practical support
                       </h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Your business story helps researchers, policymakers, and support organizations understand the unique challenges and opportunities facing Pacific entrepreneurs.
+                        The more we understand founder experiences, the better we can spotlight patterns, gaps, and opportunities across Pacific business communities.
                       </p>
                     </div>
                   </div>
@@ -1122,10 +1070,10 @@ export default function BusinessPortal() {
                       Research
                     </p>
                     <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                      First Pacific Dataset
+                      Shared founder insight
                     </p>
                     <p className="mt-2 text-xs text-slate-600">
-                      Contribute to the largest structured dataset of Pacific entrepreneurship
+                      Build a clearer view of founder experiences across Pacific communities.
                     </p>
                   </div>
 
@@ -1134,22 +1082,22 @@ export default function BusinessPortal() {
                       Support
                     </p>
                     <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                      Better Programs
+                      Better support
                     </p>
                     <p className="mt-2 text-xs text-slate-600">
-                      Help organizations design better support for Pacific businesses
+                      Highlight where founders need more visibility, tools, and practical help.
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#c9a84c]">
-                      Recognition
+                      Visibility
                     </p>
                     <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                      Verified Status
+                      Stronger founder voice
                     </p>
                     <p className="mt-2 text-xs text-slate-600">
-                      Receive complimentary Verified tier for your contribution
+                      Help strengthen the visibility of Pacific founders across the registry.
                     </p>
                   </div>
                 </div>
@@ -1286,19 +1234,19 @@ export default function BusinessPortal() {
        )}
 
       {/* Founder Insights Modal */}
-      {showInsightsModal && selectedBusinessForInsights && (
+      {showInsightsModal && (
         <ModalWrapper isOpen={showInsightsModal} onClose={() => setShowInsightsModal(false)} className={MODAL_SIZES.xl}>
           <ModalHeader 
             title="Founder Insights Survey"
-            subtitle={`Share your journey for ${selectedBusinessForInsights.name}`}
+            subtitle="Share your founder journey"
             onClose={() => setShowInsightsModal(false)}
           />
           
           <ModalContent>
-            {selectedBusinessForInsights.founder_snapshot_completed ? (
+            {insightSnapshots.length > 0 ? (
               <FounderInsightsSummary 
-                snapshot={getLatestSnapshot(selectedBusinessForInsights.id)}
-                business={selectedBusinessForInsights}
+                snapshot={insightSnapshots[0]} // Show latest general insights
+                business={null} // General survey, no business
               />
             ) : (
               <>
@@ -1306,16 +1254,16 @@ export default function BusinessPortal() {
                   <div className="flex items-start gap-3">
                     <Users className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="text-sm font-semibold text-blue-900">Why Share Your Insights?</h4>
+                      <h4 className="text-sm font-semibold text-blue-900">Why this matters</h4>
                       <p className="text-sm text-blue-700 mt-1">
-                        Your journey helps us build better support programs for Pacific entrepreneurs. Complete this survey to automatically upgrade to Verified tier.
+                        Your responses help build a clearer picture of Pacific founder experiences, challenges, and opportunities.
                       </p>
                     </div>
                   </div>
                 </div>
                 
                 <FounderInsightsForm 
-                  businessId={selectedBusinessForInsights.id}
+                  businessId={null} // General survey
                   onSubmit={handleFounderInsightsSubmit}
                   isLoading={insightsSubmitting}
                 />
@@ -1324,20 +1272,6 @@ export default function BusinessPortal() {
           </ModalContent>
         </ModalWrapper>
       )}
-
-      {/* Onboarding Modals */}
-      <ProfileSetupModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-        onComplete={async () => {
-          setShowProfileModal(false);
-          await Promise.all([
-            refetchPortalData(),
-            refetchOnboardingStatus(),
-          ]);
-        }}
-      />
-
       <ClaimAddBusinessModal
         isOpen={showClaimAddModal}
         onClose={() => setShowClaimAddModal(false)}
