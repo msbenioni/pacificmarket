@@ -35,15 +35,13 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
   
   // Create a stable initial form state to avoid controlled/uncontrolled input issues
   const getInitialForm = () => {
-    if (initialData) {
-      return { ...initialData };
-    }
-    return {
+    const defaults = {
     // Founder Background (unique to business insights)
     businesses_founded: "",
     founder_role: "",
     founder_motivation_array: [],
     founder_story: "",
+    years_entrepreneurial: "",
     
     // Pacific Context (unique insights - not duplicated from profile)
     serves_pacific_communities: "",
@@ -52,26 +50,29 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     family_community_responsibilities_affect_business: false,
     responsibilities_impact_details: "",
     
-    // Financial & Investment (unique to business insights)
+    // Financial & Investment (unique insights - not duplicated from profile)
     current_funding_source: "",
-    funding_amount_needed: "",
-    funding_purpose: "",
     investment_stage: "",
-    angel_investor_interest: "",
-    investor_capacity: "",
     revenue_streams: [],
     financial_challenges: "",
+    funding_amount_needed: "",
+    funding_purpose: "",
+    angel_investor_interest: "",
     
-    // Challenges & Support (unique to business insights)
+    // Challenges & Support (unique insights - not duplicated from profile)
     top_challenges: [],
     support_needed_next: [],
+    barriers_to_mentorship: "",
+    mentorship_format_preference: "",
     
-    // Growth & Future (unique to business insights)
-    business_stage: "",
-    goals_next_12_months_array: [],
-    goals_details: "",
-    hiring_intentions: false,
+    // Growth & Future (unique insights - not duplicated from profile)
+    business_growth_stage: "",
     expansion_plans: false,
+    next_12_months_goals: "",
+    goals_next_12_months_array: [],
+    investment_exploration: "",
+    investment_timeline: "",
+    investor_capacity: "",
     
     // Community & Impact (unique to business insights)
     community_impact_areas: [],
@@ -79,6 +80,11 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     mentorship_offering: false,
     open_to_future_contact: false,
     };
+    
+    if (initialData) {
+      return { ...defaults, ...initialData };
+    }
+    return defaults;
   };
   
   const [form, setFormState] = useState(getInitialForm());
@@ -561,23 +567,6 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </div>
 
                 <div>
-                  <label className={labelCls}>Revenue streams (Select all that apply)</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {REVENUE_STREAMS.map(stream => (
-                      <label key={stream.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.revenue_streams?.includes(stream.value)}
-                          onChange={() => toggleArrayItem('revenue_streams', stream.value)}
-                          className="rounded border-gray-300 text-[#0d4f4f]"
-                        />
-                        <span>{stream.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
                   <label className={labelCls}>Biggest financial challenges</label>
                   <textarea
                     value={form.financial_challenges || ""}
@@ -666,7 +655,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </div>
 
                 <div>
-                  <label className={getLabelClass('challenges', 'support_needed_next', true)}>Support needed (Select up to 5) *</label>
+                  <label className={getLabelClass('challenges', 'support_needed_next', true)}>Support needed (Select up to 3) *</label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                     {SUPPORT_NEEDS.map(need => (
                       <label key={need.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
