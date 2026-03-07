@@ -889,6 +889,8 @@ export default function InvoiceGenerator() {
                           <span className="font-bold text-sm">{invoice.sender_name || user?.full_name || "Your Business"}</span>
                         </div>
                         <p className="text-gray-400 text-xs">{invoice.sender_email}</p>
+                        {invoice.sender_phone && <p className="text-gray-400 text-xs">{invoice.sender_phone}</p>}
+                        {invoice.sender_address && <p className="text-gray-400 text-xs whitespace-pre-line">{invoice.sender_address}</p>}
                       </div>
                     </div>
                     <div className="text-right">
@@ -904,7 +906,8 @@ export default function InvoiceGenerator() {
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Bill To</p>
                       <p className="font-semibold text-[#0a1628]">{invoice.client_name || "Client Name"}</p>
                       <p className="text-gray-500 text-sm">{invoice.client_email}</p>
-                      <p className="text-gray-500 text-sm whitespace-pre-line">{invoice.client_address}</p>
+                      {invoice.client_phone && <p className="text-gray-500 text-sm">{invoice.client_phone}</p>}
+                      {invoice.client_address && <p className="text-gray-500 text-sm whitespace-pre-line">{invoice.client_address}</p>}
                     </div>
                     <div className="text-right">
                       <div className="mb-2">
