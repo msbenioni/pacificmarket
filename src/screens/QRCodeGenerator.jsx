@@ -87,6 +87,19 @@ export default function QRCodeGenerator() {
     setLabel(b.name);
   };
 
+  const formatUrl = (url) => {
+    if (!url) return '';
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return `https://${url}`;
+    }
+    return url;
+  };
+
+  const handleCustomUrlChange = (e) => {
+    const formattedUrl = formatUrl(e.target.value);
+    setUrl(formattedUrl);
+  };
+
   const handleDownload = async () => {
     if (!qrUrl) return;
     const response = await fetch(qrUrl);
@@ -197,13 +210,13 @@ export default function QRCodeGenerator() {
             {mode === "custom" && (
               <div className="bg-white border border-gray-100 rounded-2xl p-5">
                 <h3 className="font-bold text-[#0a1628] text-sm mb-3">Custom URL</h3>
-                <input value={url} onChange={e => setUrl(e.target.value)}
-                  placeholder="https://your-website.com"
+                <input value={url} onChange={handleCustomUrlChange}
+                  placeholder="Enter a website URL (e.g., example.com or https://example.com)"
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white" />
                 <div className="mt-3">
                   <label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Label</label>
                   <input value={label} onChange={e => setLabel(e.target.value)}
-                    placeholder="Label for filename"
+                    placeholder="Business name or description"
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white" />
                 </div>
               </div>
