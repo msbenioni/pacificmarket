@@ -28,7 +28,6 @@ export default function BusinessPortal() {
   const [insightSnapshots, setInsightSnapshots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("my-businesses");
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [deleteConfirmBusiness, setDeleteConfirmBusiness] = useState(null);
   const [showAddOwnerModal, setShowAddOwnerModal] = useState(null);
   const [addingOwner, setAddingOwner] = useState(false);
@@ -40,7 +39,6 @@ export default function BusinessPortal() {
   const [insightsStarted, setInsightsStarted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState(null);
-  const [claiming, setClaiming] = useState(false);
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
   const { toast } = useToast();
@@ -243,49 +241,6 @@ export default function BusinessPortal() {
     }
   };
 
-  const submitClaimRequest = async () => {
-    if (!selectedBusiness) return;
-    setClaiming(true);
-    try {
-      const supabase = getSupabase();
-      const { error } = await supabase
-        .from('claim_requests')
-        .insert({
-          business_id: selectedBusiness.id,
-          user_id: user.id,
-          user_email: user.email,
-          business_name: selectedBusiness.name,
-          status: "pending",
-        });
-      
-      if (error) throw error;
-      
-      setClaims(prev => [...prev, { 
-        business_id: selectedBusiness.id, 
-        business_name: selectedBusiness.name, 
-        user_email: user.email, 
-        status: "pending", 
-        created_date: new Date() 
-      }]);
-      setSelectedBusiness(null);
-      
-      toast({
-        title: "Claim Submitted",
-        description: "Your claim request has been submitted successfully.",
-        variant: "success"
-      });
-    } catch (error) {
-      console.error("Error submitting claim:", error);
-      toast({
-        title: "Claim Failed",
-        description: "Failed to submit claim request. Please try again.",
-        variant: "error"
-      });
-    } finally {
-      setClaiming(false);
-    }
-  };
-
   const handleDeleteBusiness = (businessId) => {
     setDeleteConfirmBusiness(businessId);
   };
@@ -303,7 +258,6 @@ export default function BusinessPortal() {
     setAddingOwner(true);
     try {
       // Check if profile already exists
-      const { getSupabase } = await import('../lib/supabase/client');
       const supabase = getSupabase();
       
       const { data: existingProfile } = await supabase
@@ -452,6 +406,7 @@ export default function BusinessPortal() {
             updated_date: new Date().toISOString(),
           })
           .eq('id', existing.id)
+          .eq('user_id', insightsData.user_id)
           .select();
       } else {
         result = await supabase
@@ -525,7 +480,6 @@ export default function BusinessPortal() {
     [BUSINESS_TIER.MOANA]: { label: getTierDisplayName(BUSINESS_TIER.MOANA), color: "text-[#c9a84c] bg-[#c9a84c]/10", icon: Star },
   };
 
-  const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
 
   const disabledActionCls =
     "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed";
@@ -1272,6 +1226,15 @@ Your responses help Pacific Market build a clearer understanding of founder expe
           </ModalFooter>
         </ModalWrapper>
       )}
+      <ProfileSetupModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onComplete={async () => {
+          setShowProfileModal(false);
+          await refetchOnboardingStatus();
+          await refetchPortalData();
+        }}
+      />
     </PortalShell>
   );
 }

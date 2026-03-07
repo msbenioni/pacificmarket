@@ -390,7 +390,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
             {section.key === 'pacific' && (
               <div className="space-y-4">
                 <div>
-                  <label className={getLabelClass('pacific', 'serves_pacific_communities')}>Which Pacific communities does your business serve?</label>
+                  <label className={getLabelClass('pacific', 'serves_pacific_communities')}>Which Pacific communities do you primarily serve?</label>
                   <select value={form.serves_pacific_communities || ""} onChange={e => setFormState(prev => ({ ...prev, serves_pacific_communities: e.target.value }))} className={selectCls}>
                     <option value="">Select communities</option>
                     <option value="fiji">Fiji</option>
