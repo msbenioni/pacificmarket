@@ -162,7 +162,6 @@ export default function AdminDashboard() {
   const createVerifiedBusinessUpdates = () => ({
   subscription_tier: BUSINESS_TIER.VAKA, 
   verified: true,
-  verified_date: new Date().toISOString(),
 });
 
   const updateStatus = async (business, status) => {
@@ -865,6 +864,7 @@ const createBusiness = async (formData) => {
                   <FounderInsightsSummary 
                     snapshot={getLatestSnapshot(selectedInsightBusiness.id)}
                     business={selectedInsightBusiness}
+                    onEdit={() => {}}
                   />
                 </div>
               </div>
