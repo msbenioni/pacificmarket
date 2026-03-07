@@ -15,6 +15,8 @@ export default function InvoiceGenerator() {
   const [mode, setMode] = useState("business"); // business | custom
   const [exportingPdf, setExportingPdf] = useState(false);
   const printRef = useRef(null);
+  const loadedBusinessIdRef = useRef(null);
+  const isUserEditingRef = useRef(false);
 
   // Accordion state - multiple sections can be open
   const [openSections, setOpenSections] = useState(["business", "invoice", "items"]);
@@ -107,7 +109,7 @@ export default function InvoiceGenerator() {
 
   // Load business settings when business is selected
   useEffect(() => {
-    if (!selectedBusinessId || mode !== "business") return;
+    if (!selectedBusinessId || mode !== "business" || loadedBusinessIdRef.current === selectedBusinessId) return;
     
     const loadBusinessSettings = async () => {
       try {
@@ -121,43 +123,47 @@ export default function InvoiceGenerator() {
           .single();
         
         // Get invoice settings
-        const { data: settings } = await supabase
+        const { data: settings, error: settingsError } = await supabase
           .from('business_invoice_settings')
           .select('*')
           .eq('business_id', selectedBusinessId)
-          .single();
+          .maybeSingle();
         
-        if (business) {
+        if (business && !isUserEditingRef.current) {
           setInvoice(prev => ({
             ...prev,
-            sender_name: business.name || "",
-            sender_logo_url: business.logo_url || "",
-            sender_email: business.contact_email || "",
-            sender_phone: business.contact_phone || "",
-            sender_address: business.address || "",
-            sender_suburb: business.suburb || "",
-            sender_city: business.city || "",
-            sender_state_region: business.state_region || "",
-            sender_postal_code: business.postal_code || "",
-            sender_country: business.country || "",
+            sender_name: prev.sender_name || business.name || "",
+            sender_logo_url: prev.sender_logo_url || business.logo_url || "",
+            sender_email: prev.sender_email || business.contact_email || "",
+            sender_phone: prev.sender_phone || business.contact_phone || "",
+            sender_address: prev.sender_address || business.address || "",
+            sender_suburb: prev.sender_suburb || business.suburb || "",
+            sender_city: prev.sender_city || business.city || "",
+            sender_state_region: prev.sender_state_region || business.state_region || "",
+            sender_postal_code: prev.sender_postal_code || business.postal_code || "",
+            sender_country: prev.sender_country || business.country || "",
           }));
         }
         
-        if (settings) {
+        if (settings && !isUserEditingRef.current) {
           setInvoice(prev => ({
             ...prev,
-            tax_rate: settings.default_tax_rate || 10,
-            withholding_tax_rate: settings.default_withholding_tax_rate || 0,
-            payment_account_name: settings.account_name || "",
-            payment_account_number: settings.account_number || "",
-            payment_reference_label: settings.payment_reference_label || "",
-            payment_terms: settings.payment_terms || "",
-            footer_note: settings.footer_note || "",
-            brand_primary: settings.invoice_primary_color || "#0a1628",
-            brand_accent: settings.invoice_accent_color || "#c9a84c",
-            brand_text: settings.invoice_text_color || "#0f172a",
+            tax_rate: prev.tax_rate || settings.default_tax_rate || 10,
+            withholding_tax_rate: prev.withholding_tax_rate || settings.default_withholding_tax_rate || 0,
+            payment_account_name: prev.payment_account_name || settings.account_name || "",
+            payment_account_number: prev.payment_account_number || settings.account_number || "",
+            payment_reference_label: prev.payment_reference_label || settings.payment_reference_label || "",
+            payment_terms: prev.payment_terms || settings.payment_terms || "",
+            footer_note: prev.footer_note || settings.footer_note || "",
+            brand_primary: prev.brand_primary || settings.invoice_primary_color || "#0a1628",
+            brand_accent: prev.brand_accent || settings.invoice_accent_color || "#c9a84c",
+            brand_text: prev.brand_text || settings.invoice_text_color || "#0f172a",
           }));
+        } else if (settingsError && settingsError.code !== "PGRST116") {
+          console.warn("No business invoice settings found:", settingsError.message);
         }
+        
+        loadedBusinessIdRef.current = selectedBusinessId;
       } catch (error) {
         console.error("Error loading business settings:", error);
       }
@@ -166,35 +172,60 @@ export default function InvoiceGenerator() {
     loadBusinessSettings();
   }, [selectedBusinessId, mode]);
 
+  useEffect(() => {
+    if (!selectedBusinessId || mode !== "business") return;
+    loadedBusinessIdRef.current = null;
+    isUserEditingRef.current = false;
+  }, [selectedBusinessId, mode]);
+
   const setField = (key, val) => {
+    isUserEditingRef.current = true;
     setInvoice(i => ({ ...i, [key]: val }));
   };
   
   const handleInputChange = (key, value) => {
     setField(key, value);
   };
-  const setItem = (idx, key, val) => setInvoice(i => ({ ...i, items: i.items.map((item, j) => j === idx ? { ...item, [key]: val } : item) }));
-  const addItem = () => setInvoice(i => ({ ...i, items: [...i.items, { description: "", quantity: 1, unit_price: "" }] }));
-  const removeItem = (idx) => setInvoice(i => ({ ...i, items: i.items.filter((_, j) => j !== idx) }));
+  const setItem = (idx, key, val) => {
+    isUserEditingRef.current = true;
+    setInvoice(i => ({ ...i, items: i.items.map((item, j) => j === idx ? { ...item, [key]: val } : item) }));
+  };
+  const addItem = () => {
+    isUserEditingRef.current = true;
+    setInvoice(i => ({ ...i, items: [...i.items, { description: "", quantity: 1, unit_price: "" }] }));
+  };
+  const removeItem = (idx) => {
+    isUserEditingRef.current = true;
+    setInvoice(i => ({ ...i, items: i.items.filter((_, j) => j !== idx) }));
+  };
 
   // Adjustment management functions
-  const addAdjustment = () => setInvoice(i => ({ 
-    ...i, 
-    adjustments: [...i.adjustments, { 
-      label: "", 
-      kind: "fee", 
-      value_type: "fixed", 
-      value: 0, 
-      apply_stage: "before_tax" 
-    }] 
-  }));
+  const addAdjustment = () => {
+    isUserEditingRef.current = true;
+    setInvoice(i => ({ 
+      ...i, 
+      adjustments: [...i.adjustments, { 
+        label: "", 
+        kind: "fee", 
+        value_type: "percent", 
+        value: 0, 
+        apply_stage: "before_tax" 
+      }] 
+    }));
+  };
   
-  const updateAdjustment = (idx, key, val) => setInvoice(i => ({ 
-    ...i, 
-    adjustments: i.adjustments.map((adj, j) => j === idx ? { ...adj, [key]: val } : adj) 
-  }));
+  const updateAdjustment = (idx, key, val) => {
+    isUserEditingRef.current = true;
+    setInvoice(i => ({ 
+      ...i, 
+      adjustments: i.adjustments.map((adj, j) => j === idx ? { ...adj, [key]: val } : adj) 
+    }));
+  };
   
-  const removeAdjustment = (idx) => setInvoice(i => ({ ...i, adjustments: i.adjustments.filter((_, j) => j !== idx) }));
+  const removeAdjustment = (idx) => {
+    isUserEditingRef.current = true;
+    setInvoice(i => ({ ...i, adjustments: i.adjustments.filter((_, j) => j !== idx) }));
+  };
 
   // Premium accordion component
   function InvoiceAccordionSection({
@@ -789,212 +820,212 @@ export default function InvoiceGenerator() {
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-8">
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden invoice-preview" ref={printRef}>
-              {/* Header */}
-              <div className="bg-[#0a1628] text-white p-8">
-                <div className="flex justify-between items-start">
-                  <div className="flex gap-4">
-                    {/* Logo */}
-                    {invoice.sender_logo_url ? (
-                      <img 
-                        src={invoice.sender_logo_url} 
-                        alt="Business Logo" 
-                        className="w-16 h-16 rounded-lg object-cover border-2 border-white/20"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-lg bg-[#0d4f4f] flex items-center justify-center border-2 border-white/20">
-                        <FileText className="w-8 h-8 text-[#00c4cc]" />
+                {/* Header */}
+                <div className="bg-[#0a1628] text-white p-8">
+                  <div className="flex justify-between items-start">
+                    <div className="flex gap-4">
+                      {/* Logo */}
+                      {invoice.sender_logo_url ? (
+                        <img
+                          src={invoice.sender_logo_url}
+                          alt="Business Logo"
+                          className="w-16 h-16 rounded-lg object-cover border-2 border-white/20"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-[#0d4f4f] flex items-center justify-center border-2 border-white/20">
+                          <FileText className="w-8 h-8 text-[#00c4cc]" />
+                        </div>
+                      )}
+
+                      {/* Business Info */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-bold text-sm">{invoice.sender_name || user?.full_name || "Your Business"}</span>
+                        </div>
+                        <p className="text-gray-400 text-xs">{invoice.sender_email}</p>
                       </div>
-                    )}
-                    
-                    {/* Business Info */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-sm">{invoice.sender_name || user?.full_name || "Your Business"}</span>
-                      </div>
-                      <p className="text-gray-400 text-xs">{invoice.sender_email}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-black text-[#c9a84c] mb-1">INVOICE</div>
+                      <div className="text-gray-300 text-sm">{invoice.invoice_number}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-black text-[#c9a84c] mb-1">INVOICE</div>
-                    <div className="text-gray-300 text-sm">{invoice.invoice_number}</div>
+                </div>
+
+                <div className="p-8">
+                  <div className="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Bill To</p>
+                      <p className="font-semibold text-[#0a1628]">{invoice.client_name || "Client Name"}</p>
+                      <p className="text-gray-500 text-sm">{invoice.client_email}</p>
+                      <p className="text-gray-500 text-sm whitespace-pre-line">{invoice.client_address}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="mb-2">
+                        <p className="text-xs text-gray-400 uppercase tracking-wider">Date</p>
+                        <p className="font-semibold text-[#0a1628] text-sm">{invoice.date}</p>
+                      </div>
+                      {invoice.due_date && (
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase tracking-wider">Due Date</p>
+                          <p className="font-semibold text-[#0a1628] text-sm">{invoice.due_date}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Items Table */}
+                  <table className="w-full mb-6 text-sm">
+                    <thead>
+                      <tr className="border-b-2 border-gray-100">
+                        <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
+                        <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider w-16">Qty</th>
+                        <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Price</th>
+                        <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoice.items.map((item, i) => (
+                        <tr key={i} className="border-b border-gray-50">
+                          <td className="py-3 text-sm text-gray-700">{item.description || "Item description"}</td>
+                          <td className="py-3 text-center text-sm text-gray-700">{item.quantity}</td>
+                          <td className="py-3 text-right text-sm text-gray-700">${item.unit_price || "0.00"}</td>
+                          <td className="py-3 text-right font-semibold text-[#0a1628]">${((item.quantity || 0) * (parseFloat(item.unit_price) || 0)).toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Adjustments Section */}
+                  {invoice.adjustments.length > 0 && (
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Adjustments</h4>
+                      <div className="space-y-1">
+                        {invoice.adjustments.map((adj, i) => {
+                          const adjustmentValue = adj.value_type === "percent"
+                            ? (adj.apply_stage === "before_tax" ? subtotal : grossTotal) * (adj.value / 100)
+                            : adj.value;
+                          const displayValue = adj.kind === "fee" ? adjustmentValue : -adjustmentValue;
+
+                          return (
+                            <div key={i} className="flex justify-between text-sm">
+                              <span className="text-gray-600">
+                                {adj.label} ({adj.value_type === "percent" ? `${adj.value}%` : `$${adj.value}`})
+                              </span>
+                              <span className={`font-medium ${adj.kind === "fee" ? "text-red-600" : "text-green-600"}`}>
+                                {adj.kind === "fee" ? "+" : "-"}${Math.abs(displayValue).toFixed(2)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Enhanced Totals Panel */}
+                  <div className="border-t border-gray-200 pt-4 ml-auto max-w-xs space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Subtotal</span>
+                      <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                    </div>
+
+                    {beforeTaxAdjustments !== 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Adjustments (before tax)</span>
+                        <span className="font-semibold text-red-600">${beforeTaxAdjustments.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {taxRate > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Tax ({taxRate}%)</span>
+                        <span className="font-semibold">${tax.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-700 font-medium">Gross Total</span>
+                      <span className="font-semibold">${grossTotal.toFixed(2)}</span>
+                    </div>
+
+                    {afterTaxAdjustments !== 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Adjustments (after tax)</span>
+                        <span className="font-semibold text-red-600">${afterTaxAdjustments.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {withholdingTaxRate > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Withholding Tax ({withholdingTaxRate}%)</span>
+                        <span className="font-semibold text-green-600">-${withholdingTax.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-lg font-bold text-[#0a1628] pt-3 border-t-2 border-gray-200">
+                      <span>Total Payable</span>
+                      <span className="text-[#c9a84c]">${totalPayable.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Payment Details Card */}
+                  {(invoice.payment_account_name || invoice.payment_account_number) && (
+                    <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Payment Details</h4>
+                      <div className="space-y-2 text-sm">
+                        {invoice.payment_account_name && (
+                          <div>
+                            <span className="text-gray-500">Account Name: </span>
+                            <span className="font-medium">{invoice.payment_account_name}</span>
+                          </div>
+                        )}
+                        {invoice.payment_account_number && (
+                          <div>
+                            <span className="text-gray-500">Account Number: </span>
+                            <span className="font-medium">{invoice.payment_account_number}</span>
+                          </div>
+                        )}
+                        {invoice.payment_reference_label && (
+                          <div>
+                            <span className="text-gray-500">Payment Reference: </span>
+                            <span className="font-medium">{invoice.payment_reference_label}</span>
+                          </div>
+                        )}
+                        {invoice.payment_terms && (
+                          <div>
+                            <span className="text-gray-500">Payment Terms: </span>
+                            <span className="font-medium">{invoice.payment_terms}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {invoice.notes && (
+                    <div className="mt-8 pt-6 border-t border-gray-100">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Notes</p>
+                      <p className="text-gray-500 text-sm whitespace-pre-line">{invoice.notes}</p>
+                    </div>
+                  )}
+
+                  {invoice.footer_note && (
+                    <div className="mt-8 pt-6 border-t border-gray-100">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Footer</p>
+                      <p className="text-gray-500 text-sm">{invoice.footer_note}</p>
+                    </div>
+                  )}
+
+                  <div className="mt-8 pt-4 border-t border-gray-50 text-center">
+                    <p className="text-xs text-gray-300">Pacific Market · pacific-market.com</p>
                   </div>
                 </div>
               </div>
-
-              <div className="p-8">
-                <div className="grid grid-cols-2 gap-8 mb-8">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Bill To</p>
-                    <p className="font-semibold text-[#0a1628]">{invoice.client_name || "Client Name"}</p>
-                    <p className="text-gray-500 text-sm">{invoice.client_email}</p>
-                    <p className="text-gray-500 text-sm whitespace-pre-line">{invoice.client_address}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="mb-2">
-                      <p className="text-xs text-gray-400 uppercase tracking-wider">Date</p>
-                      <p className="font-semibold text-[#0a1628] text-sm">{invoice.date}</p>
-                    </div>
-                    {invoice.due_date && (
-                      <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider">Due Date</p>
-                        <p className="font-semibold text-[#0a1628] text-sm">{invoice.due_date}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Items Table */}
-                <table className="w-full mb-6 text-sm">
-                  <thead>
-                    <tr className="border-b-2 border-gray-100">
-                      <th className="text-left py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
-                      <th className="text-center py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider w-16">Qty</th>
-                      <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Price</th>
-                      <th className="text-right py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider w-24">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoice.items.map((item, i) => (
-                      <tr key={i} className="border-b border-gray-50">
-                        <td className="py-3 text-sm text-gray-700">{item.description || "Item description"}</td>
-                        <td className="py-3 text-center text-sm text-gray-700">{item.quantity}</td>
-                        <td className="py-3 text-right text-sm text-gray-700">${item.unit_price || "0.00"}</td>
-                        <td className="py-3 text-right font-semibold text-[#0a1628]">${((item.quantity || 0) * (parseFloat(item.unit_price) || 0)).toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* Adjustments Section */}
-                {invoice.adjustments.length > 0 && (
-                  <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Adjustments</h4>
-                    <div className="space-y-1">
-                      {invoice.adjustments.map((adj, i) => {
-                        const adjustmentValue = adj.value_type === 'percent' 
-                          ? (adj.apply_stage === 'before_tax' ? subtotal : grossTotal) * (adj.value / 100)
-                          : adj.value;
-                        const displayValue = adj.kind === 'fee' ? adjustmentValue : -adjustmentValue;
-                        
-                        return (
-                          <div key={i} className="flex justify-between text-sm">
-                            <span className="text-gray-600">
-                              {adj.label} ({adj.value_type === 'percent' ? `${adj.value}%` : `$${adj.value}`})
-                            </span>
-                            <span className={`font-medium ${adj.kind === 'fee' ? 'text-red-600' : 'text-green-600'}`}>
-                              {adj.kind === 'fee' ? '+' : '-'}${Math.abs(displayValue).toFixed(2)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Enhanced Totals Panel */}
-                <div className="border-t border-gray-200 pt-4 ml-auto max-w-xs space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span className="font-semibold">${subtotal.toFixed(2)}</span>
-                  </div>
-                  
-                  {beforeTaxAdjustments !== 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Adjustments (before tax)</span>
-                      <span className="font-semibold text-red-600">${beforeTaxAdjustments.toFixed(2)}</span>
-                    </div>
-                  )}
-                  
-                  {taxRate > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Tax ({taxRate}%)</span>
-                      <span className="font-semibold">${tax.toFixed(2)}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700 font-medium">Gross Total</span>
-                    <span className="font-semibold">${grossTotal.toFixed(2)}</span>
-                  </div>
-                  
-                  {afterTaxAdjustments !== 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Adjustments (after tax)</span>
-                      <span className="font-semibold text-red-600">${afterTaxAdjustments.toFixed(2)}</span>
-                    </div>
-                  )}
-                  
-                  {withholdingTaxRate > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Withholding Tax ({withholdingTaxRate}%)</span>
-                      <span className="font-semibold text-green-600">-${withholdingTax.toFixed(2)}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between text-lg font-bold text-[#0a1628] pt-3 border-t-2 border-gray-200">
-                    <span>Total Payable</span>
-                    <span className="text-[#c9a84c]">${totalPayable.toFixed(2)}</span>
-                  </div>
-                </div>
-
-                {/* Payment Details Card */}
-                {(invoice.payment_account_name || invoice.payment_account_number) && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Payment Details</h4>
-                    <div className="space-y-2 text-sm">
-                      {invoice.payment_account_name && (
-                        <div>
-                          <span className="text-gray-500">Account Name: </span>
-                          <span className="font-medium">{invoice.payment_account_name}</span>
-                        </div>
-                      )}
-                      {invoice.payment_account_number && (
-                        <div>
-                          <span className="text-gray-500">Account Number: </span>
-                          <span className="font-medium">{invoice.payment_account_number}</span>
-                        </div>
-                      )}
-                      {invoice.payment_reference_label && (
-                        <div>
-                          <span className="text-gray-500">Payment Reference: </span>
-                          <span className="font-medium">{invoice.payment_reference_label}</span>
-                        </div>
-                      )}
-                      {invoice.payment_terms && (
-                        <div>
-                          <span className="text-gray-500">Payment Terms: </span>
-                          <span className="font-medium">{invoice.payment_terms}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {invoice.notes && (
-                  <div className="mt-8 pt-6 border-t border-gray-100">
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Notes</p>
-                    <p className="text-gray-500 text-sm whitespace-pre-line">{invoice.notes}</p>
-                  </div>
-                )}
-
-                {invoice.footer_note && (
-                  <div className="mt-8 pt-6 border-t border-gray-100">
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Footer</p>
-                    <p className="text-gray-500 text-sm">{invoice.footer_note}</p>
-                  </div>
-                )}
-
-                <div className="mt-8 pt-4 border-t border-gray-50 text-center">
-                  <p className="text-xs text-gray-300">Pacific Market · pacific-market.com</p>
-                </div>
-          </div>
-        </div>
-          </div>
-        </div>
+            </div>
           </div>
         </div>
       </div>
-      <style>{`@media print { .no-print { display: none !important; } body { background: white; } .invoice-preview { box-shadow: none; border: none; } }`}</style>
     </div>
-  );
+    <style>{`@media print { .no-print { display: none !important; } body { background: white; } .invoice-preview { box-shadow: none; border: none; } }`}</style>
+  </div>
+);
 }
