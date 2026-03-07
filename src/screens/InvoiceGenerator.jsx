@@ -7,6 +7,98 @@ import HeroRegistry from "../components/shared/HeroRegistry";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+// Premium accordion component (defined at module scope to prevent remounting)
+function InvoiceAccordionSection({
+  id,
+  title,
+  subtitle,
+  summary,
+  icon: Icon,
+  isOpen,
+  onToggle,
+  children,
+}) {
+  return (
+    <div className="border-b border-gray-100 last:border-b-0 bg-gradient-to-r from-[#0a1628] to-[#0d4f4f] text-white">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-white/10 transition"
+      >
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <Icon className="w-4 h-4 text-white" />
+          </div>
+
+          <div className="min-w-0">
+            <div className="font-semibold text-white text-sm">{title}</div>
+            {subtitle && (
+              <div className="text-xs text-gray-300 mt-0.5">{subtitle}</div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          {summary && (
+            <div className="hidden md:block text-xs text-gray-300 text-right max-w-[140px] truncate">
+              {summary}
+            </div>
+          )}
+          <div className="text-gray-300 text-sm">
+            {isOpen ? <ChevronDown className="w-4 h-4 rotate-180" /> : <ChevronDown className="w-4 h-4" />}
+          </div>
+        </div>
+      </button>
+
+      {isOpen && (
+        <div className="px-5 pb-5 bg-white">
+          <div className="pt-1">{children}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const createEmptyInvoice = () => ({
+  invoice_number: "",
+  date: new Date().toISOString().split("T")[0],
+  due_date: "",
+
+  sender_name: "",
+  sender_logo_url: "",
+  sender_email: "",
+  sender_phone: "",
+  sender_address: "",
+  sender_suburb: "",
+  sender_city: "",
+  sender_state_region: "",
+  sender_postal_code: "",
+  sender_country: "",
+
+  client_name: "",
+  client_email: "",
+  client_phone: "",
+  client_address: "",
+
+  tax_rate: "",
+  withholding_tax_rate: "",
+
+  payment_account_name: "",
+  payment_account_number: "",
+  payment_reference_label: "",
+  payment_terms: "",
+
+  footer_note: "",
+  notes: "",
+
+  brand_primary: "#0a1628",
+  brand_accent: "#c9a84c",
+  brand_text: "#0f172a",
+
+  items: [{ description: "", quantity: 1, unit_price: "" }],
+  adjustments: [],
+});
+
 export default function InvoiceGenerator() {
   // Force cache refresh - premium invoice generator with accordion
   const [user, setUser] = useState(null);
@@ -29,54 +121,22 @@ export default function InvoiceGenerator() {
     );
   };
 
-  const [invoice, setInvoice] = useState({
-    invoice_number: "",
-    date: new Date().toISOString().split("T")[0],
-    due_date: "",
-
-    sender_name: "",
-    sender_logo_url: "",
-    sender_email: "",
-    sender_phone: "",
-    sender_address: "",
-    sender_suburb: "",
-    sender_city: "",
-    sender_state_region: "",
-    sender_postal_code: "",
-    sender_country: "",
-
-    client_name: "",
-    client_email: "",
-    client_phone: "",
-    client_address: "",
-
-    tax_rate: "",
-    withholding_tax_rate: "",
-
-    payment_account_name: "",
-    payment_account_number: "",
-    payment_reference_label: "",
-    payment_terms: "",
-
-    footer_note: "",
-    notes: "",
-
-    brand_primary: "#0a1628",
-    brand_accent: "#c9a84c",
-    brand_text: "#0f172a",
-
-    items: [{ description: "", quantity: 1, unit_price: "" }],
-    adjustments: [],
-  });
+  const [businessInvoice, setBusinessInvoice] = useState(createEmptyInvoice());
+  const [customInvoice, setCustomInvoice] = useState(createEmptyInvoice());
+  const invoice = mode === "business" ? businessInvoice : customInvoice;
+  const setActiveInvoice = (updater) => {
+    if (mode === "business") {
+      setBusinessInvoice(updater);
+      return;
+    }
+    setCustomInvoice(updater);
+  };
 
   useEffect(() => {
     // Generate invoice number only on client-side to avoid hydration mismatch
-    if (!invoice.invoice_number) {
-      setInvoice(prev => ({
-        ...prev,
-        invoice_number: `INV-${Date.now().toString().slice(-6)}`
-      }));
-    }
+    const generated = `INV-${Date.now().toString().slice(-6)}`;
+    setBusinessInvoice(prev => prev.invoice_number ? prev : { ...prev, invoice_number: generated });
+    setCustomInvoice(prev => prev.invoice_number ? prev : { ...prev, invoice_number: generated });
   }, []);
 
   useEffect(() => {
@@ -88,16 +148,36 @@ export default function InvoiceGenerator() {
         
         setUser(user);
         
-        // Get user's businesses (all of them, not just MOANA)
-        const { data: businesses } = await supabase
+        // Get user's owned businesses
+        const { data: ownedBusinesses } = await supabase
           .from('businesses')
           .select('*')
           .eq('owner_user_id', user.id);
-        
-        if (businesses && businesses.length > 0) {
-          setBusinesses(businesses);
-          // Auto-select first business
-          setSelectedBusinessId(businesses[0].id);
+
+        // Get approved claimed businesses for this user
+        const { data: claims } = await supabase
+          .from('claim_requests')
+          .select('business_id')
+          .eq('user_id', user.id)
+          .eq('status', 'approved');
+
+        const claimedIds = (claims || []).map(claim => claim.business_id).filter(Boolean);
+        let claimedBusinesses = [];
+        if (claimedIds.length > 0) {
+          const { data: claimed } = await supabase
+            .from('businesses')
+            .select('*')
+            .in('id', claimedIds);
+          claimedBusinesses = claimed || [];
+        }
+
+        const mergedBusinesses = [...(ownedBusinesses || []), ...claimedBusinesses];
+        const uniqueBusinesses = Array.from(new Map(mergedBusinesses.map(b => [b.id, b])).values());
+
+        if (uniqueBusinesses.length > 0) {
+          setBusinesses(uniqueBusinesses);
+          // Auto-select first business if none selected
+          setSelectedBusinessId(prev => prev || uniqueBusinesses[0].id);
         }
       } catch (error) {
         console.error("Error loading invoice data:", error);
@@ -130,7 +210,7 @@ export default function InvoiceGenerator() {
           .maybeSingle();
         
         if (business && !isUserEditingRef.current) {
-          setInvoice(prev => ({
+          setBusinessInvoice(prev => ({
             ...prev,
             sender_name: prev.sender_name || business.name || "",
             sender_logo_url: prev.sender_logo_url || business.logo_url || "",
@@ -146,7 +226,7 @@ export default function InvoiceGenerator() {
         }
         
         if (settings && !isUserEditingRef.current) {
-          setInvoice(prev => ({
+          setBusinessInvoice(prev => ({
             ...prev,
             tax_rate: prev.tax_rate || settings.default_tax_rate || 10,
             withholding_tax_rate: prev.withholding_tax_rate || settings.default_withholding_tax_rate || 0,
@@ -180,7 +260,7 @@ export default function InvoiceGenerator() {
 
   const setField = (key, val) => {
     isUserEditingRef.current = true;
-    setInvoice(i => ({ ...i, [key]: val }));
+    setActiveInvoice(i => ({ ...i, [key]: val }));
   };
   
   const handleInputChange = (key, value) => {
@@ -188,21 +268,21 @@ export default function InvoiceGenerator() {
   };
   const setItem = (idx, key, val) => {
     isUserEditingRef.current = true;
-    setInvoice(i => ({ ...i, items: i.items.map((item, j) => j === idx ? { ...item, [key]: val } : item) }));
+    setActiveInvoice(i => ({ ...i, items: i.items.map((item, j) => j === idx ? { ...item, [key]: val } : item) }));
   };
   const addItem = () => {
     isUserEditingRef.current = true;
-    setInvoice(i => ({ ...i, items: [...i.items, { description: "", quantity: 1, unit_price: "" }] }));
+    setActiveInvoice(i => ({ ...i, items: [...i.items, { description: "", quantity: 1, unit_price: "" }] }));
   };
   const removeItem = (idx) => {
     isUserEditingRef.current = true;
-    setInvoice(i => ({ ...i, items: i.items.filter((_, j) => j !== idx) }));
+    setActiveInvoice(i => ({ ...i, items: i.items.filter((_, j) => j !== idx) }));
   };
 
   // Adjustment management functions
   const addAdjustment = () => {
     isUserEditingRef.current = true;
-    setInvoice(i => ({ 
+    setActiveInvoice(i => ({ 
       ...i, 
       adjustments: [...i.adjustments, { 
         label: "", 
@@ -216,7 +296,7 @@ export default function InvoiceGenerator() {
   
   const updateAdjustment = (idx, key, val) => {
     isUserEditingRef.current = true;
-    setInvoice(i => ({ 
+    setActiveInvoice(i => ({ 
       ...i, 
       adjustments: i.adjustments.map((adj, j) => j === idx ? { ...adj, [key]: val } : adj) 
     }));
@@ -224,60 +304,8 @@ export default function InvoiceGenerator() {
   
   const removeAdjustment = (idx) => {
     isUserEditingRef.current = true;
-    setInvoice(i => ({ ...i, adjustments: i.adjustments.filter((_, j) => j !== idx) }));
+    setActiveInvoice(i => ({ ...i, adjustments: i.adjustments.filter((_, j) => j !== idx) }));
   };
-
-  // Premium accordion component
-  function InvoiceAccordionSection({
-    id,
-    title,
-    subtitle,
-    summary,
-    icon: Icon,
-    isOpen,
-    onToggle,
-    children,
-  }) {
-    return (
-      <div className="border-b border-gray-100 last:border-b-0 bg-gradient-to-r from-[#0a1628] to-[#0d4f4f] text-white">
-        <button
-          type="button"
-          onClick={onToggle}
-          className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-white/10 transition"
-        >
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-              <Icon className="w-4 h-4 text-white" />
-            </div>
-
-            <div className="min-w-0">
-              <div className="font-semibold text-white text-sm">{title}</div>
-              {subtitle && (
-                <div className="text-xs text-gray-300 mt-0.5">{subtitle}</div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            {summary && (
-              <div className="hidden md:block text-xs text-gray-300 text-right max-w-[140px] truncate">
-                {summary}
-              </div>
-            )}
-            <div className="text-gray-300 text-sm">
-              {isOpen ? <ChevronDown className="w-4 h-4 rotate-180" /> : <ChevronDown className="w-4 h-4" />}
-            </div>
-          </div>
-        </button>
-
-        {isOpen && (
-          <div className="px-5 pb-5 bg-white">
-            <div className="pt-1">{children}</div>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   // Save business settings (only in business mode)
   const saveBusinessSettings = async () => {
@@ -517,14 +545,14 @@ export default function InvoiceGenerator() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Mode Tabs */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-2 mb-8">
+        <div className="bg-white/95 border border-gray-200 shadow-sm rounded-2xl p-2 mb-8">
           <div className="flex gap-2">
             <button
               onClick={() => setMode("business")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl text-sm font-medium transition-all border ${
                 mode === "business" 
-                  ? "bg-[#0a1628] text-white shadow-sm" 
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  ? "bg-[#0a1628] text-white shadow-sm border-[#0a1628]" 
+                  : "text-gray-600 border-gray-200 hover:text-gray-800 hover:bg-gray-50"
               }`}
             >
               <FileText className="w-4 h-4" />
@@ -532,10 +560,10 @@ export default function InvoiceGenerator() {
             </button>
             <button
               onClick={() => setMode("custom")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl text-sm font-medium transition-all border ${
                 mode === "custom" 
-                  ? "bg-[#0a1628] text-white shadow-sm" 
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  ? "bg-[#0a1628] text-white shadow-sm border-[#0a1628]" 
+                  : "text-gray-600 border-gray-200 hover:text-gray-800 hover:bg-gray-50"
               }`}
             >
               <Plus className="w-4 h-4" />
@@ -545,7 +573,7 @@ export default function InvoiceGenerator() {
         </div>
 
         {/* Mode Description */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-8">
+        <div className="bg-white/95 border border-gray-200 shadow-sm rounded-2xl p-4 mb-8">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 rounded-lg bg-[#0a1628]/10 flex items-center justify-center flex-shrink-0">
               {mode === "business" ? (
