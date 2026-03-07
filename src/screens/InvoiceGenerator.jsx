@@ -624,7 +624,33 @@ export default function InvoiceGenerator() {
                     <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-2">Select Business</label>
                     <select
                       value={selectedBusinessId}
-                      onChange={(e) => setSelectedBusinessId(e.target.value)}
+                      onChange={(e) => {
+                        const nextId = e.target.value;
+                        isUserEditingRef.current = false;
+                        loadedBusinessIdRef.current = null;
+                        setBusinessInvoice(prev => ({
+                          ...prev,
+                          sender_name: "",
+                          sender_logo_url: "",
+                          sender_email: "",
+                          sender_phone: "",
+                          sender_address: "",
+                          sender_suburb: "",
+                          sender_city: "",
+                          sender_state_region: "",
+                          sender_postal_code: "",
+                          sender_country: "",
+                          payment_account_name: "",
+                          payment_account_number: "",
+                          payment_reference_label: "",
+                          payment_terms: "",
+                          footer_note: "",
+                          brand_primary: "#0a1628",
+                          brand_accent: "#c9a84c",
+                          brand_text: "#0f172a",
+                        }));
+                        setSelectedBusinessId(nextId);
+                      }}
                       className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628]"
                     >
                       <option value="">Choose a business...</option>
