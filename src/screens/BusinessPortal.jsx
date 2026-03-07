@@ -829,6 +829,13 @@ export default function BusinessPortal() {
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
+                          <button
+                            onClick={() => setShowAddOwnerModal(b.id)}
+                            className="p-2 rounded-lg text-gray-400 hover:text-[#0d4f4f] hover:bg-gray-50 transition"
+                            title="Add owner"
+                          >
+                            <Users className="w-4 h-4" />
+                          </button>
                         </div>
 
                         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between pr-20">
@@ -898,19 +905,6 @@ export default function BusinessPortal() {
                                       <p className="truncate text-sm text-slate-600">
                                         {getBusinessOwner(b.owner_user_id, profiles)?.email}
                                       </p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100/80 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                        Active
-                                      </span>
-                                      <button
-                                        onClick={() => setShowAddOwnerModal(b.id)}
-                                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] hover:bg-gray-50 transition"
-                                        title="Add another owner"
-                                      >
-                                        <Users className="w-3 h-3" />
-                                        Add Owner
-                                      </button>
                                     </div>
                                   </div>
                                 </div>
