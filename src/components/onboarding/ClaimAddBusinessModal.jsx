@@ -416,17 +416,18 @@ export function ClaimAddBusinessModal({
               Close
             </button>
             <div className="text-xs text-gray-500">
-              Tip: Claim if you already exist. Add if you’re new.
+              Tip: Claim if you already exist. Add if you're new.
             </div>
           </>
+        ) : view === "add" ? (
+          // No footer for add view - DetailedBusinessForm handles its own navigation
+          null
         ) : (
           <>
             <button
               type="button"
               onClick={() => {
-                if (view === "add" && formControls) {
-                  formControls.prevStep();
-                } else if (view === "claim_details") {
+                if (view === "claim_details") {
                   setView("claim");
                 } else {
                   setView("choice");
@@ -445,23 +446,7 @@ export function ClaimAddBusinessModal({
               // No primary button here - ClaimDetailsForm handles submit
               <div />
             ) : (
-              <button 
-                type="button" 
-                className={btnPrimary}
-                onClick={() => {
-                  if (formControls) {
-                    if (formControls.currentStep === 5) {
-                      // Last step, submit the form
-                      formControls.submit();
-                    } else {
-                      // Go to next step
-                      formControls.nextStep();
-                    }
-                  }
-                }}
-              >
-                {formControls?.currentStep === 5 ? "Create Listing" : "Continue"}
-              </button>
+              <div />
             )}
           </>
         )}
