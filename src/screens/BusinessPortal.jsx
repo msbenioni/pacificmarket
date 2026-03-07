@@ -999,10 +999,6 @@ export default function BusinessPortal() {
               </div>
 
               {/* Insights Status Cards */}
-              <div className="space-y-4">
-                <div className={`${portalUI.card} p-8`}>
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1">
                       
                       <div>
                         <div>
@@ -1018,10 +1014,6 @@ export default function BusinessPortal() {
                           />
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* Benefits Section */}
               <div className="rounded-[28px] border border-[#0d4f4f]/20 bg-gradient-to-r from-[#0d4f4f]/10 via-white to-[#00c4cc]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
