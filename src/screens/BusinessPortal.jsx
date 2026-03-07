@@ -9,7 +9,6 @@ import { TIER_BENEFITS } from "@/constants/businessProfile";
 import { BUSINESS_TIER, BUSINESS_STATUS, getTierDisplayName, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
 import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
-import FounderInsightsForm from "@/components/forms/FounderInsightsForm";
 import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
@@ -30,21 +29,21 @@ export default function BusinessPortal() {
   const [insightSnapshots, setInsightSnapshots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("my-businesses");
-  const [editingBusiness, setEditingBusiness] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [showAddOwnerModal, setShowAddOwnerModal] = useState(null);
-  const [newOwnerForm, setNewOwnerForm] = useState({ name: "", email: "" });
-  const [addingOwner, setAddingOwner] = useState(false);
-  const [deleteConfirmBusiness, setDeleteConfirmBusiness] = useState(null);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [claiming, setClaiming] = useState(false);
-  const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedBusinessForInsights, setSelectedBusinessForInsights] = useState(null);
   const [insightsSubmitting, setInsightsSubmitting] = useState(false);
   const [insightsStarted, setInsightsStarted] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [deleteConfirmBusiness, setDeleteConfirmBusiness] = useState(null);
+  const [showAddOwnerModal, setShowAddOwnerModal] = useState(null);
+  const [addingOwner, setAddingOwner] = useState(false);
+  const [newOwnerForm, setNewOwnerForm] = useState({ name: '', email: '' });
   const [showClaimAddModal, setShowClaimAddModal] = useState(false);
-  const [claimAddDefaultView, setClaimAddDefaultView] = useState("choice");
+  const [claimAddDefaultView, setClaimAddDefaultView] = useState('search');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showInsightsModal, setShowInsightsModal] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
   const { toast } = useToast();
@@ -356,7 +355,7 @@ export default function BusinessPortal() {
           .from('profiles')
           .insert({
             email: newOwnerForm.email.toLowerCase().trim(),
-            full_name: newOwnerForm.name.trim(),
+            display_name: newOwnerForm.name.trim(),
             pending_business_id: businessId,
             pending_business_name: businesses.find(b => b.id === businessId)?.name,
             invited_by: user?.id,
@@ -446,42 +445,49 @@ export default function BusinessPortal() {
     try {
       const supabase = getSupabase();
 
-      // Log the data being submitted for debugging
       console.log('Submitting insights data:', insightsData);
-      console.log('Data keys:', Object.keys(insightsData));
 
-      // Save insights to database
-      const { data, error } = await supabase
-        .from('business_insights_snapshots')
-        .insert(insightsData)
-        .select();
+      const existing = insightSnapshots[0];
+
+      let result;
+
+      if (existing?.id) {
+        result = await supabase
+          .from('business_insights_snapshots')
+          .update({
+            ...insightsData,
+            updated_date: new Date().toISOString(),
+          })
+          .eq('id', existing.id)
+          .select();
+      } else {
+        result = await supabase
+          .from('business_insights_snapshots')
+          .insert({
+            ...insightsData,
+            submitted_date: new Date().toISOString(),
+          })
+          .select();
+      }
+
+      const { data, error } = result;
 
       console.log('Supabase response:', { data, error });
 
-      if (error) {
-        console.error('Supabase error details:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      // Refresh the insights data to include the newly submitted record
       await refetchPortalData();
 
-      // Show success message
       toast({
-        title: "Founder Insights Submitted!",
-        description: "Thank you for sharing your founder journey. Your insights will help us better support Pacific entrepreneurs.",
+        title: "Saved",
+        description: "Your founder insights were saved successfully.",
         variant: "success"
       });
-
-      // Close modal and reset
-      setShowInsightsModal(false);
-      setSelectedBusinessForInsights(null);
-      
     } catch (error) {
       console.error('Error submitting insights:', error);
       toast({
-        title: "Submission Failed",
-        description: `Failed to submit insights: ${error.message || 'Unknown error'}`,
+        title: "Save Failed",
+        description: `Failed to save insights: ${error.message || 'Unknown error'}`,
         variant: "error"
       });
     } finally {
@@ -1212,46 +1218,6 @@ Your responses help Pacific Market build a clearer understanding of founder expe
          </ModalWrapper>
        )}
 
-      {/* Founder Insights Modal */}
-      {showInsightsModal && (
-        <ModalWrapper isOpen={showInsightsModal} onClose={() => setShowInsightsModal(false)} className={MODAL_SIZES.xl}>
-          <ModalHeader 
-            title="Founder Insights Survey"
-            subtitle="Share your founder journey"
-            onClose={() => setShowInsightsModal(false)}
-          />
-          
-          <ModalContent>
-            {insightSnapshots.length > 0 ? (
-              <FounderInsightsSummary 
-                snapshot={insightSnapshots[0]} // Show latest general insights
-                business={null} // General survey, no business
-                onEdit={() => {}} // No-op since we removed modal
-              />
-            ) : (
-              <>
-                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-semibold text-blue-900">Why this matters</h4>
-                      <p className="text-sm text-blue-700 mt-1">
-                        Your responses help build a clearer picture of Pacific founder experiences, challenges, and opportunities.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <FounderInsightsForm 
-                  businessId={null} // General survey
-                  onSubmit={handleFounderInsightsSubmit}
-                  isLoading={insightsSubmitting}
-                />
-              </>
-            )}
-          </ModalContent>
-        </ModalWrapper>
-      )}
       <ClaimAddBusinessModal
         isOpen={showClaimAddModal}
         onClose={() => setShowClaimAddModal(false)}
@@ -1263,7 +1229,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
         }}
         onAddSelected={async () => {
           setShowClaimAddModal(false);
-          await refetchPortalData();         // refresh businesses instantly
+          await refetchPortalData();
         }}
       />
 

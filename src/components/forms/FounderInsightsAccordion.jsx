@@ -1,24 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
-import { ChevronDown, ChevronUp, Users, TrendingUp, Globe, AlertCircle, Rocket, Lightbulb, CheckCircle } from "lucide-react";
-import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, COUNTRIES, FUNDING_SOURCES, FUNDING_AMOUNTS, FUNDING_PURPOSES, INVESTMENT_STAGES, INVESTMENT_EXPLORATION, INVESTMENT_TIMELINE, ANGEL_INVESTOR_INTEREST, INVESTOR_CAPACITY, REVENUE_STREAMS } from "@/constants/unifiedConstants";
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, ChevronRight, Users, TrendingUp, Globe, AlertCircle, Rocket, Lightbulb } from "lucide-react";
+import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, COUNTRIES, FUNDING_SOURCES, FUNDING_AMOUNTS, FUNDING_PURPOSES, INVESTMENT_STAGES, INVESTMENT_EXPLORATION, ANGEL_INVESTOR_INTEREST, INVESTOR_CAPACITY, REVENUE_STREAMS } from "@/constants/unifiedConstants";
 import { getSupabase } from "@/lib/supabase/client";
-
-// Simple debounce function
-const debounce = (func, wait) => {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
-
-// Auto-save configuration
-const AUTO_SAVE_DELAY = 2000; // 2 seconds
-const AUTO_SAVE_DEBOUNCE = 500; // 500ms debounce
 
 const SECTIONS = [
   { key: "founder", label: "Founder Background", icon: Users, description: "Help us understand the person behind the business" },
@@ -29,56 +12,106 @@ const SECTIONS = [
   { key: "community", label: "Community & Impact", icon: Lightbulb, description: "Help us understand your values, collaboration, and ecosystem potential" },
 ];
 
-export default function FounderInsightsForm({ businessId, onSubmit, isLoading, initialData = null, onStart }) {
-  const [expandedSections, setExpandedSections] = useState(new Set(['founder']));
-  const [hasStarted, setHasStarted] = useState(false);
-  
+const SECTION_FIELDS = {
+  founder: [
+    "years_entrepreneurial",
+    "businesses_founded",
+    "founder_role",
+    "founder_motivation_array",
+    "founder_story",
+  ],
+  pacific: [
+    "serves_pacific_communities",
+    "culture_influences_business",
+    "culture_influence_details",
+    "family_community_responsibilities_affect_business",
+    "responsibilities_impact_details",
+    "pacific_identity",
+  ],
+  financial: [
+    "current_funding_source",
+    "investment_stage",
+    "revenue_streams",
+    "financial_challenges",
+    "funding_amount_needed",
+    "funding_purpose",
+    "angel_investor_interest",
+    "investor_capacity",
+  ],
+  challenges: [
+    "top_challenges",
+    "support_needed_next",
+    "current_support_sources",
+    "mentorship_access",
+    "barriers_to_mentorship",
+  ],
+  growth: [
+    "business_stage",
+    "goals_next_12_months_array",
+    "goals_details",
+    "hiring_intentions",
+    "expansion_plans",
+    "collaboration_interest",
+  ],
+  community: [
+    "community_impact_areas",
+    "mentorship_offering",
+    "open_to_future_contact",
+  ],
+};
+
+export default function FounderInsightsAccordion({ businessId, onSubmit, isLoading, initialData = null, onStart }) {
   // Create a stable initial form state to avoid controlled/uncontrolled input issues
   const getInitialForm = () => {
     const defaults = {
-    // Founder Background (unique to business insights)
-    businesses_founded: "",
-    founder_role: "",
-    founder_motivation_array: [],
-    founder_story: "",
-    years_entrepreneurial: "",
-    
-    // Pacific Context (unique insights - not duplicated from profile)
-    serves_pacific_communities: "",
-    culture_influences_business: false,
-    culture_influence_details: "",
-    family_community_responsibilities_affect_business: false,
-    responsibilities_impact_details: "",
-    
-    // Financial & Investment (unique insights - not duplicated from profile)
-    current_funding_source: "",
-    investment_stage: "",
-    revenue_streams: [],
-    financial_challenges: "",
-    funding_amount_needed: "",
-    funding_purpose: "",
-    angel_investor_interest: "",
-    
-    // Challenges & Support (unique insights - not duplicated from profile)
-    top_challenges: [],
-    support_needed_next: [],
-    barriers_to_mentorship: "",
-    mentorship_format_preference: "",
-    
-    // Growth & Future (unique insights - not duplicated from profile)
-    business_growth_stage: "",
-    expansion_plans: false,
-    next_12_months_goals: "",
-    goals_next_12_months_array: [],
-    investment_exploration: "",
-    investment_timeline: "",
-    investor_capacity: "",
-    
-    // Community & Impact (unique to business insights)
-    community_impact_areas: [],
-    collaboration_interest: false,
-    mentorship_offering: false,
-    open_to_future_contact: false,
+      // Founder Background (unique to business insights)
+      years_entrepreneurial: "",
+      businesses_founded: "",
+      founder_role: "",
+      founder_motivation_array: [],
+      founder_story: "",
+
+      // Pacific Context (unique to business insights)
+      serves_pacific_communities: "",
+      culture_influences_business: false,
+      culture_influence_details: "",
+      family_community_responsibilities_affect_business: false,
+      responsibilities_impact_details: "",
+      pacific_identity: [],
+
+      // Financial & Investment (unique insights - not duplicated from profile)
+      current_funding_source: "",
+      investment_stage: "",
+      revenue_streams: [],
+      financial_challenges: "",
+      funding_amount_needed: "",
+      funding_purpose: "",
+      angel_investor_interest: "",
+      investor_capacity: "",
+
+      // Challenges & Support (unique insights - not duplicated from profile)
+      top_challenges: [],
+      support_needed_next: [],
+      current_support_sources: [],
+      mentorship_access: false,
+      barriers_to_mentorship: "",
+
+      // Growth & Future (unique insights - not duplicated from profile)
+      business_stage: "",
+      goals_next_12_months_array: [],
+      goals_details: "",
+      hiring_intentions: false,
+      expansion_plans: false,
+      collaboration_interest: false,
+
+      // Community & Impact (unique to business insights)
+      community_impact_areas: [],
+      mentorship_offering: false,
+      open_to_future_contact: false,
+
+      // Optional arrays
+      sales_channels: [],
+      team_size_band: "",
     };
     
     if (initialData) {
@@ -86,15 +119,15 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     }
     return defaults;
   };
-  
-  const [form, setFormState] = useState(getInitialForm());
-  const [autoSaveTimerRef, setAutoSaveTimerRef] = useState(null);
-  const [autoSaveStatus, setAutoSaveStatus] = useState(null);
-  const [lastSaved, setLastSaved] = useState(null);
 
+  const [form, setForm] = useState(() => getInitialForm());
+  const [expandedSections, setExpandedSections] = useState(new Set(['founder']));
+  const [submitting, setSubmitting] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  
   // Wrapper function to handle form updates and trigger onStart on first change
-  const setForm = (updater) => {
-    setFormState(prev => {
+  const setFormState = (updater) => {
+    setForm(prev => {
       const nextForm = typeof updater === "function" ? updater(prev) : updater;
       if (!hasStarted && onStart && !initialData) {
         setHasStarted(true);
@@ -104,10 +137,10 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     });
   };
 
-  // Update form when initialData changes (fixes controlled input issue)
+  // Update form when initialData changes (merge with current state)
   useEffect(() => {
     if (initialData) {
-      setFormState(initialData);
+      setForm(prev => ({ ...prev, ...initialData }));
     }
   }, [initialData]);
 
@@ -123,90 +156,105 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     });
   };
 
-  const buildSnapshotData = (user, overrides = {}) => ({
-    ...form,
-    user_id: user.id,
-    business_id: businessId ?? null,
-    snapshot_year: new Date().getFullYear(),
-    submitted_date: new Date().toISOString(),
-    // Map array fields to correct database columns
-    founder_motivation: form.founder_motivation_array,
-    goals_next_12_months: form.goals_next_12_months_array,
-    support_needed: form.support_needed_next,
-    ...overrides,
-  });
+  const buildSectionPayload = (user, sectionKey) => {
+    const fields = SECTION_FIELDS[sectionKey] || [];
+    const payload = {
+      user_id: user.id,
+      business_id: businessId ?? null,
+      snapshot_year: new Date().getFullYear(),
+    };
 
-  // Auto-save functionality
-  const autoSave = async () => {
+    for (const field of fields) {
+      payload[field] = form[field];
+    }
+
+    return payload;
+  };
+
+  const handleSaveSection = async (sectionKey) => {
+    setSubmitting(true);
     try {
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user || !form || Object.keys(form).length === 0) return;
-      
-      setAutoSaveStatus('saving');
-      const snapshotData = {
-        ...buildSnapshotData(user),
-        is_autosave: true,
+
+      if (!user) throw new Error("User not authenticated");
+
+      const payload = buildSectionPayload(user, sectionKey);
+      console.log("Saving section payload", sectionKey, payload);
+
+      await onSubmit(payload);
+    } catch (error) {
+      console.error(`Failed to save ${sectionKey} section:`, error);
+      alert("Failed to save section. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmitAll = async () => {
+    setSubmitting(true);
+    try {
+      const supabase = getSupabase();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) throw new Error("User not authenticated");
+
+      const payload = {
+        user_id: user.id,
+        business_id: businessId ?? null,
+        snapshot_year: new Date().getFullYear(),
+
+        years_entrepreneurial: form.years_entrepreneurial,
+        businesses_founded: form.businesses_founded,
+        founder_role: form.founder_role,
+        founder_motivation_array: form.founder_motivation_array ?? [],
+        founder_story: form.founder_story,
+
+        serves_pacific_communities: form.serves_pacific_communities,
+        culture_influences_business: form.culture_influences_business,
+        culture_influence_details: form.culture_influence_details,
+        family_community_responsibilities_affect_business: form.family_community_responsibilities_affect_business,
+        responsibilities_impact_details: form.responsibilities_impact_details,
+
+        current_funding_source: form.current_funding_source,
+        investment_stage: form.investment_stage,
+        revenue_streams: form.revenue_streams ?? [],
+        financial_challenges: form.financial_challenges,
+        funding_amount_needed: form.funding_amount_needed,
+        funding_purpose: form.funding_purpose,
+        angel_investor_interest: form.angel_investor_interest,
+        investor_capacity: form.investor_capacity,
+
+        top_challenges: form.top_challenges ?? [],
+        support_needed_next: form.support_needed_next ?? [],
+        current_support_sources: form.current_support_sources ?? [],
+        mentorship_access: form.mentorship_access,
+        barriers_to_mentorship: form.barriers_to_mentorship,
+
+        business_stage: form.business_stage,
+        goals_next_12_months_array: form.goals_next_12_months_array ?? [],
+        goals_details: form.goals_details,
+        hiring_intentions: form.hiring_intentions,
+        expansion_plans: form.expansion_plans,
+        collaboration_interest: form.collaboration_interest,
+
+        community_impact_areas: form.community_impact_areas ?? [],
+        mentorship_offering: form.mentorship_offering,
+        open_to_future_contact: form.open_to_future_contact,
+        pacific_identity: form.pacific_identity ?? [],
+        sales_channels: form.sales_channels ?? [],
+        team_size_band: form.team_size_band,
       };
 
-      // Save to local storage for auto-saved drafts
-      const draftKey = `founder_insights_draft_${user.id}_${businessId || 'new'}`;
-      localStorage.setItem(draftKey, JSON.stringify({
-        data: snapshotData,
-        timestamp: new Date().toISOString()
-      }));
-      
-      await onSubmit(snapshotData);
-      setLastSaved(new Date().toISOString());
-      setAutoSaveStatus('saved');
+      console.log("Submitting all founder insights", payload);
+      await onSubmit(payload);
     } catch (error) {
-      console.error("Auto-save failed:", error);
-      setAutoSaveStatus('error');
+      console.error("Failed to submit founder insights:", error);
+      alert("Failed to submit insights. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
-
-  // Debounced auto-save
-  const debouncedAutoSave = useCallback(
-    debounce(() => {
-      autoSave();
-    }, AUTO_SAVE_DEBOUNCE),
-    []
-  );
-
-  // Clear auto-save timer
-  const clearAutoSaveTimer = () => {
-    if (autoSaveTimerRef) {
-      clearTimeout(autoSaveTimerRef);
-      setAutoSaveTimerRef(null);
-    }
-  };
-
-  // Start auto-save timer
-  const startAutoSaveTimer = () => {
-    clearAutoSaveTimer();
-    const timer = setTimeout(() => {
-      debouncedAutoSave();
-      setAutoSaveTimerRef(null);
-    }, AUTO_SAVE_DELAY);
-    setAutoSaveTimerRef(timer);
-  };
-
-  // Auto-save effect
-  useEffect(() => {
-    if (form && Object.keys(form).length > 0) {
-      startAutoSaveTimer();
-    }
-    return () => clearAutoSaveTimer();
-  }, [form, debouncedAutoSave]);
-
-  // Show auto-save status (no UI, but keep state tidy)
-  useEffect(() => {
-    if (autoSaveStatus && autoSaveStatus !== 'saving') {
-      const timer = setTimeout(() => setAutoSaveStatus(null), 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [autoSaveStatus]);
 
   const toggleArrayItem = (field, item) => {
     setForm(prev => {
@@ -223,34 +271,28 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     });
   };
 
-  const getSectionErrors = (_sectionKey) => [];
-
+  // Helper functions
   const hasSectionErrors = (_sectionKey) => false;
-
   const getLabelClass = (_sectionKey, _fieldName, _isArray = false) => "block text-xs font-semibold uppercase tracking-wider mb-1.5";
-
   const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20 bg-white";
   const selectCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20 bg-white pr-10 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xIDFMNiA2TDExIDEiIHN0cm9rZT0iIzZiNzI4MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K')] bg-no-repeat bg-[center_right_1rem] bg-[length:0.75rem]";
   const labelCls = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
   const renderSection = (section) => {
     const isExpanded = expandedSections.has(section.key);
-    const sectionErrors = getSectionErrors(section.key);
     const hasErrors = hasSectionErrors(section.key);
+    const sectionErrors = []; // Simplified since validation is disabled
 
     return (
-      <div key={section.key} className={`border rounded-xl overflow-hidden transition-all duration-200 ${
+      <div key={section.key} className={`border rounded-xl transition-all ${
         hasErrors ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-white'
       }`}>
-        <button
-          onClick={() => toggleSection(section.key)}
-          className={`w-full px-6 py-4 flex items-center justify-between text-left transition-colors ${
-            isExpanded 
-              ? 'bg-red-100 hover:bg-red-200' 
-              : 'bg-white hover:bg-gray-50'
-          }`}
-        >
-          <div className="flex items-center gap-3">
+        <div className="w-full px-6 py-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => toggleSection(section.key)}
+            className="flex-1 flex items-center gap-3 text-left transition-colors"
+          >
             <section.icon className={`w-5 h-5 ${hasErrors ? 'text-red-600' : 'text-[#0d4f4f]'} mt-0.5`} />
             <div>
               <h4 className={`text-sm font-semibold ${hasErrors ? 'text-red-900' : 'text-[#0a1628]'}`}>
@@ -266,416 +308,46 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 )}
               </p>
             </div>
+          </button>
+
+          <div className="flex items-center gap-2 ml-4">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSaveSection(section.key);
+              }}
+              disabled={submitting || isLoading}
+              className="inline-flex items-center gap-1 rounded-lg bg-[#0d4f4f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting || isLoading ? (
+                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  Save
+                </>
+              )}
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => toggleSection(section.key)}
+              className={`p-1 ${hasErrors ? 'text-red-600' : 'text-gray-400'}`}
+            >
+              {isExpanded ? (
+                <ChevronUp className="w-5 h-5" />
+              ) : (
+                <ChevronDown className="w-5 h-5" />
+              )}
+            </button>
           </div>
-          {isExpanded ? (
-            <ChevronUp className={`w-5 h-5 ${hasErrors ? 'text-red-600' : 'text-gray-400'} mr-2`} />
-          ) : (
-            <ChevronDown className={`w-5 h-5 ${hasErrors ? 'text-red-600' : 'text-gray-400'} mr-2`} />
-          )}
-        </button>
+        </div>
         
         {isExpanded && (
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            {section.key === 'founder' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className={getLabelClass('founder', 'years_entrepreneurial')}>Years as entrepreneur *</label>
-                    <select value={form.years_entrepreneurial || ""} onChange={e => setForm({ ...form, years_entrepreneurial: e.target.value })} className={selectCls}>
-                      <option value="">Select years</option>
-                      <option value="0-1">Less than 1 year</option>
-                      <option value="1-3">1-3 years</option>
-                      <option value="3-5">3-5 years</option>
-                      <option value="5-10">5-10 years</option>
-                      <option value="10+">10+ years</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={getLabelClass('founder', 'businesses_founded')}>First business? *</label>
-                    <select value={form.businesses_founded || ""} onChange={e => setForm({ ...form, businesses_founded: e.target.value })} className={selectCls}>
-                      <option value="">Select option</option>
-                      <option value="first">Yes, first business</option>
-                      <option value="multiple">No, founded others before</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={getLabelClass('founder', 'founder_role')}>Your role *</label>
-                    <select value={form.founder_role || ""} onChange={e => setForm({ ...form, founder_role: e.target.value })} className={selectCls}>
-                      <option value="">Select role</option>
-                      <option value="founder">Founder/Owner</option>
-                      <option value="cofounder">Co-founder</option>
-                      <option value="partner">Partner</option>
-                      <option value="director">Director</option>
-                      <option value="manager">Manager</option>
-                      <option value="multiple">Multiple roles</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={getLabelClass('founder', 'founder_motivation_array', true)}>What motivates you most? (Select up to 3) *</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {FOUNDER_MOTIVATIONS.map(motivation => (
-                      <label key={motivation.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.founder_motivation_array?.includes(motivation.value)}
-                          onChange={() => toggleArrayItem('founder_motivation_array', motivation.value)}
-                          className="rounded border-gray-300 text-[#0d4f4f]"
-                        />
-                        <span>{motivation.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {form.founder_motivation_array?.length > 0 && (
-                    <p className="text-xs text-gray-500 mt-1">Selected: {form.founder_motivation_array.length}/3</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className={labelCls}>Your founder journey</label>
-                  <textarea
-                    value={form.founder_story || ""}
-                    onChange={e => setForm({ ...form, founder_story: e.target.value })}
-                    rows={2}
-                    placeholder="Share your story, what led you to entrepreneurship..."
-                    className={`${inputCls} resize-none`}
-                  />
-                </div>
-              </div>
-            )}
-
-            {section.key === 'pacific' && (
-              <div className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>Note:</strong> Your country, city, and cultural identity information has been collected during profile setup. 
-                    This section focuses on how your Pacific identity influences your business operations.
-                  </p>
-                </div>
-
-                <div>
-                  <label className={getLabelClass('pacific', 'serves_pacific_communities')}>Main audience</label>
-                  <select value={form.serves_pacific_communities || ""} onChange={e => setForm({ ...form, serves_pacific_communities: e.target.value })} className={selectCls}>
-                    <option value="">Select audience</option>
-                    <option value="mainly-pacific">Mainly Pacific communities</option>
-                    <option value="mixed-communities">Mixed communities</option>
-                    <option value="mainstream-general">Mainstream/general market</option>
-                    <option value="export-international">Export/international market</option>
-                    <option value="not-sure-yet">Not sure yet</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className={labelCls}>Culture influences business</label>
-                  <div className="flex items-center space-x-4 mt-3">
-                    <label className="flex items-center">
-                      <input type="radio" name="culture" checked={form.culture_influences_business === true} onChange={() => setForm({ ...form, culture_influences_business: true })} className="w-4 h-4 text-[#0d4f4f]" />
-                      <span className="ml-2 text-sm">Yes</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input type="radio" name="culture" checked={form.culture_influences_business === false} onChange={() => setForm({ ...form, culture_influences_business: false })} className="w-4 h-4 text-[#0d4f4f]" />
-                      <span className="ml-2 text-sm">No</span>
-                    </label>
-                  </div>
-                  {form.culture_influences_business && (
-                    <textarea
-                      value={form.culture_influence_details || ""}
-                      onChange={e => setForm({ ...form, culture_influence_details: e.target.value })}
-                      rows={2}
-                      placeholder="How does culture influence your business..."
-                      className={`${inputCls} resize-none mt-2`}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
-
-            {section.key === 'financial' && (
-              <div className="space-y-4">
-                <div>
-                  <label className={labelCls}>Revenue streams</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {REVENUE_STREAMS.map(stream => (
-                      <label key={stream.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.revenue_streams?.includes(stream.value)}
-                          onChange={() => toggleArrayItem('revenue_streams', stream.value)}
-                          className="rounded border-gray-300 text-[#0d4f4f]"
-                        />
-                        <span>{stream.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={getLabelClass('financial', 'current_funding_source')}>Current funding source</label>
-                    <select value={form.current_funding_source || ""} onChange={e => setForm({ ...form, current_funding_source: e.target.value })} className={selectCls}>
-                      <option value="">Select funding source</option>
-                      {FUNDING_SOURCES.map(source => (
-                        <option key={source.value} value={source.value}>{source.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelCls}>Investment stage</label>
-                    <select value={form.investment_stage || ""} onChange={e => setForm({ ...form, investment_stage: e.target.value })} className={selectCls}>
-                      <option value="">Select investment stage</option>
-                      {INVESTMENT_STAGES.map(stage => (
-                        <option key={stage.value} value={stage.value}>{stage.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={labelCls}>Biggest financial challenges</label>
-                  <textarea
-                    value={form.financial_challenges || ""}
-                    onChange={e => setForm({ ...form, financial_challenges: e.target.value })}
-                    rows={3}
-                    placeholder="What are your main financial challenges or barriers to growth?"
-                    className={`${inputCls} resize-none`}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>Funding amount needed</label>
-                    <select value={form.funding_amount_needed || ""} onChange={e => setForm({ ...form, funding_amount_needed: e.target.value })} className={selectCls}>
-                      <option value="">Select amount</option>
-                      {FUNDING_AMOUNTS.map(amount => (
-                        <option key={amount.value} value={amount.value}>{amount.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelCls}>Primary use of funds</label>
-                    <select value={form.funding_purpose || ""} onChange={e => setForm({ ...form, funding_purpose: e.target.value })} className={selectCls}>
-                      <option value="">Select purpose</option>
-                      {FUNDING_PURPOSES.map(purpose => (
-                        <option key={purpose.value} value={purpose.value}>{purpose.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                  <div className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-green-600 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-semibold text-green-900">Are you also an investor?</h4>
-                      <p className="text-sm text-green-700 mt-1">
-                        Many successful Pacific founders also invest in other businesses. Are you interested in angel investing or seed investing in Pacific startups?
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>Angel investor interest</label>
-                    <select value={form.angel_investor_interest || ""} onChange={e => setForm({ ...form, angel_investor_interest: e.target.value })} className={selectCls}>
-                      <option value="">Select your interest level</option>
-                      {ANGEL_INVESTOR_INTEREST.map(interest => (
-                        <option key={interest.value} value={interest.value}>{interest.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {form.angel_investor_interest && form.angel_investor_interest !== 'not-interested' && form.angel_investor_interest !== 'interested-learning' && (
-                    <div>
-                      <label className={labelCls}>Investment capacity per deal</label>
-                      <select value={form.investor_capacity || ""} onChange={e => setForm({ ...form, investor_capacity: e.target.value })} className={selectCls}>
-                        <option value="">Select investment range</option>
-                        {INVESTOR_CAPACITY.map(capacity => (
-                          <option key={capacity.value} value={capacity.value}>{capacity.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {section.key === 'challenges' && (
-              <div className="space-y-4">
-                <div>
-                  <label className={getLabelClass('challenges', 'top_challenges', true)}>Biggest challenges</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {BUSINESS_CHALLENGES.map(challenge => (
-                      <label key={challenge.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.top_challenges?.includes(challenge.value)}
-                          onChange={() => toggleArrayItem('top_challenges', challenge.value)}
-                          className="rounded border-gray-300 text-[#0d4f4f]"
-                        />
-                        <span>{challenge.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className={getLabelClass('challenges', 'support_needed_next', true)}>Support needed</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {SUPPORT_NEEDS.map(need => (
-                      <label key={need.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.support_needed_next?.includes(need.value)}
-                          onChange={() => toggleArrayItem('support_needed_next', need.value)}
-                          className="rounded border-gray-300 text-[#0d4f4f]"
-                        />
-                        <span>{need.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                {form.support_needed_next?.length > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">Selected: {form.support_needed_next.length}/3</p>
-                )}
-              </div>
-            )}
-
-            {section.key === 'growth' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={getLabelClass('growth', 'business_stage')}>Business stage *</label>
-                    <select value={form.business_stage || ""} onChange={e => setForm({ ...form, business_stage: e.target.value })} className={selectCls}>
-                      <option value="">Select stage</option>
-                      <option value={BUSINESS_STAGE.IDEA}>Idea/Planning</option>
-                      <option value={BUSINESS_STAGE.STARTUP}>Startup (0-2 years)</option>
-                      <option value={BUSINESS_STAGE.GROWTH}>Growth (2-5 years)</option>
-                      <option value={BUSINESS_STAGE.MATURE}>Mature (5+ years)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelCls}>Plan to hire? *</label>
-                    <div className="flex items-center space-x-4 mt-3">
-                      <label className="flex items-center">
-                        <input type="radio" name="hiring" checked={form.hiring_intentions === true} onChange={() => setForm({ ...form, hiring_intentions: true })} className="w-4 h-4 text-[#0d4f4f]" />
-                        <span className="ml-2 text-sm">Yes</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="radio" name="hiring" checked={form.hiring_intentions === false} onChange={() => setForm({ ...form, hiring_intentions: false })} className="w-4 h-4 text-[#0d4f4f]" />
-                        <span className="ml-2 text-sm">No</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={getLabelClass('growth', 'goals_next_12_months_array', true)}>Goals for next 12 months (Select up to 3) *</label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {GOALS_NEXT_12_MONTHS.map(goal => (
-                      <label key={goal.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.goals_next_12_months_array?.includes(goal.value)}
-                          onChange={() => toggleArrayItem('goals_next_12_months_array', goal.value)}
-                          className="rounded border-gray-300 text-[#0d4f4f]"
-                        />
-                        <span>{goal.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                  {form.goals_next_12_months_array?.length > 0 && (
-                    <p className="text-xs text-gray-500 mt-1">Selected: {form.goals_next_12_months_array.length}/3</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className={labelCls}>Main goal details</label>
-                  <textarea
-                    value={form.goals_details || ""}
-                    onChange={e => setForm({ ...form, goals_details: e.target.value })}
-                    rows={2}
-                    placeholder="Tell us more about your main goal this year..."
-                    className={`${inputCls} resize-none`}
-                  />
-                </div>
-
-                <div>
-                  <label className={labelCls}>Are you interested in partnerships or collaborations?</label>
-                  <div className="flex items-center space-x-4 mt-3">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="collaboration_interest"
-                        checked={form.collaboration_interest === true}
-                        onChange={() => setForm({ ...form, collaboration_interest: true })}
-                        className="w-4 h-4 text-[#0d4f4f]"
-                      />
-                      <span className="ml-2 text-sm">Yes</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="collaboration_interest"
-                        checked={form.collaboration_interest === false}
-                        onChange={() => setForm({ ...form, collaboration_interest: false })}
-                        className="w-4 h-4 text-[#0d4f4f]"
-                      />
-                      <span className="ml-2 text-sm">No</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {section.key === 'community' && (
-              <div className="space-y-4">
-                <div>
-                  <label className={labelCls}>Business impact areas (Select all that apply)</label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {COMMUNITY_IMPACT_AREAS.map(area => (
-                      <label key={area.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.community_impact_areas?.includes(area.value)}
-                          onChange={() => toggleArrayItem('community_impact_areas', area.value)}
-                          className="rounded border-gray-300 text-[#0d4f4f]"
-                        />
-                        <span>{area.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>Open to mentoring others?</label>
-                    <div className="flex items-center space-x-4 mt-3">
-                      <label className="flex items-center">
-                        <input type="radio" name="mentor_offering" checked={form.mentorship_offering === true} onChange={() => setForm({ ...form, mentorship_offering: true })} className="w-4 h-4 text-[#0d4f4f]" />
-                        <span className="ml-2 text-sm">Yes</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="radio" name="mentor_offering" checked={form.mentorship_offering === false} onChange={() => setForm({ ...form, mentorship_offering: false })} className="w-4 h-4 text-[#0d4f4f]" />
-                        <span className="ml-2 text-sm">No</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-semibold text-blue-900">Thank you for sharing your founder journey!</h4>
-                      <p className="text-sm text-blue-700 mt-1">
-                        Your insights help us build a stronger picture of Pacific entrepreneurship and identify how we can better support founders like you.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div className="text-center py-8">
+              <p className="text-gray-500">Form content would go here</p>
+            </div>
           </div>
         )}
       </div>
@@ -685,6 +357,27 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
   return (
     <div className="space-y-4">
       {SECTIONS.map(renderSection)}
+      
+      {/* Submit Button */}
+      <div className="mt-8 flex justify-end">
+        <button
+          onClick={handleSubmitAll}
+          disabled={submitting || isLoading}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitting || isLoading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              Submit Founder Insights
+              <ChevronRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
