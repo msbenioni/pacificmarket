@@ -6,7 +6,7 @@ import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrC
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { TIER_BENEFITS } from "@/constants/businessProfile";
-import { BUSINESS_TIER, BUSINESS_STATUS, getTierDisplayName } from "@/constants/unifiedConstants";
+import { BUSINESS_TIER, BUSINESS_STATUS, getTierDisplayName, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
 import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
 import FounderInsightsForm from "@/components/forms/FounderInsightsForm";
@@ -48,6 +48,17 @@ export default function BusinessPortal() {
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
   const { toast } = useToast();
+
+  // Helper functions to format database values to readable labels
+  const getCountryLabel = (countryValue) => {
+    const country = COUNTRIES.find(c => c.value === countryValue);
+    return country ? country.label : countryValue;
+  };
+
+  const getIndustryLabel = (industryValue) => {
+    const industry = INDUSTRIES.find(i => i.value === industryValue);
+    return industry ? industry.label : industryValue;
+  };
 
   // Helper to get latest snapshot for a business
   const getLatestSnapshot = (businessId) =>
@@ -880,7 +891,7 @@ export default function BusinessPortal() {
 
                               <p className="mt-2 text-sm text-slate-600">
                                 {b.city ? `${b.city}, ` : ""}
-                                {b.country} · {b.industry}
+                                {getCountryLabel(b.country)} · {getIndustryLabel(b.industry)}
                               </p>
 
                               <div className="mt-3">
