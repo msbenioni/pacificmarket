@@ -41,6 +41,7 @@ export default function BusinessPortal() {
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedBusinessForInsights, setSelectedBusinessForInsights] = useState(null);
   const [insightsSubmitting, setInsightsSubmitting] = useState(false);
+  const [insightsStarted, setInsightsStarted] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showClaimAddModal, setShowClaimAddModal] = useState(false);
   const [claimAddDefaultView, setClaimAddDefaultView] = useState("choice");
@@ -547,7 +548,7 @@ export default function BusinessPortal() {
             {[
               { id: "my-businesses", label: "My Businesses", icon: Building2, count: businesses.length },
               { id: "claims", label: "Claim Requests", icon: CheckCircle, count: claims.length },
-              { id: "insights", label: "Founder Insights", icon: Users, status: insightSnapshots.length > 0 ? "completed" : "incomplete" },
+              { id: "insights", label: "Founder Insights", icon: Users, status: insightSnapshots.length > 0 ? "completed" : insightsStarted ? "started" : "not-started" },
               { id: "tools", label: "Business Tools", icon: FileText },
             ].map((tab) => (
               <button
@@ -565,7 +566,12 @@ export default function BusinessPortal() {
                 {tab.status === "completed" && (
                   <CheckCircle className="w-4 h-4 ml-2 text-green-600" />
                 )}
-                {tab.status === "incomplete" && (
+                {tab.status === "started" && (
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-blue-300 bg-blue-50 text-blue-600">
+                    started
+                  </span>
+                )}
+                {tab.status === "not-started" && (
                   <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-gray-300 text-gray-500">
                     not started
                   </span>
@@ -1010,6 +1016,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
                             onSubmit={handleFounderInsightsSubmit}
                             isLoading={insightsSubmitting}
                             initialData={insightSnapshots[0]}
+                            onStart={() => setInsightsStarted(true)}
                           />
                         </div>
                       </div>

@@ -29,8 +29,9 @@ const SECTIONS = [
   { key: "community", label: "Community & Impact", icon: Lightbulb, description: "Help us understand your values, collaboration, and ecosystem potential" },
 ];
 
-export default function FounderInsightsForm({ businessId, onSubmit, isLoading, initialData = null }) {
+export default function FounderInsightsForm({ businessId, onSubmit, isLoading, initialData = null, onStart }) {
   const [expandedSections, setExpandedSections] = useState(new Set(['founder']));
+  const [hasStarted, setHasStarted] = useState(false);
   
   // Create a stable initial form state to avoid controlled/uncontrolled input issues
   const getInitialForm = () => {
@@ -80,12 +81,22 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     };
   };
   
-  const [form, setForm] = useState(getInitialForm());
+  const [form, setFormState] = useState(getInitialForm());
+
+  // Wrapper function to handle form updates and trigger onStart on first change
+  const setForm = (newForm) => {
+    setFormState(newForm);
+    // Trigger onStart on first form change (but not for initial data loading)
+    if (!hasStarted && onStart && !initialData) {
+      setHasStarted(true);
+      onStart();
+    }
+  };
 
   // Update form when initialData changes (fixes controlled input issue)
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setFormState(initialData);
     }
   }, [initialData]);
 
@@ -795,9 +806,34 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     <div className="space-y-4">
       {SECTIONS.map(renderSection)}
       
+      {/* Auto-save Status Indicator */}
+      {autoSaveStatus && (
+        <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${
+          autoSaveStatus === 'saved' ? 'bg-green-50 text-green-700' :
+          autoSaveStatus === 'saving' ? 'bg-blue-50 text-blue-700' :
+          'bg-red-50 text-red-700'
+        }`}>
+          {autoSaveStatus === 'saved' && <CheckCircle className="w-4 h-4" />}
+          {autoSaveStatus === 'saving' && <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />}
+          {autoSaveStatus === 'error' && <AlertCircle className="w-4 h-4" />}
+          <span>
+            {autoSaveStatus === 'saved' ? 'All changes saved' :
+             autoSaveStatus === 'saving' ? 'Saving...' :
+             'Save failed'}
+          </span>
+        </div>
+      )}
+      
       <div className="flex justify-between items-center pt-6 border-t border-gray-200">
-        <div className="text-sm text-gray-600">
-          Complete all required sections marked with *
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-600">
+            Complete all required sections marked with *
+          </div>
+          {lastSaved && (
+            <div className="text-xs text-gray-500">
+              Last saved: {new Date(lastSaved).toLocaleTimeString()}
+            </div>
+          )}
         </div>
         <button
           onClick={handleSubmit}
