@@ -166,7 +166,13 @@ export default function InvoiceGenerator() {
     loadBusinessSettings();
   }, [selectedBusinessId, mode]);
 
-  const setField = (key, val) => setInvoice(i => ({ ...i, [key]: val }));
+  const setField = (key, val) => {
+    setInvoice(i => ({ ...i, [key]: val }));
+  };
+  
+  const handleInputChange = (key, value) => {
+    setField(key, value);
+  };
   const setItem = (idx, key, val) => setInvoice(i => ({ ...i, items: i.items.map((item, j) => j === idx ? { ...item, [key]: val } : item) }));
   const addItem = () => setInvoice(i => ({ ...i, items: [...i.items, { description: "", quantity: 1, unit_price: "" }] }));
   const removeItem = (idx) => setInvoice(i => ({ ...i, items: i.items.filter((_, j) => j !== idx) }));
@@ -202,39 +208,39 @@ export default function InvoiceGenerator() {
     children,
   }) {
     return (
-      <div className="border-b border-gray-100 last:border-b-0">
+      <div className="border-b border-gray-100 last:border-b-0 bg-gradient-to-r from-[#0a1628] to-[#0d4f4f] text-white">
         <button
           type="button"
           onClick={onToggle}
-          className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition"
+          className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-white/10 transition"
         >
           <div className="flex items-start gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-[#0a1628]/5 flex items-center justify-center shrink-0">
-              <Icon className="w-4 h-4 text-[#0a1628]" />
+            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+              <Icon className="w-4 h-4 text-white" />
             </div>
 
             <div className="min-w-0">
-              <div className="font-semibold text-[#0a1628] text-sm">{title}</div>
+              <div className="font-semibold text-white text-sm">{title}</div>
               {subtitle && (
-                <div className="text-xs text-gray-500 mt-0.5">{subtitle}</div>
+                <div className="text-xs text-gray-300 mt-0.5">{subtitle}</div>
               )}
             </div>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             {summary && (
-              <div className="hidden md:block text-xs text-gray-400 text-right max-w-[140px] truncate">
+              <div className="hidden md:block text-xs text-gray-300 text-right max-w-[140px] truncate">
                 {summary}
               </div>
             )}
-            <div className="text-gray-400 text-sm">
+            <div className="text-gray-300 text-sm">
               {isOpen ? <ChevronDown className="w-4 h-4 rotate-180" /> : <ChevronDown className="w-4 h-4" />}
             </div>
           </div>
         </button>
 
         {isOpen && (
-          <div className="px-5 pb-5">
+          <div className="px-5 pb-5 bg-white">
             <div className="pt-1">{children}</div>
           </div>
         )}
@@ -386,7 +392,7 @@ export default function InvoiceGenerator() {
   const withholdingTax = adjustedGrossTotal * (withholdingTaxRate / 100);
   const totalPayable = adjustedGrossTotal - withholdingTax;
 
-  const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white";
+  const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628]";
 
   // Summary functions for accordion headers
   const getBusinessSummary = () => {
@@ -556,11 +562,11 @@ export default function InvoiceGenerator() {
               >
                 {mode === "business" && (
                   <div className="mb-4">
-                    <label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-2">Select Business</label>
+                    <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-2">Select Business</label>
                     <select
                       value={selectedBusinessId}
                       onChange={(e) => setSelectedBusinessId(e.target.value)}
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628]"
                     >
                       <option value="">Choose a business...</option>
                       {businesses.map((business) => (
@@ -573,10 +579,10 @@ export default function InvoiceGenerator() {
                 )}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Business Name</label><input value={invoice.sender_name} onChange={e => setField("sender_name", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Email</label><input value={invoice.sender_email} onChange={e => setField("sender_email", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Phone</label><input value={invoice.sender_phone} onChange={e => setField("sender_phone", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Address</label><input value={invoice.sender_address} onChange={e => setField("sender_address", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Business Name</label><input value={invoice.sender_name} onChange={e => setField("sender_name", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Email</label><input value={invoice.sender_email} onChange={e => setField("sender_email", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Phone</label><input value={invoice.sender_phone} onChange={e => setField("sender_phone", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Address</label><input value={invoice.sender_address} onChange={e => setField("sender_address", e.target.value)} className={inputCls} /></div>
                 </div>
               </InvoiceAccordionSection>
 
@@ -591,11 +597,11 @@ export default function InvoiceGenerator() {
                 onToggle={() => toggleSection("invoice")}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Invoice #</label><input value={invoice.invoice_number} onChange={e => setField("invoice_number", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Date</label><input type="date" value={invoice.date} onChange={e => setField("date", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Due Date</label><input type="date" value={invoice.due_date} onChange={e => setField("due_date", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Tax Rate (%)</label><input type="number" value={invoice.tax_rate || ""} onChange={e => setField("tax_rate", e.target.value)} className={inputCls} placeholder="Optional" /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Withholding Tax Rate (%)</label><input type="number" value={invoice.withholding_tax_rate || ""} onChange={e => setField("withholding_tax_rate", e.target.value)} className={inputCls} placeholder="Optional" /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Invoice #</label><input value={invoice.invoice_number} onChange={e => setField("invoice_number", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Date</label><input type="date" value={invoice.date} onChange={e => setField("date", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Due Date</label><input type="date" value={invoice.due_date} onChange={e => setField("due_date", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Tax Rate (%)</label><input type="number" value={invoice.tax_rate || ""} onChange={e => setField("tax_rate", e.target.value)} className={inputCls} placeholder="Optional" /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Withholding Tax Rate (%)</label><input type="number" value={invoice.withholding_tax_rate || ""} onChange={e => setField("withholding_tax_rate", e.target.value)} className={inputCls} placeholder="Optional" /></div>
                 </div>
               </InvoiceAccordionSection>
 
@@ -610,10 +616,10 @@ export default function InvoiceGenerator() {
                 onToggle={() => toggleSection("client")}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Client Name</label><input value={invoice.client_name} onChange={e => setField("client_name", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Email</label><input value={invoice.client_email} onChange={e => setField("client_email", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Phone</label><input value={invoice.client_phone} onChange={e => setField("client_phone", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Address</label><textarea value={invoice.client_address} onChange={e => setField("client_address", e.target.value)} rows={2} className={`${inputCls} resize-none`} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Client Name</label><input value={invoice.client_name} onChange={e => setField("client_name", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Email</label><input value={invoice.client_email} onChange={e => setField("client_email", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Phone</label><input value={invoice.client_phone} onChange={e => setField("client_phone", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Address</label><textarea value={invoice.client_address} onChange={e => setField("client_address", e.target.value)} rows={2} className={`${inputCls} resize-none`} /></div>
                 </div>
               </InvoiceAccordionSection>
 
@@ -731,10 +737,10 @@ export default function InvoiceGenerator() {
                 onToggle={() => toggleSection("payment")}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Account Name</label><input value={invoice.payment_account_name} onChange={e => setField("payment_account_name", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Account Number</label><input value={invoice.payment_account_number} onChange={e => setField("payment_account_number", e.target.value)} className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Payment Reference Label</label><input value={invoice.payment_reference_label} onChange={e => setField("payment_reference_label", e.target.value)} placeholder="e.g., Use invoice number as reference" className={inputCls} /></div>
-                  <div><label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Payment Terms</label><input value={invoice.payment_terms} onChange={e => setField("payment_terms", e.target.value)} placeholder="e.g., Due within 14 days" className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Account Name</label><input value={invoice.payment_account_name} onChange={e => setField("payment_account_name", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Account Number</label><input value={invoice.payment_account_number} onChange={e => setField("payment_account_number", e.target.value)} className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Payment Reference Label</label><input value={invoice.payment_reference_label} onChange={e => setField("payment_reference_label", e.target.value)} placeholder="e.g., Use invoice number as reference" className={inputCls} /></div>
+                  <div><label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Payment Terms</label><input value={invoice.payment_terms} onChange={e => setField("payment_terms", e.target.value)} placeholder="e.g., Due within 14 days" className={inputCls} /></div>
                 </div>
               </InvoiceAccordionSection>
 
@@ -751,26 +757,26 @@ export default function InvoiceGenerator() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Primary Colour</label>
+                      <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Primary Colour</label>
                       <input type="color" value={invoice.brand_primary} onChange={e => setField("brand_primary", e.target.value)} className="w-full h-10 rounded-lg border border-gray-200 cursor-pointer" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Accent Colour</label>
+                      <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Accent Colour</label>
                       <input type="color" value={invoice.brand_accent} onChange={e => setField("brand_accent", e.target.value)} className="w-full h-10 rounded-lg border border-gray-200 cursor-pointer" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Text Colour</label>
+                      <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Text Colour</label>
                       <input type="color" value={invoice.brand_text} onChange={e => setField("brand_text", e.target.value)} className="w-full h-10 rounded-lg border border-gray-200 cursor-pointer" />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Notes</label>
+                    <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Notes</label>
                     <textarea value={invoice.notes} onChange={e => setField("notes", e.target.value)} rows={3} placeholder="Payment terms, thank you note, etc..." className={`${inputCls} resize-none`} />
                   </div>
                   
                   <div>
-                    <label className="text-xs text-gray-400 font-semibold uppercase tracking-wider block mb-1">Footer Note</label>
+                    <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Footer Note</label>
                     <input value={invoice.footer_note} onChange={e => setField("footer_note", e.target.value)} placeholder="Generated with Pacific Market business tools" className={inputCls} />
                   </div>
                 </div>
@@ -805,7 +811,7 @@ export default function InvoiceGenerator() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold text-sm">{invoice.sender_name || user?.full_name || "Your Business"}</span>
                       </div>
-                      <p className="text-gray-400 text-xs">{invoice.sender_email || user?.email}</p>
+                      <p className="text-gray-400 text-xs">{invoice.sender_email}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -971,9 +977,16 @@ export default function InvoiceGenerator() {
                   </div>
                 )}
 
+                {invoice.footer_note && (
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Footer</p>
+                    <p className="text-gray-500 text-sm">{invoice.footer_note}</p>
+                  </div>
+                )}
+
                 <div className="mt-8 pt-4 border-t border-gray-50 text-center">
                   <p className="text-xs text-gray-300">Pacific Market · pacific-market.com</p>
-            </div>
+                </div>
           </div>
         </div>
           </div>
