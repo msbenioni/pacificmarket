@@ -993,8 +993,7 @@ export default function BusinessPortal() {
                     Share Your Founder Journey
                   </h2>
                   <p className={portalUI.sectionDesc}>
-                    Help us understand the real experiences behind Pacific businesses so we can better highlight needs, strengths, and opportunities across our communities.
-                  </p>
+Your responses help Pacific Market build a clearer understanding of founder experiences across Pacific communities. By identifying common challenges, growth patterns, and opportunities, we can highlight where founders need more visibility, tools, and practical support.                  </p>
                 </div>
               </div>
 
