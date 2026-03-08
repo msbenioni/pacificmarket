@@ -397,7 +397,7 @@ export default function DetailedBusinessForm({
           <h3 className="font-bold text-[#0a1628] text-lg">Media & Details</h3>
           <div>
             <label className={labelCls}>Logo</label>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <label className="flex items-center justify-center w-20 h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#0d4f4f] transition-colors">
                 {form.logo_url ? (
                   <img src={form.logo_url} alt="Logo" className="w-full h-full object-contain rounded-lg" />
