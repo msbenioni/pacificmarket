@@ -762,11 +762,43 @@ export default function InvoiceGenerator() {
               >
                 <div className="space-y-2">
                   {invoice.items.map((item, i) => (
-                    <div key={i} className="flex gap-2">
-                      <input value={item.description} onChange={e => setItem(i, "description", e.target.value)} placeholder="Description" className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]" />
-                      <input type="number" value={item.quantity} onChange={e => setItem(i, "quantity", parseFloat(e.target.value)||0)} placeholder="Qty" className="w-16 text-center text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" />
-                      <input type="number" value={item.unit_price} onChange={e => setItem(i, "unit_price", e.target.value)} placeholder="Price" className="w-24 text-right text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" />
-                      <button onClick={() => removeItem(i)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">
+                    <div key={i} className="rounded-xl border border-gray-200 p-3 space-y-3 sm:border-0 sm:p-0 sm:space-y-0">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input 
+                          value={item.description} 
+                          onChange={e => setItem(i, "description", e.target.value)} 
+                          placeholder="Description" 
+                          className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]" 
+                        />
+                        <div className="grid grid-cols-2 sm:flex gap-2">
+                          <input 
+                            type="number" 
+                            value={item.quantity} 
+                            onChange={e => setItem(i, "quantity", parseFloat(e.target.value)||0)} 
+                            placeholder="Qty" 
+                            className="w-full sm:w-16 text-center text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" 
+                          />
+                          <input 
+                            type="number" 
+                            value={item.unit_price} 
+                            onChange={e => setItem(i, "unit_price", e.target.value)} 
+                            placeholder="Price" 
+                            className="w-full sm:w-24 text-right text-sm text-gray-700 placeholder:text-gray-400 border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#0d4f4f]" 
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end sm:hidden">
+                        <button 
+                          onClick={() => removeItem(i)} 
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <button 
+                        onClick={() => removeItem(i)} 
+                        className="hidden sm:inline-flex p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
