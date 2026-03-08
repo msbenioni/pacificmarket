@@ -348,7 +348,7 @@ export default function DetailedBusinessForm({
             </div>
           )}
           {!excludeFields.includes("country") && !excludeFields.includes("city") && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>Country *</label>
                 <select value={form.country || ""} onChange={e => set("country", e.target.value)} className={inputCls}>
@@ -458,7 +458,7 @@ export default function DetailedBusinessForm({
             </div>
           )}
           {!excludeFields.includes("instagram") && !excludeFields.includes("facebook") && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>Instagram</label>
                 <input 
@@ -480,7 +480,7 @@ export default function DetailedBusinessForm({
             </div>
           )}
           {!excludeFields.includes("tiktok") && !excludeFields.includes("linkedin") && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>TikTok</label>
                 <input 
@@ -526,7 +526,7 @@ export default function DetailedBusinessForm({
           {isAdminMode() && (
             <div className="border-t border-gray-200 pt-5 mt-5">
               <h4 className="font-semibold text-[#0a1628] text-sm mb-4">Admin Settings</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {shouldShowField("status") && (
                   <div>
                     <label className={labelCls}>Status</label>
