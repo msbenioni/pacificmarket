@@ -24,7 +24,7 @@ function InvoiceAccordionSection({
       <button
         type="button"
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-white/10 transition"
+        className="w-full flex items-center justify-between gap-4 px-4 sm:px-5 py-4 text-left hover:bg-white/10 transition"
       >
         <div className="flex items-start gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
@@ -52,7 +52,7 @@ function InvoiceAccordionSection({
       </button>
 
       {isOpen && (
-        <div className="px-5 pb-5 bg-white">
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 bg-white">
           <div className="pt-1">{children}</div>
         </div>
       )}
