@@ -252,7 +252,7 @@ export default function QRCodeGenerator() {
             {/* Size */}
             <div className="bg-white border border-gray-100 rounded-2xl p-5">
               <h3 className="font-bold text-[#0a1628] text-sm mb-3">Size</h3>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[200, 300, 400, 500].map(s => (
                   <button key={s} onClick={() => setSize(s)}
                     className={`flex-1 py-2 rounded-xl text-sm font-medium border-2 transition-all ${
