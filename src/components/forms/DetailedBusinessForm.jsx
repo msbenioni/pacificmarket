@@ -248,7 +248,8 @@ export default function DetailedBusinessForm({
     const link = socialLinks.find(link => link.platform === platform);
     return link?.url || "";
   };
-  const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-1 focus:ring-[#0d4f4f]/20 bg-white";
+  const inputCls =
+  "w-full min-h-[44px] border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white";
   const labelCls = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
   const handleImageUpload = async (e, type) => {
