@@ -141,7 +141,7 @@ export default function Pricing() {
         subtitle=""
         description={(
           <>
-            <span className="sm:hidden">Choose a plan that matches your visibility today, then upgrade as you grow.</span>
+            <span className="sm:hidden">Start with Vaka to be represented in the registry, then upgrade as you grow.</span>
             <span className="hidden sm:inline">Start with Vaka to be represented in the registry, move into Mana for stronger trust and branding, or choose Moana for premium visibility and practical tools designed to help Pacific businesses grow.</span>
           </>
         )}
