@@ -41,7 +41,7 @@ export default function About() {
     },
     {
       icon: Users,
-      title: "Pacific-led Stewardship",
+      title: "Pacific-led leadership",
       desc: "Built in Aotearoa and guided by Pacific values, with people, trust, and long-term community benefit at the centre.",
       tone: "text-[#c9a84c]",
     },
@@ -154,6 +154,7 @@ export default function About() {
                   <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
                     <span className="text-[#c9a84c] font-semibold">A core belief:</span>{" "}
                     Pacific enterprise did not begin here.
+                    <br className="hidden sm:block" />
                     This platform simply makes it easier to see.
                   </p>
                 </div>
@@ -222,27 +223,12 @@ export default function About() {
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0d4f4f]">
                   What Pacific Market is
                 </p>
-                <p className="text-[#0a1628] font-semibold mb-4">
-                What Pacific Market Is
-              </p>
-              <p className="text-[#0a1628] leading-6 mb-6">
-                Pacific Market is not just a directory.
-                It is a structured registry designed to represent Pacific-owned businesses with greater depth, clarity, and credibility.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "Pacific-led registry",
-                  "Verified business visibility",
-                  "Structured representation",
-                ].map((chip) => (
-                  <span
-                    key={chip}
-                    className="px-3 py-1.5 rounded-full border border-[#0d4f4f]/20 bg-[#0d4f4f]/5 text-xs text-[#0d4f4f] font-medium"
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-[#0a1628] mt-2">
+                  A structured registry for Pacific-owned businesses
+                </h2>
+                <p className="text-sm sm:text-base text-gray-600 mt-3 leading-relaxed">
+                  Pacific Market is not just a directory. It is a structured registry designed to represent Pacific-owned businesses with greater depth, clarity, and credibility.
+                </p>
               </div>
             </div>
           </div>
@@ -298,14 +284,6 @@ export default function About() {
                     className="object-cover"
                   />
                 </div>
-              </div>
-              <div className="absolute -bottom-4 left-4 right-4 sm:-bottom-6 sm:-left-6 sm:right-auto max-w-none sm:max-w-xs rounded-2xl border border-[#c9a84c]/30 bg-white p-4 sm:p-5 shadow-[0_18px_40px_rgba(10,22,40,0.10)]">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0d4f4f] mb-2">
-                  The deeper truth
-                </p>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Pacific people have never lacked enterprise. What has often been lacking is structured visibility.
-                </p>
               </div>
             </div>
           </div>
@@ -364,8 +342,8 @@ export default function About() {
                   That is the spirit behind Pacific Market.
                 </p>
                 <p>
-                  Not a borrowed idea of entrepreneurship,
-                  but a recognition that Pacific people have always had business knowledge, capability, and ingenuity — even when it was never called "entrepreneurship".
+                  This is not a borrowed idea of entrepreneurship.
+                  It is a recognition that Pacific people have long carried business knowledge, capability, and ingenuity — even when it was not named that way.
                 </p>
                 <p className="text-[#0a1628] font-semibold">
                   Pacific Market simply exists to make that reality easier to see.
@@ -411,7 +389,7 @@ export default function About() {
               <div className="w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-[#00c4cc] to-transparent mx-auto my-6" />
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                Pacific Market exists to help close that gap — with structure, pride, and a registry designed to represent Pacific-owned business with greater clarity and respect.
+                Pacific Market helps close that gap with structure, pride, and a more respectful standard of representation.
               </p>
             </div>
           </div>
@@ -574,7 +552,7 @@ export default function About() {
                     Through his work, he brings a strong understanding of visibility, partnerships, and what it takes to grow trust with people, communities, and organisations in a way that feels practical and genuine.
                   </p>
                   <p>
-                    His role helps ensure the platform is not only well built, but well connected — shaped by real relationships, community insight, and a commitment to helping Pacific businesses be recognised, supported, and discovered more widely.
+                    His role helps ensure the platform is not only well built, but well connected — grounded in real relationships, community insight, and a commitment to wider recognition for Pacific businesses.
                   </p>
                 </div>
 
@@ -615,7 +593,7 @@ export default function About() {
                   It comes from lived understanding — from seeing the skill, care, and business intelligence that already exists across Pacific communities, often without the digital visibility it deserves.
                 </p>
                 <p>
-                  We know many Pacific businesses carry deep value long before they ever have polished branding or strong online discoverability. This platform exists to help close that gap with dignity, structure, and pride.
+                  We know many Pacific businesses carry deep value long before they have polished branding or strong online visibility. This platform exists to help close that gap with dignity, structure, and pride.
                 </p>
                 <p className="font-semibold text-[#0a1628]">
                   This is about building something modern that still honours where we come from.
@@ -698,7 +676,7 @@ export default function About() {
                 Add your business to the Pacific record
               </h2>
               <p className="text-sm sm:text-base text-slate-300 leading-6 mb-6 sm:mb-8 max-w-2xl mx-auto">
-                Pacific business has always been here. Pacific Market helps make it visible. Join the registry and represent your work, your people, and your place in Pacific enterprise with pride.
+                Pacific business has always been here. Pacific Market helps give it the visibility, structure, and recognition it deserves. Join the registry with pride.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
