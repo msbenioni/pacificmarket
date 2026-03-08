@@ -19,7 +19,7 @@ export default function Registry() {
   const [view, setView] = useState("grid");
   const [sort, setSort] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
-  const defaultFilters = { search: "", country: "", industry: "", verified: false, identity: "" };
+  const defaultFilters = { search: "", country: "", industry: "" };
   const [filters, setFilters] = useState(defaultFilters);
   const [draftFilters, setDraftFilters] = useState(defaultFilters);
 
