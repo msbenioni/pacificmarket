@@ -557,7 +557,7 @@ export default function InvoiceGenerator() {
         
         {/* Mode Tabs */}
         <div className="bg-white/95 border border-gray-200 shadow-sm rounded-2xl p-2 mb-8">
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => setMode("business")}
               className={`flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl text-sm font-medium transition-all border ${
