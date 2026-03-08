@@ -225,7 +225,7 @@ export default function Registry() {
             </div>
             <RegistryFilters filters={draftFilters} onChange={setDraftFilters} />
           </div>
-          <div className="absolute inset-x-0 bottom-0 bg-[#f8f9fc] border-t border-gray-200 p-4 flex gap-3">
+          <div className="absolute inset-x-0 bottom-0 bg-[#f8f9fc]/95 backdrop-blur border-t border-gray-200 p-4 flex gap-3">
             <button
               onClick={clearDrafts}
               className="flex-1 min-h-[44px] rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-600"
