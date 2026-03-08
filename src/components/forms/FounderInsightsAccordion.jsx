@@ -331,7 +331,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
             <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gray-50 border-t border-gray-200">
             {section.key === 'founder' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={getLabelClass('founder', 'gender')}>Gender</label>
                     <select value={form.gender || ""} onChange={e => setFormState(prev => ({ ...prev, gender: e.target.value }))} className={selectCls}>
@@ -492,7 +492,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
 
             {section.key === 'financial' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={getLabelClass('financial', 'current_funding_source')}>Current funding source</label>
                     <select value={form.current_funding_source || ""} onChange={e => setFormState(prev => ({ ...prev, current_funding_source: e.target.value }))} className={selectCls}>
@@ -669,7 +669,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input
@@ -740,11 +740,11 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
       {SECTIONS.map(renderSection)}
       
       {/* Submit Button */}
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex flex-col sm:flex-row sm:justify-end">
         <button
           onClick={handleSubmitAll}
           disabled={submitting || isLoading}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex min-h-[48px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting || isLoading ? (
             <>
