@@ -886,7 +886,7 @@ export default function InvoiceGenerator() {
               
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden invoice-preview" ref={printRef}>
                 {/* Header */}
-                <div className="bg-[#0a1628] text-white p-8">
+                <div className="bg-[#0a1628] text-white p-4 sm:p-8">
                   <div className="flex justify-between items-start">
                     <div className="flex gap-4">
                       {/* Logo */}
@@ -919,7 +919,7 @@ export default function InvoiceGenerator() {
                   </div>
                 </div>
 
-                <div className="p-8">
+                <div className="p-4 sm:p-8">
                   <div className="grid grid-cols-2 gap-8 mb-8">
                     <div>
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Bill To</p>
