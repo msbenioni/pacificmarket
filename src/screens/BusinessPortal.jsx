@@ -1020,14 +1020,14 @@ Your responses help Pacific Market build a clearer understanding of founder expe
             <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
               <button 
                 onClick={() => setShowAddOwnerModal(null)} 
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] transition"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] transition w-full sm:w-auto min-h-[44px]"
               >
                 Cancel
               </button>
               <button 
                 onClick={() => handleAddOwner(showAddOwnerModal)} 
                 disabled={addingOwner} 
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] disabled:opacity-50 w-full sm:w-auto min-h-[44px]"
               >
                 {addingOwner ? "Adding..." : "Add Owner"}
               </button>
@@ -1058,7 +1058,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
              <div className="flex sm:justify-end">
                <button 
                  onClick={() => setEditingBusiness(null)} 
-                 className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition"
+                 className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition w-full sm:w-auto min-h-[44px]"
                >
                  Cancel
                </button>
