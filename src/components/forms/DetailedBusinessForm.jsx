@@ -343,7 +343,7 @@ export default function DetailedBusinessForm({
               <label className={labelCls}>Registry Handle *</label>
               <div className="flex gap-2">
                 <input value={form.business_handle || ""} onChange={e => set("business_handle", e.target.value)} placeholder="tala-pacific-consulting" className={inputCls} />
-                <button onClick={handleGenerateHandle} className="text-xs bg-[#0a1628] text-white px-3 py-2 rounded-xl hover:bg-[#122040] flex-shrink-0">Auto</button>
+                <button type="button" onClick={handleGenerateHandle} className="text-xs bg-[#0a1628] text-white px-3 py-2 rounded-xl hover:bg-[#122040] flex-shrink-0">Auto</button>
               </div>
               <p className="text-xs text-gray-400 mt-1">Unique URL identifier. Lowercase letters, numbers and hyphens only.</p>
             </div>
