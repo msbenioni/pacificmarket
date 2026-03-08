@@ -301,41 +301,22 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
             </div>
           </button>
 
-          <div className="flex items-center gap-2 ml-4">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveSection(section.key);
-              }}
-              disabled={submitting || isLoading}
-              className="inline-flex items-center gap-1 rounded-lg bg-[#0d4f4f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting || isLoading ? (
-                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  Save
-                </>
-              )}
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => toggleSection(section.key)}
-              className={`p-1 ${hasErrors ? 'text-red-600' : 'text-gray-400'}`}
-            >
-              {isExpanded ? (
-                <ChevronUp className="w-5 h-5" />
-              ) : (
-                <ChevronDown className="w-5 h-5" />
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => toggleSection(section.key)}
+            className={`p-1 ${hasErrors ? 'text-red-600' : 'text-gray-400'}`}
+          >
+            {isExpanded ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
         </div>
         
         {isExpanded && (
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <>
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
             {section.key === 'founder' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -703,7 +684,26 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
               </div>
             )}
           </div>
+          
+          <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-end">
+            <button
+              type="button"
+              onClick={() => handleSaveSection(section.key)}
+              disabled={submitting || isLoading}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#0d4f4f] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting || isLoading ? (
+                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  Save Section
+                </>
+              )}
+            </button>
+          </div>
+          </>
         )}
+        
       </div>
     );
   };
