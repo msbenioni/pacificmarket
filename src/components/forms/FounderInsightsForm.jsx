@@ -1121,7 +1121,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between items-center pt-6 border-t border-gray-200">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 pt-6 border-t border-gray-200">
         <button
           onClick={() => updateStep(step - 1)}
           disabled={step === 1}
