@@ -413,9 +413,9 @@ export default function FeaturedSpotlight({ businesses = [] }) {
   if (!total || hourlyWindowIndex === null) return null;
 
   return (
-    <div className="grid lg:grid-cols-12 gap-6 items-stretch">
-      {/* Left: grid */}
-      <div className="lg:col-span-7">
+    <div className="space-y-5 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-6 lg:items-stretch">
+      {/* Left: grid (desktop) */}
+      <div className="hidden lg:block lg:col-span-7">
         <div className="grid sm:grid-cols-2 gap-4 h-full">
           {gridItems.map((b, i) => {
             const isActive = i === selectedIndex;
@@ -460,14 +460,9 @@ export default function FeaturedSpotlight({ businesses = [] }) {
             </button>
           </div>
         )}
-
-        {/* Mobile hint */}
-        <div className="mt-3 text-xs text-slate-500 lg:hidden">
-          Tap a card to preview the Moana spotlight.
-        </div>
       </div>
 
-      {/* Right: spotlight */}
+      {/* Spotlight */}
       <div className="lg:col-span-5">
         <div className="h-full flex flex-col">
           <div className="flex-1">
@@ -478,6 +473,24 @@ export default function FeaturedSpotlight({ businesses = [] }) {
               onPrev={() => setSelectedIndex((i) => (i - 1 + gridItems.length) % gridItems.length)}
               onNext={() => setSelectedIndex((i) => (i + 1) % gridItems.length)}
             />
+          </div>
+
+          <div className="mt-4 flex items-center justify-center gap-2 lg:hidden">
+            {gridItems.map((item, i) => (
+              <button
+                key={item.id || item.business_handle || i}
+                type="button"
+                onClick={() => setSelectedIndex(i)}
+                aria-label={`View spotlight ${i + 1} of ${gridItems.length}`}
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center"
+              >
+                <span
+                  className={`h-2.5 w-2.5 rounded-full transition-all ${
+                    i === selectedIndex ? "bg-[#c9a84c]" : "bg-[#0a1628]/20"
+                  }`}
+                />
+              </button>
+            ))}
           </div>
         </div>
       </div>

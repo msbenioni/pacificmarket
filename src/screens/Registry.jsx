@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
-import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
+import { LayoutGrid, List, SlidersHorizontal, X, Search } from "lucide-react";
 import BusinessCard from "../components/registry/BusinessCard";
 import RegistryFilters from "../components/registry/RegistryFilters";
 import HeroRegistry from "../components/shared/HeroRegistry";
@@ -19,7 +19,9 @@ export default function Registry() {
   const [view, setView] = useState("grid");
   const [sort, setSort] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({ search: "", country: "", industry: "", verified: false, identity: "" });
+  const defaultFilters = { search: "", country: "", industry: "", verified: false, identity: "" };
+  const [filters, setFilters] = useState(defaultFilters);
+  const [draftFilters, setDraftFilters] = useState(defaultFilters);
 
   useEffect(() => {
     const loadBusinesses = async () => {
@@ -43,6 +45,15 @@ export default function Registry() {
     loadBusinesses();
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+    const handleViewChange = () => setView(mediaQuery.matches ? "list" : "grid");
+    handleViewChange();
+    mediaQuery.addEventListener("change", handleViewChange);
+    return () => mediaQuery.removeEventListener("change", handleViewChange);
+  }, []);
+
   const filtered = useMemo(() => {
     let result = businesses.filter(b => {
       if (filters.search && !b.name?.toLowerCase().includes(filters.search.toLowerCase()) &&
@@ -58,7 +69,7 @@ export default function Registry() {
     if (sort === "verified") result = [...result].sort((a, b) => (b.verified ? 1 : 0) - (a.verified ? 1 : 0));
     else if (sort === "featured") result = [...result].sort((a, b) => {
       const tierOrder = { featured_plus: 0, verified: 1, free: 2 };
-      return (tierOrder[a.tier] ?? 2) - (tierOrder[b.subscription_tier] ?? 2);
+      return (tierOrder[a.subscription_tier] ?? 2) - (tierOrder[b.subscription_tier] ?? 2);
     });
     else if (sort === "alpha") result = [...result].sort((a, b) => a.name?.localeCompare(b.name));
 
@@ -66,6 +77,13 @@ export default function Registry() {
   }, [businesses, filters, sort]);
 
   const hasFilters = filters.country || filters.industry || filters.verified || filters.identity;
+  const hasDraftFilters = draftFilters.country || draftFilters.industry || draftFilters.verified || draftFilters.identity;
+  const clearAllFilters = () => setFilters(defaultFilters);
+  const clearDrafts = () => setDraftFilters(defaultFilters);
+  const applyDrafts = () => {
+    setFilters(draftFilters);
+    setShowFilters(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
@@ -93,28 +111,40 @@ export default function Registry() {
                     {hasFilters && " (filtered)"}
                   </span>
                   {hasFilters && (
-                    <button onClick={() => setFilters({ search: "", country: "", industry: "", verified: false, identity: "" })}
+                    <button onClick={clearAllFilters}
                       className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded-lg">
                       <X className="w-3 h-3" /> Clear filters
                     </button>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => setShowFilters(true)}
-                    className="lg:hidden flex items-center gap-2 border border-gray-200 bg-white text-sm px-3 py-2 rounded-xl">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => {
+                      setDraftFilters(filters);
+                      setShowFilters(true);
+                    }}
+                    className="lg:hidden flex items-center gap-2 border border-gray-200 bg-white text-sm px-3 py-2 rounded-xl min-h-[44px]"
+                  >
                     <SlidersHorizontal className="w-4 h-4" /> Filters
                   </button>
-                  <select value={sort} onChange={e => setSort(e.target.value)}
-                    className="text-sm border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:border-[#0d4f4f]">
+                  <select
+                    value={sort}
+                    onChange={e => setSort(e.target.value)}
+                    className="text-sm border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:border-[#0d4f4f] min-h-[44px]"
+                  >
                     {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
-                  <div className="flex border border-gray-200 rounded-xl overflow-hidden bg-white">
-                    <button onClick={() => setView("grid")}
-                      className={`p-2 ${view === "grid" ? "bg-[#0a1628] text-white" : "text-gray-400 hover:text-gray-600"}`}>
+                  <div className="hidden lg:flex border border-gray-200 rounded-xl overflow-hidden bg-white">
+                    <button
+                      onClick={() => setView("grid")}
+                      className={`p-2 ${view === "grid" ? "bg-[#0a1628] text-white" : "text-gray-400 hover:text-gray-600"}`}
+                    >
                       <LayoutGrid className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setView("list")}
-                      className={`p-2 ${view === "list" ? "bg-[#0a1628] text-white" : "text-gray-400 hover:text-gray-600"}`}>
+                    <button
+                      onClick={() => setView("list")}
+                      className={`p-2 ${view === "list" ? "bg-[#0a1628] text-white" : "text-gray-400 hover:text-gray-600"}`}
+                    >
                       <List className="w-4 h-4" />
                     </button>
                   </div>
@@ -171,12 +201,27 @@ export default function Registry() {
       {showFilters && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilters(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-80 bg-[#f8f9fc] overflow-y-auto p-5">
+          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] bg-[#f8f9fc] rounded-t-3xl overflow-y-auto p-5 pb-24">
+            <div className="mx-auto h-1.5 w-12 rounded-full bg-gray-200 mb-4" />
             <div className="flex items-center justify-between mb-4">
               <span className="font-semibold text-[#0a1628]">Filters</span>
               <button onClick={() => setShowFilters(false)}><X className="w-5 h-5" /></button>
             </div>
-            <RegistryFilters filters={filters} onChange={f => { setFilters(f); setShowFilters(false); }} />
+            <RegistryFilters filters={draftFilters} onChange={setDraftFilters} />
+          </div>
+          <div className="absolute inset-x-0 bottom-0 bg-[#f8f9fc] border-t border-gray-200 p-4 flex gap-3">
+            <button
+              onClick={clearDrafts}
+              className="flex-1 min-h-[44px] rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-600"
+            >
+              Clear
+            </button>
+            <button
+              onClick={applyDrafts}
+              className="flex-1 min-h-[44px] rounded-xl bg-[#0a1628] text-white text-sm font-semibold"
+            >
+              Apply Filters
+            </button>
           </div>
         </div>
       )}

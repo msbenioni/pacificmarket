@@ -7,8 +7,10 @@ import { useState } from "react";
 export default function HeroHomepage({
   badge = "Global Pacific Registry",
   title = "Our Ancestors Built Economies. We're Continuing That Legacy.",
+  mobileTitle = title,
   subtitle = "",
   description = "Pacific enterprise has always existed — in trade, craftsmanship, service, agriculture, leadership, and exchange. Pacific Market brings that legacy into a modern global registry designed to strengthen representation, visibility, and opportunity for Pacific-owned businesses worldwide.",
+  mobileDescription = description,
   primaryCtaText = "List My Business",
   primaryCtaHref = createPageUrl("BusinessLogin") + "?mode=signup",
   secondaryCtaText = "Explore the Registry",
@@ -27,7 +29,7 @@ export default function HeroHomepage({
     console.log('Search term changed:', searchTerm);
   };
   return (
-    <section className="relative overflow-hidden min-h-[720px]">
+    <section className="relative overflow-hidden min-h-[640px] sm:min-h-[720px]">
       <div className="absolute inset-0">
         <img
           src="/hero.png"
@@ -37,20 +39,21 @@ export default function HeroHomepage({
         <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-black/0 to-black/0" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-        <div className="grid lg:grid-cols-12 gap-10 items-start lg:items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-14 sm:pb-16">
+        <div className="grid lg:grid-cols-12 gap-8 sm:gap-10 items-start lg:items-center">
           {/* Left: Title panel */}
           <div className="lg:col-span-5">
             <div className="inline-flex items-center gap-2 bg-white/90 border border-white/40 rounded-full px-3 py-1.5 shadow-sm backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
-              <span className="text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
+              <span className="text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
                 {badge}
               </span>
             </div>
 
-            <div className="mt-5 bg-[#0a1628]/62 backdrop-blur-md border border-white/10 rounded-2xl p-7 shadow-xl">
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-[1.02]">
-                {title}
+            <div className="mt-5 bg-[#0a1628]/62 backdrop-blur-md border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+              <h1 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight sm:leading-[1.02]">
+                <span className="sm:hidden">{mobileTitle}</span>
+                <span className="hidden sm:inline">{title}</span>
               </h1>
 
               {subtitle && (
@@ -61,21 +64,22 @@ export default function HeroHomepage({
 
               <div className="mt-4 h-[3px] w-44 rounded-full bg-gradient-to-r from-[#00c4cc] via-[#c9a84c] to-transparent" />
 
-              <p className="mt-4 text-base sm:text-lg text-white/90">
-                {description}
+              <p className="mt-4 text-sm sm:text-lg text-white/90 leading-6 sm:leading-relaxed">
+                <span className="sm:hidden">{mobileDescription}</span>
+                <span className="hidden sm:inline">{description}</span>
               </p>
 
               {/* CTAs */}
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <div className="mt-7 sm:mt-8 flex flex-col sm:flex-row gap-4">
                 <a
                   href={primaryCtaHref}
-                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 rounded-xl transition-all text-sm"
+                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
                   {primaryCtaText} <ChevronRight className="w-4 h-4" />
                 </a>
                 <a
                   href={secondaryCtaHref}
-                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-6 py-3 rounded-xl transition-all text-sm"
+                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-6 py-3 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
                   {secondaryCtaText}
                 </a>
@@ -85,7 +89,7 @@ export default function HeroHomepage({
 
           {/* Right: Search Card */}
           <div className="lg:col-span-7">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-7 relative overflow-hidden">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-5 sm:p-7 relative overflow-hidden">
               {/* watermark motif behind card (super subtle) */}
               <div className="absolute -right-10 -top-10 w-72 h-72 rounded-full bg-[#00c4cc]/10 blur-2xl" />
               <div className="absolute -left-10 -bottom-10 w-72 h-72 rounded-full bg-[#c9a84c]/10 blur-2xl" />
