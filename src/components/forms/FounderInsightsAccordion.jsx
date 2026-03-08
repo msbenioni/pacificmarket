@@ -737,6 +737,23 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
 
   return (
     <div className="space-y-4">
+      {/* Status Row */}
+      <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 sm:px-5 sm:py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0d4f4f]">
+              Founder Insights
+            </p>
+            <p className="text-sm text-gray-600">
+              Complete one section at a time. You can save progress as you go.
+            </p>
+          </div>
+          <div className="text-xs text-gray-500">
+            {expandedSections.size} section{expandedSections.size !== 1 ? "s" : ""} open
+          </div>
+        </div>
+      </div>
+      
       {SECTIONS.map(renderSection)}
       
       {/* Submit Button */}
