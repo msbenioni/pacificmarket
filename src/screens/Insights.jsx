@@ -474,20 +474,18 @@ export default function Insights() {
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Founder Motivations</h3>
                 <p className={UI.sectionDesc}>What drives Pacific entrepreneurs to start businesses?</p>
-                <div className="mt-4 space-y-2">
-                  {Object.entries(motivationKeywords)
-                    .map(([motivation, count]) => ({ 
-                      label: getMotivationLabel(motivation), 
-                      value: count 
-                    }))
-                    .sort((a, b) => b.value - a.value)
-                    .slice(0, 5)
-                    .map((item, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <span className="text-sm text-[#0a1628]">{item.label}</span>
-                        <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
-                      </div>
-                    ))}
+                <div className="mt-4">
+                  <HorizontalBar 
+                    title="Founder Motivations" 
+                    data={Object.entries(motivationKeywords)
+                      .map(([motivation, count]) => ({ 
+                        label: getMotivationLabel(motivation), 
+                        value: count 
+                      }))
+                      .sort((a, b) => b.value - a.value)
+                      .slice(0, 5)} 
+                    color="#8b5cf6" 
+                  />
                 </div>
               </div>
 
@@ -513,23 +511,18 @@ export default function Insights() {
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Family Responsibilities</h3>
                 <p className={UI.sectionDesc}>Family & community commitments alongside business</p>
-                <div className="mt-4 space-y-2">
-                  {Object.entries(familyResponsibilityData)
-                    .map(([responsibility, count]) => ({ 
-                      label: responsibility.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
-                      value: count 
-                    }))
-                    .sort((a, b) => b.value - a.value)
-                    .slice(0, 5)
-                    .map((item, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <span className="text-sm text-[#0a1628]">{item.label}</span>
-                        <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
-                      </div>
-                    ))}
-                  {Object.keys(familyResponsibilityData).length === 0 && (
-                    <p className="text-sm text-[#0a1628]/60 text-center py-4">No family commitments data available</p>
-                  )}
+                <div className="mt-4">
+                  <HorizontalBar 
+                    title="Family Responsibilities" 
+                    data={Object.entries(familyResponsibilityData)
+                      .map(([responsibility, count]) => ({ 
+                        label: responsibility.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
+                        value: count 
+                      }))
+                      .sort((a, b) => b.value - a.value)
+                      .slice(0, 5)} 
+                    color="#10b981" 
+                  />
                 </div>
               </div>
             </div>
