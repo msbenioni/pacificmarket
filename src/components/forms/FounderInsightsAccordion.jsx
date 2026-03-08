@@ -150,6 +150,8 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
       business_id: businessId ?? null,
       snapshot_year: new Date().getFullYear(),
       submitted_date: new Date().toISOString(),
+      submission_type: "section",
+      completion_status: "in_progress",
     };
 
     for (const field of fields) {
@@ -190,6 +192,8 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
         business_id: businessId ?? null,
         snapshot_year: new Date().getFullYear(),
         submitted_date: new Date().toISOString(),
+        submission_type: "full",
+        completion_status: "completed",
 
         years_entrepreneurial: form.years_entrepreneurial,
         businesses_founded: form.businesses_founded,
