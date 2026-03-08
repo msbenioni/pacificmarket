@@ -964,7 +964,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
                         </div>
                       </div>
                       <div className="space-y-4">
-                        <div className={`${portalUI.card} p-8 mt-4`}>
+                        <div className={`${portalUI.card} p-4 sm:p-8 mt-4`}>
                           <FounderInsightsAccordion 
                             businessId={null}
                             onSubmit={handleFounderInsightsSubmit}
