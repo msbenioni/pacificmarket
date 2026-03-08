@@ -114,18 +114,24 @@ export default function QRCodeGenerator() {
 
   return (
     <>
-      <HeroRegistry
-        badge="Business Tool"
-        title="QR Code Generator"
-        subtitle="Generate QR codes for your business registry profile or any custom URL."
-        description="Use QR codes on business cards, signage, packaging, or promotional materials to link customers directly to your Pacific Market profile."
-        actions={
-          <Link href={createPageUrl("BusinessPortal")} className="inline-flex items-center gap-2 bg-white text-[#0a1628] px-6 py-3 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Portal
-          </Link>
-        }
-      />
+<HeroRegistry
+  badge="Business Tool"
+  title="QR Code Generator"
+  subtitle="Generate QR codes for your business profile or any custom URL."
+  description="Create a downloadable QR code for signage, packaging, business cards, or promotional materials."
+  actions={
+    <div className="hidden sm:flex">
+      <Link
+        href={createPageUrl("BusinessPortal")}
+        className="inline-flex items-center gap-2 bg-white text-[#0a1628] px-6 py-3 rounded-xl text-sm font-semibold hover:bg-gray-50 transition"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Portal
+      </Link>
+    </div>
+  }
+  compact
+/>
 
       <div className="min-h-screen bg-[#f8f9fc]">
 
