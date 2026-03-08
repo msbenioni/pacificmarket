@@ -991,7 +991,7 @@ export default function InvoiceGenerator() {
                   )}
 
                   {/* Enhanced Totals Panel */}
-                  <div className="border-t border-gray-200 pt-4 ml-auto max-w-xs space-y-3">
+                  <div className="border-t border-gray-200 pt-4 w-full sm:ml-auto sm:max-w-xs space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Subtotal</span>
                       <span className="font-semibold">${subtotal.toFixed(2)}</span>
