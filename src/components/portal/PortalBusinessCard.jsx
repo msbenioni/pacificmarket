@@ -88,15 +88,20 @@ export default function PortalBusinessCard({
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </SheetTrigger>
-            <SheetContent
-              side="bottom"
-              className="rounded-t-3xl border-t border-gray-100 bg-white px-5 pb-6 pt-4 [&>button]:hidden"
-            >
-              <div className="mx-auto h-1.5 w-10 rounded-full bg-slate-200" />
-              <div className="mt-4">
-                <p className="text-sm font-semibold text-[#0a1628]">{business.name}</p>
-                <p className="text-xs text-slate-500">Manage this listing</p>
-              </div>
+<SheetContent
+  side="bottom"
+  className="rounded-t-3xl border-t border-gray-100 bg-white px-5 pb-6 pt-4 [&>button]:hidden"
+>
+  <div className="mx-auto h-1.5 w-10 rounded-full bg-slate-200" />
+
+  <SheetHeader className="mt-4 text-left">
+    <SheetTitle className="text-sm font-semibold text-[#0a1628]">
+      {business.name}
+    </SheetTitle>
+    <SheetDescription className="text-xs text-slate-500">
+      Manage this listing
+    </SheetDescription>
+  </SheetHeader>
               <div className="mt-4 space-y-2">
                 <SheetClose asChild>
                   <button
