@@ -145,7 +145,7 @@ export default function Registry() {
                     </span>
                     {hasFilters && (
                       <button onClick={clearAllFilters}
-                        className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded-lg">
+                        className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-red-600 bg-white border border-gray-200 px-2.5 py-1.5 rounded-lg">
                         <X className="w-3 h-3" /> Clear filters
                       </button>
                     )}
@@ -197,7 +197,7 @@ export default function Registry() {
                 ))}
               </div>
             ) : filtered.length === 0 ? (
-              <div className="text-center py-20">
+              <div className="text-center py-16 sm:py-20 px-4">
                 <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
                   <SlidersHorizontal className="w-8 h-8 text-gray-300" />
                 </div>
