@@ -97,7 +97,7 @@ export default function Registry() {
       />
 
       {/* Sticky toolbar */}
-      <div className="sticky top-16 z-30 bg-[#f8f9fc]">
+      <div className="sticky top-16 z-30 bg-[#f8f9fc]/95 backdrop-blur supports-[backdrop-filter]:bg-[#f8f9fc]/85">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-8">
             {/* Spacer to align with filter panel */}
