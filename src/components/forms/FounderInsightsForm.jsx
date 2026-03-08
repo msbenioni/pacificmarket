@@ -171,28 +171,78 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
   return (
     <div className="max-w-4xl mx-auto">
       {/* Progress Stepper */}
-      <div className="flex items-center justify-between mb-8">
-        {STEPS.map((stepInfo, index) => (
-          <div key={stepInfo.key} className="flex items-center">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-              index + 1 < step ? 'bg-[#0d4f4f] text-white' : 
-              index + 1 === step ? 'bg-[#0d4f4f] text-white' : 
-              'bg-gray-200 text-gray-500'
-            }`}>
-              {index + 1}
-            </div>
-            <span className={`ml-2 text-sm ${
-              index + 1 <= step ? 'text-[#0d4f4f] font-medium' : 'text-gray-400'
-            }`}>
-              {stepInfo.label}
+      <div className="mb-8">
+        {/* Mobile stepper */}
+        <div className="sm:hidden space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0d4f4f]">
+              Step {step} of {STEPS.length}
             </span>
-            {index < STEPS.length - 1 && (
-              <div className={`w-12 h-0.5 mx-3 ${
-                index + 1 < step ? 'bg-[#0d4f4f]' : 'bg-gray-200'
-              }`} />
-            )}
+            <span className="text-xs text-gray-500">
+              {Math.round((step / STEPS.length) * 100)}%
+            </span>
           </div>
-        ))}
+
+          <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-[#0d4f4f] transition-all duration-300"
+              style={{ width: `${(step / STEPS.length) * 100}%` }}
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            {(() => {
+              const CurrentIcon = STEPS[step - 1]?.icon;
+              return CurrentIcon ? (
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0d4f4f]/10">
+                  <CurrentIcon className="w-4 h-4 text-[#0d4f4f]" />
+                </div>
+              ) : null;
+            })()}
+            <div>
+              <p className="text-sm font-semibold text-[#0a1628]">
+                {STEPS[step - 1]?.label}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop stepper */}
+        <div className="hidden sm:flex items-center justify-between">
+          {STEPS.map((stepInfo, index) => (
+            <div key={stepInfo.key} className="flex items-center min-w-0">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${
+                  index + 1 < step
+                    ? "bg-[#0d4f4f] text-white"
+                    : index + 1 === step
+                    ? "bg-[#0d4f4f] text-white"
+                    : "bg-gray-200 text-gray-500"
+                }`}
+              >
+                {index + 1}
+              </div>
+
+              <span
+                className={`ml-2 text-sm whitespace-nowrap ${
+                  index + 1 <= step
+                    ? "text-[#0d4f4f] font-medium"
+                    : "text-gray-400"
+                }`}
+              >
+                {stepInfo.label}
+              </span>
+
+              {index < STEPS.length - 1 && (
+                <div
+                  className={`w-8 lg:w-12 h-0.5 mx-2 lg:mx-3 ${
+                    index + 1 < step ? "bg-[#0d4f4f]" : "bg-gray-200"
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Step 1: Founder Background */}
