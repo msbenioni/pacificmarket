@@ -267,16 +267,16 @@ export default function QRCodeGenerator() {
 
           {/* Preview */}
           <div className="flex flex-col items-center">
-            <div className="bg-white border border-gray-100 rounded-2xl p-8 w-full text-center">
+            <div className="bg-white border border-gray-100 rounded-2xl p-5 sm:p-8 w-full text-center">
               <h3 className="font-bold text-[#0a1628] text-sm mb-5">QR Code Preview</h3>
 
               {qrUrl && !qrError ? (
                 <div className="flex flex-col items-center gap-4">
-                  <div className="p-4 bg-white rounded-2xl shadow-inner border border-gray-100 inline-block">
+                  <div className="p-3 sm:p-4 bg-white rounded-2xl shadow-inner border border-gray-100 inline-block max-w-full">
                     <img 
                       src={qrUrl} 
                       alt="QR Code" 
-                      className="max-w-[240px] max-h-[240px]"
+                      className="w-full max-w-[220px] sm:max-w-[240px] h-auto"
                       onError={(e) => {
                         console.error('Failed to load QR code image:', e);
                         setQrError(true);
