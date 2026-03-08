@@ -330,7 +330,7 @@ export default function DetailedBusinessForm({
 
       {/* Step 1: Business Identity */}
       {step === 1 && (
-        <div className="space-y-5">
+        <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-[#0a1628] text-lg">Business Identity</h3>
           {!excludeFields.includes("name") && (
             <div>
@@ -393,7 +393,7 @@ export default function DetailedBusinessForm({
 
       {/* Step 2: Media & Details */}
       {step === 2 && !excludeFields.includes("media") && (
-        <div className="space-y-5">
+        <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-[#0a1628] text-lg">Media & Details</h3>
           <div>
             <label className={labelCls}>Logo</label>
@@ -436,7 +436,7 @@ export default function DetailedBusinessForm({
 
       {/* Step 3: Contact */}
       {step === 3 && !excludeFields.includes("contact") && (
-        <div className="space-y-5">
+        <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-[#0a1628] text-lg">Contact Information</h3>
           {!excludeFields.includes("email") && (
             <div>
@@ -507,7 +507,7 @@ export default function DetailedBusinessForm({
 
       {/* Step 4: Description */}
       {step === 4 && !excludeFields.includes("description") && (
-        <div className="space-y-5">
+        <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-[#0a1628] text-lg">Business Description</h3>
           {!excludeFields.includes("tagline") && (
             <div>
