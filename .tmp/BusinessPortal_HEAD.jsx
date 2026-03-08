@@ -686,7 +686,7 @@ const primaryActionCls =
                     </div>
                   )}
 
-                  <div className="rounded-2xl border border-dashed border-gray-200 bg-white/80 p-12 text-center">
+                  <div className="rounded-2xl border border-dashed border-gray-200 bg-white/80 p-6 sm:p-12 text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white">
                       <Building2 className="w-7 h-7 text-gray-400" />
                     </div>
