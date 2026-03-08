@@ -5,16 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from '@/components/shared/ModalWrapper';
 import { getSupabase } from '../../lib/supabase/client';
 import { ONBOARDING_STEPS, ONBOARDING_VALIDATION_RULES } from '../../constants/profileOnboarding';
-
-// Premium mobile-first input styling
-const inputCls =
-  "w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/10 focus:border-[#0d4f4f] disabled:opacity-50";
-
-const textareaCls =
-  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/10 focus:border-[#0d4f4f] resize-none disabled:opacity-50";
-
-const selectCls =
-  "w-full min-h-[44px] rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-[#0a1628] focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/10 focus:border-[#0d4f4f] disabled:opacity-50 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xIDFMNiA2TDExIDEiIHN0cm9rZT0iIzZiNzI4MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K')] bg-no-repeat bg-[center_right_1rem] bg-[length:0.75rem]";
+import { onboardingUI, colors } from './onboardingUI';
 
 /**
  * Profile Setup Modal
@@ -199,19 +190,19 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
       <div className="space-y-6">
         {/* Step Header */}
         <div>
-          <h3 className="text-xl font-semibold text-[#0a1628] mb-2">
+          <h3 className={onboardingUI.mainTitle}>
             {step.title}
           </h3>
-          <p className="text-gray-600 text-sm leading-6">
+          <p className={onboardingUI.body}>
             {step.description}
           </p>
         </div>
 
         {/* Step Fields in Premium Card */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-[0_12px_40px_rgba(10,22,40,0.04)] space-y-5">
+        <div className={onboardingUI.card + " space-y-5"}>
           {step.fields.map(field => (
-            <div key={field.id} className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <div key={field.id} className={onboardingUI.fieldGap}>
+              <label className={onboardingUI.label}>
                 {field.label}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
@@ -220,7 +211,7 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
                 <select
                   value={formData[field.id] || ''}
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
-                  className={selectCls}
+                  className={onboardingUI.select}
                   disabled={saving}
                 >
                   <option value="">Select {field.label}</option>
@@ -235,7 +226,7 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
                   {field.options.map(option => (
                     <label
                       key={option.value}
-                      className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white px-3 py-3 hover:bg-gray-50 cursor-pointer"
+                      className={onboardingUI.checkboxRow}
                     >
                       <input
                         type="checkbox"
@@ -248,10 +239,10 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
                             handleInputChange(field.id, current.filter(v => v !== option.value));
                           }
                         }}
-                        className="mt-0.5 rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                        className={onboardingUI.checkbox}
                         disabled={saving}
                       />
-                      <span className="text-sm leading-5 text-gray-700">{option.label}</span>
+                      <span className={onboardingUI.checkboxText}>{option.label}</span>
                     </label>
                   ))}
                 </div>
@@ -261,19 +252,19 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                   placeholder={field.placeholder}
                   rows={3}
-                  className={textareaCls}
+                  className={onboardingUI.textarea}
                   disabled={saving}
                 />
               ) : field.type === 'checkbox' ? (
-                <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white px-3 py-3 cursor-pointer">
+                <label className={onboardingUI.checkboxRow}>
                   <input
                     type="checkbox"
                     checked={formData[field.id] || false}
                     onChange={(e) => handleInputChange(field.id, e.target.checked)}
-                    className="mt-0.5 rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                    className={onboardingUI.checkbox}
                     disabled={saving}
                   />
-                  <span className="text-sm leading-5 text-gray-700">{field.text || field.label}</span>
+                  <span className={onboardingUI.checkboxText}>{field.text || field.label}</span>
                 </label>
               ) : (
                 <input
@@ -281,13 +272,13 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
                   value={formData[field.id] || ''}
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                   placeholder={field.placeholder}
-                  className={inputCls}
+                  className={onboardingUI.input}
                   disabled={saving}
                 />
               )}
               
               {field.description && (
-                <p className="text-xs text-gray-500">{field.description}</p>
+                <p className={onboardingUI.helpText}>{field.description}</p>
               )}
               
               {errors[field.id] && (
@@ -322,18 +313,18 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
     
     <ModalContent>
       {/* Premium Progress Header */}
-      <div className="mb-6 rounded-2xl border border-gray-100 bg-white px-4 py-4 sm:px-5">
+      <div className={onboardingUI.premiumCard}>
         <div className="flex items-center justify-between gap-3 mb-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#0d4f4f]">
+            <p className={onboardingUI.sectionKicker + " " + colors.primaryTeal}>
               Profile Setup
             </p>
-            <p className="text-sm text-gray-600">
+            <p className={onboardingUI.body}>
               Step {currentStep} of {ONBOARDING_STEPS.length}
             </p>
           </div>
 
-          <span className="text-xs font-medium text-gray-500">
+          <span className={onboardingUI.progressValue}>
             {Math.round((currentStep / ONBOARDING_STEPS.length) * 100)}%
           </span>
         </div>
@@ -357,13 +348,13 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
     </ModalContent>
     
     <ModalFooter>
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+      <div className={onboardingUI.mobileFooter}>
         <div className="w-full sm:w-auto">
           {currentStep > 1 ? (
             <button
               onClick={handlePrevious}
               disabled={saving}
-              className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className={onboardingUI.fullWidthSecondaryButton}
             >
               ← Previous
             </button>
@@ -372,12 +363,12 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+        <div className={onboardingUI.buttonGroup}>
           {!saveSuccess && (
             <button
               onClick={onClose}
               disabled={saving}
-              className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+              className={onboardingUI.fullWidthSecondaryButton}
             >
               Cancel
             </button>
@@ -394,7 +385,7 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
             <button
               onClick={currentStep === ONBOARDING_STEPS.length ? handleComplete : handleNext}
               disabled={saving}
-              className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1a6b6b] disabled:opacity-50"
+              className={onboardingUI.fullWidthPrimaryButton}
             >
               {saving ? (
                 <>

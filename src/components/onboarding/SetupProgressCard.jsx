@@ -1,27 +1,56 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { useOnboardingStatus } from '../../hooks/useOnboardingStatus';
+import React, { useEffect, useState } from "react";
+import { CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
+import { useOnboardingStatus } from "../../hooks/useOnboardingStatus";
+import { onboardingUI, colors } from "./onboardingUI";
 
 /**
  * Premium Setup Progress Card
  * Shows user's onboarding progress with clear next action
  */
-export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpenAddModal }) {
+export function SetupProgressCard({
+  onOpenProfileModal,
+  onOpenClaimModal,
+  onOpenAddModal,
+}) {
   const [isMounted, setIsMounted] = useState(false);
-  const { onboardingStatus, getStepStatus, getStepTitle, getStepDescription, loading } = useOnboardingStatus();
+  const {
+    onboardingStatus,
+    getStepStatus,
+    getStepTitle,
+    getStepDescription,
+    loading,
+  } = useOnboardingStatus();
 
-  // Handle SSR/hydration
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Don't render until mounted and data is loaded
   if (!isMounted || loading) {
     return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm animate-pulse">
-        <div className="h-4 bg-blue-200 rounded w-1/3 mb-2"></div>
-        <div className="h-3 bg-blue-100 rounded w-1/2"></div>
+      <div className={onboardingUI.premiumCard + " animate-pulse"}>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="h-4 w-32 rounded bg-slate-200 mb-3" />
+            <div className="h-3 w-48 rounded bg-slate-100" />
+          </div>
+          <div className="h-12 w-12 rounded-2xl bg-slate-100 shrink-0" />
+        </div>
+
+        <div className="mt-6 space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-slate-100 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="h-3 w-32 rounded bg-slate-200 mb-2" />
+                <div className="h-2.5 w-44 rounded bg-slate-100" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 h-11 rounded-xl bg-slate-200" />
       </div>
     );
   }
@@ -32,23 +61,14 @@ export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpen
 
   const handleContinue = () => {
     switch (onboardingStatus.nextAction) {
-      case 'complete-profile':
-        // Open profile setup modal
-        if (onOpenProfileModal) {
-          onOpenProfileModal();
-        }
+      case "complete-profile":
+        onOpenProfileModal?.();
         break;
-      case 'claim-or-add':
-        // Show claim/add business modal
-        if (onOpenClaimModal) {
-          onOpenClaimModal();
-        }
+      case "claim-or-add":
+        onOpenClaimModal?.();
         break;
-      case 'complete-business-profiles':
-        // Open add business modal for profile completion
-        if (onOpenAddModal) {
-          onOpenAddModal();
-        }
+      case "complete-business-profiles":
+        onOpenAddModal?.();
         break;
       default:
         break;
@@ -56,70 +76,135 @@ export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpen
   };
 
   const handleSkip = () => {
-    // Allow skipping for non-critical steps
-    if (onboardingStatus.nextAction === 'complete-business-profiles') {
-      // Mark as skipped - just do nothing or hide the card
-      // No navigation needed since we're using modals
+    if (onboardingStatus.nextAction === "complete-business-profiles") {
+      return;
     }
   };
 
+  const remainingSteps =
+    onboardingStatus.totalSteps - onboardingStatus.completedSteps;
+
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+    <div className={onboardingUI.premiumCard}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Finish your setup</h3>
-          <p className="text-sm text-gray-600">
-            {onboardingStatus.totalSteps - onboardingStatus.completedSteps} quick steps — 2 minutes
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
+        <div className="min-w-0">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a84c]/20 bg-[#c9a84c]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0a1628]">
+            <Sparkles className="w-3.5 h-3.5 text-[#c9a84c]" />
+            Setup Progress
+          </div>
+
+          <h3 className={onboardingUI.mainTitle}>
+            Finish your setup
+          </h3>
+          <p className={onboardingUI.body}>
+            {remainingSteps} quick step{remainingSteps !== 1 ? "s" : ""} left to
+            complete your Pacific Market profile.
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-blue-600">
-            {onboardingStatus.completedSteps}/{onboardingStatus.totalSteps}
-          </span>
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-            <span className="text-blue-600 font-semibold">
-              {onboardingStatus.completedSteps}
-            </span>
+
+        <div className="flex items-center gap-3 rounded-2xl border border-[#0d4f4f]/10 bg-white/90 px-4 py-3 shrink-0 self-start">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0d4f4f]/10 text-[#0d4f4f] font-bold">
+            {onboardingStatus.completedSteps}
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Completed
+            </p>
+            <p className="text-sm font-semibold text-[#0a1628]">
+              {onboardingStatus.completedSteps}/{onboardingStatus.totalSteps}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Progress Steps */}
+      {/* Progress Bar */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className={onboardingUI.progressLabel}>
+            Progress
+          </span>
+          <span className={onboardingUI.progressValue}>
+            {Math.round(
+              (onboardingStatus.completedSteps / onboardingStatus.totalSteps) *
+                100
+            )}
+            %
+          </span>
+        </div>
+
+        <div className={onboardingUI.progressBar}>
+          <div
+            className={onboardingUI.progressBarFill}
+            style={{
+              width: `${
+                (onboardingStatus.completedSteps /
+                  onboardingStatus.totalSteps) *
+                100
+              }%`,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Steps */}
       <div className="space-y-3 mb-6">
         {[1, 2, 3].map((step) => {
           const status = getStepStatus(step);
           const title = getStepTitle(step);
           const description = getStepDescription(step);
-          
+
+          const isCompleted = status === "completed";
+          const isCurrent = status === "current";
+
           return (
-            <div key={step} className="flex items-center space-x-3">
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                status === 'completed' 
-                  ? 'bg-green-100 text-green-600' 
-                  : status === 'current'
-                  ? 'bg-blue-100 text-blue-600 border-2 border-blue-300'
-                  : 'bg-gray-100 text-gray-400'
-              }`}>
-                {status === 'completed' ? (
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
+            <div
+              key={step}
+              className={`flex items-start gap-3 rounded-2xl border px-4 py-3 transition ${
+                isCompleted
+                  ? onboardingUI.statusCompleted
+                  : isCurrent
+                  ? onboardingUI.statusCurrent
+                  : onboardingUI.statusPending
+              }`}
+            >
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                  isCompleted
+                    ? onboardingUI.statusIconCompleted
+                    : isCurrent
+                    ? onboardingUI.statusIconCurrent
+                    : onboardingUI.statusIconPending
+                }`}
+              >
+                {isCompleted ? (
+                  <CheckCircle2 className="w-4 h-4" />
                 ) : (
-                  <span className="text-sm font-medium">{step}</span>
+                  <span>{step}</span>
                 )}
               </div>
-              <div className="flex-1">
-                <p className={`text-sm font-medium ${
-                  status === 'completed' ? 'text-gray-500' : 
-                  status === 'current' ? 'text-gray-900' : 'text-gray-400'
-                }`}>
+
+              <div className="min-w-0 flex-1">
+                <p
+                  className={`text-sm font-semibold ${
+                    isCompleted
+                      ? onboardingUI.statusTextCompleted
+                      : isCurrent
+                      ? onboardingUI.statusTextCurrent
+                      : onboardingUI.statusTextPending
+                  }`}
+                >
                   {title}
                 </p>
-                <p className={`text-xs ${
-                  status === 'completed' ? 'text-gray-400' : 
-                  status === 'current' ? 'text-gray-600' : 'text-gray-400'
-                }`}>
+                <p
+                  className={`mt-1 text-xs leading-5 ${
+                    isCompleted
+                      ? onboardingUI.statusDescCompleted
+                      : isCurrent
+                      ? onboardingUI.statusDescCurrent
+                      : onboardingUI.statusDescPending
+                  }`}
+                >
                   {description}
                 </p>
               </div>
@@ -129,33 +214,34 @@ export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpen
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
+      <div className={onboardingUI.mobileFooter}>
+        <div className="order-2 sm:order-1">
+          {onboardingStatus.nextAction === "complete-business-profiles" && (
+            <button
+              onClick={handleSkip}
+              className={onboardingUI.fullWidthSecondaryButton}
+            >
+              Do this later
+            </button>
+          )}
+        </div>
+
+        <div className="order-1 sm:order-2 w-full sm:w-auto">
           <button
             onClick={handleContinue}
-            className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2"
+            className={onboardingUI.fullWidthPrimaryButton}
           >
             <span>Continue setup</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
-        
-        {onboardingStatus.nextAction === 'complete-business-profiles' && (
-          <button
-            onClick={handleSkip}
-            className="ml-3 text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2"
-          >
-            Do this later
-          </button>
-        )}
       </div>
 
       {/* Trust Message */}
-      <div className="mt-4 pt-4 border-t border-blue-100">
-        <p className="text-xs text-gray-600 text-center">
-          This helps us verify ownership and represent Pacific enterprise accurately.
+      <div className="mt-5 pt-4 border-t border-[#0d4f4f]/10">
+        <p className="text-xs text-slate-600 text-center leading-5">
+          This helps verify ownership and represent Pacific enterprise with care,
+          credibility, and visibility.
         </p>
       </div>
     </div>
@@ -167,17 +253,19 @@ export function SetupProgressCard({ onOpenProfileModal, onOpenClaimModal, onOpen
  */
 function CompletionCard() {
   return (
-    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-6 shadow-sm">
-      <div className="flex items-center space-x-4">
-        <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-          <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
+    <div className={onboardingUI.successCard}>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+          <CheckCircle2 className="w-7 h-7" />
         </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">All set!</h3>
-          <p className="text-sm text-gray-600">
-            Your profile is complete and ready to go. You can now manage your business listings.
+
+        <div className="min-w-0">
+          <h3 className={onboardingUI.mainTitle}>
+            All set!
+          </h3>
+          <p className={onboardingUI.body}>
+            Your profile is complete and ready to go. You can now manage your
+            business listings with confidence.
           </p>
         </div>
       </div>
