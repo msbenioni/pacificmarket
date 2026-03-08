@@ -93,6 +93,7 @@ export default function Registry() {
         title="Business Registry"
         subtitle={loading ? "Loading..." : `${businesses.length} business${businesses.length !== 1 ? "es" : ""} registered`}
         description=""
+        compact
       />
 
       {/* Sticky toolbar */}
