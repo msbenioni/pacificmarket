@@ -398,7 +398,7 @@ export default function DetailedBusinessForm({
           <div>
             <label className={labelCls}>Logo</label>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <label className="flex items-center justify-center w-20 h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#0d4f4f] transition-colors">
+              <label className="flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#0d4f4f] transition-colors">
                 {form.logo_url ? (
                   <img src={form.logo_url} alt="Logo" className="w-full h-full object-contain rounded-lg" />
                 ) : (
@@ -415,7 +415,7 @@ export default function DetailedBusinessForm({
           <div>
             <label className={labelCls}>Banner</label>
             <div className="flex items-center gap-4">
-              <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#0d4f4f] transition-colors">
+              <label className="flex items-center justify-center w-full h-24 sm:h-28 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#0d4f4f] transition-colors">
                 {form.banner_url ? (
                   <img src={form.banner_url} alt="Banner" className="w-full h-full object-contain rounded-lg" />
                 ) : (
