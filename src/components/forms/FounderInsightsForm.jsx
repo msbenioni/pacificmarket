@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp, Globe, Target, Lightbulb, Rocket, ChevronDown, ChevronUp } from "lucide-react";
-import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, COUNTRIES } from "@/constants/unifiedConstants";
+import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES } from "@/constants/unifiedConstants";
 import { getSupabase } from "@/lib/supabase/client";
 
 const STEPS = [
@@ -14,6 +14,8 @@ const STEPS = [
 
 const DEFAULT_FORM_STATE = {
   // Founder Background
+  gender: "",
+  age_range: "",
   years_entrepreneurial: "",
   businesses_founded: "",
   founder_role: "",
@@ -38,7 +40,7 @@ const DEFAULT_FORM_STATE = {
   serves_pacific_communities: "",
   culture_influences_business: false,
   culture_influence_details: "",
-  family_community_responsibilities_affect_business: false,
+  family_community_responsibilities_affect_business: [],
   responsibilities_impact_details: "",
 
   // Challenges & Support
@@ -61,23 +63,26 @@ const DEFAULT_FORM_STATE = {
   open_to_future_contact: false,
 };
 
-const buildInitialFormState = (data) => {
-  if (!data) return { ...DEFAULT_FORM_STATE };
-
-  return {
+const buildInitialFormState = (data = null) => {
+  const initialState = {
     ...DEFAULT_FORM_STATE,
-    ...data,
-    founder_motivation_array:
-      data.founder_motivation_array ?? data.founder_motivation ?? DEFAULT_FORM_STATE.founder_motivation_array,
-    goals_next_12_months_array:
-      data.goals_next_12_months_array ?? data.goals_next_12_months ?? DEFAULT_FORM_STATE.goals_next_12_months_array,
-    sales_channels: data.sales_channels ?? DEFAULT_FORM_STATE.sales_channels,
-    top_challenges: data.top_challenges ?? DEFAULT_FORM_STATE.top_challenges,
-    support_needed_next: data.support_needed_next ?? DEFAULT_FORM_STATE.support_needed_next,
+    // Merge with existing data if provided
+    ...(data && {
+      // Only merge fields that exist in DEFAULT_FORM_STATE
+      ...Object.keys(DEFAULT_FORM_STATE).reduce((acc, key) => {
+        if (data[key] !== undefined) {
+          acc[key] = data[key];
+        }
+        return acc;
+      }, {}),
+    }),
     current_support_sources: data.current_support_sources ?? DEFAULT_FORM_STATE.current_support_sources,
     pacific_identity: data.pacific_identity ?? DEFAULT_FORM_STATE.pacific_identity,
     community_impact_areas: data.community_impact_areas ?? DEFAULT_FORM_STATE.community_impact_areas,
   };
+
+  console.log("buildInitialFormState result:", initialState);
+  return initialState;
 };
 
 export default function FounderInsightsForm({ businessId, onSubmit, isLoading, initialData = null }) {
@@ -85,7 +90,10 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
   const [form, setForm] = useState(() => buildInitialFormState(initialData));
 
   useEffect(() => {
+    console.log("InitialData changed:", initialData);
+    console.log("Form state before reset:", form);
     setForm(buildInitialFormState(initialData));
+    console.log("Form state after reset:", buildInitialFormState(initialData));
   }, [initialData]);
 
   const [submitting, setSubmitting] = useState(false);
@@ -122,6 +130,13 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
         snapshot_year: new Date().getFullYear(),
         submitted_date: new Date().toISOString(),
       };
+
+      console.log("=== SUBMISSION DEBUG ===");
+      console.log("Complete form state:", form);
+      console.log("Submitting data:", snapshotData); 
+      console.log("Gender:", snapshotData.gender); 
+      console.log("Age Range:", snapshotData.age_range); 
+      console.log("========================");
 
       await onSubmit(snapshotData);
       setAutoSaveStatus("saved");
@@ -189,6 +204,50 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className={labelCls}>Gender</label>
+              <select value={form.gender || ""} onChange={e => {
+                console.log("=== GENDER CHANGE DEBUG ===");
+                console.log("Event target value:", e.target.value);
+                console.log("Current form.gender:", form.gender);
+                console.log("Setting new gender to:", e.target.value);
+                setForm({ ...form, gender: e.target.value });
+                console.log("Gender change handler completed");
+                console.log("==========================");
+              }} className={inputCls}>
+                <option value="">Select gender</option>
+                {GENDER_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className={labelCls}>Age Range</label>
+              <select value={form.age_range || ""} onChange={e => {
+                console.log("=== AGE CHANGE DEBUG ===");
+                console.log("Event target value:", e.target.value);
+                console.log("Current form.age_range:", form.age_range);
+                console.log("Setting new age_range to:", e.target.value);
+                setForm({ ...form, age_range: e.target.value });
+                console.log("Age change handler completed");
+                console.log("========================");
+              }} className={inputCls}>
+                <option value="">Select age range</option>
+                {AGE_RANGES.map((range) => (
+                  <option key={range.value} value={range.value}>{range.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Debug display */}
+            <div className="mt-4 p-4 bg-gray-100 rounded">
+              <h4 className="font-semibold mb-2">Debug Info:</h4>
+              <p>Form Gender: {form.gender || "EMPTY"}</p>
+              <p>Form Age: {form.age_range || "EMPTY"}</p>
+              <p>Form Object Keys: {Object.keys(form).join(", ")}</p>
+            </div>
+
             <div>
               <label className={labelCls}>How many years have you been an entrepreneur?</label>
               <select value={form.years_entrepreneurial || ""} onChange={e => setForm({ ...form, years_entrepreneurial: e.target.value })} className={inputCls}>
@@ -584,32 +643,35 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div className="space-y-4">
             <div>
-              <label className={labelCls}>Do family or community responsibilities shape how you run your business? *</label>
-              <div className="flex items-center space-x-4 mt-3">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="family_community_responsibilities_affect_business"
-                    checked={form.family_community_responsibilities_affect_business === true}
-                    onChange={() => setForm({ ...form, family_community_responsibilities_affect_business: true })}
-                    className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Yes</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="family_community_responsibilities_affect_business"
-                    checked={form.family_community_responsibilities_affect_business === false}
-                    onChange={() => setForm({ ...form, family_community_responsibilities_affect_business: false })}
-                    className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">No</span>
-                </label>
+              <label className={labelCls}>What family commitments do you have alongside your business responsibilities? (Select all that apply)</label>
+              <div className="space-y-2 mt-3">
+                {FAMILY_RESPONSIBILITIES.map((responsibility) => (
+                  <label key={responsibility.value} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={form.family_community_responsibilities_affect_business.includes(responsibility.value)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setForm({ 
+                            ...form, 
+                            family_community_responsibilities_affect_business: [...form.family_community_responsibilities_affect_business, responsibility.value]
+                          });
+                        } else {
+                          setForm({ 
+                            ...form, 
+                            family_community_responsibilities_affect_business: form.family_community_responsibilities_affect_business.filter(r => r !== responsibility.value)
+                          });
+                        }
+                      }}
+                      className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">{responsibility.label}</span>
+                  </label>
+                ))}
               </div>
             </div>
 
-            {form.family_community_responsibilities_affect_business && (
+            {form.family_community_responsibilities_affect_business && form.family_community_responsibilities_affect_business.length > 0 && (
               <div>
                 <label className={labelCls}>Tell us more about these responsibilities (Optional)</label>
                 <textarea

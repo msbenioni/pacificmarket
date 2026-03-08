@@ -273,8 +273,8 @@ export default function Insights() {
     .filter(years => years && years !== "");
   
   const avgYearsInBusiness = yearsEntrepreneurial.length > 0 
-    ? (yearsEntrepreneurial.reduce((sum, years) => sum + parseInt(years), 0) / yearsEntrepreneurial.length).toFixed(1)
-    : "0.0";
+    ? Math.round(yearsEntrepreneurial.reduce((sum, years) => sum + parseInt(years), 0) / yearsEntrepreneurial.length)
+    : 0;
 
   // Motivation analysis
   const motivationKeywords = insights.reduce((acc, insight) => {
@@ -306,9 +306,33 @@ export default function Insights() {
     ? Math.round((insights.filter(i => i.expansion_plans).length / insights.length) * 100)
     : 0;
 
-  // Family responsibilities - using family_community_responsibilities_affect_business as proxy
+  // Gender and age demographics analysis
+  const genderData = insights.reduce((acc, insight) => {
+    if (insight.gender) {
+      acc[insight.gender] = (acc[insight.gender] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const ageData = insights.reduce((acc, insight) => {
+    if (insight.age_range) {
+      acc[insight.age_range] = (acc[insight.age_range] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  // Family responsibilities analysis - using array data for specific breakdown
+  const familyResponsibilityData = insights.reduce((acc, insight) => {
+    if (insight.family_community_responsibilities_affect_business && Array.isArray(insight.family_community_responsibilities_affect_business)) {
+      insight.family_community_responsibilities_affect_business.forEach(responsibility => {
+        acc[responsibility] = (acc[responsibility] || 0) + 1;
+      });
+    }
+    return acc;
+  }, {});
+
   const familyResponsibilityRate = insights.length > 0
-    ? Math.round((insights.filter(i => i.family_community_responsibilities_affect_business).length / insights.length) * 100)
+    ? Math.round((insights.filter(i => i.family_community_responsibilities_affect_business && i.family_community_responsibilities_affect_business.length > 0).length / insights.length) * 100)
     : 0;
 
   // Collaboration interest
@@ -365,12 +389,12 @@ export default function Insights() {
 
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Avg Years in Business</p>
+                  <p className="text-xs text-[#0a1628]/55">Founder Experience</p>
                   <TrendingUp className="w-4 h-4 text-[#c9a84c]" />
                 </div>
                 <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{avgYearsInBusiness}</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  Years of operation
+                  Years as entrepreneur
                 </p>
               </div>
 
@@ -383,6 +407,53 @@ export default function Insights() {
                 <p className="text-sm text-[#0a1628]/60 mt-2">
                   Plan to hire in 12 months
                 </p>
+              </div>
+            </div>
+
+            {/* Demographics */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Gender Distribution</h3>
+                <p className={UI.sectionDesc}>Gender breakdown of Pacific entrepreneurs</p>
+                <div className="mt-4 space-y-2">
+                  {Object.entries(genderData)
+                    .map(([gender, count]) => ({ 
+                      label: gender.charAt(0).toUpperCase() + gender.slice(1).replace('_', ' '), 
+                      value: count 
+                    }))
+                    .sort((a, b) => b.value - a.value)
+                    .map((item, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <span className="text-sm text-[#0a1628]">{item.label}</span>
+                        <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
+                      </div>
+                    ))}
+                  {Object.keys(genderData).length === 0 && (
+                    <p className="text-sm text-[#0a1628]/60 text-center py-4">No gender data available</p>
+                  )}
+                </div>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Age Distribution</h3>
+                <p className={UI.sectionDesc}>Age ranges of Pacific entrepreneurs</p>
+                <div className="mt-4 space-y-2">
+                  {Object.entries(ageData)
+                    .map(([age, count]) => ({ 
+                      label: age, 
+                      value: count 
+                    }))
+                    .sort((a, b) => b.value - a.value)
+                    .map((item, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <span className="text-sm text-[#0a1628]">{item.label}</span>
+                        <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
+                      </div>
+                    ))}
+                  {Object.keys(ageData).length === 0 && (
+                    <p className="text-sm text-[#0a1628]/60 text-center py-4">No age data available</p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -415,7 +486,7 @@ export default function Insights() {
             </div>
 
             {/* Business Operations */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Business Stages</h3>
                 <p className={UI.sectionDesc}>Current maturity of Pacific enterprises</p>
@@ -426,27 +497,24 @@ export default function Insights() {
 
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Family Responsibilities</h3>
-                <p className={UI.sectionDesc}>Family & community responsibilities affecting business</p>
-                <div className="mt-4">
-                  <div className="flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-[#0a1628]">{familyResponsibilityRate}%</p>
-                      <p className="text-sm text-[#0a1628]/60 mt-1">Family responsibilities affect business</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className={`${UI.card} ${UI.cardInner}`}>
-                <h3 className={UI.sectionTitle}>Founder Experience</h3>
-                <p className={UI.sectionDesc}>Years of entrepreneurial experience</p>
-                <div className="mt-4">
-                  <div className="flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-[#0a1628]">{avgYearsInBusiness}</p>
-                      <p className="text-sm text-[#0a1628]/60 mt-1">Average years in business</p>
-                    </div>
-                  </div>
+                <p className={UI.sectionDesc}>Family & community commitments alongside business</p>
+                <div className="mt-4 space-y-2">
+                  {Object.entries(familyResponsibilityData)
+                    .map(([responsibility, count]) => ({ 
+                      label: responsibility.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
+                      value: count 
+                    }))
+                    .sort((a, b) => b.value - a.value)
+                    .slice(0, 5)
+                    .map((item, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <span className="text-sm text-[#0a1628]">{item.label}</span>
+                        <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
+                      </div>
+                    ))}
+                  {Object.keys(familyResponsibilityData).length === 0 && (
+                    <p className="text-sm text-[#0a1628]/60 text-center py-4">No family commitments data available</p>
+                  )}
                 </div>
               </div>
             </div>

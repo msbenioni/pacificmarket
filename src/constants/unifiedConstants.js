@@ -356,11 +356,36 @@ export const COMMUNITY_IMPACT_AREAS = [
   { value: 'creates_jobs', label: 'Creates jobs' },
   { value: 'pacific_visibility', label: 'Supports Pacific visibility' },
   { value: 'preserves_culture', label: 'Preserves culture' },
-  { value: 'supports_youth', label: 'Supports youth' },
-  { value: 'supports_women', label: 'Supports women' },
-  { value: 'local_community', label: 'Supports local community' },
-  { value: 'innovation', label: 'Supports innovation' },
-  { value: 'education_skills', label: 'Supports education or skills' },
-  { value: 'environmental', label: 'Environmental impact' },
-  { value: 'other', label: 'Other' },
+  { value: 'community_role_model', label: 'Role model for youth' },
+  { value: 'knowledge_sharing', label: 'Knowledge sharing' },
+  { value: 'local_economy', label: 'Strengthens local economy' },
+  { value: 'other', label: 'Other' }
+];
+
+export const FAMILY_RESPONSIBILITIES = [
+  { value: 'children', label: 'Children (under 18)' },
+  { value: 'eldercare', label: 'Elderly parents/grandparents care' },
+  { value: 'extended_family', label: 'Extended family support' },
+  { value: 'community_leadership', label: 'Community leadership roles' },
+  { value: 'cultural_obligations', label: 'Cultural/religious obligations' },
+  { value: 'family_business', label: 'Family business duties' },
+  { value: 'caregiving', label: 'Other caregiving responsibilities' },
+  { value: 'none', label: 'No additional family commitments' }
+];
+
+export const GENDER_OPTIONS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'non_binary', label: 'Non-binary' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' }
+];
+
+export const AGE_RANGES = [
+  { value: '18-24', label: '18-24' },
+  { value: '25-34', label: '25-34' },
+  { value: '35-44', label: '35-44' },
+  { value: '45-54', label: '45-54' },
+  { value: '55-64', label: '55-64' },
+  { value: '65+', label: '65+' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' }
 ];

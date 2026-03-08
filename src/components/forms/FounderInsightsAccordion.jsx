@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, ChevronRight, Users, TrendingUp, Globe, AlertCircle, Rocket, Lightbulb } from "lucide-react";
-import { BUSINESS_STAGE, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, FUNDING_SOURCES, FUNDING_AMOUNTS, FUNDING_PURPOSES, INVESTMENT_STAGES, ANGEL_INVESTOR_INTEREST, INVESTOR_CAPACITY, REVENUE_STREAMS } from "@/constants/unifiedConstants";
+import { BUSINESS_STAGE, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, FUNDING_SOURCES, FUNDING_AMOUNTS, FUNDING_PURPOSES, INVESTMENT_STAGES, ANGEL_INVESTOR_INTEREST, INVESTOR_CAPACITY, REVENUE_STREAMS } from "@/constants/unifiedConstants";
 import { getSupabase } from "@/lib/supabase/client";
 
 const SECTIONS = [
@@ -14,6 +14,8 @@ const SECTIONS = [
 
 const SECTION_FIELDS = {
   founder: [
+    "gender",
+    "age_range",
     "years_entrepreneurial",
     "businesses_founded",
     "founder_role",
@@ -59,6 +61,8 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
   const getInitialForm = () => {
     const defaults = {
       // Founder Background (unique to business insights)
+      gender: "",
+      age_range: "",
       years_entrepreneurial: "",
       businesses_founded: "",
       founder_role: "",
@@ -69,7 +73,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
       serves_pacific_communities: "",
       culture_influences_business: false,
       culture_influence_details: "",
-      family_community_responsibilities_affect_business: false,
+      family_community_responsibilities_affect_business: [],
       responsibilities_impact_details: "",
 
       // Financial & Investment (unique insights - not duplicated from profile)
@@ -197,6 +201,8 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
         submission_type: "full",
         completion_status: "completed",
 
+        gender: form.gender,
+        age_range: form.age_range,
         years_entrepreneurial: form.years_entrepreneurial,
         businesses_founded: form.businesses_founded,
         founder_role: form.founder_role,
@@ -332,7 +338,25 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
             {section.key === 'founder' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={getLabelClass('founder', 'gender')}>Gender</label>
+                    <select value={form.gender || ""} onChange={e => setFormState(prev => ({ ...prev, gender: e.target.value }))} className={selectCls}>
+                      <option value="">Select gender</option>
+                      {GENDER_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={getLabelClass('founder', 'age_range')}>Age Range</label>
+                    <select value={form.age_range || ""} onChange={e => setFormState(prev => ({ ...prev, age_range: e.target.value }))} className={selectCls}>
+                      <option value="">Select age range</option>
+                      {AGE_RANGES.map((range) => (
+                        <option key={range.value} value={range.value}>{range.label}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div>
                     <label className={getLabelClass('founder', 'years_entrepreneurial')}>Years as entrepreneur</label>
                     <select value={form.years_entrepreneurial || ""} onChange={e => setFormState(prev => ({ ...prev, years_entrepreneurial: e.target.value }))} className={selectCls}>
@@ -435,6 +459,36 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                       value={form.culture_influence_details || ""}
                       onChange={e => setFormState(prev => ({ ...prev, culture_influence_details: e.target.value }))}
                       placeholder="Describe how Pacific cultural values, practices, or traditions shape your business approach..."
+                      rows={3}
+                      className={inputCls}
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className={getLabelClass('pacific', 'family_community_responsibilities_affect_business')}>What family commitments do you have alongside your business responsibilities?</label>
+                  <div className="space-y-2">
+                    {FAMILY_RESPONSIBILITIES.map((responsibility) => (
+                      <label key={responsibility.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={form.family_community_responsibilities_affect_business?.includes(responsibility.value) || false}
+                          onChange={() => toggleArrayItem('family_community_responsibilities_affect_business', responsibility.value)}
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                        />
+                        <span className="text-sm text-gray-700">{responsibility.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {form.family_community_responsibilities_affect_business && form.family_community_responsibilities_affect_business.length > 0 && (
+                  <div>
+                    <label className={getLabelClass('pacific', 'responsibilities_impact_details')}>Tell us more about these responsibilities (Optional)</label>
+                    <textarea
+                      value={form.responsibilities_impact_details || ""}
+                      onChange={e => setFormState(prev => ({ ...prev, responsibilities_impact_details: e.target.value }))}
+                      placeholder="Share how family, community, or cultural obligations influence your business decisions or operations..."
                       rows={3}
                       className={inputCls}
                     />
