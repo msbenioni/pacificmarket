@@ -1186,7 +1186,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
         <button
           onClick={() => updateStep(step - 1)}
           disabled={step === 1}
-          className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ChevronLeft className="w-4 h-4" />
           Previous
@@ -1196,7 +1196,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <button
             onClick={() => updateStep(step + 1)}
             disabled={!canGoNext()}
-            className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-[#0d4f4f] rounded-xl hover:bg-[#0a5555] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-[#0d4f4f] rounded-xl hover:bg-[#0a5555] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
             <ChevronRight className="w-4 h-4" />
@@ -1205,7 +1205,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <button
             onClick={handleSubmit}
             disabled={submitting || !canGoNext()}
-            className="flex items-center gap-2 px-6 py-3 text-sm font-bold text-white bg-[#0d4f4f] rounded-xl hover:bg-[#0a5555] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-white bg-[#0d4f4f] rounded-xl hover:bg-[#0a5555] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Submitting...' : 'Submit Insights'}
             <CheckCircle className="w-4 h-4" />
