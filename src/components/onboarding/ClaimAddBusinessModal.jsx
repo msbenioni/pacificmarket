@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ModalWrapper,
   ModalHeader,
@@ -17,10 +17,10 @@ import { Search, Plus, ChevronLeft } from "lucide-react";
 const ALLOWED_BUSINESS_FIELDS = [
   "name",
   "description",
-  "short_description", // Database has short_description instead of tagline
+  "short_description",
   "logo_url",
   "banner_url",
-  "contact_website", // Database uses contact_website instead of website
+  "contact_website",
   "contact_email",
   "contact_phone",
   "contact_name",
@@ -32,7 +32,7 @@ const ALLOWED_BUSINESS_FIELDS = [
   "country",
   "industry",
   "languages_spoken",
-  "social_links", // JSONB array for social media
+  "social_links",
   "business_hours",
   "cultural_identity",
   "business_handle",
@@ -47,15 +47,15 @@ function pickAllowedBusinessFields(input) {
       out[key] = input[key];
     }
   }
-  
+
   // Map form field names to database column names
   if (input?.tagline) {
-    out["short_description"] = input.tagline; // Map tagline -> short_description
+    out.short_description = input.tagline;
   }
   if (input?.website) {
-    out["contact_website"] = input.website; // Map website -> contact_website
+    out.contact_website = input.website;
   }
-  
+
   return out;
 }
 
@@ -93,21 +93,27 @@ export function ClaimAddBusinessModal({
   }, [isOpen, defaultView]);
 
   const header = useMemo(() => {
-    if (view === "claim")
+    if (view === "claim") {
       return {
         title: "Claim Business",
         subtitle: "Find your listing, then submit a claim for verification.",
       };
-    if (view === "claim_details")
+    }
+
+    if (view === "claim_details") {
       return {
         title: "Ownership Details",
         subtitle: "Provide contact information for verification.",
       };
-    if (view === "add")
+    }
+
+    if (view === "add") {
       return {
         title: "Add New Business",
-        subtitle: "Create a new listing for the Pacific Market.",
+        subtitle: "Create a new listing for Pacific Market.",
       };
+    }
+
     return {
       title: "Get Started",
       subtitle: "Choose how you want to add your business to the registry.",
@@ -116,32 +122,32 @@ export function ClaimAddBusinessModal({
 
   const modalClass = useMemo(() => {
     if (view === "add") return MODAL_SIZES["3xl"];
-    return MODAL_SIZES.lg; // ✅ keep choice + claim consistent
+    return MODAL_SIZES.lg;
   }, [view]);
 
   if (!isOpen) return null;
 
   const btnPrimary =
-    "inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-5 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50";
+    "inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-5 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50";
+
   const btnSecondary =
-    "inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition";
+    "inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition";
+
   const pill =
     "inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-600";
 
   const handleClaimDetailsSubmit = async (details) => {
     setSubmitting(true);
     try {
-      // Get current user info with validation
       const { getSupabase } = await import("../../lib/supabase/client");
       const supabase = getSupabase();
+
       const { data: userRes, error: userErr } = await supabase.auth.getUser();
       if (userErr) throw userErr;
       if (!userRes?.user) throw new Error("User not authenticated");
-      
-      // Validate business exists
+
       if (!pickedBusiness?.id) throw new Error("No business selected");
-      
-      // Check for existing pending claim from this user
+
       const { data: existingClaim } = await supabase
         .from("claim_requests")
         .select("id,status")
@@ -149,17 +155,15 @@ export function ClaimAddBusinessModal({
         .eq("user_id", userRes.user.id)
         .in("status", ["pending", "under_review"])
         .maybeSingle();
-        
+
       if (existingClaim) {
         alert("You already have a pending claim for this business. We'll notify you once it's reviewed.");
         return;
       }
-      
-      // Auto-fix proof URL format if needed
+
       const proof = details.proof_url?.trim();
       const proof_url = proof && !proof.startsWith("http") ? `https://${proof}` : proof;
-      
-      // Create claim request matching existing table structure
+
       const claimData = {
         business_id: pickedBusiness.id,
         user_id: userRes.user.id,
@@ -174,16 +178,15 @@ export function ClaimAddBusinessModal({
         listing_contact_email: pickedBusiness?.contact_email || null,
         listing_contact_phone: pickedBusiness?.contact_phone || null,
       };
-      
-      // Insert into claim_requests table and return the inserted row
+
       const { data: inserted, error: insertErr } = await supabase
         .from("claim_requests")
         .insert(claimData)
         .select()
         .single();
-        
+
       if (insertErr) throw insertErr;
-      
+
       onClaimSelected?.(inserted);
       onClose();
     } catch (error) {
@@ -196,7 +199,7 @@ export function ClaimAddBusinessModal({
 
   const handleBusinessSelect = (business) => {
     setPickedBusiness(business);
-    setView("claim_details"); // Move to details collection
+    setView("claim_details");
   };
 
   const handleBusinessSubmit = async (businessData) => {
@@ -209,26 +212,26 @@ export function ClaimAddBusinessModal({
       if (userErr) throw userErr;
       if (!userRes?.user) throw new Error("User not authenticated");
 
-      // ✅ ONLY insert the fields we allow
       const clean = pickAllowedBusinessFields(businessData);
-      
+
       console.log("Submitting business data:", {
         original: businessData,
         cleaned: clean,
-        userId: userRes.user.id
+        userId: userRes.user.id,
       });
 
-      const { error, data } = await supabase.from("businesses").insert({
-        ...clean,
-        owner_user_id: userRes.user.id,
-        // Let DB defaults handle timestamps
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        // Optional: force known starting state
-        status: "pending",
-        subscription_tier: "vaka",
-        visibility_tier: "none",
-      }).select();
+      const { error, data } = await supabase
+        .from("businesses")
+        .insert({
+          ...clean,
+          owner_user_id: userRes.user.id,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          status: "pending",
+          subscription_tier: "vaka",
+          visibility_tier: "none",
+        })
+        .select();
 
       if (error) {
         console.error("Database insert error:", error);
@@ -252,8 +255,8 @@ export function ClaimAddBusinessModal({
       <ModalHeader title={header.title} subtitle={header.subtitle} onClose={onClose} />
 
       <ModalContent>
-        {/* Top “brand strip” to make the modal feel designed */}
-        <div className="mb-6 flex items-center justify-between gap-3">
+        {/* Brand strip */}
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#00c4cc]" />
             <span className="h-2 w-2 rounded-full bg-[#c9a84c]" />
@@ -262,7 +265,16 @@ export function ClaimAddBusinessModal({
               Pacific Market
             </span>
           </div>
-          {view !== "choice" && <span className={pill}>{view === "claim" ? "Claim" : view === "claim_details" ? "Details" : "Add"}</span>}
+
+          {view !== "choice" && (
+            <span className={pill}>
+              {view === "claim"
+                ? "Claim"
+                : view === "claim_details"
+                ? "Details"
+                : "Add"}
+            </span>
+          )}
         </div>
 
         {view === "choice" && (
@@ -270,63 +282,60 @@ export function ClaimAddBusinessModal({
             <button
               type="button"
               onClick={() => setView("claim")}
-              className={[
-                "w-full text-left",
-                "rounded-2xl border border-gray-200 bg-white",
-                "p-5",
-                "hover:border-[#0d4f4f]/40 hover:bg-[#0d4f4f]/[0.03]",
-                "transition",
-              ].join(" ")}
+              className="w-full rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 text-left transition hover:border-[#0d4f4f]/40 hover:bg-[#0d4f4f]/[0.03]"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-10 w-10 rounded-xl bg-[#0d4f4f]/10 grid place-items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#0d4f4f]/10 flex-shrink-0">
                       <Search className="h-5 w-5 text-[#0d4f4f]" />
                     </div>
                     <h4 className="text-base font-bold text-[#0a1628]">
                       Claim an existing listing
                     </h4>
                   </div>
-                  <p className="mt-2 text-sm text-gray-600">
+
+                  <p className="mt-3 text-sm leading-6 text-gray-600">
                     If your business is already on Pacific Market, claim it to manage details and upgrades.
                   </p>
                 </div>
-                <span className="mt-1 text-sm font-bold text-[#0d4f4f]">Search →</span>
+
+                <span className="text-sm font-bold text-[#0d4f4f] sm:mt-1">
+                  Search →
+                </span>
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => setView("add")}
-              className={[
-                "w-full text-left",
-                "rounded-2xl border border-[#0a1628] bg-[#0a1628]",
-                "p-5",
-                "hover:bg-[#122040] transition",
-              ].join(" ")}
+              className="w-full rounded-2xl border border-[#0a1628] bg-[#0a1628] p-4 sm:p-5 text-left transition hover:bg-[#122040]"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-10 w-10 rounded-xl bg-white/10 grid place-items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 flex-shrink-0">
                       <Plus className="h-5 w-5 text-white" />
                     </div>
-                    <h4 className="text-base font-bold text-white">Add a new business</h4>
+                    <h4 className="text-base font-bold text-white">
+                      Add a new business
+                    </h4>
                   </div>
-                  <p className="mt-2 text-sm text-white/80">
+
+                  <p className="mt-3 text-sm leading-6 text-white/80">
                     Create a new listing and represent your people, your country, and your work.
                   </p>
                 </div>
-                <span className="mt-1 text-sm font-bold text-[#c9a84c]">Create →</span>
+
+                <span className="text-sm font-bold text-[#c9a84c] sm:mt-1">
+                  Create →
+                </span>
               </div>
             </button>
 
             <div className="mt-4 rounded-2xl border border-[#c9a84c]/30 bg-[#c9a84c]/10 p-4">
-              <p className="text-sm font-semibold text-[#0a1628]">
-                Why it matters
-              </p>
-              <p className="mt-1 text-sm text-gray-700">
+              <p className="text-sm font-semibold text-[#0a1628]">Why it matters</p>
+              <p className="mt-1 text-sm leading-6 text-gray-700">
                 Every listing strengthens Pacific visibility and makes it easier for people to discover,
                 support, and invest in Pacific enterprise.
               </p>
@@ -336,8 +345,8 @@ export function ClaimAddBusinessModal({
 
         {view === "claim" && (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-gray-100 bg-[#f8f9fc] p-5">
-              <p className="text-sm text-gray-700">
+            <div className="rounded-2xl border border-gray-100 bg-[#f8f9fc] p-4 sm:p-5">
+              <p className="text-sm leading-6 text-gray-700">
                 Start typing your business name. Select the right match to request ownership.
               </p>
 
@@ -357,34 +366,34 @@ export function ClaimAddBusinessModal({
 
         {view === "claim_details" && pickedBusiness && (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/[0.04] p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-bold text-[#0d4f4f] uppercase tracking-wider">
+            <div className="rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/[0.04] p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#0d4f4f]">
                     Selected Business
                   </p>
-                  <p className="mt-1 text-base font-bold text-[#0a1628]">
+
+                  <p className="mt-1 text-base font-bold text-[#0a1628] break-words">
                     {pickedBusiness?.name}
                   </p>
-                  <p className="mt-1 text-sm text-gray-600">
+
+                  <p className="mt-1 text-sm leading-6 text-gray-600">
                     {pickedBusiness?.city ? `${pickedBusiness.city}, ` : ""}
                     {pickedBusiness?.country} · {pickedBusiness?.industry}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={submitting}
-                    className="text-sm font-semibold text-[#0d4f4f] hover:underline disabled:opacity-50"
-                    onClick={() => {
-                      setView("claim");
-                      setPickedBusiness(null);
-                    }}
-                  >
-                    Change
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  disabled={submitting}
+                  className="text-sm font-semibold text-[#0d4f4f] hover:underline disabled:opacity-50 sm:mt-1"
+                  onClick={() => {
+                    setView("claim");
+                    setPickedBusiness(null);
+                  }}
+                >
+                  Change
+                </button>
               </div>
             </div>
 
@@ -397,7 +406,7 @@ export function ClaimAddBusinessModal({
         )}
 
         {view === "add" && (
-          <div className="rounded-2xl border border-gray-100 bg-[#fbfcff] p-5">
+          <div className="rounded-2xl border border-gray-100 bg-[#fbfcff] p-4 sm:p-5">
             <DetailedBusinessForm
               onSubmit={handleBusinessSubmit}
               isLoading={submitting}
@@ -409,48 +418,40 @@ export function ClaimAddBusinessModal({
         )}
       </ModalContent>
 
-      <ModalFooter className="flex items-center justify-between gap-3">
-        {view === "choice" ? (
-          <>
-            <button type="button" onClick={onClose} className={btnSecondary}>
-              Close
-            </button>
-            <div className="text-xs text-gray-500">
-              Tip: Claim if you already exist. Add if you're new.
-            </div>
-          </>
-        ) : view === "add" ? (
-          // No footer for add view - DetailedBusinessForm handles its own navigation
-          null
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                if (view === "claim_details") {
-                  setView("claim");
-                } else {
-                  setView("choice");
-                }
-              }}
-              className={btnSecondary}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </button>
+      {view !== "add" && (
+        <ModalFooter className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+          {view === "choice" ? (
+            <>
+              <button type="button" onClick={onClose} className={btnSecondary}>
+                Close
+              </button>
 
-            {view === "claim" ? (
-              // No primary button - selection auto-advances to details
-              <div />
-            ) : view === "claim_details" ? (
-              // No primary button here - ClaimDetailsForm handles submit
-              <div />
-            ) : (
-              <div />
-            )}
-          </>
-        )}
-      </ModalFooter>
+              <div className="text-xs text-gray-500 text-center sm:text-right">
+                Tip: Claim if you already exist. Add if you're new.
+              </div>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  if (view === "claim_details") {
+                    setView("claim");
+                  } else {
+                    setView("choice");
+                  }
+                }}
+                className={btnSecondary}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back
+              </button>
+
+              <div className="hidden sm:block" />
+            </>
+          )}
+        </ModalFooter>
+      )}
     </ModalWrapper>
   );
 }
