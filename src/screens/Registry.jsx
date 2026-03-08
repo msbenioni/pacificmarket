@@ -61,8 +61,6 @@ export default function Registry() {
         !b.cultural_identity?.toLowerCase().includes(filters.search.toLowerCase())) return false;
       if (filters.country && b.country !== filters.country) return false;
       if (filters.industry && b.industry !== filters.industry) return false;
-      if (filters.verified && !b.verified) return false;
-      if (filters.identity && !b.cultural_identity?.toLowerCase().includes(filters.identity.toLowerCase())) return false;
       return true;
     });
 
@@ -76,8 +74,8 @@ export default function Registry() {
     return result;
   }, [businesses, filters, sort]);
 
-  const hasFilters = filters.country || filters.industry || filters.verified || filters.identity;
-  const hasDraftFilters = draftFilters.country || draftFilters.industry || draftFilters.verified || draftFilters.identity;
+  const hasFilters = filters.country || filters.industry;
+  const hasDraftFilters = draftFilters.country || draftFilters.industry;
   const clearAllFilters = () => setFilters(defaultFilters);
   const clearDrafts = () => setDraftFilters(defaultFilters);
   const applyDrafts = () => {
