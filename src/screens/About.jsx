@@ -344,28 +344,46 @@ export default function About() {
             ))}
           </div>
 
-          <div className="mt-8 sm:mt-12 grid lg:grid-cols-2 gap-8 items-center">
-            <div className="rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.08)]">
-              <div className="relative h-[240px] sm:h-[320px] w-full">
+          <div className="mt-8 sm:mt-12 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="order-2 lg:order-1">
+              <div className="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
+                <p>
+                  For many of us, business was never something we learned from a book.
+                  It was something we grew up seeing, doing, and helping with.
+                </p>
+                <p>
+                  In our families it looked like this —
+                  scraping coconut for the sauce that would be sold at the market,
+                  preparing food together, setting up stalls, sharing the work.
+                </p>
+                <p>
+                  Enterprise lived in the small everyday moments:
+                  in the hands that prepared the food,
+                  the minds that organised the stall,
+                  and the families that worked together to make something from what they had.
+                </p>
+                <p>
+                  That is the spirit behind Pacific Market.
+                </p>
+                <p>
+                  Not a borrowed idea of entrepreneurship,
+                  but a recognition that Pacific people have always had business knowledge, capability, and ingenuity — even when it was never called "entrepreneurship".
+                </p>
+                <p className="text-[#0a1628] font-semibold">
+                  Pacific Market simply exists to make that reality easier to see.
+                </p>
+              </div>
+            </div>
+            
+            <div className="order-1 lg:order-2 flex justify-center">
+              <div className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] lg:w-[400px] lg:h-[400px] rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.08)]">
                 <Image
-                  src="/placeholders/about-founders-craft.jpg"
-                  alt="Pacific founders placeholder"
+                  src="/craft.png"
+                  alt="Pacific founders craft"
                   fill
                   className="object-cover"
                 />
               </div>
-            </div>
-
-            <div className="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
-              <p>
-                For many of us, business did not arrive as a trend. It lived in our families through practical intelligence — in the people who built things, fixed things, cooked, sewed, sold, organised, hosted, and found ways to make something from what they had.
-              </p>
-              <p>
-                That is the spirit behind Pacific Market. Not a borrowed idea of entrepreneurship, but a recognition that Pacific people have always had business acumen, capability, and ingenuity — even when it was not always named that way.
-              </p>
-              <p className="text-[#0a1628] font-semibold">
-                Pacific Market exists to help that reality be seen more clearly.
-              </p>
             </div>
           </div>
         </div>
@@ -454,17 +472,17 @@ export default function About() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Jasmin */}
-            <div className="group rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
-              <div className="relative h-[240px] sm:h-[320px] w-full overflow-hidden">
+            <div className="group flex flex-col items-center space-y-6">
+              <div className="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] lg:w-[350px] lg:h-[350px] rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
                 <Image
-                  src="/placeholders/jasmin-founder.jpg"
-                  alt="Jasmin Benioni placeholder"
+                  src="/jasmin.png"
+                  alt="Jasmin Benioni"
                   fill
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                  className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07101d] via-[#07101d]/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07101d]/60 via-[#07101d]/20 to-transparent" />
 
                 <div className="absolute left-6 bottom-6 right-6">
                   <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 backdrop-blur-sm px-4 py-2">
@@ -476,37 +494,32 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="p-5 sm:p-8">
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628]">Jasmin Benioni</h3>
-                    <p className="text-xs sm:text-sm font-semibold text-[#0d4f4f] mt-1">
-                      Founder, Technology, Systems & Platform Development
-                    </p>
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#c9a84c]" />
-                    Saasy Cookies
-                  </div>
+              <div className="text-center max-w-md space-y-4">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628]">Jasmin Benioni</h3>
+                  <p className="text-xs sm:text-sm font-semibold text-[#0d4f4f] mt-1">
+                    Founder, Technology, Systems & Platform Development
+                  </p>
                 </div>
 
-                <div className="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#c9a84c]" />
+                  Saasy Cookies
+                </div>
+
+                <div className="space-y-3 text-sm sm:text-base text-gray-600 leading-relaxed">
                   <p>
                     Jasmin is a software developer and founder of Saasy Cookies, an AI and digital infrastructure company focused on building practical systems that help businesses grow with stronger foundations.
                   </p>
                   <p>
                     Her work on Pacific Market brings together technical problem-solving, structured thinking, and a belief that Pacific-owned businesses deserve digital spaces that feel credible, polished, and worthy of the value they already carry.
                   </p>
-                  <p>
-                    She builds with the understanding that enterprise often runs quietly through families — in the people who fix things, organise things, make things, sell things, and find a way forward with skill and resourcefulness. Pacific Market carries that same spirit into a modern platform.
-                  </p>
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   {[
                     "Systems thinker",
-                    "Builder",
+                    "Builder", 
                     "Problem-solver",
                     "Pacific-led technology",
                   ].map((chip) => (
@@ -522,15 +535,15 @@ export default function About() {
             </div>
 
             {/* Daniel */}
-            <div className="group rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
-              <div className="relative h-[320px] w-full overflow-hidden">
+            <div className="group flex flex-col items-center space-y-6">
+              <div className="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] lg:w-[350px] lg:h-[350px] rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
                 <Image
-                  src="/placeholders/daniel-founder.jpg"
-                  alt="Daniel Maine placeholder"
+                  src="/daniel.png"
+                  alt="Daniel Maine"
                   fill
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                  className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07101d] via-[#07101d]/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07101d]/60 via-[#07101d]/20 to-transparent" />
 
                 <div className="absolute left-6 bottom-6 right-6">
                   <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 backdrop-blur-sm px-4 py-2">
@@ -542,22 +555,20 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="p-5 sm:p-8">
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628]">Daniel Maine</h3>
-                    <p className="text-xs sm:text-sm font-semibold text-[#0d4f4f] mt-1">
-                      Founder, Partnerships, Visibility & Business Growth
-                    </p>
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
-                    <Globe className="w-3.5 h-3.5 text-[#00c4cc]" />
-                    Oceanique Solutionz
-                  </div>
+              <div className="text-center max-w-md space-y-4">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628]">Daniel Maine</h3>
+                  <p className="text-xs sm:text-sm font-semibold text-[#0d4f4f] mt-1">
+                    Founder, Partnerships, Visibility & Business Growth
+                  </p>
                 </div>
 
-                <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
+                  <Globe className="w-3.5 h-3.5 text-[#00c4cc]" />
+                  Oceanique Solutionz
+                </div>
+
+                <div className="space-y-3 text-sm sm:text-base text-gray-600 leading-relaxed">
                   <p>
                     Daniel is a business owner and founder of Oceanique Solutionz, a Destination Management Company built around connection, coordination, and creating meaningful business experiences.
                   </p>
@@ -569,7 +580,7 @@ export default function About() {
                   </p>
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   {[
                     "Relationship-led",
                     "Business growth",
