@@ -624,8 +624,7 @@ const primaryActionCls =
                   <button
                     onClick={() => handleUpgradeClick(BUSINESS_TIER.MANA)}
                     disabled={checkoutLoading}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#c9a84c] px-5 py-3 text-sm font-bold text-[#0a1628] hover:bg-[#d8b865] transition disabled:opacity-50"
-                  >
+className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] px-5 py-3 text-sm font-bold text-[#0a1628] hover:bg-[#d8b865] transition disabled:opacity-50 min-h-[44px] w-full sm:w-auto"                  >
                     {checkoutLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-[#0a1628]/30 border-t-[#0a1628] rounded-full animate-spin" />
