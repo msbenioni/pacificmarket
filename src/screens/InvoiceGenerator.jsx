@@ -823,8 +823,8 @@ export default function InvoiceGenerator() {
                   <div className="space-y-3">
                     {invoice.adjustments.map((adj, i) => (
                       <div key={i} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1 grid grid-cols-2 gap-3">
+                        <div className="flex flex-col sm:flex-row items-start gap-3">
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <input
                               value={adj.label}
                               onChange={e => updateAdjustment(i, "label", e.target.value)}
