@@ -388,14 +388,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   <label className={getLabelClass('founder', 'founder_motivation_array')}>What motivates you as a founder? (Select up to 3)</label>
                   <div className="space-y-2">
                     {FOUNDER_MOTIVATIONS.map((motivation) => (
-                      <label key={motivation.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                      <label key={motivation.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-xl border border-transparent">
                         <input
                           type="checkbox"
                           checked={form.founder_motivation_array?.includes(motivation.value) || false}
                           onChange={() => toggleArrayItem('founder_motivation_array', motivation.value)}
-                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f] mt-0.5"
                         />
-                        <span className="text-sm text-gray-700">{motivation.label}</span>
+                        <span className="text-sm leading-5 text-gray-700">{motivation.label}</span>
                       </label>
                     ))}
                   </div>
@@ -462,14 +462,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   <label className={getLabelClass('pacific', 'family_community_responsibilities_affect_business')}>What family commitments do you have alongside your business responsibilities?</label>
                   <div className="space-y-2">
                     {FAMILY_RESPONSIBILITIES.map((responsibility) => (
-                      <label key={responsibility.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                      <label key={responsibility.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-xl border border-transparent">
                         <input
                           type="checkbox"
                           checked={form.family_community_responsibilities_affect_business?.includes(responsibility.value) || false}
                           onChange={() => toggleArrayItem('family_community_responsibilities_affect_business', responsibility.value)}
-                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f] mt-0.5"
                         />
-                        <span className="text-sm text-gray-700">{responsibility.label}</span>
+                        <span className="text-sm leading-5 text-gray-700">{responsibility.label}</span>
                       </label>
                     ))}
                   </div>
@@ -517,14 +517,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   <label className={getLabelClass('financial', 'revenue_streams')}>Revenue streams (select all that apply)</label>
                   <div className="space-y-2">
                     {REVENUE_STREAMS.map((stream) => (
-                      <label key={stream.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                      <label key={stream.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-xl border border-transparent">
                         <input
                           type="checkbox"
                           checked={form.revenue_streams?.includes(stream.value) || false}
                           onChange={() => toggleArrayItem('revenue_streams', stream.value)}
-                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f] mt-0.5"
                         />
-                        <span className="text-sm text-gray-700">{stream.label}</span>
+                        <span className="text-sm leading-5 text-gray-700">{stream.label}</span>
                       </label>
                     ))}
                   </div>
@@ -549,14 +549,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   <label className={getLabelClass('challenges', 'top_challenges')}>Top 5 challenges (select up to 5)</label>
                   <div className="space-y-2">
                     {BUSINESS_CHALLENGES.map((challenge) => (
-                      <label key={challenge.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                      <label key={challenge.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-xl border border-transparent">
                         <input
                           type="checkbox"
                           checked={form.top_challenges?.includes(challenge.value) || false}
                           onChange={() => toggleArrayItem('top_challenges', challenge.value)}
-                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f] mt-0.5"
                         />
-                        <span className="text-sm text-gray-700">{challenge.label}</span>
+                        <span className="text-sm leading-5 text-gray-700">{challenge.label}</span>
                       </label>
                     ))}
                   </div>
@@ -566,14 +566,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   <label className={getLabelClass('challenges', 'support_needed_next')}>Support needed for next 12 months (select up to 3)</label>
                   <div className="space-y-2">
                     {SUPPORT_NEEDS.map((support) => (
-                      <label key={support.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                      <label key={support.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-xl border border-transparent">
                         <input
                           type="checkbox"
                           checked={form.support_needed_next?.includes(support.value) || false}
                           onChange={() => toggleArrayItem('support_needed_next', support.value)}
-                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f] mt-0.5"
                         />
-                        <span className="text-sm text-gray-700">{support.label}</span>
+                        <span className="text-sm leading-5 text-gray-700">{support.label}</span>
                       </label>
                     ))}
                   </div>
@@ -598,14 +598,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   <label className={getLabelClass('growth', 'goals_next_12_months_array')}>Goals for next 12 months (select up to 3)</label>
                   <div className="space-y-2">
                     {GOALS_NEXT_12_MONTHS.map((goal) => (
-                      <label key={goal.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                      <label key={goal.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-xl border border-transparent">
                         <input
                           type="checkbox"
                           checked={form.goals_next_12_months_array?.includes(goal.value) || false}
                           onChange={() => toggleArrayItem('goals_next_12_months_array', goal.value)}
-                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f] mt-0.5"
                         />
-                        <span className="text-sm text-gray-700">{goal.label}</span>
+                        <span className="text-sm leading-5 text-gray-700">{goal.label}</span>
                       </label>
                     ))}
                   </div>
@@ -630,14 +630,14 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                   <label className={getLabelClass('community', 'community_impact_areas')}>Community impact areas (select all that apply)</label>
                   <div className="space-y-2">
                     {COMMUNITY_IMPACT_AREAS.map((area) => (
-                      <label key={area.value} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                      <label key={area.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-3 rounded-xl border border-transparent">
                         <input
                           type="checkbox"
                           checked={form.community_impact_areas?.includes(area.value) || false}
                           onChange={() => toggleArrayItem('community_impact_areas', area.value)}
-                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f]"
+                          className="w-4 h-4 text-[#0d4f4f] border-gray-300 rounded focus:ring-[#0d4f4f] mt-0.5"
                         />
-                        <span className="text-sm text-gray-700">{area.label}</span>
+                        <span className="text-sm leading-5 text-gray-700">{area.label}</span>
                       </label>
                     ))}
                   </div>
@@ -645,7 +645,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
 
                 <div>
                   <label className={getLabelClass('community', 'collaboration_interest')}>Interested in partnerships or collaborations?</label>
-                  <div className="flex items-center space-x-4 mt-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-2">
                     <label className="flex items-center">
                       <input
                         type="radio"
