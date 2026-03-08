@@ -43,7 +43,7 @@ export default function PortalBusinessCard({
             )}
             <label
               htmlFor={logoInputId}
-              className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-2xl bg-black/45 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+              className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-2xl bg-black/45 opacity-0 group-active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
             >
               <Upload className="w-4 h-4 text-white" />
               <span className="sr-only">Update logo</span>
