@@ -10,7 +10,15 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import { Sheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetClose,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 
 export default function PortalBusinessCard({
   business,
