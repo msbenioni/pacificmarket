@@ -812,7 +812,10 @@ const primaryActionCls =
               ) : (
                 <div className="space-y-3">
                   {claims.map(c => (
-                    <div key={c.id} className={`${portalUI.card} flex items-center justify-between`}>
+                    <div
+  key={c.id}
+  className={`${portalUI.card} flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}
+>
                       <div className="min-w-0">
                         <p className="font-semibold text-[#0a1628] truncate">{c.business_name || c.business_id}</p>
                         <p className="text-xs text-slate-500 mt-1">
