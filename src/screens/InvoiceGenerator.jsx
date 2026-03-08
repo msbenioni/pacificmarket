@@ -552,6 +552,17 @@ export default function InvoiceGenerator() {
         }
       />
 
+      {/* Mobile-only back button */}
+      <div className="sm:hidden max-w-7xl mx-auto px-4 pt-4">
+        <Link
+          href={createPageUrl("BusinessPortal")}
+          className="inline-flex items-center gap-2 bg-white text-[#0a1628] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-50 transition border border-gray-200"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Portal
+        </Link>
+      </div>
+
       <div className="min-h-screen bg-[#f8f9fc]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
