@@ -522,7 +522,7 @@ export default function InvoiceGenerator() {
         subtitle="Create polished, branded invoices for your business in minutes."
         description="Generate professional PDF invoices with your business details, custom brand colours, payment information, and flexible tax settings."
         actions={
-          <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-3">
             <Link href={createPageUrl("BusinessPortal")} className="inline-flex items-center gap-2 bg-white text-[#0a1628] px-6 py-3 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
               <ArrowLeft className="w-4 h-4" />
               Back to Portal
