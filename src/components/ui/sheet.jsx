@@ -14,6 +14,9 @@ const SheetClose = SheetPrimitive.Close
 
 const SheetPortal = SheetPrimitive.Portal
 
+/** @typedef {import("react").ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>} SheetOverlayProps */
+
+/** @type {import("react").ForwardRefExoticComponent<SheetOverlayProps & import("react").RefAttributes<any>>} */
 const SheetOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
@@ -44,6 +47,13 @@ const sheetVariants = cva(
   }
 )
 
+/**
+ * @typedef {import("react").ComponentPropsWithoutRef<typeof SheetPrimitive.Content> & {
+ *  side?: "top" | "bottom" | "left" | "right"
+ * }} SheetContentProps
+ */
+
+/** @type {import("react").ForwardRefExoticComponent<SheetContentProps & import("react").RefAttributes<any>>} */
 const SheetContent = React.forwardRef(({ side = "right", className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
@@ -59,6 +69,7 @@ const SheetContent = React.forwardRef(({ side = "right", className, children, ..
 ))
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
+/** @param {import("react").HTMLAttributes<HTMLDivElement>} props */
 const SheetHeader = ({
   className,
   ...props
@@ -69,6 +80,7 @@ const SheetHeader = ({
 )
 SheetHeader.displayName = "SheetHeader"
 
+/** @param {import("react").HTMLAttributes<HTMLDivElement>} props */
 const SheetFooter = ({
   className,
   ...props
@@ -79,6 +91,9 @@ const SheetFooter = ({
 )
 SheetFooter.displayName = "SheetFooter"
 
+/** @typedef {import("react").ComponentPropsWithoutRef<typeof SheetPrimitive.Title>} SheetTitleProps */
+
+/** @type {import("react").ForwardRefExoticComponent<SheetTitleProps & import("react").RefAttributes<any>>} */
 const SheetTitle = React.forwardRef(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
@@ -87,6 +102,9 @@ const SheetTitle = React.forwardRef(({ className, ...props }, ref) => (
 ))
 SheetTitle.displayName = SheetPrimitive.Title.displayName
 
+/** @typedef {import("react").ComponentPropsWithoutRef<typeof SheetPrimitive.Description>} SheetDescriptionProps */
+
+/** @type {import("react").ForwardRefExoticComponent<SheetDescriptionProps & import("react").RefAttributes<any>>} */
 const SheetDescription = React.forwardRef(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}

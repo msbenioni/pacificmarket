@@ -5,17 +5,23 @@ export default function HeroRegistry({
   description, 
   showStats = false,
   stats = null,
-  actions = null 
+  actions = null,
+  compact = false,
 }) {
+  const wrapperCls = compact ? "py-8 sm:py-12" : "py-12";
+  const badgeCls = compact ? "pt-1 sm:pt-4" : "pt-4";
+  const titleCls = compact ? "text-2xl sm:text-3xl pt-1 sm:pt-2" : "text-3xl pt-2";
+  const actionsCls = compact ? "mt-4 sm:mt-6" : "mt-6";
+
   return (
-    <div className="bg-[#0a1628] text-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className={`bg-[#0a1628] text-white px-4 sm:px-6 lg:px-8 ${wrapperCls}`}>
       <div className="max-w-7xl mx-auto">
         {badge && (
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#00c9cc] mb-2 block pt-4">
+          <span className={`text-xs font-semibold uppercase tracking-widest text-[#00c9cc] mb-2 block ${badgeCls}`}>
             {badge}
           </span>
         )}
-        <h1 className="text-3xl font-bold mb-2 pt-2">{title}</h1>
+        <h1 className={`font-bold mb-2 ${titleCls}`}>{title}</h1>
         {subtitle && <p className="text-gray-400 text-sm mb-2">{subtitle}</p>}
         {description && <p className="text-gray-400 text-sm max-w-xl">{description}</p>}
         
@@ -33,7 +39,7 @@ export default function HeroRegistry({
         )}
 
         {actions && (
-          <div className="mt-6 flex items-center gap-4">
+          <div className={`${actionsCls} flex items-center gap-4`}>
             {actions}
           </div>
         )}

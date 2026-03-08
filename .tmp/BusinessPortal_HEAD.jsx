@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { getSupabase } from "@/lib/supabase/client";
@@ -17,7 +17,6 @@ import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } fro
 import { getBusinessOwner, getBusinessOwnerName } from "@/utils/businessHelpers";
 import PortalShell from "@/components/portal/PortalShell";
 import { portalUI } from "@/components/portal/portalUI";
-import PortalBusinessCard from "@/components/portal/PortalBusinessCard";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
@@ -482,13 +481,13 @@ export default function BusinessPortal() {
 
 
   const disabledActionCls =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed min-h-[44px] w-full";
+    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed";
 
   const secondaryActionCls =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-white text-[#0d4f4f] hover:border-[#0d4f4f] transition min-h-[44px] w-full";
+    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-white text-[#0d4f4f] hover:border-[#0d4f4f] transition";
 
   const primaryActionCls =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-[#0d4f4f] text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] min-h-[44px] w-full";
+    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-[#0d4f4f] text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)]";
 
   return (
     <PortalShell>
@@ -498,7 +497,6 @@ export default function BusinessPortal() {
         subtitle={user?.email}
         description=""
         actions={null}
-        compact
       />
 
       <div className={portalUI.wrap}>
@@ -506,10 +504,10 @@ export default function BusinessPortal() {
           {/* Tabs */}
           <div className={portalUI.tabsWrap}>
             {[
-              { id: "my-businesses", label: "My Businesses", mobileLabel: "Businesses", icon: Building2, count: businesses.length },
-              { id: "claims", label: "Claim Requests", mobileLabel: "Claims", icon: CheckCircle, count: claims.length },
-              { id: "insights", label: "Founder Insights", mobileLabel: "Insights", icon: Users, status: insightSnapshots.length > 0 ? "completed" : insightsStarted ? "started" : "not-started" },
-              { id: "tools", label: "Business Tools", mobileLabel: "Tools", icon: FileText },
+              { id: "my-businesses", label: "My Businesses", icon: Building2, count: businesses.length },
+              { id: "claims", label: "Claim Requests", icon: CheckCircle, count: claims.length },
+              { id: "insights", label: "Founder Insights", icon: Users, status: insightSnapshots.length > 0 ? "completed" : insightsStarted ? "started" : "not-started" },
+              { id: "tools", label: "Business Tools", icon: FileText },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -517,23 +515,22 @@ export default function BusinessPortal() {
                 className={portalUI.tabBtn(activeTab === tab.id)}
               >
                 <tab.icon className="w-4 h-4" />
-                <span className="sm:hidden">{tab.mobileLabel || tab.label}</span>
-                <span className="hidden sm:inline">{tab.label}</span>
+                {tab.label}
                 {tab.count !== undefined && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-600 hidden md:inline-flex">
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
                     {tab.count}
                   </span>
                 )}
                 {tab.status === "completed" && (
-                  <CheckCircle className="w-4 h-4 ml-2 text-green-600 hidden md:inline-flex" />
+                  <CheckCircle className="w-4 h-4 ml-2 text-green-600" />
                 )}
                 {tab.status === "started" && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-blue-300 bg-blue-50 text-blue-600 hidden md:inline-flex">
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-blue-300 bg-blue-50 text-blue-600">
                     started
                   </span>
                 )}
                 {tab.status === "not-started" && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-gray-300 text-gray-500 hidden md:inline-flex">
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-gray-300 text-gray-500">
                     not started
                   </span>
                 )}
@@ -649,9 +646,9 @@ export default function BusinessPortal() {
                         ${TIER_BENEFITS[BUSINESS_TIER.MANA].price.split("/")[0].slice(1)}/mo
                       </p>
                       <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
-                        <li>• Verified badge</li>
-                        <li>• Logo and banner support</li>
-                        <li>• Stronger profile presentation</li>
+                        <li>ΓÇó Verified badge</li>
+                        <li>ΓÇó Logo and banner support</li>
+                        <li>ΓÇó Stronger profile presentation</li>
                       </ul>
                     </div>
 
@@ -663,9 +660,9 @@ export default function BusinessPortal() {
                         ${TIER_BENEFITS[BUSINESS_TIER.MOANA].price.split("/")[0].slice(1)}/mo
                       </p>
                       <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
-                        <li>• Everything in Verified</li>
-                        <li>• Featured placement in registry</li>
-                        <li>• Invoice and QR tools</li>
+                        <li>ΓÇó Everything in Verified</li>
+                        <li>ΓÇó Featured placement in registry</li>
+                        <li>ΓÇó Invoice and QR tools</li>
                       </ul>
                     </div>
                   </div>
@@ -755,47 +752,148 @@ export default function BusinessPortal() {
                 </div>
               ) : (
                 <div className="space-y-5">
-{businesses.map((b) => {
-  const tierStyles =
-    b.subscription_tier === BUSINESS_TIER.MOANA
-      ? "bg-[#c9a84c]/14 text-[#0a1628] border border-[#c9a84c]/20"
-      : b.subscription_tier === BUSINESS_TIER.MANA
-      ? "bg-[#00c4cc]/12 text-[#0d4f4f] border border-[#00c4cc]/20"
-      : "bg-gray-100/80 text-gray-600 border border-gray-200";
+                  {businesses.map((b) => {
+                    const tierStyles =
+                      b.subscription_tier === BUSINESS_TIER.MOANA
+                        ? "bg-[#c9a84c]/14 text-[#f4e3a8] border border-[#c9a84c]/20"
+                        : b.subscription_tier === BUSINESS_TIER.MANA
+                        ? "bg-[#00c4cc]/12 text-[#8df3f6] border border-[#00c4cc]/20"
+                        : "bg-gray-100/80 text-gray-600 border border-gray-200";
 
-  const statusStyles =
-    b.status === BUSINESS_STATUS.ACTIVE
-      ? "bg-emerald-100/80 text-emerald-700 border border-emerald-200"
-      : b.status === BUSINESS_STATUS.PENDING
-      ? "bg-amber-100/80 text-amber-700 border border-amber-200"
-      : "bg-red-100/80 text-red-700 border border-red-200";
+                    const statusStyles =
+                      b.status === BUSINESS_STATUS.ACTIVE
+                        ? "bg-emerald-100/80 text-emerald-700 border border-emerald-200"
+                        : b.status === BUSINESS_STATUS.PENDING
+                        ? "bg-amber-100/80 text-amber-700 border border-amber-200"
+                        : "bg-red-100/80 text-red-700 border border-red-200";
 
-  const owner = b.owner_user_id ? getBusinessOwner(b.owner_user_id, profiles) : null;
+                    return (
+                      <div
+                        key={b.id}
+                        className="bg-white border border-gray-200 rounded-2xl p-5 shadow-[0_12px_40px_rgba(10,22,40,0.06)] transition hover:border-[#00c4cc]/20 hover:shadow-[0_18px_45px_rgba(0,0,0,0.1)] relative"
+                      >
+                        <div className="absolute top-5 right-5 flex items-center gap-2">
+                          <button
+                            onClick={() => setEditingBusiness(b)}
+                            className="p-2 rounded-lg text-gray-400 hover:text-[#0d4f4f] hover:bg-gray-50 transition"
+                            title="Edit business"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBusiness(b.id)}
+                            className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
+                            title="Remove business"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setShowAddOwnerModal(b.id)}
+                            className="p-2 rounded-lg text-gray-400 hover:text-[#0d4f4f] hover:bg-gray-50 transition"
+                            title="Add owner"
+                          >
+                            <Users className="w-4 h-4" />
+                          </button>
+                        </div>
 
-  const metaParts = [
-    b.city ? `${b.city}, ${getCountryLabel(b.country)}` : getCountryLabel(b.country),
-    getIndustryLabel(b.industry),
-  ].filter(Boolean);
+                        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between pr-20">
+                          <div className="flex flex-1 items-start gap-4">
+                            <div className="relative group h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                              {b.logo_url ? (
+                                <img src={b.logo_url} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
+                              )}
+                              <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Upload className="w-4 h-4 text-white" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleLogoUpload(e, b.id)}
+                                />
+                              </label>
+                            </div>
 
-  return (
-    <PortalBusinessCard
-      key={b.id}
-      business={b}
-      tierLabel={b.subscription_tier ? tierInfo[b.subscription_tier]?.label : null}
-      tierStyles={tierStyles}
-      statusStyles={statusStyles}
-      metaLine={metaParts.join(" · ")}
-      ownerName={b.owner_user_id ? getBusinessOwnerName(b.owner_user_id, profiles) : null}
-      ownerEmail={owner?.email || null}
-      onEdit={() => setEditingBusiness(b)}
-      onDelete={() => handleDeleteBusiness(b.id)}
-      onAddOwner={() => setShowAddOwnerModal(b.id)}
-      onLogoUpload={(e) => handleLogoUpload(e, b.id)}
-      primaryActionCls={primaryActionCls}
-      showUpgradePrompt={b.subscription_tier === BUSINESS_TIER.VAKA}
-    />
-  );
-})}                </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="truncate text-lg font-bold text-[#0a1628]">
+                                  {b.name}
+                                </h3>
+
+                                {b.verified && (
+                                  <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
+                                )}
+
+                                {b.subscription_tier && (
+                                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tierStyles}`}>
+                                    {tierInfo[b.subscription_tier]?.label}
+                                  </span>
+                                )}
+
+                                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}>
+                                  {b.status}
+                                </span>
+                              </div>
+
+                              <p className="mt-2 text-sm text-slate-600">
+                                {b.city ? `${b.city}, ` : ""}
+                                {getCountryLabel(b.country)} ┬╖ {getIndustryLabel(b.industry)}
+                              </p>
+
+                              <div className="mt-3">
+                                <Link
+                                  href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
+                                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#0d4f4f] hover:text-[#1a6b6b] transition"
+                                >
+                                  View Listing <ChevronRight className="w-4 h-4" />
+                                </Link>
+                              </div>
+
+                              {b.owner_user_id && (
+                                <div className="mt-4 max-w-md rounded-2xl border border-gray-200 bg-white/90 p-4">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                        Primary Owner
+                                      </p>
+                                      <p className="truncate text-sm font-semibold text-[#0a1628]">
+                                        {getBusinessOwnerName(b.owner_user_id, profiles)}
+                                      </p>
+                                      <p className="truncate text-sm text-slate-600">
+                                        {getBusinessOwner(b.owner_user_id, profiles)?.email}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {b.subscription_tier === BUSINESS_TIER.VAKA && (
+                          <div className="mt-5 border-t border-gray-200 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <p className="text-sm font-semibold text-[#0a1628]">
+                                Ready to upgrade this listing?
+                              </p>
+                              <p className="text-sm text-slate-600">
+                                Unlock logo, richer presentation, verification, and premium tools.
+                              </p>
+                            </div>
+                            <Link
+                              href={createPageUrl("Pricing")}
+                              className="inline-flex items-center gap-2 text-sm font-semibold text-[#c9a84c] hover:text-[#f0d27b] transition"
+                            >
+                              View upgrade options
+                              <ChevronRight className="w-4 h-4" />
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           )}
