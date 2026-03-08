@@ -920,7 +920,7 @@ export default function InvoiceGenerator() {
                 </div>
 
                 <div className="p-4 sm:p-8">
-                  <div className="grid grid-cols-2 gap-8 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-8">
                     <div>
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Bill To</p>
                       <p className="font-semibold text-[#0a1628]">{invoice.client_name || "Client Name"}</p>
