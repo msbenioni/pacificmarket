@@ -1136,7 +1136,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
 
       {/* Edit Modal */}
        {editingBusiness && (
-         <ModalWrapper isOpen={editingBusiness} onClose={() => setEditingBusiness(null)} className={MODAL_SIZES.lg}>
+         <ModalWrapper isOpen={!!editingBusiness} onClose={() => setEditingBusiness(null)} className={MODAL_SIZES.lg}>
            <ModalHeader 
              title="Edit Listing"
              onClose={() => setEditingBusiness(null)}

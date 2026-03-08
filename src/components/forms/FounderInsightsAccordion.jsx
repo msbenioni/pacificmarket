@@ -109,6 +109,9 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
   const [submitting, setSubmitting] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   
+  // Get Supabase instance once for efficiency
+  const supabase = getSupabase();
+  
   // Wrapper function to handle form updates and trigger onStart on first change
   const setFormState = (updater) => {
     setForm(prev => {
@@ -146,6 +149,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
       user_id: user.id,
       business_id: businessId ?? null,
       snapshot_year: new Date().getFullYear(),
+      submitted_date: new Date().toISOString(),
     };
 
     for (const field of fields) {
@@ -158,7 +162,6 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
   const handleSaveSection = async (sectionKey) => {
     setSubmitting(true);
     try {
-      const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) throw new Error("User not authenticated");
@@ -178,7 +181,6 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
   const handleSubmitAll = async () => {
     setSubmitting(true);
     try {
-      const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) throw new Error("User not authenticated");
@@ -187,6 +189,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
         user_id: user.id,
         business_id: businessId ?? null,
         snapshot_year: new Date().getFullYear(),
+        submitted_date: new Date().toISOString(),
 
         years_entrepreneurial: form.years_entrepreneurial,
         businesses_founded: form.businesses_founded,
