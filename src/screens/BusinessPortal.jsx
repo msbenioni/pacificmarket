@@ -566,7 +566,7 @@ const primaryActionCls =
                       }
                     }}
                     disabled={onboardingLoading || onboardingStatus.needsProfile}
-                    className={onboardingStatus.needsProfile ? disabledActionCls : secondaryActionCls + " min-h-[44px] w-full sm:w-auto"}
+                    className={onboardingStatus.needsProfile ? disabledActionCls : secondaryActionCls}
                   >
                     <Search className="w-4 h-4" />
                     Claim Business
