@@ -66,7 +66,7 @@ export default function Registry() {
 
     if (sort === "verified") result = [...result].sort((a, b) => (b.verified ? 1 : 0) - (a.verified ? 1 : 0));
     else if (sort === "featured") result = [...result].sort((a, b) => {
-      const tierOrder = { featured_plus: 0, verified: 1, free: 2 };
+      const tierOrder = { moana: 0, mana: 1, vaka: 2 };
       return (tierOrder[a.subscription_tier] ?? 2) - (tierOrder[b.subscription_tier] ?? 2);
     });
     else if (sort === "alpha") result = [...result].sort((a, b) => a.name?.localeCompare(b.name));
