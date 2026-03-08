@@ -153,7 +153,7 @@ export default function QRCodeGenerator() {
             {/* Mode */}
             <div className="bg-white border border-gray-100 rounded-2xl p-5">
               <h3 className="font-bold text-[#0a1628] text-sm mb-4">QR Code Type</h3>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 {[
                   { id: "profile", label: "Business Profile", icon: Building2 },
                   { id: "custom", label: "Custom URL", icon: LinkIcon },
@@ -182,21 +182,31 @@ export default function QRCodeGenerator() {
                         {hasWebsite ? (
                           <button 
                             onClick={() => handleBusinessSelect(b)}
-                            className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                            className={`w-full flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
                               label === b.name 
                                 ? "border-[#0d4f4f] bg-[#0d4f4f]/5 cursor-pointer hover:border-[#0d4f4f]" 
                                 : "border-gray-100 hover:border-gray-200 cursor-pointer"
                             }`}
                           >
-                            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
-                              <span className="text-white font-bold text-sm">{b.name?.[0]}</span>
+                            <div className="flex items-start gap-3">
+                              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
+                                <span className="text-white font-bold text-sm">{b.name?.[0]}</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-semibold text-sm text-[#0a1628]">{b.name}</p>
+                                <p className="text-gray-400 text-xs">{b.country}</p>
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className="font-semibold text-sm text-[#0a1628]">{b.name}</p>
-                              <p className="text-gray-400 text-xs">{b.country}</p>
-                            </div>
-                            <div className="text-xs text-[#0d4f4f] hover:text-[#1a6b6b] font-medium">
-                              {label === b.name ? "Selected ✓" : "Generate QR →"}
+                            <div className="mt-2 sm:mt-0 text-xs font-medium">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-1 ${
+                                  label === b.name
+                                    ? "bg-[#0d4f4f]/10 text-[#0d4f4f]"
+                                    : "bg-slate-100 text-slate-500"
+                                }`}
+                              >
+                                {label === b.name ? "Selected" : "Use this website"}
+                              </span>
                             </div>
                           </button>
                         ) : (
