@@ -1,20 +1,10 @@
 import { useState, useEffect } from "react";
+import { Building2, Users, TrendingUp, Rocket, ChevronDown, ChevronUp, Globe, Target, Lightbulb, AlertCircle } from "lucide-react";
+import HeroRegistry from "@/components/shared/HeroRegistry";
+import HorizontalBar from "@/components/insights/HorizontalBar";
 import { getSupabase } from "@/lib/supabase/client";
-import { Building2, Users, TrendingUp, Rocket } from "lucide-react";
-import { BUSINESS_STATUS, BUSINESS_TIER, COUNTRIES } from "@/constants/unifiedConstants";
-import HeroRegistry from "../components/shared/HeroRegistry";
-import HorizontalBar from "../components/insights/HorizontalBar";
-
-function tally(arr, key) {
-  const map = {};
-  arr.forEach(item => {
-    const val = item[key];
-    if (val) map[val] = (map[val] || 0) + 1;
-  });
-  return Object.entries(map)
-    .map(([label, value]) => ({ label, value }))
-    .sort((a, b) => b.value - a.value);
-}
+import { tally } from "@/lib/utils";
+import { BUSINESS_STATUS, BUSINESS_STAGE, BUSINESS_CHALLENGES, FOUNDER_MOTIVATIONS, COUNTRIES } from "@/constants/unifiedConstants";
 
 // Country standardization function
 const standardizeCountry = (countryValue) => {
@@ -177,6 +167,22 @@ const getCountryLabel = (countryValue) => {
   return country ? country.label : countryValue;
 };
 
+// Helper functions to convert database values to user-friendly labels
+const getBusinessStageLabel = (stageValue) => {
+  const stage = Object.entries(BUSINESS_STAGE).find(([key, value]) => value === stageValue);
+  return stage ? stage[0].replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : stageValue;
+};
+
+const getChallengeLabel = (challengeValue) => {
+  const challenge = BUSINESS_CHALLENGES.find(c => c.value === challengeValue);
+  return challenge ? challenge.label : challengeValue;
+};
+
+const getMotivationLabel = (motivationValue) => {
+  const motivation = FOUNDER_MOTIVATIONS.find(m => m.value === motivationValue);
+  return motivation ? motivation.label : motivationValue;
+};
+
 const UI = {
   page: "bg-[#eef0f5]",
   wrap: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8",
@@ -265,7 +271,11 @@ export default function Insights() {
     : [];
   
   // Founder insights metrics
-  const byBusinessStage = tally(insights, "business_stage");
+  const byBusinessStage = Object.entries(BUSINESS_STAGE)
+    .map(([key, value]) => ({
+      label: getBusinessStageLabel(value), 
+      value: insights.filter(i => i.business_stage === value).length
+    }));
   
   // Calculate founder experience (years as entrepreneur)
   const yearsEntrepreneurial = insights
@@ -297,7 +307,10 @@ export default function Insights() {
   }, {});
 
   const topChallenges = Object.entries(allChallenges)
-    .map(([challenge, count]) => ({ label: challenge, value: count }))
+    .map(([challenge, count]) => ({ 
+      label: getChallengeLabel(challenge), 
+      value: count 
+    }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
@@ -340,6 +353,16 @@ export default function Insights() {
     ? Math.round((insights.filter(i => i.collaboration_interest).length / insights.length) * 100)
     : 0;
 
+  // Mentorship offering analysis
+  const mentorshipOfferingRate = insights.length > 0
+    ? Math.round((insights.filter(i => i.mentorship_offering).length / insights.length) * 100)
+    : 0;
+
+  // Investment interest analysis - people looking to invest in businesses
+  const investmentInterestRate = insights.length > 0
+    ? Math.round((insights.filter(i => i.angel_investor_interest === 'interested' || i.angel_investor_interest === 'actively-looking').length / insights.length) * 100)
+    : 0;
+
   return (
     <div className={`min-h-screen ${UI.page}`}>
       <HeroRegistry
@@ -364,48 +387,37 @@ export default function Insights() {
         ) : (
           <>
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Pacific Enterprises</p>
-                  <Building2 className="w-4 h-4 text-[#00c4cc]" />
+                  <p className="text-xs text-[#0a1628]/55">Investment Interest</p>
+                  <TrendingUp className="w-4 h-4 text-[#10b981]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{total}</p>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{investmentInterestRate}%</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  {verified} verified • {countries} countries
+                  Looking to invest in businesses
                 </p>
               </div>
 
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Founder Insights</p>
-                  <Users className="w-4 h-4 text-[#0d4f4f]" />
-                </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{total > 0 ? Math.round((insightsCount / total) * 100) : 0}%</p>
-                <p className="text-sm text-[#0a1628]/60 mt-2">
-                  Businesses with journey data
-                </p>
-              </div>
-
-              <div className={`${UI.card} ${UI.cardInner}`}>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Founder Experience</p>
-                  <TrendingUp className="w-4 h-4 text-[#c9a84c]" />
-                </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{avgYearsInBusiness}</p>
-                <p className="text-sm text-[#0a1628]/60 mt-2">
-                  Years as entrepreneur
-                </p>
-              </div>
-
-              <div className={`${UI.card} ${UI.cardInner}`}>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-[#0a1628]/55">Hiring Intention</p>
+                  <p className="text-xs text-[#0a1628]/55">Collaboration Interest</p>
                   <Rocket className="w-4 h-4 text-[#f59e0b]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{hiringIntentionRate}%</p>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{collaborationRate}%</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  Plan to hire in 12 months
+                  Interested in collaborating
+                </p>
+              </div>
+
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-[#0a1628]/55">Mentorship Offering</p>
+                  <Lightbulb className="w-4 h-4 text-[#8b5cf6]" />
+                </div>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{mentorshipOfferingRate}%</p>
+                <p className="text-sm text-[#0a1628]/60 mt-2">
+                  Open to mentoring others
                 </p>
               </div>
             </div>
@@ -457,19 +469,22 @@ export default function Insights() {
               </div>
             </div>
 
-            {/* Entrepreneurship Origins */}
+            {/* Demographics */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Founder Motivations</h3>
                 <p className={UI.sectionDesc}>What drives Pacific entrepreneurs to start businesses?</p>
                 <div className="mt-4 space-y-2">
                   {Object.entries(motivationKeywords)
-                    .map(([motivation, count]) => ({ label: motivation, value: count }))
+                    .map(([motivation, count]) => ({ 
+                      label: getMotivationLabel(motivation), 
+                      value: count 
+                    }))
                     .sort((a, b) => b.value - a.value)
                     .slice(0, 5)
                     .map((item, index) => (
                       <div key={index} className="flex items-center justify-between">
-                        <span className="text-sm text-[#0a1628] capitalize">{item.label}</span>
+                        <span className="text-sm text-[#0a1628]">{item.label}</span>
                         <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
                       </div>
                     ))}
@@ -485,13 +500,13 @@ export default function Insights() {
               </div>
             </div>
 
-            {/* Business Operations */}
+            {/* Challenges & Support */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
-                <h3 className={UI.sectionTitle}>Business Stages</h3>
-                <p className={UI.sectionDesc}>Current maturity of Pacific enterprises</p>
+                <h3 className={UI.sectionTitle}>Top Challenges</h3>
+                <p className={UI.sectionDesc}>Biggest hurdles facing Pacific entrepreneurs</p>
                 <div className="mt-4">
-                  <HorizontalBar title="Business Stages" data={byBusinessStage} color="#00c4cc" />
+                  <HorizontalBar title="Top Challenges" data={topChallenges} color="#ef4444" />
                 </div>
               </div>
 
@@ -515,30 +530,6 @@ export default function Insights() {
                   {Object.keys(familyResponsibilityData).length === 0 && (
                     <p className="text-sm text-[#0a1628]/60 text-center py-4">No family commitments data available</p>
                   )}
-                </div>
-              </div>
-            </div>
-
-            {/* Challenges & Support */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className={`${UI.card} ${UI.cardInner}`}>
-                <h3 className={UI.sectionTitle}>Top Challenges</h3>
-                <p className={UI.sectionDesc}>Biggest hurdles facing Pacific entrepreneurs</p>
-                <div className="mt-4">
-                  <HorizontalBar title="Top Challenges" data={topChallenges} color="#ef4444" />
-                </div>
-              </div>
-
-              <div className={`${UI.card} ${UI.cardInner}`}>
-                <h3 className={UI.sectionTitle}>Collaboration Interest</h3>
-                <p className={UI.sectionDesc}>Openness to business partnerships</p>
-                <div className="mt-4">
-                  <div className="flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-[#0a1628]">{collaborationRate}%</p>
-                      <p className="text-sm text-[#0a1628]/60 mt-1">Interested in collaborating</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
