@@ -854,23 +854,25 @@ className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c]
                     Share Your Founder Journey
                   </h2>
                   <p className={portalUI.sectionDesc}>
-Your responses help Pacific Market build a clearer understanding of founder experiences across Pacific communities. By identifying common challenges, growth patterns, and opportunities, we can highlight where founders need more visibility, tools, and practical support.                  </p>
+                    Your responses help Pacific Market build a clearer understanding of founder experiences 
+                    across Pacific communities. By identifying common challenges, growth patterns, and 
+                    opportunities, we can highlight where founders need more visibility, tools, and practical support.
+                  </p>
                 </div>
               </div>
 
               {/* Insights Status Cards */}
-                      
-                      <div className="space-y-4">
-                        <div className={`${portalUI.card} p-4 sm:p-8 mt-4`}>
-                          <FounderInsightsAccordion 
-                            businessId={null}
-                            onSubmit={handleFounderInsightsSubmit}
-                            isLoading={insightsSubmitting}
-                            initialData={insightSnapshots[0]}
-                            onStart={() => setInsightsStarted(true)}
-                          />
-                        </div>
-                      </div>
+              <div className="space-y-4">
+                <div className={`${portalUI.card} p-4 sm:p-8 mt-4`}>
+                  <FounderInsightsAccordion 
+                    businessId={null}
+                    onSubmit={handleFounderInsightsSubmit}
+                    isLoading={insightsSubmitting}
+                    initialData={insightSnapshots[0]}
+                    onStart={() => setInsightsStarted(true)}
+                  />
+                </div>
+              </div>
 
               {/* Benefits Section */}
               <div className="rounded-[28px] border border-[#0d4f4f]/20 bg-gradient-to-r from-[#0d4f4f]/10 via-white to-[#00c4cc]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
