@@ -298,7 +298,7 @@ export default function QRCodeGenerator() {
                   </div>
                 </div>
               ) : qrError ? (
-                <div className="flex flex-col items-center justify-center py-12">
+                <div className="flex flex-col items-center justify-center py-10 sm:py-12">
                   <QrCode className="w-16 h-16 text-red-400 mb-4" />
                   <p className="text-red-400 text-sm">Failed to generate QR code. Please try again.</p>
                   <button onClick={generateQR}
@@ -307,7 +307,7 @@ export default function QRCodeGenerator() {
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-12">
+                <div className="flex flex-col items-center justify-center py-10 sm:py-12">
                   <QrCode className="w-16 h-16 text-gray-200 mb-4" />
                   <p className="text-gray-400 text-sm">
                     {url ? "Generating..." : "Select a business or enter a URL to generate a QR code"}
