@@ -116,19 +116,8 @@ export default function Registry() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500 font-medium">
-                      {filtered.length} result{filtered.length !== 1 ? "s" : ""}
-                      {hasFilters && " (filtered)"}
-                    </span>
-                    {hasFilters && (
-                      <button onClick={clearAllFilters}
-                        className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded-lg">
-                        <X className="w-3 h-3" /> Clear filters
-                      </button>
-                    )}
-                  </div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  {/* First row: Filters + Sort */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <button
                       onClick={() => {
@@ -146,7 +135,21 @@ export default function Registry() {
                     >
                       {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
-                    <div className="hidden lg:flex border border-gray-200 rounded-xl overflow-hidden bg-white">
+                  </div>
+                  
+                  {/* Second row: Result count + Clear filters */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 font-medium">
+                      {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                      {hasFilters && " (filtered)"}
+                    </span>
+                    {hasFilters && (
+                      <button onClick={clearAllFilters}
+                        className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded-lg">
+                        <X className="w-3 h-3" /> Clear filters
+                      </button>
+                    )}
+                    <div className="hidden lg:flex border border-gray-200 rounded-xl overflow-hidden bg-white ml-auto">
                       <button
                         onClick={() => setView("grid")}
                         className={`p-2 ${view === "grid" ? "bg-[#0a1628] text-white" : "text-gray-400 hover:text-gray-600"}`}
