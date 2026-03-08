@@ -887,7 +887,7 @@ export default function InvoiceGenerator() {
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden invoice-preview" ref={printRef}>
                 {/* Header */}
                 <div className="bg-[#0a1628] text-white p-4 sm:p-8">
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
                     <div className="flex gap-4">
                       {/* Logo */}
                       {invoice.sender_logo_url ? (
