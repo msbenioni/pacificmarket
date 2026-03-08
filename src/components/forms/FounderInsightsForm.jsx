@@ -250,12 +250,13 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
       {/* Step 1: Founder Background */}
       {step === 1 && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
             <h3 className="font-bold text-[#0a1628] text-lg mb-2">Founder Background</h3>
             <p className="text-gray-600 text-sm">Help us understand the person behind the business.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className={sectionCardCls}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={labelCls}>Gender</label>
               <select value={form.gender || ""} onChange={e => {
@@ -379,16 +380,19 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               className={`${inputCls} resize-none`}
             />
           </div>
+          </div>
         </div>
       )}
 
       {/* Step 2: Business Reality */}
       {step === 2 && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
             <h3 className="font-bold text-[#0a1628] text-lg mb-2">Business Reality</h3>
             <p className="text-gray-600 text-sm">Help us understand the actual operating shape of your business.</p>
           </div>
+
+          <div className={sectionCardCls}>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -569,16 +573,19 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               <option value="prefer-not-to-say">Prefer not to say</option>
             </select>
           </div>
+          </div>
         </div>
       )}
 
       {/* Step 3: Pacific Context */}
       {step === 3 && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
             <h3 className="font-bold text-[#0a1628] text-lg mb-2">Pacific Context</h3>
             <p className="text-gray-600 text-sm">Help us understand your Pacific identity and how it shapes your business.</p>
           </div>
+
+          <div className={sectionCardCls}>
 
           <div>
             <label className={labelCls}>Which Pacific communities do you identify with? (Select all that apply) *</label>
@@ -728,16 +735,19 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               </div>
             )}
           </div>
+          </div>
         </div>
       )}
 
       {/* Step 4: Challenges & Support */}
       {step === 4 && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
             <h3 className="font-bold text-[#0a1628] text-lg mb-2">Challenges & Support</h3>
             <p className="text-gray-600 text-sm">Help us identify real barriers and support gaps for Pacific founders.</p>
           </div>
+
+          <div className={sectionCardCls}>
 
           <div>
             <label className={labelCls}>What are your biggest challenges right now? (Select up to 5) *</label>
@@ -888,16 +898,19 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               </label>
             </div>
           </div>
+          </div>
         </div>
       )}
 
       {/* Step 5: Growth & Future */}
       {step === 5 && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
             <h3 className="font-bold text-[#0a1628] text-lg mb-2">Growth & Future</h3>
             <p className="text-gray-600 text-sm">Help us understand your ambition, readiness, and next-stage needs.</p>
           </div>
+
+          <div className={sectionCardCls}>
 
           <div>
             <label className={labelCls}>What stage best describes your business today? *</label>
@@ -1018,16 +1031,19 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               </div>
             </div>
           </div>
+          </div>
         </div>
       )}
 
       {/* Step 6: Community & Impact */}
       {step === 6 && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-6 mb-6">
+          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
             <h3 className="font-bold text-[#0a1628] text-lg mb-2">Community & Impact</h3>
             <p className="text-gray-600 text-sm">Help us understand your values, collaboration, and ecosystem potential.</p>
           </div>
+
+          <div className={sectionCardCls}>
 
           <div>
             <label className={labelCls}>In what ways does your business create impact? (Select all that apply)</label>
@@ -1160,6 +1176,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </p>
               </div>
             </div>
+          </div>
           </div>
         </div>
       )}
