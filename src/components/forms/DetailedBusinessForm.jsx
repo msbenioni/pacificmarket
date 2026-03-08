@@ -16,7 +16,6 @@ export { FORM_MODES };
 
 const STEPS = [
   { key: "identity", label: "Business Identity" },
-  { key: "operations", label: "Business Operations" },
   { key: "media", label: "Media & Details" },
   { key: "contact", label: "Contact Info" },
   { key: "description", label: "Description" },
