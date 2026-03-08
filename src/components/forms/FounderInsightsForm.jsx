@@ -290,14 +290,6 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               </select>
             </div>
 
-            {/* Debug display */}
-            <div className="mt-4 p-4 bg-gray-100 rounded">
-              <h4 className="font-semibold mb-2">Debug Info:</h4>
-              <p>Form Gender: {form.gender || "EMPTY"}</p>
-              <p>Form Age: {form.age_range || "EMPTY"}</p>
-              <p>Form Object Keys: {Object.keys(form).join(", ")}</p>
-            </div>
-
             <div>
               <label className={labelCls}>How many years have you been an entrepreneur?</label>
               <select value={form.years_entrepreneurial || ""} onChange={e => setForm({ ...form, years_entrepreneurial: e.target.value })} className={inputCls}>
