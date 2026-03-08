@@ -860,10 +860,6 @@ Your responses help Pacific Market build a clearer understanding of founder expe
 
               {/* Insights Status Cards */}
                       
-                      <div>
-                        <div>
-                        </div>
-                      </div>
                       <div className="space-y-4">
                         <div className={`${portalUI.card} p-8 mt-4`}>
                           <FounderInsightsAccordion 
