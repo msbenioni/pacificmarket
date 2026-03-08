@@ -1067,7 +1067,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
                   <Star className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
                   <h3 className="font-bold text-[#0a1628] mb-2">Featured+ Required</h3>
                   <p className="text-slate-600 text-sm mb-5">Upgrade at least one business to Featured+ to unlock the Invoice and QR Code generators.</p>
-                  <Link href={createPageUrl("Pricing")} className="inline-flex items-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all">
+                  <Link href={createPageUrl("Pricing")} className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all min-h-[44px] w-full sm:w-auto">
                     View Plans <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
