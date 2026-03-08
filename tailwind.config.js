@@ -1,4 +1,5 @@
 import tailwindAnimate from "tailwindcss-animate";
+import lineClamp from "@tailwindcss/line-clamp";
 
 /** @type {import('tailwindcss').Config} */
 const config = {
@@ -87,7 +88,7 @@ const config = {
   		}
   	}
   },
-  plugins: [tailwindAnimate, require("@tailwindcss/line-clamp")],
+  plugins: [tailwindAnimate, lineClamp],
 };
 
 export default config;
