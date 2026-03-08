@@ -187,6 +187,22 @@ export function ClaimAddBusinessModal({
 
       if (insertErr) throw insertErr;
 
+      // Send notification for claim submission
+      try {
+        await fetch('/api/notifications/claim-submitted', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessId: pickedBusiness.id,
+            claimantId: userRes.user.id,
+            claimType: details.role || 'owner'
+          })
+        });
+      } catch (notifError) {
+        console.error('Failed to send claim notification:', notifError);
+        // Don't fail the claim if notification fails
+      }
+
       onClaimSelected?.(inserted);
       onClose();
     } catch (error) {
@@ -239,6 +255,23 @@ export function ClaimAddBusinessModal({
       }
 
       console.log("Business created successfully:", data);
+
+      // Send notification for business addition
+      if (data && data[0]) {
+        try {
+          await fetch('/api/notifications/business-added', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              businessId: data[0].id,
+              userId: userRes.user.id
+            })
+          });
+        } catch (notifError) {
+          console.error('Failed to send business added notification:', notifError);
+          // Don't fail the business creation if notification fails
+        }
+      }
 
       onAddSelected?.();
       onClose();
