@@ -879,6 +879,11 @@ export default function InvoiceGenerator() {
           {/* Right: Sticky Preview */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-8">
+              {/* Preview Header */}
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Live Preview</h3>
+              </div>
+              
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden invoice-preview" ref={printRef}>
                 {/* Header */}
                 <div className="bg-[#0a1628] text-white p-8">
