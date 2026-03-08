@@ -735,7 +735,7 @@ export default function DetailedBusinessForm({
           type="button"
           onClick={() => step > 1 && setStep(step - 1)}
           disabled={step === 1}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${
             step === 1 
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
               : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -756,7 +756,7 @@ export default function DetailedBusinessForm({
               }
               setStep(step + 1);
             }}
-            className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-3 rounded-xl font-medium transition-colors"
           >
             Next
             <ChevronRight className="w-4 h-4" />
@@ -766,7 +766,7 @@ export default function DetailedBusinessForm({
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-3 rounded-xl font-medium transition-colors disabled:opacity-50"
           >
             {isLoading ? (
               <>
