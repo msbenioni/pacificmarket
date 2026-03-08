@@ -124,14 +124,14 @@ export default function Registry() {
                         setDraftFilters(filters);
                         setShowFilters(true);
                       }}
-                      className="lg:hidden flex items-center gap-2 border border-gray-200 bg-white text-sm px-3 py-2 rounded-xl min-h-[44px]"
+                      className="lg:hidden flex items-center justify-center gap-2 border border-gray-200 bg-white text-sm px-3 py-3 rounded-2xl min-h-[44px] shadow-sm"
                     >
                       <SlidersHorizontal className="w-4 h-4" /> Filters
                     </button>
                     <select
                       value={sort}
                       onChange={e => setSort(e.target.value)}
-                      className="text-sm border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:border-[#0d4f4f] min-h-[44px]"
+                      className="text-sm border border-gray-200 bg-white rounded-2xl px-3 py-3 focus:outline-none focus:border-[#0d4f4f] min-h-[44px] shadow-sm"
                     >
                       {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
