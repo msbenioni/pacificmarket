@@ -613,8 +613,40 @@ export default function InvoiceGenerator() {
           </div>
         </div>
 
+        {/* Mobile Sticky Action Bar */}
+        <div className="sm:hidden sticky bottom-4 z-30 mt-4">
+          <div className="rounded-2xl border border-gray-200 bg-white/95 backdrop-blur shadow-[0_18px_40px_rgba(10,22,40,0.12)] p-3 flex gap-2">
+            <button 
+              onClick={handleExportPdf}
+              disabled={exportingPdf}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-4 py-2.5 rounded-xl transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {exportingPdf ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-[#0a1628] border-t-transparent rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Download PDF
+                </>
+              )}
+            </button>
+            {mode === "business" && (
+              <button 
+                onClick={saveBusinessSettings}
+                className="flex-1 flex items-center justify-center gap-2 bg-white text-[#0a1628] border border-gray-200 hover:border-[#0a1628] font-bold px-4 py-2.5 rounded-xl transition-all text-sm"
+              >
+                <FileText className="w-4 h-4" /> 
+                Save Settings
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           
           {/* Left: Premium Accordion Editor */}
           <div className="lg:col-span-1">
