@@ -331,37 +331,27 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div>
             <label className={labelCls}>What motivates you most as a founder? (Select up to 3)</label>
             <div className="space-y-2">
-              {[
-                "Financial independence",
-                "Creating opportunities for family", 
-                "Serving community",
-                "Preserving culture",
-                "Solving a problem",
-                "Building wealth",
-                "Creative freedom",
-                "Legacy building",
-                "Other"
-              ].map(motivation => (
-                <label key={motivation} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+              {FOUNDER_MOTIVATIONS.map(motivation => (
+                <label key={motivation.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.founder_motivation_array?.includes(motivation)}
+                    checked={form.founder_motivation_array?.includes(motivation.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          founder_motivation_array: [...(prev.founder_motivation_array || []), motivation].slice(0, 3)
+                          founder_motivation_array: [...(prev.founder_motivation_array || []), motivation.value].slice(0, 3)
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          founder_motivation_array: prev.founder_motivation_array?.filter(m => m !== motivation) || []
+                          founder_motivation_array: prev.founder_motivation_array?.filter(m => m !== motivation.value) || []
                         }));
                       }
                     }}
                     className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm leading-5">{motivation}</span>
+                  <span className="text-sm leading-5">{motivation.label}</span>
                 </label>
               ))}
             </div>
@@ -752,44 +742,27 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div>
             <label className={labelCls}>What are your biggest challenges right now? (Select up to 5) *</label>
             <div className="space-y-2">
-              {[
-                "Access to funding",
-                "Finding customers", 
-                "Pricing and sales",
-                "Marketing and visibility",
-                "Time and workload",
-                "Balancing family/community obligations",
-                "Admin and compliance",
-                "Hiring and staffing",
-                "Digital tools and systems",
-                "Confidence in growth planning",
-                "Shipping or supply costs",
-                "Small market size",
-                "Limited trusted support",
-                "Cultural barriers in business",
-                "Geographic isolation",
-                "Other"
-              ].map(challenge => (
-                <label key={challenge} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+              {BUSINESS_CHALLENGES.map(challenge => (
+                <label key={challenge.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.top_challenges?.includes(challenge)}
+                    checked={form.top_challenges?.includes(challenge.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          top_challenges: [...(prev.top_challenges || []), challenge].slice(0, 5)
+                          top_challenges: [...(prev.top_challenges || []), challenge.value].slice(0, 5)
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          top_challenges: prev.top_challenges?.filter(c => c !== challenge) || []
+                          top_challenges: prev.top_challenges?.filter(c => c !== challenge.value) || []
                         }));
                       }
                     }}
                     className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm leading-5">{challenge}</span>
+                  <span className="text-sm leading-5">{challenge.label}</span>
                 </label>
               ))}
             </div>
@@ -801,41 +774,27 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div>
             <label className={labelCls}>What support would help your business most in the next 12 months? (Select up to 3) *</label>
             <div className="space-y-2">
-              {[
-                "Funding or grants",
-                "Mentoring",
-                "Marketing support", 
-                "Website or digital support",
-                "Bookkeeping or finance help",
-                "Legal or compliance help",
-                "Business planning",
-                "Export or scaling support",
-                "Networking opportunities",
-                "Training programs",
-                "Community connections",
-                "Confidence and accountability",
-                "Other"
-              ].map(support => (
-                <label key={support} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+              {SUPPORT_NEEDS.map(support => (
+                <label key={support.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.support_needed_next?.includes(support)}
+                    checked={form.support_needed_next?.includes(support.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          support_needed_next: [...(prev.support_needed_next || []), support].slice(0, 3)
+                          support_needed_next: [...(prev.support_needed_next || []), support.value].slice(0, 3)
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          support_needed_next: prev.support_needed_next?.filter(s => s !== support) || []
+                          support_needed_next: prev.support_needed_next?.filter(s => s !== support.value) || []
                         }));
                       }
                     }}
                     className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm leading-5">{support}</span>
+                  <span className="text-sm leading-5">{support.label}</span>
                 </label>
               ))}
             </div>
@@ -926,39 +885,27 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div>
             <label className={labelCls}>What are your top goals for the next 12 months? (Select up to 3) *</label>
             <div className="space-y-2">
-              {[
-                "Grow revenue",
-                "Get more customers",
-                "Strengthen systems and processes",
-                "Improve digital presence",
-                "Launch new products or services",
-                "Hire staff",
-                "Expand to new markets",
-                "Secure funding",
-                "Build brand visibility",
-                "Create more community impact",
-                "Other"
-              ].map(goal => (
-                <label key={goal} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+              {GOALS_NEXT_12_MONTHS.map(goal => (
+                <label key={goal.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.goals_next_12_months_array?.includes(goal)}
+                    checked={form.goals_next_12_months_array?.includes(goal.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          goals_next_12_months_array: [...(prev.goals_next_12_months_array || []), goal].slice(0, 3)
+                          goals_next_12_months_array: [...(prev.goals_next_12_months_array || []), goal.value].slice(0, 3)
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          goals_next_12_months_array: prev.goals_next_12_months_array?.filter(g => g !== goal) || []
+                          goals_next_12_months_array: prev.goals_next_12_months_array?.filter(g => g !== goal.value) || []
                         }));
                       }
                     }}
                     className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm leading-5">{goal}</span>
+                  <span className="text-sm leading-5">{goal.label}</span>
                 </label>
               ))}
             </div>
@@ -1048,39 +995,27 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div>
             <label className={labelCls}>In what ways does your business create impact? (Select all that apply)</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
-              {[
-                "Creates income for family",
-                "Creates jobs",
-                "Supports Pacific visibility",
-                "Preserves culture",
-                "Supports youth",
-                "Supports women",
-                "Supports local community",
-                "Supports innovation",
-                "Supports education or skills",
-                "Environmental impact",
-                "Other"
-              ].map(impact => (
-                <label key={impact} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+              {COMMUNITY_IMPACT_AREAS.map(impact => (
+                <label key={impact.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.community_impact_areas?.includes(impact)}
+                    checked={form.community_impact_areas?.includes(impact.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          community_impact_areas: [...(prev.community_impact_areas || []), impact]
+                          community_impact_areas: [...(prev.community_impact_areas || []), impact.value]
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          community_impact_areas: prev.community_impact_areas?.filter(i => i !== impact) || []
+                          community_impact_areas: prev.community_impact_areas?.filter(i => i !== impact.value) || []
                         }));
                       }
                     }}
                     className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm leading-5">{impact}</span>
+                  <span className="text-sm leading-5">{impact.label}</span>
                 </label>
               ))}
             </div>
