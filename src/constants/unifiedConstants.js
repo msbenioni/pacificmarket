@@ -2,6 +2,7 @@
 // Single source of truth for all countries and industries
 
 export const COUNTRIES = [
+  // Pacific Region
   { value: 'american-samoa', label: 'American Samoa' },
   { value: 'australia', label: 'Australia' },
   { value: 'australia-aboriginal', label: 'Australia Aboriginal' },
@@ -25,10 +26,61 @@ export const COUNTRIES = [
   { value: 'tokelau', label: 'Tokelau' },
   { value: 'tonga', label: 'Tonga' },
   { value: 'tuvalu', label: 'Tuvalu' },
-  { value: 'usa', label: 'United States' },
   { value: 'vanuatu', label: 'Vanuatu' },
   { value: 'wallis-futuna', label: 'Wallis and Futuna' },
   { value: 'hawaii', label: 'Hawaii' },
+
+  // Major Global Economies - Where Pacific-owned businesses operate
+  { value: 'usa', label: 'United States' },
+  { value: 'canada', label: 'Canada' },
+  { value: 'united-kingdom', label: 'United Kingdom' },
+  { value: 'france', label: 'France' },
+  { value: 'germany', label: 'Germany' },
+  { value: 'netherlands', label: 'Netherlands' },
+  { value: 'belgium', label: 'Belgium' },
+  { value: 'switzerland', label: 'Switzerland' },
+  { value: 'spain', label: 'Spain' },
+  { value: 'italy', label: 'Italy' },
+  { value: 'portugal', label: 'Portugal' },
+  { value: 'norway', label: 'Norway' },
+  { value: 'sweden', label: 'Sweden' },
+  { value: 'denmark', label: 'Denmark' },
+  { value: 'finland', label: 'Finland' },
+  { value: 'ireland', label: 'Ireland' },
+
+  // Asia-Pacific Major Economies
+  { value: 'china', label: 'China' },
+  { value: 'japan', label: 'Japan' },
+  { value: 'south-korea', label: 'South Korea' },
+  { value: 'singapore', label: 'Singapore' },
+  { value: 'hong-kong', label: 'Hong Kong' },
+  { value: 'taiwan', label: 'Taiwan' },
+  { value: 'indonesia', label: 'Indonesia' },
+  { value: 'malaysia', label: 'Malaysia' },
+  { value: 'thailand', label: 'Thailand' },
+  { value: 'philippines', label: 'Philippines' },
+  { value: 'vietnam', label: 'Vietnam' },
+  { value: 'india', label: 'India' },
+
+  // Middle East
+  { value: 'united-arab-emirates', label: 'United Arab Emirates' },
+  { value: 'qatar', label: 'Qatar' },
+  { value: 'saudi-arabia', label: 'Saudi Arabia' },
+
+  // Americas
+  { value: 'mexico', label: 'Mexico' },
+  { value: 'brazil', label: 'Brazil' },
+  { value: 'argentina', label: 'Argentina' },
+  { value: 'chile', label: 'Chile' },
+  { value: 'peru', label: 'Peru' },
+  { value: 'colombia', label: 'Colombia' },
+
+  // Africa
+  { value: 'south-africa', label: 'South Africa' },
+  { value: 'kenya', label: 'Kenya' },
+  { value: 'nigeria', label: 'Nigeria' },
+  { value: 'egypt', label: 'Egypt' },
+
   { value: 'other', label: 'Other' }
 ];
 

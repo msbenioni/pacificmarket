@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase/client";
-import { Building2, Users, ShieldCheck, Globe, TrendingUp, Target, Lightbulb, Rocket, BarChart3, PieChart, Activity } from "lucide-react";
-import { BUSINESS_STATUS, BUSINESS_TIER } from "@/constants/unifiedConstants";
+import { Building2, Users, TrendingUp, Rocket } from "lucide-react";
+import { BUSINESS_STATUS, BUSINESS_TIER, COUNTRIES } from "@/constants/unifiedConstants";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import HorizontalBar from "../components/insights/HorizontalBar";
 
@@ -15,6 +15,167 @@ function tally(arr, key) {
     .map(([label, value]) => ({ label, value }))
     .sort((a, b) => b.value - a.value);
 }
+
+// Country standardization function
+const standardizeCountry = (countryValue) => {
+  if (!countryValue) return countryValue;
+  
+  // Create a mapping of common variations to standard values
+  const countryMap = {
+    // New Zealand variations
+    'new zealand': 'new-zealand',
+    'New Zealand': 'new-zealand',
+    'NEW ZEALAND': 'new-zealand',
+    'nz': 'new-zealand',
+    'NZ': 'new-zealand',
+    
+    // United States variations
+    'usa': 'usa',
+    'USA': 'usa',
+    'United States': 'usa',
+    'united states': 'usa',
+    'US': 'usa',
+    'U.S.A.': 'usa',
+    'U.S.': 'usa',
+    
+    // Europe variations
+    'France': 'france',
+    'FRANCE': 'france',
+    'United Kingdom': 'united-kingdom',
+    'UK': 'united-kingdom',
+    'uk': 'united-kingdom',
+    'Germany': 'germany',
+    'Canada': 'canada',
+    'Spain': 'spain',
+    'Italy': 'italy',
+    'Netherlands': 'netherlands',
+    'Belgium': 'belgium',
+    'Switzerland': 'switzerland',
+    'Norway': 'norway',
+    'Sweden': 'sweden',
+    'Denmark': 'denmark',
+    'Finland': 'finland',
+    'Ireland': 'ireland',
+    'Portugal': 'portugal',
+    
+    // Asia-Pacific variations
+    'China': 'china',
+    'Japan': 'japan',
+    'South Korea': 'south-korea',
+    'Singapore': 'singapore',
+    'Hong Kong': 'hong-kong',
+    'Taiwan': 'taiwan',
+    'Indonesia': 'indonesia',
+    'Malaysia': 'malaysia',
+    'Thailand': 'thailand',
+    'Philippines': 'philippines',
+    'Vietnam': 'vietnam',
+    'India': 'india',
+    
+    // Middle East variations
+    'United Arab Emirates': 'united-arab-emirates',
+    'UAE': 'united-arab-emirates',
+    'Qatar': 'qatar',
+    'Saudi Arabia': 'saudi-arabia',
+    
+    // Americas variations
+    'Mexico': 'mexico',
+    'Brazil': 'brazil',
+    'Argentina': 'argentina',
+    'Chile': 'chile',
+    'Peru': 'peru',
+    'Colombia': 'colombia',
+    
+    // Africa variations
+    'South Africa': 'south-africa',
+    'Kenya': 'kenya',
+    'Nigeria': 'nigeria',
+    'Egypt': 'egypt',
+    
+    // Pacific variations
+    'French Polynesia': 'french-polynesia',
+    'Papua New Guinea': 'papua-new-guinea',
+    'Solomon Islands': 'solomon-islands',
+    'Cook Islands': 'cook-islands',
+    'American Samoa': 'american-samoa',
+    'Western Samoa': 'samoa',
+    'New Caledonia': 'new-caledonia',
+    'Northern Mariana Islands': 'northern-mariana-islands',
+    'Wallis and Futuna': 'wallis-futuna',
+    
+    // Fiji variations  
+    'FIJI': 'fiji',
+    'Fiji': 'fiji',
+    
+    // Australia variations
+    'australia': 'australia',
+    'Australia': 'australia',
+    'AUS': 'australia',
+    'AU': 'australia',
+    
+    // Samoa variations
+    'samoa': 'samoa',
+    'Samoa': 'samoa',
+    'SAMOA': 'samoa',
+    
+    // Tonga variations
+    'tonga': 'tonga',
+    'Tonga': 'tonga',
+    'TONGA': 'tonga',
+    
+    // Other common variations
+    'DE': 'germany',
+    'CA': 'canada',
+    'ES': 'spain',
+    'IT': 'italy',
+    'NL': 'netherlands',
+    'BE': 'belgium',
+    'CH': 'switzerland',
+    'NO': 'norway',
+    'SE': 'sweden',
+    'DK': 'denmark',
+    'FI': 'finland',
+    'IE': 'ireland',
+    'PT': 'portugal',
+    'CN': 'china',
+    'JP': 'japan',
+    'KR': 'south-korea',
+    'SG': 'singapore',
+    'TW': 'taiwan',
+    'ID': 'indonesia',
+    'MY': 'malaysia',
+    'TH': 'thailand',
+    'PH': 'philippines',
+    'VN': 'vietnam',
+    'IN': 'india',
+    'AE': 'united-arab-emirates',
+    'QA': 'qatar',
+    'SA': 'saudi-arabia',
+    'MX': 'mexico',
+    'BR': 'brazil',
+    'AR': 'argentina',
+    'CL': 'chile',
+    'PE': 'peru',
+    'CO': 'colombia',
+    'ZA': 'south-africa',
+    'KE': 'kenya',
+    'NG': 'nigeria',
+    'EG': 'egypt',
+  };
+  
+  // Check if the value already matches a standard country value
+  const standardCountry = COUNTRIES.find(c => c.value === countryValue);
+  if (standardCountry) return countryValue;
+  
+  // Try to find in mapping
+  return countryMap[countryValue] || countryValue;
+};
+
+// Get country label from standardized value
+const getCountryLabel = (countryValue) => {
+  const country = COUNTRIES.find(c => c.value === countryValue);
+  return country ? country.label : countryValue;
+};
 
 const UI = {
   page: "bg-[#eef0f5]",
@@ -82,7 +243,17 @@ export default function Insights() {
   const insightsCount = insights.length;
   
   // Business metrics
-  const byCountry = tally(businesses, "country");
+  // Standardize countries for accurate analytics
+  const standardizedBusinesses = businesses.map(business => ({
+    ...business,
+    country: standardizeCountry(business.country)
+  }));
+  
+  const byCountry = tally(standardizedBusinesses, "country")
+    .map(item => ({ 
+      label: getCountryLabel(item.label), 
+      value: item.value 
+    }));
   const byIndustry = tally(businesses, "industry");
   const byTier = tally(businesses, "subscription_tier");
   const totalTierCount = byTier.reduce((sum, tier) => sum + tier.value, 0);
@@ -96,26 +267,20 @@ export default function Insights() {
   // Founder insights metrics
   const byBusinessStage = tally(insights, "business_stage");
   
-  // Calculate years in business
-  const yearsInBusiness = insights
-    .map(i => {
-      const currentYear = new Date().getFullYear();
-      return i.year_started ? currentYear - i.year_started : null;
-    })
-    .filter(year => year !== null && year >= 0);
+  // Calculate founder experience (years as entrepreneur)
+  const yearsEntrepreneurial = insights
+    .map(i => i.years_entrepreneurial)
+    .filter(years => years && years !== "");
   
-  const avgYearsInBusiness = yearsInBusiness.length > 0 
-    ? (yearsInBusiness.reduce((sum, year) => sum + year, 0) / yearsInBusiness.length).toFixed(1)
-    : 0;
+  const avgYearsInBusiness = yearsEntrepreneurial.length > 0 
+    ? (yearsEntrepreneurial.reduce((sum, years) => sum + parseInt(years), 0) / yearsEntrepreneurial.length).toFixed(1)
+    : "0.0";
 
   // Motivation analysis
   const motivationKeywords = insights.reduce((acc, insight) => {
-    if (insight.founder_motivation) {
-      const keywords = ['community', 'passion', 'opportunity', 'family', 'problem', 'impact', 'growth'];
-      keywords.forEach(keyword => {
-        if (insight.founder_motivation.toLowerCase().includes(keyword)) {
-          acc[keyword] = (acc[keyword] || 0) + 1;
-        }
+    if (insight.founder_motivation_array && Array.isArray(insight.founder_motivation_array)) {
+      insight.founder_motivation_array.forEach(motivation => {
+        acc[motivation] = (acc[motivation] || 0) + 1;
       });
     }
     return acc;
@@ -192,9 +357,9 @@ export default function Insights() {
                   <p className="text-xs text-[#0a1628]/55">Founder Insights</p>
                   <Users className="w-4 h-4 text-[#0d4f4f]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{insightsCount}</p>
+                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{total > 0 ? Math.round((insightsCount / total) * 100) : 0}%</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
-                  Journey data collected
+                  Businesses with journey data
                 </p>
               </div>
 
