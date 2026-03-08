@@ -156,7 +156,11 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       fields: [
         { label: "Businesses Founded", key: "businesses_founded", value: snapshot.businesses_founded },
         { label: "Founder Role", key: "founder_role", value: snapshot.founder_role },
-        { label: "Founder Motivations", key: "founder_motivation", value: snapshot.founder_motivation },
+        { label: "Founder Motivations", key: "founder_motivation_array", value: snapshot.founder_motivation_array },
+        { label: "Founder Story", key: "founder_story", value: snapshot.founder_story },
+        { label: "Gender", key: "gender", value: snapshot.gender },
+        { label: "Age Range", key: "age_range", value: snapshot.age_range },
+        { label: "Years Entrepreneurial", key: "years_entrepreneurial", value: snapshot.years_entrepreneurial },
       ],
     },
     {
@@ -165,7 +169,7 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       color: "text-green-600",
       fields: [
         { label: "Serves Pacific Communities", key: "serves_pacific_communities", value: snapshot.serves_pacific_communities },
-        { label: "Culture Influences Business", key: "culture_influences_business", value: snapshot.culture_influences_business ? "Yes" : "No" },
+        { label: "Culture Influences Business", key: "culture_influences_business", value: snapshot.culture_influences_business },
         ...(snapshot.culture_influences_business
           ? [
               {
@@ -175,6 +179,16 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
               },
             ]
           : []),
+        {
+          label: "Family / Community Responsibilities",
+          key: "family_community_responsibilities_affect_business",
+          value: snapshot.family_community_responsibilities_affect_business,
+        },
+        {
+          label: "Responsibilities Impact Details",
+          key: "responsibilities_impact_details",
+          value: snapshot.responsibilities_impact_details,
+        },
       ],
     },
     {
@@ -185,6 +199,8 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
         { label: "Current Funding Source", key: "current_funding_source", value: snapshot.current_funding_source },
         { label: "Investment Stage", key: "investment_stage", value: snapshot.investment_stage },
         { label: "Revenue Streams", key: "revenue_streams", value: snapshot.revenue_streams },
+        { label: "Funding Amount Needed", key: "funding_amount_needed", value: snapshot.funding_amount_needed },
+        { label: "Funding Purpose", key: "funding_purpose", value: snapshot.funding_purpose },
         ...(snapshot.angel_investor_interest
           ? [
               {
@@ -194,6 +210,11 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
               },
             ]
           : []),
+        {
+          label: "Investor Capacity",
+          key: "investor_capacity",
+          value: snapshot.investor_capacity,
+        },
       ],
     },
     {
@@ -212,9 +233,10 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       color: "text-pink-600",
       fields: [
         { label: "Business Stage", key: "business_stage", value: snapshot.business_stage },
-        { label: "Goals (12 months)", key: "goals_next_12_months", value: snapshot.goals_next_12_months },
-        { label: "Hiring Intentions", key: "hiring_intentions", value: snapshot.hiring_intentions ? "Yes" : "No" },
-        { label: "Expansion Plans", key: "expansion_plans", value: snapshot.expansion_plans ? "Yes" : "No" },
+        { label: "Goals (12 months)", key: "goals_next_12_months_array", value: snapshot.goals_next_12_months_array },
+        { label: "Goals Details", key: "goals_details", value: snapshot.goals_details },
+        { label: "Hiring Intentions", key: "hiring_intentions", value: snapshot.hiring_intentions },
+        { label: "Expansion Plans", key: "expansion_plans", value: snapshot.expansion_plans },
       ],
     },
     {
@@ -223,15 +245,15 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       color: "text-indigo-600",
       fields: [
         { label: "Community Impact Areas", key: "community_impact_areas", value: snapshot.community_impact_areas },
-        { label: "Collaboration Interest", key: "collaboration_interest", value: snapshot.collaboration_interest ? "Yes" : "No" },
-        { label: "Mentorship Offering", key: "mentorship_offering", value: snapshot.mentorship_offering ? "Yes" : "No" },
+        { label: "Collaboration Interest", key: "collaboration_interest", value: snapshot.collaboration_interest },
+        { label: "Mentorship Offering", key: "mentorship_offering", value: snapshot.mentorship_offering },
+        { label: "Open to Future Contact", key: "open_to_future_contact", value: snapshot.open_to_future_contact },
       ],
     },
   ];
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
       <div className="rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
@@ -273,7 +295,6 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
         </div>
       </div>
 
-      {/* Sections */}
       <div className="grid gap-4 sm:gap-6">
         {sections.map((section) => {
           const visibleFields = section.fields.filter(
