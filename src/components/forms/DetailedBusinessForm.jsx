@@ -577,36 +577,36 @@ export default function DetailedBusinessForm({
             <div className="px-4 py-3 bg-gray-100">
               <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Business Identity</h4>
               <div className="space-y-2">
-                {form.name && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Business Name</span>
-                    <span className="font-medium text-[#0a1628]">{form.name}</span>
-                  </div>
-                )}
-                {form.business_handle && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Registry Handle</span>
-                    <span className="font-medium text-[#0a1628]">{form.business_handle}</span>
-                  </div>
-                )}
-                {form.country && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Country</span>
-                    <span className="font-medium text-[#0a1628]">{form.country}</span>
-                  </div>
-                )}
-                {form.city && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">City</span>
-                    <span className="font-medium text-[#0a1628]">{form.city}</span>
-                  </div>
-                )}
-                {form.industry && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Industry</span>
-                    <span className="font-medium text-[#0a1628]">{form.industry}</span>
-                  </div>
-                )}
+                  {form.name && (
+                    <div className="flex flex-col gap-1 text-sm">
+                      <span className="text-gray-400">Business Name</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.name}</span>
+                    </div>
+                  )}
+                  {form.business_handle && (
+                    <div className="flex flex-col gap-1 text-sm">
+                      <span className="text-gray-400">Business Handle</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.business_handle}</span>
+                    </div>
+                  )}
+                  {form.country && (
+                    <div className="flex flex-col gap-1 text-sm">
+                      <span className="text-gray-400">Country</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.country}</span>
+                    </div>
+                  )}
+                  {form.city && (
+                    <div className="flex flex-col gap-1 text-sm">
+                      <span className="text-gray-400">City</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.city}</span>
+                    </div>
+                  )}
+                  {form.industry && (
+                    <div className="flex flex-col gap-1 text-sm">
+                      <span className="text-gray-400">Industry</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.industry}</span>
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -639,27 +639,27 @@ export default function DetailedBusinessForm({
                 <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Contact Information</h4>
                 <div className="space-y-2">
                   {form.contact_email && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       <span className="text-gray-400">Business Email</span>
-                      <span className="font-medium text-[#0a1628]">{form.contact_email}</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.contact_email}</span>
                     </div>
                   )}
                   {form.contact_phone && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       <span className="text-gray-400">Business Phone</span>
-                      <span className="font-medium text-[#0a1628]">{form.contact_phone}</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.contact_phone}</span>
                     </div>
                   )}
                   {form.website && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       <span className="text-gray-400">Website</span>
-                      <span className="font-medium text-[#0a1628] truncate max-w-[200px]">{form.website}</span>
+                      <span className="font-medium text-[#0a1628] break-words">{form.website}</span>
                     </div>
                   )}
                   {Array.isArray(form.social_links) && form.social_links.map((link) => (
-                    <div key={link.platform} className="flex justify-between text-sm">
+                    <div key={link.platform} className="flex flex-col gap-1 text-sm">
                       <span className="text-gray-400 capitalize">{link.platform}</span>
-                      <span className="font-medium text-[#0a1628] truncate max-w-[200px]">{link.url}</span>
+                      <span className="font-medium text-[#0a1628] break-words">{link.url}</span>
                     </div>
                   ))}
                 </div>
@@ -692,34 +692,34 @@ export default function DetailedBusinessForm({
               <div className="px-4 py-3 bg-amber-50 border border-amber-200">
                 <h4 className="text-sm font-semibold text-amber-900 mb-2">Admin Settings</h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex flex-col gap-1 text-sm">
                     <span className="text-amber-700">Status</span>
-                    <span className="font-medium text-amber-900 capitalize">{form.status}</span>
+                    <span className="font-medium text-amber-900 capitalize break-words">{form.status}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex flex-col gap-1 text-sm">
                     <span className="text-amber-700">Tier</span>
-                    <span className="font-medium text-amber-900">{getTierDisplayName(form.subscription_tier)}</span>
+                    <span className="font-medium text-amber-900 break-words">{getTierDisplayName(form.subscription_tier)}</span>
                   </div>
                   {form.owner_user_id && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       <span className="text-amber-700">Owner ID</span>
-                      <span className="font-medium text-amber-900">{form.owner_user_id}</span>
+                      <span className="font-medium text-amber-900 break-words">{form.owner_user_id}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm">
+                  <div className="flex flex-col gap-1 text-sm">
                     <span className="text-amber-700">Source</span>
-                    <span className="font-medium text-amber-900 capitalize">{form.source}</span>
+                    <span className="font-medium text-amber-900 capitalize break-words">{form.source}</span>
                   </div>
                   {form.created_date && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       <span className="text-amber-700">Created</span>
-                      <span className="font-medium text-amber-900">{new Date(form.created_date).toLocaleDateString()}</span>
+                      <span className="font-medium text-amber-900 break-words">{new Date(form.created_date).toLocaleDateString()}</span>
                     </div>
                   )}
                   {form.updated_date && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       <span className="text-amber-700">Last Updated</span>
-                      <span className="font-medium text-amber-900">{new Date(form.updated_date).toLocaleDateString()}</span>
+                      <span className="font-medium text-amber-900 break-words">{new Date(form.updated_date).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>
