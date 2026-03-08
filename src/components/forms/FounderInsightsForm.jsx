@@ -912,32 +912,6 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               </div>
             </div>
           </div>
-
-          <div>
-            <label className={labelCls}>Are you interested in partnerships or collaborations? (Optional)</label>
-            <div className="flex items-center space-x-4 mt-3">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="collaboration_interest"
-                  checked={form.collaboration_interest === true}
-                  onChange={() => setForm({ ...form, collaboration_interest: true })}
-                  className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                />
-                <span className="ml-2 text-sm text-gray-700">Yes</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="collaboration_interest"
-                  checked={form.collaboration_interest === false}
-                  onChange={() => setForm({ ...form, collaboration_interest: false })}
-                  className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                />
-                <span className="ml-2 text-sm text-gray-700">No</span>
-              </label>
-            </div>
-          </div>
         </div>
       )}
 
@@ -987,6 +961,32 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                   <span className="text-sm">{impact}</span>
                 </label>
               ))}
+            </div>
+          </div>
+
+          <div>
+            <label className={labelCls}>Are you interested in partnerships or collaborations? (Optional)</label>
+            <div className="flex items-center space-x-4 mt-3">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="collaboration_interest"
+                  checked={form.collaboration_interest === true}
+                  onChange={() => setForm({ ...form, collaboration_interest: true })}
+                  className="w-4 h-4 text-[#0d4f4f] border-gray-300"
+                />
+                <span className="ml-2 text-sm text-gray-700">Yes</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="collaboration_interest"
+                  checked={form.collaboration_interest === false}
+                  onChange={() => setForm({ ...form, collaboration_interest: false })}
+                  className="w-4 h-4 text-[#0d4f4f] border-gray-300"
+                />
+                <span className="ml-2 text-sm text-gray-700">No</span>
+              </label>
             </div>
           </div>
 

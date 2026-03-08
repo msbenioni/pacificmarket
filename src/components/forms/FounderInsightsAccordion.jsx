@@ -48,6 +48,7 @@ const SECTION_FIELDS = {
   ],
   community: [
     "community_impact_areas",
+    "collaboration_interest",
     "mentorship_offering",
     "open_to_future_contact",
   ],
@@ -91,6 +92,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
 
       // Community & Impact (unique to business insights)
       community_impact_areas: [],
+      collaboration_interest: false,
       mentorship_offering: false,
       open_to_future_contact: false,
 
@@ -224,6 +226,7 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
         goals_details: form.goals_details,
 
         community_impact_areas: form.community_impact_areas ?? [],
+        collaboration_interest: form.collaboration_interest,
         mentorship_offering: form.mentorship_offering,
         open_to_future_contact: form.open_to_future_contact,
       };
@@ -590,6 +593,32 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
                         <span className="text-sm text-gray-700">{area.label}</span>
                       </label>
                     ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={getLabelClass('community', 'collaboration_interest')}>Interested in partnerships or collaborations?</label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="collaboration_interest"
+                        checked={form.collaboration_interest === true}
+                        onChange={() => setFormState(prev => ({ ...prev, collaboration_interest: true }))}
+                        className="w-4 h-4 text-[#0d4f4f] border-gray-300"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Yes</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="collaboration_interest"
+                        checked={form.collaboration_interest === false}
+                        onChange={() => setFormState(prev => ({ ...prev, collaboration_interest: false }))}
+                        className="w-4 h-4 text-[#0d4f4f] border-gray-300"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">No</span>
+                    </label>
                   </div>
                 </div>
 
