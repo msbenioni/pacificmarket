@@ -342,7 +342,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 "Legacy building",
                 "Other"
               ].map(motivation => (
-                <label key={motivation} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <label key={motivation} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.founder_motivation_array?.includes(motivation)}
@@ -359,9 +359,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                         }));
                       }
                     }}
-                    className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                    className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm">{motivation}</span>
+                  <span className="text-sm leading-5">{motivation}</span>
                 </label>
               ))}
             </div>
@@ -454,7 +454,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className={labelCls}>Is the business formally registered? *</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
@@ -480,7 +480,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
             <div>
               <label className={labelCls}>Do you currently employ anyone? *</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
@@ -506,7 +506,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
             <div>
               <label className={labelCls}>Do you employ family/community members? *</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
@@ -533,7 +533,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div>
             <label className={labelCls}>How do you mainly sell? (Select all that apply)</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
               {['In-person', 'Online', 'Wholesale', 'Services', 'Mixed channels'].map(channel => (
                 <label key={channel} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                   <input
@@ -589,7 +589,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div>
             <label className={labelCls}>Which Pacific communities do you identify with? (Select all that apply) *</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
               {COUNTRIES.map(country => (
                 <label key={country.value} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                   <input
@@ -654,7 +654,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div className="space-y-4">
             <div>
               <label className={labelCls}>Does culture influence your products, services, or brand? *</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
@@ -770,7 +770,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 "Geographic isolation",
                 "Other"
               ].map(challenge => (
-                <label key={challenge} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <label key={challenge} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.top_challenges?.includes(challenge)}
@@ -787,9 +787,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                         }));
                       }
                     }}
-                    className="rounded border-gray-300 text-[#0d4f4f]"
+                    className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm">{challenge}</span>
+                  <span className="text-sm leading-5">{challenge}</span>
                 </label>
               ))}
             </div>
@@ -816,7 +816,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 "Confidence and accountability",
                 "Other"
               ].map(support => (
-                <label key={support} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <label key={support} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.support_needed_next?.includes(support)}
@@ -833,9 +833,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                         }));
                       }
                     }}
-                    className="rounded border-gray-300 text-[#0d4f4f]"
+                    className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm">{support}</span>
+                  <span className="text-sm leading-5">{support}</span>
                 </label>
               ))}
             </div>
@@ -846,7 +846,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div>
             <label className={labelCls}>Where do you currently get support from? (Optional)</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
               {['Family & friends', 'Business networks', 'Government programs', 'Mentors/advisors', 'Online communities', 'Industry associations', 'Financial institutions', 'Incubators/accelerators', 'Educational institutions', 'Church/faith community', 'Cultural organizations', 'Other'].map(source => (
                 <label key={source} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                   <input
@@ -875,7 +875,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div>
             <label className={labelCls}>Do you have access to a mentor or advisor? (Optional)</label>
-            <div className="flex items-center space-x-4 mt-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
               <label className="flex items-center">
                 <input
                   type="radio"
@@ -939,7 +939,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 "Create more community impact",
                 "Other"
               ].map(goal => (
-                <label key={goal} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <label key={goal} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.goals_next_12_months_array?.includes(goal)}
@@ -956,9 +956,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                         }));
                       }
                     }}
-                    className="rounded border-gray-300 text-[#0d4f4f]"
+                    className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm">{goal}</span>
+                  <span className="text-sm leading-5">{goal}</span>
                 </label>
               ))}
             </div>
@@ -981,7 +981,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={labelCls}>Do you plan to hire in the next 12 months? *</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
@@ -1007,7 +1007,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
             <div>
               <label className={labelCls}>Are you planning to expand into new markets? *</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
@@ -1047,7 +1047,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div>
             <label className={labelCls}>In what ways does your business create impact? (Select all that apply)</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
               {[
                 "Creates income for family",
                 "Creates jobs",
@@ -1061,7 +1061,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 "Environmental impact",
                 "Other"
               ].map(impact => (
-                <label key={impact} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <label key={impact} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.community_impact_areas?.includes(impact)}
@@ -1078,9 +1078,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                         }));
                       }
                     }}
-                    className="rounded border-gray-300 text-[#0d4f4f]"
+                    className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
                   />
-                  <span className="text-sm">{impact}</span>
+                  <span className="text-sm leading-5">{impact}</span>
                 </label>
               ))}
             </div>
@@ -1088,7 +1088,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div>
             <label className={labelCls}>Are you interested in partnerships or collaborations? (Optional)</label>
-            <div className="flex items-center space-x-4 mt-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
               <label className="flex items-center">
                 <input
                   type="radio"
@@ -1115,7 +1115,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={labelCls}>Would you be open to mentoring others in future? (Optional)</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
@@ -1141,7 +1141,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
             <div>
               <label className={labelCls}>Would you like to be contacted about future Pacific Market opportunities? (Optional)</label>
-              <div className="flex items-center space-x-4 mt-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
                 <label className="flex items-center">
                   <input
                     type="radio"
