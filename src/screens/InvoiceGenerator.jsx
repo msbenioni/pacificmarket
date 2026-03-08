@@ -614,8 +614,8 @@ export default function InvoiceGenerator() {
         </div>
 
         {/* Mobile Sticky Action Bar */}
-        <div className="sm:hidden sticky bottom-4 z-30 mt-4">
-          <div className="rounded-2xl border border-gray-200 bg-white/95 backdrop-blur shadow-[0_18px_40px_rgba(10,22,40,0.12)] p-3 flex gap-2">
+        <div className="sm:hidden sticky bottom-4 z-30 mt-4 mb-6">
+          <div className="rounded-2xl border border-gray-200 bg-white/95 backdrop-blur shadow-[0_18px_40px_rgba(10,22,40,0.12)] px-4 pt-4 pb-5 flex gap-3">
             <button 
               onClick={handleExportPdf}
               disabled={exportingPdf}
