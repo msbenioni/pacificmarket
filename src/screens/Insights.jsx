@@ -94,9 +94,7 @@ export default function Insights() {
     : [];
   
   // Founder insights metrics
-  const byTeamSize = tally(insights, "team_size_band");
   const byBusinessStage = tally(insights, "business_stage");
-  const byImportExport = tally(insights, "import_export_status");
   
   // Calculate years in business
   const yearsInBusiness = insights
@@ -138,14 +136,14 @@ export default function Insights() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  // Hiring intentions
+  // Hiring intentions - using expansion_plans as proxy since hiring_intentions was removed
   const hiringIntentionRate = insights.length > 0 
-    ? Math.round((insights.filter(i => i.hiring_intentions).length / insights.length) * 100)
+    ? Math.round((insights.filter(i => i.expansion_plans).length / insights.length) * 100)
     : 0;
 
-  // Family involvement
-  const familyInvolvementRate = insights.length > 0
-    ? Math.round((insights.filter(i => i.family_involvement).length / insights.length) * 100)
+  // Family responsibilities - using family_community_responsibilities_affect_business as proxy
+  const familyResponsibilityRate = insights.length > 0
+    ? Math.round((insights.filter(i => i.family_community_responsibilities_affect_business).length / insights.length) * 100)
     : 0;
 
   // Collaboration interest
@@ -254,31 +252,36 @@ export default function Insights() {
             {/* Business Operations */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
-                <h3 className={UI.sectionTitle}>Team Sizes</h3>
-                <p className={UI.sectionDesc}>Employment across Pacific businesses</p>
+                <h3 className={UI.sectionTitle}>Business Stages</h3>
+                <p className={UI.sectionDesc}>Current maturity of Pacific enterprises</p>
                 <div className="mt-4">
-                  <HorizontalBar title="Team Sizes" data={byTeamSize} color="#00c4cc" />
+                  <HorizontalBar title="Business Stages" data={byBusinessStage} color="#00c4cc" />
                 </div>
               </div>
 
               <div className={`${UI.card} ${UI.cardInner}`}>
-                <h3 className={UI.sectionTitle}>Family Involvement</h3>
-                <p className={UI.sectionDesc}>Family-owned enterprises</p>
+                <h3 className={UI.sectionTitle}>Family Responsibilities</h3>
+                <p className={UI.sectionDesc}>Family & community responsibilities affecting business</p>
                 <div className="mt-4">
                   <div className="flex items-center justify-center">
                     <div className="text-center">
-                      <p className="text-3xl font-bold text-[#0a1628]">{familyInvolvementRate}%</p>
-                      <p className="text-sm text-[#0a1628]/60 mt-1">Family-involved</p>
+                      <p className="text-3xl font-bold text-[#0a1628]">{familyResponsibilityRate}%</p>
+                      <p className="text-sm text-[#0a1628]/60 mt-1">Family responsibilities affect business</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className={`${UI.card} ${UI.cardInner}`}>
-                <h3 className={UI.sectionTitle}>Trade Activity</h3>
-                <p className={UI.sectionDesc}>International trade engagement</p>
+                <h3 className={UI.sectionTitle}>Founder Experience</h3>
+                <p className={UI.sectionDesc}>Years of entrepreneurial experience</p>
                 <div className="mt-4">
-                  <HorizontalBar title="Trade Activity" data={byImportExport} color="#c9a84c" />
+                  <div className="flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-[#0a1628]">{avgYearsInBusiness}</p>
+                      <p className="text-sm text-[#0a1628]/60 mt-1">Average years in business</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
