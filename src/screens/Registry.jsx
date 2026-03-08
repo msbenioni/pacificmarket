@@ -142,8 +142,10 @@ export default function Registry() {
                       {hasFilters && " (filtered)"}
                     </span>
                     {hasFilters && (
-                      <button onClick={clearAllFilters}
-                        className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-red-600 bg-white border border-gray-200 px-2.5 py-1.5 rounded-lg">
+                      <button
+                      onClick={clearAllFilters}
+                      className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-red-600 bg-white border border-gray-200 px-2.5 py-1.5 rounded-lg"
+                    >
                         <X className="w-3 h-3" /> Clear filters
                       </button>
                     )}
