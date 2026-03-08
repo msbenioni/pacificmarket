@@ -104,7 +104,7 @@ export default function Registry() {
             <div className="hidden lg:block w-64 flex-shrink-0" />
 
             {/* Toolbar */}
-            <div className="flex-1 min-w-0 py-4 border-b border-gray-200">
+            <div className="flex-1 min-w-0 py-3 sm:py-4 border-b border-gray-200">
               <div className="flex flex-col gap-3">
                 <div className="relative lg:hidden">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
