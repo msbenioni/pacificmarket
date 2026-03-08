@@ -146,8 +146,8 @@ export default function QRCodeGenerator() {
         </Link>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid md:grid-cols-2 gap-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
           {/* Settings */}
           <div className="space-y-5">
             {/* Mode */}
