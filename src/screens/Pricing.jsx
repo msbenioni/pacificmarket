@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { CheckCircle, X, Star, Shield, ArrowRight, Waves, Compass, Sparkles } from "lucide-react";
+import { CheckCircle, X, Shield, ArrowRight, Waves, Compass, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
@@ -79,6 +79,7 @@ export default function Pricing() {
   const [user, setUser] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [processingPlan, setProcessingPlan] = useState(null);
+  const [mobileComparePlan, setMobileComparePlan] = useState(BUSINESS_TIER.MOANA);
   const { createCheckoutSession, error } = useStripeCheckout();
 
   useEffect(() => {
@@ -138,10 +139,15 @@ export default function Pricing() {
         badge="Pricing"
         title="Choose the Presence That Fits Your Journey"
         subtitle=""
-        description="Start with Vaka to be represented in the registry, move into Mana for stronger trust and branding, or choose Moana for premium visibility and practical tools designed to help Pacific businesses grow."
+        description={(
+          <>
+            <span className="sm:hidden">Choose a plan that matches your visibility today, then upgrade as you grow.</span>
+            <span className="hidden sm:inline">Start with Vaka to be represented in the registry, move into Mana for stronger trust and branding, or choose Moana for premium visibility and practical tools designed to help Pacific businesses grow.</span>
+          </>
+        )}
       />
 
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {error && (
             <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
@@ -153,10 +159,10 @@ export default function Pricing() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
               A Pacific business journey
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0a1628]">
+            <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-[#0a1628]">
               {getTierDisplayName(BUSINESS_TIER.VAKA)} → {getTierDisplayName(BUSINESS_TIER.MANA)} → {getTierDisplayName(BUSINESS_TIER.MOANA)}
             </h2>
-            <p className="mt-3 max-w-2xl mx-auto text-sm leading-6 text-slate-600">
+            <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base leading-6 text-slate-600">
               Begin the journey, strengthen your presence, then expand your reach.
             </p>
           </div>
@@ -181,7 +187,7 @@ export default function Pricing() {
                       isMoana ? "ring-2 ring-[#c9a84c]/25" : ""
                     }`}
                   >
-                    <div className={`${plan.headerTone} p-7`}>
+                    <div className={`${plan.headerTone} p-5 sm:p-7`}>
                       <div className="flex items-center gap-3">
                         <div
                           className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
@@ -203,9 +209,9 @@ export default function Pricing() {
                           />
                         </div>
                         <div>
-                          <p className={`text-lg font-bold ${plan.accent}`}>{plan.name}</p>
+                          <p className={`text-base sm:text-lg font-bold ${plan.accent}`}>{plan.name}</p>
                           <p
-                            className={`text-xs ${
+                            className={`text-[11px] sm:text-xs ${
                               plan.id === BUSINESS_TIER.MANA
                                 ? "text-white/80"
                                 : plan.id === BUSINESS_TIER.MOANA
@@ -218,8 +224,8 @@ export default function Pricing() {
                         </div>
                       </div>
 
-                      <div className="mt-6 flex items-end gap-1">
-                        <span className={`text-4xl font-black ${plan.accent}`}>{plan.price}</span>
+                      <div className="mt-4 sm:mt-6 flex items-end gap-1">
+                        <span className={`text-3xl sm:text-4xl font-black ${plan.accent}`}>{plan.price}</span>
                         {plan.period && (
                           <span
                             className={`pb-1 text-sm ${
@@ -236,21 +242,21 @@ export default function Pricing() {
                       </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col p-7">
-                      <p className="text-sm leading-6 text-slate-600">{plan.description}</p>
+                    <div className="flex-1 flex flex-col p-5 sm:p-7">
+                      <p className="text-[13px] sm:text-sm leading-6 text-slate-600">{plan.description}</p>
 
-                      <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3">
+                      <div className="mt-3 sm:mt-4 rounded-xl sm:rounded-2xl bg-slate-50 px-4 py-3">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
                           Best for
                         </p>
                         <p className="mt-1 text-sm text-[#0a1628]">{plan.bestFor}</p>
                       </div>
 
-                      <div className="mt-6">
+                      <div className="mt-4 sm:mt-6">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
                           Highlights
                         </p>
-                        <ul className="mt-3 space-y-3">
+                        <ul className="mt-3 space-y-2 sm:space-y-3">
                           {plan.highlights.map((item) => (
                             <li key={item} className="flex items-start gap-2.5">
                               <CheckCircle
@@ -258,17 +264,17 @@ export default function Pricing() {
                                   plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
                                 }`}
                               />
-                              <span className="text-sm text-slate-700">{item}</span>
+                              <span className="text-[13px] sm:text-sm text-slate-700">{item}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
 
-                      <div className="mt-auto border-t border-slate-200 pt-6">
+                      <div className="mt-auto border-t border-slate-200 pt-5 sm:pt-6">
                         <button
                           onClick={() => handleUpgrade(plan.id)}
                           disabled={processingPlan !== null || (plan.id === BUSINESS_TIER.VAKA && user)}
-                          className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition ${
+                          className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition min-h-[44px] ${
                             processingPlan !== null || (plan.id === BUSINESS_TIER.VAKA && user)
                               ? "opacity-60 cursor-not-allowed bg-gray-100 text-gray-500 border border-gray-200"
                               : plan.ctaClass
@@ -301,21 +307,72 @@ export default function Pricing() {
         </div>
       </section>
 
-      <section className="bg-[#f1f4f8] py-16 px-4 sm:px-6 lg:px-8">
+      <section className="bg-[#f1f4f8] py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
               Compare features
             </p>
-            <h2 className="mt-2 text-2xl font-bold text-[#0a1628]">
+            <h2 className="mt-2 text-xl sm:text-2xl font-bold text-[#0a1628]">
               See what grows with each plan
             </h2>
-            <p className="mt-3 text-sm text-slate-600 max-w-2xl mx-auto">
+            <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
               Choose the level that matches where your business is now, then upgrade when you are ready for stronger identity or wider visibility.
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-[24px] border border-slate-200 bg-white shadow-[0_18px_50px_rgba(10,22,40,0.06)]">
+          <div className="lg:hidden space-y-4">
+            {plans.map((plan) => {
+              const isOpen = mobileComparePlan === plan.id;
+              const accent =
+                plan.id === BUSINESS_TIER.MOANA
+                  ? "text-[#c9a84c]"
+                  : plan.id === BUSINESS_TIER.MANA
+                  ? "text-[#0d4f4f]"
+                  : "text-[#0a1628]";
+
+              return (
+                <div key={plan.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => setMobileComparePlan(isOpen ? null : plan.id)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-4"
+                  >
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-[#0a1628]">{plan.name}</p>
+                      <p className="text-xs text-slate-500">{plan.subtitle}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-bold ${accent}`}>{plan.price}</span>
+                      {isOpen ? (
+                        <ChevronUp className="w-4 h-4 text-slate-500" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-slate-500" />
+                      )}
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div className="border-t border-slate-100 px-4 pb-4 pt-3">
+                      <ul className="space-y-2">
+                        {plan.features.map((feature) => (
+                          <li key={feature.label} className="flex items-start gap-2 text-xs text-slate-700">
+                            <CheckCircle
+                              className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
+                                plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                              }`}
+                            />
+                            <span>{feature.label}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="hidden lg:block overflow-x-auto rounded-[24px] border border-slate-200 bg-white shadow-[0_18px_50px_rgba(10,22,40,0.06)]">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#0a1628]">
@@ -365,7 +422,7 @@ export default function Pricing() {
 
                       {plans.map((plan) => (
                         <td key={plan.id} className="px-4 py-3 text-center">
-                          {plan.features[i].included ? (
+                          {plan.features[i]?.included ? (
                             <CheckCircle
                               className={`mx-auto h-4 w-4 ${
                                 plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
