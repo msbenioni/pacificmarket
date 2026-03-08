@@ -294,7 +294,9 @@ export default function AdminDashboard() {
   const { toast } = useToast();
 
   const getLatestSnapshot = (businessId) =>
-    insightSnapshots.find((s) => s.business_id === businessId);
+    insightSnapshots
+      .filter((s) => s.business_id === businessId)
+      .sort((a, b) => new Date(b.submitted_date || 0).getTime() - new Date(a.submitted_date || 0).getTime())[0];
 
   useEffect(() => {
     const loadAdminData = async () => {
