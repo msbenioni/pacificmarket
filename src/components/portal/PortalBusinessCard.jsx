@@ -193,7 +193,7 @@ export default function PortalBusinessCard({
 
       {ownerName && (
         <>
-          <details className="mt-4 rounded-xl border border-gray-200 bg-slate-50/70 p-3 sm:hidden">
+          <details className="mt-4 rounded-xl border border-gray-200 bg-white p-3 sm:hidden shadow-sm">
             <summary className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 cursor-pointer [&::-webkit-details-marker]:hidden">
               Owner details
               <ChevronDown className="w-4 h-4 text-slate-400" />
