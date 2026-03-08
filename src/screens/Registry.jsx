@@ -186,7 +186,7 @@ export default function Registry() {
             {loading ? (
               <div className={`grid gap-4 ${view === "grid" ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" : "grid-cols-1"}`}>
                 {Array(6).fill(0).map((_, i) => (
-                  <div key={i} className="bg-white rounded-2xl overflow-hidden">
+                  <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
                     <div className="h-24 shimmer" />
                     <div className="p-5 space-y-3">
                       <div className="h-4 w-3/4 shimmer rounded" />
@@ -217,7 +217,7 @@ export default function Registry() {
       {showFilters && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilters(false)} />
-          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] bg-[#f8f9fc] rounded-t-3xl overflow-y-auto p-5 pb-24">
+          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] bg-[#f8f9fc] rounded-t-3xl overflow-y-auto px-5 pt-5 pb-28 shadow-[0_-20px_60px_rgba(10,22,40,0.18)]">
             <div className="mx-auto h-1.5 w-12 rounded-full bg-gray-200 mb-4" />
             <div className="flex items-center justify-between mb-4">
               <span className="font-semibold text-[#0a1628]">Filters</span>
