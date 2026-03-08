@@ -398,6 +398,10 @@ export default function DetailedBusinessForm({
           <h3 className="font-bold text-[#0a1628] text-lg">
             Business Operations
           </h3>
+          
+          <p className="text-sm text-gray-600">
+            These details help strengthen the Pacific business ecosystem and improve discovery.
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
