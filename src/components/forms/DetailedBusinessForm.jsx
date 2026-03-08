@@ -392,8 +392,109 @@ export default function DetailedBusinessForm({
         </div>
       )}
 
-      {/* Step 2: Media & Details */}
-      {step === 2 && !excludeFields.includes("media") && (
+      {/* Step 2: Business Operations */}
+      {step === 2 && (
+        <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
+          <h3 className="font-bold text-[#0a1628] text-lg">
+            Business Operations
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <div>
+              <label className={labelCls}>Operating Status</label>
+              <select
+                value={form.business_operating_status || ""}
+                onChange={e => set("business_operating_status", e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Select status</option>
+                {BUSINESS_OPERATING_STATUS.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className={labelCls}>Business Stage</label>
+              <select
+                value={form.business_stage || ""}
+                onChange={e => set("business_stage", e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Select stage</option>
+                {BUSINESS_STAGE.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className={labelCls}>Team Size</label>
+              <select
+                value={form.team_size_band || ""}
+                onChange={e => set("team_size_band", e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Select team size</option>
+                {TEAM_SIZE_BAND.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className={labelCls}>Revenue Range</label>
+              <select
+                value={form.revenue_band || ""}
+                onChange={e => set("revenue_band", e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Select revenue band</option>
+                {REVENUE_BAND.map(r => (
+                  <option key={r.value} value={r.value}>{r.label}</option>
+                ))}
+              </select>
+            </div>
+
+          </div>
+
+          <div>
+            <label className={labelCls}>Sales Channels</label>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {SALES_CHANNELS.map(channel => {
+                const checked = (form.sales_channels || []).includes(channel.value);
+
+                return (
+                  <label
+                    key={channel.value}
+                    className="flex items-center gap-2 text-sm border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        const current = form.sales_channels || [];
+                        if (checked) {
+                          set("sales_channels", current.filter(c => c !== channel.value));
+                        } else {
+                          set("sales_channels", [...current, channel.value]);
+                        }
+                      }}
+                    />
+                    {channel.label}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* Step 3: Media & Details */}
+      {step === 3 && !excludeFields.includes("media") && (
         <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-[#0a1628] text-lg">Media & Details</h3>
           <div>
@@ -436,7 +537,7 @@ export default function DetailedBusinessForm({
       )}
 
       {/* Step 3: Contact */}
-      {step === 3 && !excludeFields.includes("contact") && (
+      {step === 4 && !excludeFields.includes("contact") && (
         <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-[#0a1628] text-lg">Contact Information</h3>
           {!excludeFields.includes("email") && (
@@ -506,8 +607,8 @@ export default function DetailedBusinessForm({
         </div>
       )}
 
-      {/* Step 4: Description */}
-      {step === 4 && !excludeFields.includes("description") && (
+      {/* Step 5: Description */}
+      {step === 5 && !excludeFields.includes("description") && (
         <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-[#0a1628] text-lg">Business Description</h3>
           {!excludeFields.includes("tagline") && (
@@ -564,8 +665,8 @@ export default function DetailedBusinessForm({
         </div>
       )}
 
-      {/* Step 5: Review */}
-      {step === 5 && (
+      {/* Step 6: Review */}
+      {step === 6 && (
         <div className="space-y-6">
           <h3 className="font-bold text-[#0a1628] text-lg">Review & Confirm</h3>
           {!form.name || !form.country || !form.industry ? (
@@ -746,7 +847,7 @@ export default function DetailedBusinessForm({
           Previous
         </button>
         
-        {step < 5 ? (
+        {step < 6 ? (
           <button
             type="button"
             onClick={() => {
