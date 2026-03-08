@@ -566,7 +566,7 @@ const primaryActionCls =
                       }
                     }}
                     disabled={onboardingLoading || onboardingStatus.needsProfile}
-                    className={onboardingStatus.needsProfile ? disabledActionCls : secondaryActionCls}
+                    className={onboardingStatus.needsProfile ? disabledActionCls : secondaryActionCls + " min-h-[44px] w-full sm:w-auto"}
                   >
                     <Search className="w-4 h-4" />
                     Claim Business
@@ -1018,7 +1018,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
           </ModalContent>
           
           <ModalFooter>
-            <div className="flex justify-between">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
               <button 
                 onClick={() => setShowAddOwnerModal(null)} 
                 className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] transition"
@@ -1056,7 +1056,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
            </ModalContent>
            
            <ModalFooter>
-             <div className="flex justify-end">
+             <div className="flex sm:justify-end">
                <button 
                  onClick={() => setEditingBusiness(null)} 
                  className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition"
@@ -1111,7 +1111,7 @@ Your responses help Pacific Market build a clearer understanding of founder expe
           </ModalContent>
           
           <ModalFooter>
-            <div className="flex justify-between gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button 
                 onClick={() => setDeleteConfirmBusiness(null)} 
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] transition"
