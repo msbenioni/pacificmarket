@@ -1038,7 +1038,7 @@ export default function InvoiceGenerator() {
 
                   {/* Payment Details Card */}
                   {(invoice.payment_account_name || invoice.payment_account_number) && (
-                    <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <h4 className="text-sm font-semibold text-gray-700 mb-3">Payment Details</h4>
                       <div className="space-y-2 text-sm">
                         {invoice.payment_account_name && (
@@ -1070,7 +1070,7 @@ export default function InvoiceGenerator() {
                   )}
 
                   {invoice.notes && (
-                    <div className="mt-8 pt-6 border-t border-gray-100">
+                    <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100">
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Notes</p>
                       <p className="text-gray-500 text-sm whitespace-pre-line">{invoice.notes}</p>
                     </div>
