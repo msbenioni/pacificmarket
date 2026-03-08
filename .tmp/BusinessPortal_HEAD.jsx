@@ -480,15 +480,14 @@ export default function BusinessPortal() {
   };
 
 
-  const disabledActionCls =
-    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed";
+const disabledActionCls =
+  "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed min-h-[44px] w-full sm:w-auto";
 
-  const secondaryActionCls =
-    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-white text-[#0d4f4f] hover:border-[#0d4f4f] transition";
+const secondaryActionCls =
+  "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-white text-[#0d4f4f] hover:border-[#0d4f4f] transition min-h-[44px] w-full sm:w-auto";
 
-  const primaryActionCls =
-    "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-[#0d4f4f] text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)]";
-
+const primaryActionCls =
+  "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-[#0d4f4f] text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] min-h-[44px] w-full sm:w-auto";
   return (
     <PortalShell>
       <HeroRegistry
