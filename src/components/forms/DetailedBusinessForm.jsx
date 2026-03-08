@@ -16,6 +16,7 @@ export { FORM_MODES };
 
 const STEPS = [
   { key: "identity", label: "Business Identity" },
+  { key: "operations", label: "Business Operations" },
   { key: "media", label: "Media & Details" },
   { key: "contact", label: "Contact Info" },
   { key: "description", label: "Description" },
@@ -214,7 +215,7 @@ export default function DetailedBusinessForm({
         currentStep: step,
         canGoNext: () => {
           if (step === 1) return form.name && form.country && form.industry;
-          if (step === 5) return form.name && form.country && form.industry;
+          if (step === 6) return form.name && form.country && form.industry;
           return true;
         },
         nextStep: () => setStep(s => s + 1),
