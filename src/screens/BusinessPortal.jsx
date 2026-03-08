@@ -392,25 +392,27 @@ export default function BusinessPortal() {
     try {
       const supabase = getSupabase();
 
-      console.log('Submitting insights data:', insightsData);
-
-      const existing = insightSnapshots[0];
+      const existing = insightSnapshots.find(
+        (snapshot) =>
+          snapshot.user_id === insightsData.user_id &&
+          snapshot.business_id === (insightsData.business_id ?? null)
+      );
 
       let result;
 
       if (existing?.id) {
         result = await supabase
-          .from('business_insights_snapshots')
+          .from("business_insights_snapshots")
           .update({
             ...insightsData,
             updated_date: new Date().toISOString(),
           })
-          .eq('id', existing.id)
-          .eq('user_id', insightsData.user_id)
+          .eq("id", existing.id)
+          .eq("user_id", insightsData.user_id)
           .select();
       } else {
         result = await supabase
-          .from('business_insights_snapshots')
+          .from("business_insights_snapshots")
           .insert({
             ...insightsData,
             submitted_date: new Date().toISOString(),
@@ -418,10 +420,7 @@ export default function BusinessPortal() {
           .select();
       }
 
-      const { data, error } = result;
-
-      console.log('Supabase response:', { data, error });
-
+      const { error } = result;
       if (error) throw error;
 
       await refetchPortalData();
@@ -429,14 +428,14 @@ export default function BusinessPortal() {
       toast({
         title: "Saved",
         description: "Your founder insights were saved successfully.",
-        variant: "success"
+        variant: "success",
       });
     } catch (error) {
-      console.error('Error submitting insights:', error);
+      console.error("Error submitting insights:", error);
       toast({
         title: "Save Failed",
-        description: `Failed to save insights: ${error.message || 'Unknown error'}`,
-        variant: "error"
+        description: `Failed to save insights: ${error.message || "Unknown error"}`,
+        variant: "error",
       });
     } finally {
       setInsightsSubmitting(false);
@@ -444,8 +443,8 @@ export default function BusinessPortal() {
   };
 
   const handleUpgradeClick = async (tier) => {
+    if (loading) return;
     if (!user) {
-      // Redirect to login
       window.location.href = createPageUrl("Login");
       return;
     }
