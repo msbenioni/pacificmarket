@@ -586,36 +586,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
           </div>
 
           <div className={sectionCardCls}>
-
-          <div>
-            <label className={labelCls}>Which Pacific communities do you identify with? (Select all that apply) *</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
-              {COUNTRIES.map(country => (
-                <label key={country.value} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.pacific_identity?.includes(country.value)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setForm(prev => ({ 
-                          ...prev, 
-                          pacific_identity: [...(prev.pacific_identity || []), country.value]
-                        }));
-                      } else {
-                        setForm(prev => ({ 
-                          ...prev, 
-                          pacific_identity: prev.pacific_identity?.filter(c => c !== country.value) || []
-                        }));
-                      }
-                    }}
-                    className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
-                  />
-                  <span className="text-sm">{country.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
+          {/* Short fields first */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={labelCls}>Where are you currently based? (Country) *</label>
@@ -677,19 +648,36 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </label>
               </div>
             </div>
+          </div>
 
-            {form.culture_influences_business && (
-              <div>
-                <label className={labelCls}>Tell us more about how culture influences your business (Optional)</label>
-                <textarea
-                  value={form.culture_influence_details || ""}
-                  onChange={e => setForm({ ...form, culture_influence_details: e.target.value })}
-                  rows={2}
-                  placeholder="Share how culture, tradition, or Pacific identity shapes your products, services, or brand..."
-                  className={`${inputCls} resize-none`}
-                />
-              </div>
-            )}
+          {/* Long checkbox groups after */}
+          <div>
+            <label className={labelCls}>Which Pacific communities do you identify with? (Select all that apply) *</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+              {COUNTRIES.map(country => (
+                <label key={country.value} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.pacific_identity?.includes(country.value)}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setForm(prev => ({ 
+                          ...prev, 
+                          pacific_identity: [...(prev.pacific_identity || []), country.value]
+                        }));
+                      } else {
+                        setForm(prev => ({ 
+                          ...prev, 
+                          pacific_identity: prev.pacific_identity?.filter(c => c !== country.value) || []
+                        }));
+                      }
+                    }}
+                    className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                  />
+                  <span className="text-sm">{country.label}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -722,9 +710,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               </div>
             </div>
 
-            {form.family_community_responsibilities_affect_business && form.family_community_responsibilities_affect_business.length > 0 && (
+            {form.family_community_responsibilities_affect_business.length > 0 && (
               <div>
-                <label className={labelCls}>Tell us more about these responsibilities (Optional)</label>
+                <label className={labelCls}>Tell us how these responsibilities impact your business (Optional)</label>
                 <textarea
                   value={form.responsibilities_impact_details || ""}
                   onChange={e => setForm({ ...form, responsibilities_impact_details: e.target.value })}
@@ -735,11 +723,23 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               </div>
             )}
           </div>
+
+          {/* Optional textareas last */}
+          {form.culture_influences_business && (
+            <div>
+              <label className={labelCls}>Tell us more about how culture influences your business (Optional)</label>
+              <textarea
+                value={form.culture_influence_details || ""}
+                onChange={e => setForm({ ...form, culture_influence_details: e.target.value })}
+                rows={2}
+                placeholder="Share how culture, tradition, or Pacific identity shapes your products, services, or brand..."
+                className={`${inputCls} resize-none`}
+              />
+            </div>
+          )}
           </div>
         </div>
       )}
-
-      {/* Step 4: Challenges & Support */}
       {step === 4 && (
         <div className="space-y-6">
           <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
