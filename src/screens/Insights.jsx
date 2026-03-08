@@ -185,20 +185,34 @@ const getMotivationLabel = (motivationValue) => {
 
 const UI = {
   page: "bg-[#eef0f5]",
-  wrap: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8",
+  wrap: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-6 sm:space-y-8",
   card: "rounded-2xl border border-gray-200/70 bg-gradient-to-b from-white to-[#fbfcff] shadow-[0_18px_50px_rgba(10,22,40,0.08)]",
-  cardInner: "p-6",
+  cardInner: "p-5 sm:p-6",
   sectionKicker: "text-xs font-bold tracking-[0.22em] uppercase text-[#0a1628]/50",
   sectionTitle: "text-lg font-semibold text-[#0a1628]",
   sectionDesc: "text-sm text-[#0a1628]/60 mt-1",
   chip: "px-3 py-1 rounded-full border border-gray-200 bg-white text-sm text-[#0a1628]/80",
   chipStrong: "text-[#0a1628] font-semibold",
+  mobileSection: "rounded-2xl border border-gray-200/70 bg-white shadow-sm",
+  mobileSectionInner: "p-5",
+  mobileSubCard: "rounded-xl border border-gray-200/70 bg-white p-4",
 };
 
 export default function Insights() {
   const [businesses, setBusinesses] = useState([]);
   const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [openSections, setOpenSections] = useState({
+    demographics: true,
+    founder: false,
+    support: false,
+    landscape: false,
+    tiers: false,
+  });
+
+  const toggleSection = (key) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   useEffect(() => {
     const loadInsightsData = async () => {
@@ -369,14 +383,20 @@ export default function Insights() {
         badge="Pacific Market Insights"
         title="Founder Journey Analytics"
         subtitle="Real-time insights from Pacific entrepreneurs"
-        description="Comprehensive analytics based on real founder insights and business data. Track trends, understand challenges, and identify opportunities across the Pacific business ecosystem."
+        description={(
+          <>
+            <span className="sm:hidden">Founder insights that highlight the most important Pacific business signals.</span>
+            <span className="hidden sm:inline">Comprehensive analytics based on real founder insights and business data. Track trends, understand challenges, and identify opportunities across the Pacific business ecosystem.</span>
+          </>
+        )}
         showStats={false}
       />
 
       <div className={UI.wrap}>
-        <p className="text-xs text-[#0a1628]/55 -mt-4">
-          <span className="font-semibold text-[#0a1628]">Data Source:</span> {total} active businesses • {insightsCount} founder insights • Real-time analytics • 
-          <span className="italic">Powered by founder-submitted journey data and business registry information.</span>
+        <p className="text-xs text-[#0a1628]/55 -mt-3 sm:-mt-4">
+          <span className="font-semibold text-[#0a1628]">Data Source:</span>
+          <span className="block sm:inline"> {total} active businesses • {insightsCount} founder insights • Real-time analytics •</span>
+          <span className="block sm:inline italic"> Powered by founder-submitted journey data and business registry information.</span>
         </p>
 
         {loading ? (
@@ -393,7 +413,7 @@ export default function Insights() {
                   <p className="text-xs text-[#0a1628]/55">Investment Interest</p>
                   <TrendingUp className="w-4 h-4 text-[#10b981]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{investmentInterestRate}%</p>
+                <p className="text-2xl sm:text-3xl font-semibold mt-2 text-[#0a1628]">{investmentInterestRate}%</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
                   Looking to invest in businesses
                 </p>
@@ -404,7 +424,7 @@ export default function Insights() {
                   <p className="text-xs text-[#0a1628]/55">Collaboration Interest</p>
                   <Rocket className="w-4 h-4 text-[#f59e0b]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{collaborationRate}%</p>
+                <p className="text-2xl sm:text-3xl font-semibold mt-2 text-[#0a1628]">{collaborationRate}%</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
                   Interested in collaborating
                 </p>
@@ -415,15 +435,81 @@ export default function Insights() {
                   <p className="text-xs text-[#0a1628]/55">Mentorship Offering</p>
                   <Lightbulb className="w-4 h-4 text-[#8b5cf6]" />
                 </div>
-                <p className="text-3xl font-semibold mt-2 text-[#0a1628]">{mentorshipOfferingRate}%</p>
+                <p className="text-2xl sm:text-3xl font-semibold mt-2 text-[#0a1628]">{mentorshipOfferingRate}%</p>
                 <p className="text-sm text-[#0a1628]/60 mt-2">
                   Open to mentoring others
                 </p>
               </div>
             </div>
 
-            {/* Demographics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Demographics (mobile) */}
+            <div className="lg:hidden space-y-4">
+              <button
+                type="button"
+                onClick={() => toggleSection("demographics")}
+                className={`${UI.card} ${UI.cardInner} w-full flex items-center justify-between`}
+              >
+                <div>
+                  <p className={UI.sectionTitle}>Demographics</p>
+                  <p className={UI.sectionDesc}>Gender and age breakdown</p>
+                </div>
+                {openSections.demographics ? (
+                  <ChevronUp className="w-4 h-4 text-[#0a1628]/60" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#0a1628]/60" />
+                )}
+              </button>
+              {openSections.demographics && (
+                <div className="space-y-4">
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Gender Distribution</h3>
+                    <p className={UI.sectionDesc}>Gender breakdown of Pacific entrepreneurs</p>
+                    <div className="mt-4 space-y-2">
+                      {Object.entries(genderData)
+                        .map(([gender, count]) => ({
+                          label: gender.charAt(0).toUpperCase() + gender.slice(1).replace('_', ' '),
+                          value: count
+                        }))
+                        .sort((a, b) => b.value - a.value)
+                        .map((item, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <span className="text-sm text-[#0a1628]">{item.label}</span>
+                            <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
+                          </div>
+                        ))}
+                      {Object.keys(genderData).length === 0 && (
+                        <p className="text-sm text-[#0a1628]/60 text-center py-4">No gender data available</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Age Distribution</h3>
+                    <p className={UI.sectionDesc}>Age ranges of Pacific entrepreneurs</p>
+                    <div className="mt-4 space-y-2">
+                      {Object.entries(ageData)
+                        .map(([age, count]) => ({
+                          label: age,
+                          value: count
+                        }))
+                        .sort((a, b) => b.value - a.value)
+                        .map((item, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <span className="text-sm text-[#0a1628]">{item.label}</span>
+                            <span className="text-sm font-semibold text-[#0a1628]">{item.value}</span>
+                          </div>
+                        ))}
+                      {Object.keys(ageData).length === 0 && (
+                        <p className="text-sm text-[#0a1628]/60 text-center py-4">No age data available</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Demographics (desktop) */}
+            <div className="hidden lg:grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Gender Distribution</h3>
                 <p className={UI.sectionDesc}>Gender breakdown of Pacific entrepreneurs</p>
@@ -469,8 +555,57 @@ export default function Insights() {
               </div>
             </div>
 
-            {/* Demographics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Founder & Business (mobile) */}
+            <div className="lg:hidden space-y-4">
+              <button
+                type="button"
+                onClick={() => toggleSection("founder")}
+                className={`${UI.card} ${UI.cardInner} w-full flex items-center justify-between`}
+              >
+                <div>
+                  <p className={UI.sectionTitle}>Founder & Business</p>
+                  <p className={UI.sectionDesc}>Motivations and business stages</p>
+                </div>
+                {openSections.founder ? (
+                  <ChevronUp className="w-4 h-4 text-[#0a1628]/60" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#0a1628]/60" />
+                )}
+              </button>
+              {openSections.founder && (
+                <div className="space-y-4">
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Founder Motivations</h3>
+                    <p className={UI.sectionDesc}>What drives Pacific entrepreneurs to start businesses?</p>
+                    <div className="mt-4">
+                      <HorizontalBar
+                        title="Founder Motivations"
+                        data={Object.entries(motivationKeywords)
+                          .map(([motivation, count]) => ({
+                            label: getMotivationLabel(motivation),
+                            value: count
+                          }))
+                          .sort((a, b) => b.value - a.value)
+                          .slice(0, 5)}
+                        color="#8b5cf6"
+                        maxHeight="220px"
+                      />
+                    </div>
+                  </div>
+
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Business Stages</h3>
+                    <p className={UI.sectionDesc}>Current maturity of Pacific enterprises</p>
+                    <div className="mt-4">
+                      <HorizontalBar title="Business Stages" data={byBusinessStage} color="#0d4f4f" maxHeight="220px" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Founder & Business (desktop) */}
+            <div className="hidden lg:grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Founder Motivations</h3>
                 <p className={UI.sectionDesc}>What drives Pacific entrepreneurs to start businesses?</p>
@@ -498,8 +633,57 @@ export default function Insights() {
               </div>
             </div>
 
-            {/* Challenges & Support */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Challenges & Support (mobile) */}
+            <div className="lg:hidden space-y-4">
+              <button
+                type="button"
+                onClick={() => toggleSection("support")}
+                className={`${UI.card} ${UI.cardInner} w-full flex items-center justify-between`}
+              >
+                <div>
+                  <p className={UI.sectionTitle}>Challenges & Support</p>
+                  <p className={UI.sectionDesc}>Top hurdles and family responsibilities</p>
+                </div>
+                {openSections.support ? (
+                  <ChevronUp className="w-4 h-4 text-[#0a1628]/60" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#0a1628]/60" />
+                )}
+              </button>
+              {openSections.support && (
+                <div className="space-y-4">
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Top Challenges</h3>
+                    <p className={UI.sectionDesc}>Biggest hurdles facing Pacific entrepreneurs</p>
+                    <div className="mt-4">
+                      <HorizontalBar title="Top Challenges" data={topChallenges} color="#ef4444" maxHeight="220px" />
+                    </div>
+                  </div>
+
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Family Responsibilities</h3>
+                    <p className={UI.sectionDesc}>Family & community commitments alongside business</p>
+                    <div className="mt-4">
+                      <HorizontalBar 
+                        title="Family Responsibilities" 
+                        data={Object.entries(familyResponsibilityData)
+                          .map(([responsibility, count]) => ({ 
+                            label: responsibility.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), 
+                            value: count 
+                          }))
+                          .sort((a, b) => b.value - a.value)
+                          .slice(0, 5)} 
+                        color="#10b981" 
+                        maxHeight="220px"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Challenges & Support (desktop) */}
+            <div className="hidden lg:grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Top Challenges</h3>
                 <p className={UI.sectionDesc}>Biggest hurdles facing Pacific entrepreneurs</p>
@@ -527,8 +711,46 @@ export default function Insights() {
               </div>
             </div>
 
-            {/* Geographic & Industry Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Geography & Industry (mobile) */}
+            <div className="lg:hidden space-y-4">
+              <button
+                type="button"
+                onClick={() => toggleSection("landscape")}
+                className={`${UI.card} ${UI.cardInner} w-full flex items-center justify-between`}
+              >
+                <div>
+                  <p className={UI.sectionTitle}>Geography & Industry</p>
+                  <p className={UI.sectionDesc}>Distribution across regions and sectors</p>
+                </div>
+                {openSections.landscape ? (
+                  <ChevronUp className="w-4 h-4 text-[#0a1628]/60" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#0a1628]/60" />
+                )}
+              </button>
+              {openSections.landscape && (
+                <div className="space-y-4">
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Geographic Distribution</h3>
+                    <p className={UI.sectionDesc}>Pacific businesses by country</p>
+                    <div className="mt-4">
+                      <HorizontalBar title="Geographic Distribution" data={byCountry.slice(0, 6)} color="#0d4f4f" maxHeight="220px" />
+                    </div>
+                  </div>
+
+                  <div className={`${UI.card} ${UI.cardInner}`}>
+                    <h3 className={UI.sectionTitle}>Industry Breakdown</h3>
+                    <p className={UI.sectionDesc}>Business sectors across the Pacific</p>
+                    <div className="mt-4">
+                      <HorizontalBar title="Industry Breakdown" data={byIndustry.slice(0, 6)} color="#00c4cc" maxHeight="220px" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Geography & Industry (desktop) */}
+            <div className="hidden lg:grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className={`${UI.card} ${UI.cardInner}`}>
                 <h3 className={UI.sectionTitle}>Geographic Distribution</h3>
                 <p className={UI.sectionDesc}>Pacific businesses by country</p>
@@ -546,19 +768,56 @@ export default function Insights() {
               </div>
             </div>
 
-            {/* Subscription Tiers */}
-            <div className={`${UI.card} ${UI.cardInner}`}>
-              <h3 className={UI.sectionTitle}>Subscription Tiers</h3>
-              <p className={UI.sectionDesc}>Business registry participation levels</p>
-              <div className="mt-4">
-                <HorizontalBar
-                  title="Subscription Tiers"
-                  data={byTierPercentage}
-                  color="#c9a84c"
-                  valueFormatter={(value) => `${value}%`}
-                />
+            {/* Subscription Tiers (mobile) */}
+            <div className="lg:hidden space-y-4">
+              <button
+                type="button"
+                onClick={() => toggleSection("tiers")}
+                className={`${UI.card} ${UI.cardInner} w-full flex items-center justify-between`}
+              >
+                <div>
+                  <p className={UI.sectionTitle}>Subscription Tiers</p>
+                  <p className={UI.sectionDesc}>Registry participation levels</p>
+                </div>
+                {openSections.tiers ? (
+                  <ChevronUp className="w-4 h-4 text-[#0a1628]/60" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#0a1628]/60" />
+                )}
+              </button>
+              {openSections.tiers && (
+                <div className={`${UI.card} ${UI.cardInner}`}>
+                  <h3 className={UI.sectionTitle}>Subscription Tiers</h3>
+                  <p className={UI.sectionDesc}>Business registry participation levels</p>
+                  <div className="mt-4">
+                    <HorizontalBar
+                      title="Subscription Tiers"
+                      data={byTierPercentage}
+                      color="#c9a84c"
+                      valueFormatter={(value) => `${value}%`}
+                      maxHeight="220px"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Subscription Tiers (desktop) */}
+            <div className="hidden lg:block">
+              <div className={`${UI.card} ${UI.cardInner}`}>
+                <h3 className={UI.sectionTitle}>Subscription Tiers</h3>
+                <p className={UI.sectionDesc}>Business registry participation levels</p>
+                <div className="mt-4">
+                  <HorizontalBar
+                    title="Subscription Tiers"
+                    data={byTierPercentage}
+                    color="#c9a84c"
+                    valueFormatter={(value) => `${value}%`}
+                  />
+                </div>
               </div>
             </div>
+
           </>
         )}
 
