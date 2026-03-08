@@ -278,39 +278,49 @@ export default function FounderInsightsAccordion({ businessId, onSubmit, isLoadi
       <div key={section.key} className={`border rounded-xl transition-all ${
         hasErrors ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-white'
       }`}>
-        <div className="w-full px-6 py-4 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 py-4">
           <button
             type="button"
             onClick={() => toggleSection(section.key)}
-            className="flex-1 flex items-center gap-3 text-left transition-colors"
+            className="w-full flex items-start justify-between gap-3 text-left transition-colors"
           >
-            <section.icon className={`w-5 h-5 ${hasErrors ? 'text-red-600' : 'text-[#0d4f4f]'} mt-0.5`} />
-            <div>
-              <h4 className={`text-sm font-semibold ${hasErrors ? 'text-red-900' : 'text-[#0a1628]'}`}>
-                {section.label}
-                {hasErrors && <span className="ml-2 text-xs text-red-600">(Required)</span>}
-              </h4>
-              <p className={`text-sm ${hasErrors ? 'text-red-700' : 'text-gray-600'}`}>
-                {section.description}
-                {hasErrors && (
-                  <span className="block mt-1 text-xs">
-                    Missing: {sectionErrors.join(', ')}
-                  </span>
-                )}
-              </p>
-            </div>
-          </button>
+            <div className="flex items-start gap-3 min-w-0">
+              <section.icon
+                className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
+                  hasErrors ? "text-red-600" : "text-[#0d4f4f]"
+                }`}
+              />
 
-          <button
-            type="button"
-            onClick={() => toggleSection(section.key)}
-            className={`p-1 ${hasErrors ? 'text-red-600' : 'text-gray-400'}`}
-          >
-            {isExpanded ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
-            )}
+              <div className="min-w-0">
+                <h4
+                  className={`text-sm font-semibold break-words ${
+                    hasErrors ? "text-red-900" : "text-[#0a1628]"
+                  }`}
+                >
+                  {section.label}
+                  {hasErrors && (
+                    <span className="ml-2 text-xs text-red-600">(Required)</span>
+                  )}
+                </h4>
+
+                <p
+                  className={`mt-1 text-sm leading-5 ${
+                    hasErrors ? "text-red-700" : "text-gray-600"
+                  }`}
+                >
+                  {section.description}
+                  {hasErrors && sectionErrors.length > 0 && (
+                    <span className="block mt-1 text-xs">
+                      Missing: {sectionErrors.join(", ")}
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className={`mt-0.5 flex-shrink-0 ${hasErrors ? "text-red-600" : "text-gray-400"}`}>
+              {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </div>
           </button>
         </div>
         
