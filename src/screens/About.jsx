@@ -127,18 +127,18 @@ export default function About() {
         </div>
 
         <div className="relative px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto py-20 lg:py-24">
-            <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 items-center">
+          <div className="max-w-7xl mx-auto py-14 sm:py-20 lg:py-24">
+            <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-8 sm:gap-10 items-center">
               {/* Left content */}
               <div className="max-w-3xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 mb-6">
                   <span className="w-2 h-2 rounded-full bg-[#c9a84c]" />
-                  <span className="text-[11px] uppercase tracking-[0.22em] font-semibold text-[#d8e1ea]">
+                  <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] font-semibold text-[#d8e1ea]">
                     About Pacific Market
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] text-white max-w-4xl">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.05] text-white max-w-4xl">
                   Our Ancestors Built,
                   <span className="block text-[#c9a84c] mt-1">Traded, Made, and Led.</span>
                   <span className="block mt-1">Pacific Market Continues That Legacy.</span>
@@ -146,18 +146,18 @@ export default function About() {
 
                 <div className="w-28 h-1 rounded-full bg-gradient-to-r from-[#c9a84c] via-[#00c4cc] to-transparent mt-6 mb-6" />
 
-                <p className="text-lg text-slate-300 leading-relaxed max-w-2xl">
+                <p className="text-sm sm:text-lg text-slate-300 leading-6 sm:leading-relaxed max-w-2xl">
                 Pacific Market is a premium registry designed to make Pacific-owned enterprise more visible, trusted, and respected. Built in Aotearoa and shaped by Pacific values, it honours where we come from while helping our businesses be seen clearly today.
               </p>
 
-                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-5 py-4 max-w-2xl">
-                  <p className="text-sm text-slate-200 leading-relaxed">
+                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 sm:px-5 sm:py-4 max-w-2xl">
+                  <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
                     <span className="text-[#c9a84c] font-semibold">A core belief:</span>{" "}
                     We are not starting from nothing. We are building on generations of Pacific enterprise.
                   </p>
                 </div>
 
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
                   {[
                     "Pacific-led",
                     "Legacy-led",
@@ -165,24 +165,24 @@ export default function About() {
                   ].map((chip) => (
                     <span
                       key={chip}
-                      className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-sm text-slate-200"
+                      className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/5 text-xs sm:text-sm text-slate-200"
                     >
                       {chip}
                     </span>
                   ))}
                 </div>
 
-                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-4">
                   <Link
                     href={createPageUrl("BusinessLogin")}
-                    className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm shadow-[0_12px_30px_rgba(201,168,76,0.25)]"
+                    className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all text-sm shadow-[0_12px_30px_rgba(201,168,76,0.25)] w-full sm:w-auto min-h-[44px]"
                   >
                     Submit a business <ArrowRight className="w-4 h-4" />
                   </Link>
 
                   <Link
                     href={createPageUrl("Registry")}
-                    className="inline-flex items-center justify-center gap-2 border border-[#00c4cc]/40 text-[#b3e5e5] hover:bg-[#00c4cc]/8 font-medium px-8 py-4 rounded-xl transition-all text-sm"
+                    className="inline-flex items-center justify-center gap-2 border border-[#00c4cc]/40 text-[#b3e5e5] hover:bg-[#00c4cc]/8 font-medium px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                   >
                     Explore the registry
                   </Link>
@@ -209,11 +209,11 @@ export default function About() {
       </section>
 
       {/* Opening definition card */}
-      <section className="relative z-10 -mt-10 py-12 bg-[#f8f9fc]">
+      <section className="relative z-10 -mt-8 sm:-mt-10 py-10 sm:py-12 bg-[#f8f9fc]">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="bg-white border border-gray-200/70 rounded-2xl shadow-[0_18px_50px_rgba(10,22,40,0.08)] p-8">
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-[#0a1628] flex items-center justify-center flex-shrink-0">
+          <div className="bg-white border border-gray-200/70 rounded-2xl shadow-[0_18px_50px_rgba(10,22,40,0.08)] p-5 sm:p-8">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0a1628] flex items-center justify-center flex-shrink-0">
                 <BadgeCheck className="w-5 h-5 text-[#00c4cc]" />
               </div>
 
@@ -221,14 +221,14 @@ export default function About() {
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0d4f4f]">
                   What Pacific Market is
                 </p>
-                <h2 className="text-2xl font-bold text-[#0a1628] mt-2">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#0a1628] mt-2">
                   A global registry for Pacific-owned business
                 </h2>
-                <p className="text-gray-600 mt-3 leading-relaxed">
+                <p className="text-sm sm:text-base text-gray-600 mt-3 leading-relaxed">
                   Pacific Market is more than a directory. It is a structured registry built to represent Pacific-owned enterprise with greater depth, clarity, and credibility — making businesses easier to discover while preserving the cultural context that standard business platforms often miss.
                 </p>
 
-                <div className="mt-5 flex flex-wrap gap-2">
+                <div className="mt-4 sm:mt-5 flex flex-wrap gap-2">
                   {[
                     "Legacy-led positioning",
                     "Pacific-owned business visibility",
@@ -236,7 +236,7 @@ export default function About() {
                   ].map((chip) => (
                     <span
                       key={chip}
-                      className="px-3 py-1 rounded-full border border-gray-200 bg-[#fbfcff] text-sm text-[#0a1628]/80"
+                      className="px-3 py-1 rounded-full border border-gray-200 bg-[#fbfcff] text-xs sm:text-sm text-[#0a1628]/80"
                     >
                       {chip}
                     </span>
@@ -249,23 +249,23 @@ export default function About() {
       </section>
 
       {/* Divider */}
-      <div className="w-full flex justify-center py-8">
-        <div className="w-[28rem] h-px bg-gradient-to-r from-transparent via-[#c9a84c]/30 to-transparent"></div>
+      <div className="w-full flex justify-center py-6 sm:py-8">
+        <div className="w-40 sm:w-[28rem] h-px bg-gradient-to-r from-transparent via-[#c9a84c]/30 to-transparent"></div>
       </div>
 
       {/* Why it exists */}
-      <section className="py-20 bg-[#f8f9fc]">
+      <section className="py-12 sm:py-20 bg-[#f8f9fc]">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
             <div>
               <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
                 Why we built this
               </span>
-              <h2 className="text-3xl font-bold text-[#0a1628] mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628] mb-4 sm:mb-6">
                 Because Pacific business deserves to be seen properly
               </h2>
 
-              <div className="space-y-4 text-gray-600 leading-relaxed">
+              <div className="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
                 <p>
                   Pacific-owned businesses are often undercounted, misrepresented, or absent from the places people search, study, and source from. That affects visibility, access, recognition, and long-term opportunity.
                 </p>
@@ -277,14 +277,14 @@ export default function About() {
                 </p>
               </div>
 
-              <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_12px_40px_rgba(10,22,40,0.07)]">
+              <div className="mt-6 sm:mt-8 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_12px_40px_rgba(10,22,40,0.07)]">
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="w-4 h-4 text-[#c9a84c]" />
-                  <p className="text-sm font-semibold text-[#0a1628]">
+                  <p className="text-xs sm:text-sm font-semibold text-[#0a1628]">
                     Built in Aotearoa, with a global Pacific vision
                   </p>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600">
                   Pacific Market is being built to reflect real Pacific enterprise — including businesses that may not have had polished digital visibility yet, but still carry deep value, skill, and legacy.
                 </p>
               </div>
@@ -292,7 +292,7 @@ export default function About() {
 
             <div className="relative">
               <div className="rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.10)]">
-                <div className="relative h-[420px] w-full">
+                <div className="relative h-[300px] sm:h-[420px] w-full">
                   <Image
                     src="/why_we_built_this.png"
                     alt="Pacific legacy and enterprise"
@@ -301,7 +301,7 @@ export default function About() {
                   />
                 </div>
               </div>
-              <div className="absolute -bottom-6 -left-6 max-w-xs rounded-2xl border border-[#c9a84c]/30 bg-white p-5 shadow-[0_18px_40px_rgba(10,22,40,0.10)]">
+              <div className="absolute -bottom-4 left-4 right-4 sm:-bottom-6 sm:-left-6 sm:right-auto max-w-none sm:max-w-xs rounded-2xl border border-[#c9a84c]/30 bg-white p-4 sm:p-5 shadow-[0_18px_40px_rgba(10,22,40,0.10)]">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0d4f4f] mb-2">
                   The deeper truth
                 </p>
@@ -315,25 +315,25 @@ export default function About() {
       </section>
 
       {/* Legacy section */}
-      <section className="py-20 bg-white border-y border-gray-200/70">
+      <section className="py-12 sm:py-20 bg-white border-y border-gray-200/70">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
               Pacific legacy
             </span>
-            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628] mb-4">
               Enterprise is not new to us
             </h2>
-            <p className="text-gray-500 max-w-3xl mx-auto text-sm leading-relaxed">
+            <p className="text-gray-500 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">
               Long before modern platforms, Pacific families were already building livelihoods through trade, making, hosting, selling, repairing, feeding, farming, creating, and serving. Pacific Market is a modern continuation of that same spirit — just with better visibility, better structure, and a wider stage.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {legacyCards.map((item) => (
               <div
                 key={item.title}
-                className="rounded-2xl border border-gray-200 bg-[#fbfcff] p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.10)] transition-shadow"
+                className="rounded-2xl border border-gray-200 bg-[#fbfcff] p-5 sm:p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.10)] transition-shadow"
               >
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-b from-[#0a1628] to-[#07101d] flex items-center justify-center mb-4">
                   <item.icon className={`w-5 h-5 ${item.tone}`} />
@@ -344,9 +344,9 @@ export default function About() {
             ))}
           </div>
 
-          <div className="mt-12 grid lg:grid-cols-2 gap-8 items-center">
+          <div className="mt-8 sm:mt-12 grid lg:grid-cols-2 gap-8 items-center">
             <div className="rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.08)]">
-              <div className="relative h-[320px] w-full">
+              <div className="relative h-[240px] sm:h-[320px] w-full">
                 <Image
                   src="/placeholders/about-founders-craft.jpg"
                   alt="Pacific founders placeholder"
@@ -356,7 +356,7 @@ export default function About() {
               </div>
             </div>
 
-            <div className="space-y-4 text-gray-600 leading-relaxed">
+            <div className="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
               <p>
                 For many of us, business did not arrive as a trend. It lived in our families through practical intelligence — in the people who built things, fixed things, cooked, sewed, sold, organised, hosted, and found ways to make something from what they had.
               </p>
@@ -385,7 +385,7 @@ export default function About() {
                 A Pacific Market belief
               </p>
 
-              <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white">
+              <blockquote className="text-xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white">
                 "Pacific people have never lacked enterprise.
                 <span className="block mt-2 text-[#d8e1ea]">
                   What has often been lacking is visibility."
@@ -403,25 +403,25 @@ export default function About() {
       </section>
 
       {/* Principles */}
-      <section className="py-20 bg-[#f8f9fc]">
+      <section className="py-12 sm:py-20 bg-[#f8f9fc]">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
               What guides the registry
             </span>
-            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628] mb-4">
               Built with pride, care, and structure
             </h2>
-            <p className="text-gray-500 max-w-2xl mx-auto text-sm">
+            <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">
               Pacific Market is designed to feel culturally grounded and professionally credible at the same time.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {principles.map((item) => (
               <div
                 key={item.title}
-                className="bg-white border border-gray-200/70 rounded-2xl p-6 shadow-[0_12px_40px_rgba(10,22,40,0.07)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.10)] transition-shadow"
+                className="bg-white border border-gray-200/70 rounded-2xl p-5 sm:p-6 shadow-[0_12px_40px_rgba(10,22,40,0.07)] hover:shadow-[0_18px_50px_rgba(10,22,40,0.10)] transition-shadow"
               >
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-b from-[#0a1628] to-[#07101d] flex items-center justify-center mb-4">
                   <item.icon className={`w-5 h-5 ${item.tone}`} />
@@ -435,21 +435,21 @@ export default function About() {
       </section>
 
       {/* Founders */}
-      <section className="py-24 bg-white border-y border-gray-200/70 relative overflow-hidden">
+      <section className="py-14 sm:py-24 bg-white border-y border-gray-200/70 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#c9a84c]/6 blur-3xl" />
           <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#00c4cc]/5 blur-3xl" />
         </div>
 
         <div className="relative px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8 sm:mb-14">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
               Meet the founders
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0a1628] mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0a1628] mb-4">
               Built by founders who understand both people and systems
             </h2>
-            <p className="text-gray-500 max-w-3xl mx-auto text-sm leading-relaxed">
+            <p className="text-gray-500 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">
               Pacific Market is being shaped by founders who care deeply about visibility, trust, and long-term opportunity for Pacific-owned businesses — combining digital infrastructure, relationship-building, and a real respect for where Pacific enterprise comes from.
             </p>
           </div>
@@ -457,7 +457,7 @@ export default function About() {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Jasmin */}
             <div className="group rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
-              <div className="relative h-[320px] w-full overflow-hidden">
+              <div className="relative h-[240px] sm:h-[320px] w-full overflow-hidden">
                 <Image
                   src="/placeholders/jasmin-founder.jpg"
                   alt="Jasmin Benioni placeholder"
@@ -476,11 +476,11 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="p-8">
+              <div className="p-5 sm:p-8">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#0a1628]">Jasmin Benioni</h3>
-                    <p className="text-sm font-semibold text-[#0d4f4f] mt-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628]">Jasmin Benioni</h3>
+                    <p className="text-xs sm:text-sm font-semibold text-[#0d4f4f] mt-1">
                       Founder, Technology, Systems & Platform Development
                     </p>
                   </div>
@@ -491,7 +491,7 @@ export default function About() {
                   </div>
                 </div>
 
-                <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+                <div className="space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
                   <p>
                     Jasmin is a software developer and founder of Saasy Cookies, an AI and digital infrastructure company focused on building practical systems that help businesses grow with stronger foundations.
                   </p>
@@ -512,7 +512,7 @@ export default function About() {
                   ].map((chip) => (
                     <span
                       key={chip}
-                      className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-xs text-[#0a1628]/80"
+                      className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-[11px] sm:text-xs text-[#0a1628]/80"
                     >
                       {chip}
                     </span>
@@ -542,11 +542,11 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="p-8">
+              <div className="p-5 sm:p-8">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#0a1628]">Daniel Maine</h3>
-                    <p className="text-sm font-semibold text-[#0d4f4f] mt-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628]">Daniel Maine</h3>
+                    <p className="text-xs sm:text-sm font-semibold text-[#0d4f4f] mt-1">
                       Founder, Partnerships, Visibility & Business Growth
                     </p>
                   </div>
@@ -578,7 +578,7 @@ export default function About() {
                   ].map((chip) => (
                     <span
                       key={chip}
-                      className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-xs text-[#0a1628]/80"
+                      className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-[11px] sm:text-xs text-[#0a1628]/80"
                     >
                       {chip}
                     </span>
@@ -589,18 +589,18 @@ export default function About() {
           </div>
 
           {/* Shared founder note */}
-          <div className="mt-10 rounded-[28px] border border-[#c9a84c]/20 bg-gradient-to-r from-[#fffaf0] via-white to-[#f6fffe] p-8 shadow-[0_12px_40px_rgba(10,22,40,0.05)]">
+          <div className="mt-8 sm:mt-10 rounded-[28px] border border-[#c9a84c]/20 bg-gradient-to-r from-[#fffaf0] via-white to-[#f6fffe] p-5 sm:p-8 shadow-[0_12px_40px_rgba(10,22,40,0.05)]">
             <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0d4f4f] mb-3">
                   Why this matters to us
                 </p>
-                <h3 className="text-2xl font-bold text-[#0a1628] leading-snug">
+                <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628] leading-snug">
                   We want Pacific Market to feel worthy of the people it represents.
                 </h3>
               </div>
 
-              <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+              <div className="space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
                 <p>
                   Pacific Market is not being built from distance. It is being built from lived understanding — from seeing the skill, care, hustle, and business intelligence that already exists across Pacific communities, often without the digital visibility it deserves.
                 </p>
@@ -614,7 +614,7 @@ export default function About() {
             </div>
           </div>
 
-          <div className="mt-10 text-center">
+          <div className="mt-8 sm:mt-10 text-center">
             <p className="text-sm text-gray-500">
               Want to partner, contribute, or support the visibility of Pacific-owned businesses?
             </p>
@@ -629,16 +629,16 @@ export default function About() {
       </section>
 
       {/* Trust section */}
-      <section className="py-20 bg-[#eef0f5] border-y border-gray-200/70">
+      <section className="py-12 sm:py-20 bg-[#eef0f5] border-y border-gray-200/70">
         <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
               Trust & process
             </span>
-            <h2 className="text-3xl font-bold text-[#0a1628] mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628] mb-4">
               How businesses enter the registry
             </h2>
-            <p className="text-gray-500 max-w-2xl mx-auto text-sm">
+            <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">
               Pacific Market combines a warm, community-aware approach with a structured review process designed to keep the registry useful and trustworthy.
             </p>
           </div>
@@ -646,17 +646,17 @@ export default function About() {
           <div className="relative">
             <div className="hidden lg:block absolute left-0 right-0 top-10 h-px bg-gray-300/70" />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
               {steps.map((step) => (
                 <div
                   key={step.step}
-                  className="bg-white border border-gray-200/70 rounded-2xl p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)] relative"
+                  className="bg-white border border-gray-200/70 rounded-2xl p-5 sm:p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)] relative"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#0a1628] flex items-center justify-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#0a1628] flex items-center justify-center">
                       <step.icon className="w-5 h-5 text-[#00c4cc]" />
                     </div>
-                    <span className="text-3xl font-black text-gray-200">{step.step}</span>
+                    <span className="text-2xl sm:text-3xl font-black text-gray-200">{step.step}</span>
                   </div>
                   <h3 className="font-bold text-[#0a1628] text-sm mb-2">{step.title}</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">{step.desc}</p>
@@ -665,8 +665,8 @@ export default function About() {
             </div>
           </div>
 
-          <div className="mt-10 max-w-3xl mx-auto">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)]">
+          <div className="mt-8 sm:mt-10 max-w-3xl mx-auto">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_12px_40px_rgba(10,22,40,0.06)]">
               <p className="text-sm text-gray-600 leading-relaxed">
                 <span className="font-semibold text-[#0a1628]">Note:</span> We aim to keep the process rigorous but fair. Not every business will begin with the same level of documentation or polish, and we want the registry to support visibility while improving completeness over time.
               </p>
@@ -676,32 +676,32 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#f8f9fc]">
+      <section className="py-12 sm:py-20 bg-[#f8f9fc]">
         <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
-          <div className="rounded-2xl p-12 bg-gradient-to-b from-[#0a1628] to-[#07101d] relative overflow-hidden border border-[#0d4f4f] shadow-[0_18px_60px_rgba(10,22,40,0.25)]">
+          <div className="rounded-2xl p-7 sm:p-12 bg-gradient-to-b from-[#0a1628] to-[#07101d] relative overflow-hidden border border-[#0d4f4f] shadow-[0_18px_60px_rgba(10,22,40,0.25)]">
             <div className="absolute inset-0 opacity-15 pointer-events-none">
               <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-[#c9a84c] blur-3xl" />
             </div>
 
             <div className="relative">
-              <h2 className="text-3xl font-bold text-white mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
                 Add your business to the story
               </h2>
-              <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base text-slate-300 leading-6 mb-6 sm:mb-8 max-w-2xl mx-auto">
                 Pacific business has always been here. Pacific Market helps make it visible. Join the registry and represent your work, your people, and your place in Pacific enterprise with pride.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href={createPageUrl("BusinessLogin")}
-                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm"
+                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
                   Submit a business <ArrowRight className="w-4 h-4" />
                 </Link>
 
                 <Link
                   href={createPageUrl("Registry")}
-                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm"
+                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
                   Explore the registry
                 </Link>
@@ -709,7 +709,7 @@ export default function About() {
             </div>
           </div>
 
-          <p className="text-xs text-gray-500 mt-6">
+          <p className="text-xs text-gray-500 mt-4 sm:mt-6">
             For partnerships, sponsorships, structured data access, or research enquiries, contact the Pacific Market team.
           </p>
         </div>
