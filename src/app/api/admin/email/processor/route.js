@@ -163,7 +163,7 @@ export async function POST(request) {
               // Update recipient status with provider ID
               const recipientRecord = emailToRecordMap.get(recipient.email);
               if (recipientRecord) {
-                await serviceClient
+                const { error: updateError } = await serviceClient
                   .from('email_campaign_recipients')
                   .update({
                     status: 'sent',
@@ -171,9 +171,18 @@ export async function POST(request) {
                     provider_message_id: resendResponse.data?.id
                   })
                   .eq('id', recipientRecord.id);
+
+                if (updateError) {
+                  console.error(`Failed to update recipient ${recipient.email} status to sent:`, updateError);
+                  // Don't increment sentCount if update failed
+                  continue;
+                }
+              } else {
+                console.error(`No recipient record found for email ${recipient.email}`);
+                continue;
               }
 
-              sentCount++; // Increment success counter
+              sentCount++; // Only increment on successful update
 
               await new Promise(resolve => setTimeout(resolve, 200));
 
@@ -181,13 +190,19 @@ export async function POST(request) {
               failedCount++;
               const recipientRecord = emailToRecordMap.get(recipient.email);
               if (recipientRecord) {
-                await serviceClient
+                const { error: updateError } = await serviceClient
                   .from('email_campaign_recipients')
                   .update({ 
                     status: 'failed',
                     error_message: error.message || 'Failed to send email'
                   })
                   .eq('id', recipientRecord.id);
+
+                if (updateError) {
+                  console.error(`Failed to update recipient ${recipient.email} status to failed:`, updateError);
+                }
+              } else {
+                console.error(`No recipient record found for failed email ${recipient.email}`);
               }
               
               // Log detailed error for debugging
