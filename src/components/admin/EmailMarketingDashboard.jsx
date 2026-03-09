@@ -82,16 +82,15 @@ export default function EmailMarketingDashboard() {
 
       const draftCampaigns = campaigns.filter(c => c.status === 'draft');
       
-      // Only fetch previews for campaigns we don't already have
-      const missingPreviews = draftCampaigns.filter(c => !audiencePreviews[c.id]);
-      
-      if (missingPreviews.length === 0) {
-        return; // No new previews needed
+      if (draftCampaigns.length === 0) {
+        // Clear previews if no draft campaigns
+        setAudiencePreviews({});
+        return;
       }
       
-      // Use Promise.all for parallel execution
+      // For correctness, refresh all draft previews (data may have changed)
       const results = await Promise.all(
-        missingPreviews.map(async (campaign) => {
+        draftCampaigns.map(async (campaign) => {
           const preview = await loadAudiencePreview(campaign.id);
           return {
             id: campaign.id,
@@ -100,8 +99,8 @@ export default function EmailMarketingDashboard() {
         })
       );
       
-      // Merge with existing previews
-      const newPreviews = { ...audiencePreviews };
+      // Build new previews object (fresh data)
+      const newPreviews = {};
       results.forEach(({ id, preview }) => {
         if (preview) {
           newPreviews[id] = preview;
@@ -116,25 +115,23 @@ export default function EmailMarketingDashboard() {
     }
   }, [campaigns]);
 
-  const makeApiCall = async (endpoint, options = {}) => {
-    const token = await getAuthToken();
-    
+  const makeApiCall = async (endpoint, options = {}, token) => {
     if (!token) {
-      throw new Error('Authentication required');
+      throw new Error('No authentication token available');
     }
-
+    
     const response = await fetch(`/api/admin/email/${endpoint}`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
         ...options.headers
       },
       ...options
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'API request failed' }));
+      const error = await response.json();
       throw new Error(error.error || 'API request failed');
     }
 
@@ -155,9 +152,9 @@ export default function EmailMarketingDashboard() {
 
       // Load all data in parallel
       const [campaignsData, subscribersData, templatesData] = await Promise.all([
-        makeApiCall('campaigns'),
-        makeApiCall('subscribers'),
-        makeApiCall('templates')
+        makeApiCall('campaigns', {}, token),
+        makeApiCall('subscribers', {}, token),
+        makeApiCall('templates', {}, token)
       ]);
 
       setCampaigns(campaignsData.campaigns || []);
@@ -226,6 +223,7 @@ export default function EmailMarketingDashboard() {
     if (!confirm('Are you sure you want to delete this campaign?')) return;
     
     try {
+      setError(""); // Clear previous action errors
       setDeletingCampaignId(campaignId);
       const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/campaigns/${campaignId}`, {
@@ -254,6 +252,7 @@ export default function EmailMarketingDashboard() {
     if (!confirm('Are you sure you want to delete this template?')) return;
     
     try {
+      setError(""); // Clear previous action errors
       setDeletingTemplateId(templateId);
       const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/templates`, {
@@ -282,6 +281,7 @@ export default function EmailMarketingDashboard() {
 
   const handleUpdateSubscriber = async (subscriberId, status) => {
     try {
+      setError(""); // Clear previous action errors
       setUpdatingSubscriberId(subscriberId);
       const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/subscribers`, {
@@ -345,6 +345,7 @@ export default function EmailMarketingDashboard() {
     }
 
     try {
+      setError(""); // Clear previous action errors
       setSendingCampaignId(campaignId);
       const token = await getAuthToken();
       const response = await fetch('/api/admin/email/queue-campaign', {
@@ -585,10 +586,7 @@ export default function EmailMarketingDashboard() {
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border-green-200">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      Sent
-                    </span>
+                    {getStatusBadge(campaign.status)}
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-600">
                     {campaign.recipients || 0}
@@ -886,7 +884,7 @@ export default function EmailMarketingDashboard() {
 
       <div className="bg-white border border-gray-100 rounded-xl p-6">
         <h4 className="font-semibold text-[#0a1628] mb-4">Campaign Performance</h4>
-        {campaigns.filter(c => c.status === 'sent').length === 0 ? (
+        {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             No sent campaigns yet. Send your first campaign to see performance data.
           </div>
