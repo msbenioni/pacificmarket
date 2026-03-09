@@ -24,21 +24,22 @@ export async function POST(request) {
       }
       normalizedEmail = email.toLowerCase().trim();
     } else if (token) {
-      // Token-based unsubscribe
-      const tokenResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pacificmarket.co.nz'}/api/email/token?token=${token}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (!tokenResponse.ok) {
+      // Token-based unsubscribe - validate token directly
+      const { data: tokenData, error: tokenError } = await serviceClient
+        .from('email_unsubscribe_tokens')
+        .select('email, expires_at')
+        .eq('token', token)
+        .single();
+
+      if (tokenError) {
         return Response.json({ error: 'Invalid or expired token' }, { status: 400 });
       }
-      
-      const tokenData = await tokenResponse.json();
-      if (!tokenData.success) {
-        return Response.json({ error: tokenData.error }, { status: 400 });
+
+      // Check if token is expired
+      if (new Date(tokenData.expires_at) < new Date()) {
+        return Response.json({ error: 'Token has expired' }, { status: 400 });
       }
-      
+
       normalizedEmail = tokenData.email;
     }
 

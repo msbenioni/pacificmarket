@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
+import { getSupabase } from "@/lib/supabase/client";
 
 export default function EmailMarketingDashboard() {
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -26,29 +27,36 @@ export default function EmailMarketingDashboard() {
     { id: "analytics", label: "Analytics", icon: BarChart3, category: "insights" }
   ];
 
-  const getAuthToken = () => {
-    // Get auth token from localStorage or your auth context
-    return localStorage.getItem('supabase.auth.token') || 
-           sessionStorage.getItem('supabase.auth.token');
+  const getAuthToken = async () => {
+    try {
+      const supabase = getSupabase();
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token;
+    } catch (error) {
+      console.error('Failed to get auth token:', error);
+      return null;
+    }
   };
 
   const makeApiCall = async (endpoint, options = {}) => {
-    const token = getAuthToken();
+    const token = await getAuthToken();
+    
     if (!token) {
-      throw new Error('No authentication token found');
+      throw new Error('Authentication required');
     }
 
     const response = await fetch(`/api/admin/email/${endpoint}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers
       },
       ...options
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ error: 'API request failed' }));
       throw new Error(error.error || 'API request failed');
     }
 

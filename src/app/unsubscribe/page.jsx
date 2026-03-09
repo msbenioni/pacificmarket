@@ -12,35 +12,78 @@ export default function UnsubscribePage() {
   const [loading, setLoading] = useState(false);
   const [unsubscribed, setUnsubscribed] = useState(false);
   const [error, setError] = useState("");
-  const [emailFromUrl, setEmailFromUrl] = useState("");
+  const [tokenFromUrl, setTokenFromUrl] = useState("");
+  const [isValidToken, setIsValidToken] = useState(false);
+  const [maskedEmail, setMaskedEmail] = useState("");
 
   useEffect(() => {
+    const tokenParam = searchParams.get('token');
     const emailParam = searchParams.get('email');
-    if (emailParam) {
+    
+    if (tokenParam) {
+      setTokenFromUrl(tokenParam);
+      validateToken(tokenParam);
+    } else if (emailParam) {
+      // Legacy email support
       setEmail(emailParam);
-      setEmailFromUrl(emailParam);
     }
   }, [searchParams]);
+
+  const validateToken = async (token) => {
+    try {
+      const response = await fetch(`/api/email/token?token=${token}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setIsValidToken(true);
+        if (data.email) {
+          // Mask email for privacy
+          const [username, domain] = data.email.split('@');
+          const maskedUsername = username.slice(0, 2) + '***' + username.slice(-1);
+          setMaskedEmail(`${maskedUsername}@${domain}`);
+        }
+      } else {
+        setIsValidToken(false);
+        setError('Invalid or expired unsubscribe link');
+      }
+    } catch (error) {
+      console.error('Token validation error:', error);
+      setIsValidToken(false);
+      setError('Failed to validate unsubscribe link');
+    }
+  };
 
   const handleUnsubscribe = async (e) => {
     e.preventDefault();
     
-    if (!email) {
-      setError("Please enter your email address");
-      return;
-    }
-
     setLoading(true);
     setError("");
 
     try {
+      let requestBody = {};
+      
+      if (tokenFromUrl && isValidToken) {
+        // Use token-based unsubscribe
+        requestBody = { token: tokenFromUrl };
+      } else if (email) {
+        // Legacy email support
+        requestBody = { email: email.toLowerCase().trim() };
+      } else {
+        setError("No valid unsubscribe method available");
+        return;
+      }
+
       // Call public unsubscribe API
       const response = await fetch('/api/email/unsubscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email.toLowerCase().trim() })
+        body: JSON.stringify(requestBody)
       });
 
       const data = await response.json();
@@ -153,24 +196,38 @@ export default function UnsubscribePage() {
             )}
 
             <form onSubmit={handleUnsubscribe} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                  required
-                />
-                {emailFromUrl && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    Email detected from unsubscribe link
-                  </p>
+              {tokenFromUrl && isValidToken ? (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <p className="text-sm text-green-800">
+                      <strong>Valid unsubscribe link detected</strong>
+                    </p>
+                    <p className="text-sm text-green-700 mt-1">
+                      Email: {maskedEmail}
+                    </p>
+                    <p className="text-xs text-green-600 mt-2">
+                      Click below to unsubscribe this email address
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                      required
+                    />
+                    {email && !tokenFromUrl && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        Email detected from unsubscribe link
+                      </p>
+                    )}
+                  </div>
                 )}
-              </div>
 
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-sm text-gray-600 mb-3">
