@@ -1502,7 +1502,19 @@ export default function EmailSignatureGeneratorPage() {
                         className="flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm"
                       >
                         <Copy className="w-4 h-4" />
-                        {copied ? "Copied" : "Copy HTML"}
+                        {copied ? "Copied!" : "Copy Signature"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          copyHtmlToClipboard();
+                          window.open('https://mail.google.com/mail/u/0/#settings/general', '_blank');
+                        }}
+                        className="flex items-center justify-center gap-2 bg-[#0a1628] hover:bg-[#13233a] text-white font-semibold px-4 py-3 rounded-xl transition-all text-sm"
+                      >
+                        <Copy className="w-4 h-4" />
+                        Copy for Gmail
                       </button>
 
                       <button
@@ -1517,10 +1529,10 @@ export default function EmailSignatureGeneratorPage() {
                       <button
                         type="button"
                         onClick={downloadText}
-                        className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm sm:col-span-2"
+                        className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm"
                       >
                         <FileText className="w-4 h-4" />
-                        Download Text Version
+                        Download Text
                       </button>
 
                       {mode === "business" ? (
@@ -1528,12 +1540,78 @@ export default function EmailSignatureGeneratorPage() {
                           type="button"
                           onClick={saveBusinessSignatureSettings}
                           disabled={saving}
-                          className="flex items-center justify-center gap-2 bg-[#0a1628] hover:bg-[#13233a] text-white font-semibold px-4 py-3 rounded-xl transition-all text-sm sm:col-span-2 disabled:opacity-50"
+                          className="flex items-center justify-center gap-2 bg-[#0d4f4f] hover:bg-[#0a3a3a] text-white font-semibold px-4 py-3 rounded-xl transition-all text-sm sm:col-span-2 disabled:opacity-50"
                         >
                           <Save className="w-4 h-4" />
-                          {saving ? "Saving..." : "Save Business Signature Settings"}
+                          {saving ? "Saving..." : "Save Business Signature"}
                         </button>
                       ) : null}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gmail Instructions */}
+                <div className="mt-4 bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-4 border border-[#0d4f4f]/20">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#0d4f4f] flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-[#0a1628] mb-2">How to Add to Gmail</h4>
+                      <ol className="text-sm text-gray-700 space-y-2 mb-3">
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-[#0d4f4f]">1.</span>
+                          <span>Click <strong>"Copy for Gmail"</strong> above</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-[#0d4f4f]">2.</span>
+                          <span>Gmail settings will open automatically</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-[#0d4f4f]">3.</span>
+                          <span>Scroll to <strong>"Signature"</strong> section</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-[#0d4f4f]">4.</span>
+                          <span>Click <strong>"Create new"</strong> and give it a name</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-[#0d4f4f]">5.</span>
+                          <span><strong>Ctrl+V</strong> to paste (NOT "Paste as plain text")</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-[#0d4f4f]">6.</span>
+                          <span>Set as default for new emails & replies</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-[#0d4f4f]">7.</span>
+                          <span>Click <strong>"Save Changes"</strong> at bottom</span>
+                        </li>
+                      </ol>
+                      
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p className="text-xs font-semibold text-yellow-800 mb-1">⚠️ Important Tip</p>
+                        <p className="text-xs text-yellow-700">Use <kbd className="px-1 py-0.5 bg-yellow-100 rounded text-xs font-mono">Ctrl + V</kbd> to paste. <strong>Never use "Paste as plain text"</strong> or your colors, images, and layout will break!</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Other Email Clients */}
+                <div className="mt-4 bg-white border border-gray-200 rounded-2xl p-4">
+                  <h4 className="font-semibold text-[#0a1628] mb-3">Other Email Clients</h4>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span><strong>Outlook:</strong> Use "Download HTML" and import via File &gt; Options &gt; Mail &gt; Signatures</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      <span><strong>Apple Mail:</strong> Copy signature and paste in Mail &gt; Preferences &gt; Signatures</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span><strong>Others:</strong> Most clients support HTML signatures - look for "Signature" in settings</span>
                     </div>
                   </div>
                 </div>
