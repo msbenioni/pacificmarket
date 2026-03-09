@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from 'react';
 import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
 import { getSupabase } from "@/lib/supabase/client";
 
@@ -26,9 +26,16 @@ export default function EmailMarketingDashboard() {
   const [deletingTemplateId, setDeletingTemplateId] = useState(null);
   const [updatingSubscriberId, setUpdatingSubscriberId] = useState(null);
 
-  // Derived campaign filters
-  const draftCampaigns = campaigns.filter(c => c.status === 'draft');
-  const completedCampaigns = campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors');
+  // Derived campaign filters (memoized for performance)
+  const draftCampaigns = useMemo(
+    () => campaigns.filter(c => c.status === 'draft'),
+    [campaigns]
+  );
+  
+  const completedCampaigns = useMemo(
+    () => campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors'),
+    [campaigns]
+  );
 
   const tabs = [
     { id: "campaigns", label: "Campaigns", icon: Mail, category: "creation" },
@@ -327,7 +334,8 @@ export default function EmailMarketingDashboard() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update subscriber');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to update subscriber');
       }
 
       // Reload data

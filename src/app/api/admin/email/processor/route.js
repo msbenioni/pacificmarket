@@ -78,30 +78,29 @@ export async function POST(request) {
         }
 
         // Update campaign status
-        await serviceClient
+        const { error: sendingError } = await serviceClient
           .from('email_campaigns')
           .update({ status: 'sending' })
           .eq('id', queueItem.campaign_id);
 
+        if (sendingError) {
+          throw new Error('Failed to mark campaign as sending');
+        }
+
         // Build audience recipients using centralized utility
-        const { recipients, subscriberData } = await buildAudienceRecipients(campaign, serviceClient);
+        const { recipients } = await buildAudienceRecipients(campaign, serviceClient);
 
         if (!recipients || recipients.length === 0) {
-          console.log(`No recipients found for campaign ${campaign.id}`);
-          continue; // Skip to next queue item
+          throw new Error('No valid recipients found');
         }
 
         // Create recipient records using service client (elevated access needed)
-        const recipientRecords = recipients.map(email => {
-          // Find the subscriber ID for this email
-          const subscriber = subscriberData?.find(s => s.id === email.subscriber_id);
-          return {
-            campaign_id: campaign.id,
-            subscriber_id: subscriber?.id || null,
-            email: email.email,
-            status: 'pending'
-          };
-        });
+        const recipientRecords = recipients.map((recipient) => ({
+          campaign_id: campaign.id,
+          subscriber_id: recipient.subscriber_id || null,
+          email: recipient.email,
+          status: 'pending'
+        }));
 
         const { data: insertedRecipients, error: recipientsError } = await serviceClient
           .from('email_campaign_recipients')
@@ -180,6 +179,7 @@ export async function POST(request) {
                 }
               } else {
                 console.error(`No recipient record found for email ${recipient.email}`);
+                failedCount++;
                 continue;
               }
 
@@ -234,13 +234,17 @@ export async function POST(request) {
           finalStatus = 'sent';
         }
 
-        await serviceClient
+        const { error: finalStatusError } = await serviceClient
           .from('email_campaigns')
           .update({ 
             status: finalStatus,
             sent_at: new Date().toISOString()
           })
           .eq('id', queueItem.campaign_id);
+
+        if (finalStatusError) {
+          throw new Error('Failed to update final campaign status');
+        }
 
         // Mark queue item as completed (defensive update)
         const { data: completed, error: completeError } = await serviceClient
@@ -279,7 +283,8 @@ export async function POST(request) {
           .from('email_campaign_queue')
           .update({ 
             status: 'failed',
-            error_message: errorMessage
+            error_message: errorMessage,
+            completed_at: new Date().toISOString()
           })
           .eq('id', queueItem.id)
           .eq('status', 'processing')
@@ -295,6 +300,13 @@ export async function POST(request) {
           .from('email_campaigns')
           .update({ status: 'failed' })
           .eq('id', queueItem.campaign_id);
+
+        results.push({
+          queue_item_id: queueItem.id,
+          campaign_id: queueItem.campaign_id,
+          status: 'failed',
+          error: errorMessage
+        });
       }
     }
 
