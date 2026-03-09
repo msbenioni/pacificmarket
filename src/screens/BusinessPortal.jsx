@@ -20,7 +20,6 @@ import { portalUI } from "@/components/portal/portalUI";
 import PortalBusinessCard from "@/components/portal/PortalBusinessCard";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { useToast } from "@/components/ui/toast/ToastProvider";
-import EmailSignatureGenerator from "@/components/signature/EmailSignatureGenerator";
 
 export default function BusinessPortal() {
   const [user, setUser] = useState(null);
@@ -41,7 +40,6 @@ export default function BusinessPortal() {
   const [insightsStarted, setInsightsStarted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState(null);
-  const [showSignatureGenerator, setShowSignatureGenerator] = useState(null);
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
   const { toast } = useToast();
@@ -962,15 +960,14 @@ className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c]
                     <p className="text-slate-600 text-sm mb-4">Generate QR codes linking to your registry profile or custom URL.</p>
                     <span className="text-sm font-semibold text-[#0d4f4f] group-hover:gap-2 flex items-center gap-1">Open Tool <ChevronRight className="w-4 h-4" /></span>
                   </Link>
-                  <button
-                    onClick={() => setShowSignatureGenerator('new')}
-                    className={`${portalUI.card} hover:shadow-[0_18px_45px_rgba(10,22,40,0.12)] hover:border-[#0d4f4f]/30 transition-all group text-left`}
+                  <Link href={createPageUrl("signature-generator")}
+                    className={`${portalUI.card} hover:shadow-[0_18px_45px_rgba(10,22,40,0.12)] hover:border-[#0d4f4f]/30 transition-all group`}
                   >
                     <Mail className="w-8 h-8 text-[#0d4f4f] mb-4" />
                     <h3 className="font-bold text-[#0a1628] mb-2">Email Signature</h3>
                     <p className="text-slate-600 text-sm mb-4">Create professional email signatures with your business branding.</p>
                     <span className="text-sm font-semibold text-[#0d4f4f] group-hover:gap-2 flex items-center gap-1">Open Tool <ChevronRight className="w-4 h-4" /></span>
-                  </button>
+                  </Link>
                 </div>
               ) : (
                 <div className="bg-gradient-to-br from-[#c9a84c]/10 to-[#c9a84c]/5 border border-[#c9a84c]/30 rounded-2xl p-8 text-center">
@@ -1146,27 +1143,6 @@ className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c]
           await refetchPortalData();
         }}
       />
-
-      {/* Email Signature Generator Modal */}
-      {showSignatureGenerator && (
-        <ModalWrapper 
-          isOpen={!!showSignatureGenerator} 
-          onClose={() => setShowSignatureGenerator(null)} 
-          className={MODAL_SIZES.full}
-        >
-          <ModalHeader 
-            title="Email Signature Generator"
-            onClose={() => setShowSignatureGenerator(null)}
-          />
-          
-          <ModalContent>
-            <EmailSignatureGenerator 
-              businessId={showSignatureGenerator === 'new' ? businesses[0]?.id : showSignatureGenerator}
-              userId={user?.id}
-            />
-          </ModalContent>
-        </ModalWrapper>
-      )}
     </PortalShell>
   );
 }
