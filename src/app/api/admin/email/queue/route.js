@@ -108,7 +108,7 @@ export async function GET(request) {
         email_campaigns (
           name,
           subject,
-          status as campaign_status
+          status
         )
       `)
       .order('created_at', { ascending: false });
@@ -123,7 +123,16 @@ export async function GET(request) {
       return Response.json({ error: 'Failed to fetch queue status' }, { status: 500 });
     }
 
-    return Response.json({ queue_items: queueItems });
+    // Transform data to rename campaign_status for clarity
+    const transformedItems = queueItems.map(item => ({
+      ...item,
+      email_campaigns: item.email_campaigns ? {
+        ...item.email_campaigns,
+        campaign_status: item.email_campaigns.status
+      } : null
+    }));
+
+    return Response.json({ queue_items: transformedItems });
 
   } catch (error) {
     console.error('Queue status error:', error);

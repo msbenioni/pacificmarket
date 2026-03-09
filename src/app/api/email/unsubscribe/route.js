@@ -1,9 +1,7 @@
 import { createServiceClient } from '@/lib/server-auth';
-import { Resend } from 'resend';
 
 // Create a service client for public operations
 const serviceClient = createServiceClient();
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request) {
   try {

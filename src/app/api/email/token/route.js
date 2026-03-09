@@ -1,9 +1,7 @@
 import { createServiceClient } from '@/lib/server-auth';
-import { Resend } from 'resend';
 import { randomBytes } from 'crypto';
 
 const serviceClient = createServiceClient();
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Generate secure unsubscribe token using crypto
 function generateUnsubscribeToken() {

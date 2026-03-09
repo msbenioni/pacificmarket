@@ -1,4 +1,3 @@
-import { createServiceClient } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/server-auth';
 import { extractTemplateVariables } from '@/constants/emailConstants';
 
