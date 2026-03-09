@@ -9,14 +9,14 @@ export default function EmailMarketingDashboard() {
   const [campaigns, setCampaigns] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
   const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [stats, setStats] = useState({
     totalSubscribers: 0,
     totalCampaigns: 0,
     totalSent: 0,
     avgOpenRate: 0
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [audiencePreviews, setAudiencePreviews] = useState({});
 
   const tabs = [
@@ -43,14 +43,25 @@ export default function EmailMarketingDashboard() {
   useEffect(() => {
     const loadAllPreviews = async () => {
       const draftCampaigns = campaigns.filter(c => c.status === 'draft');
-      const previews = {};
       
-      for (const campaign of draftCampaigns) {
-        const preview = await loadAudiencePreview(campaign.id);
+      // Use Promise.all for parallel execution instead of sequential
+      const results = await Promise.all(
+        draftCampaigns.map(async (campaign) => {
+          const preview = await loadAudiencePreview(campaign.id);
+          return {
+            id: campaign.id,
+            preview
+          };
+        })
+      );
+      
+      // Build previews object from results
+      const previews = {};
+      results.forEach(({ id, preview }) => {
         if (preview) {
-          previews[campaign.id] = preview;
+          previews[id] = preview;
         }
-      }
+      });
       
       setAudiencePreviews(previews);
     };
@@ -364,7 +375,7 @@ export default function EmailMarketingDashboard() {
                         <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600 capitalize">{campaign.audience?.replace('_', ' ') || 'N/A'}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600 capitalize">{campaign.audience?.replace(/_/g, ' ') || 'N/A'}</td>
                     <td className="px-4 py-4">{getStatusBadge(campaign.status)}</td>
                     <td className="px-4 py-4 text-sm text-gray-600">
                       {campaign.recipients > 0 ? campaign.recipients.toLocaleString() : '-'}
@@ -466,7 +477,10 @@ export default function EmailMarketingDashboard() {
                           <Send className="w-4 h-4" />
                           Queue Send
                         </button>
-                        <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2">
+                        <button 
+                          onClick={() => handleQuickTest(campaign.id)}
+                          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
+                        >
                           <Eye className="w-4 h-4" />
                           Test
                         </button>
