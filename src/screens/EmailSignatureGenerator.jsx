@@ -439,7 +439,6 @@ export default function EmailSignatureGeneratorPage() {
 
   const [openSections, setOpenSections] = useState([
     "business",
-    "details",
     "contact",
     "brand",
   ]);
@@ -664,13 +663,6 @@ export default function EmailSignatureGeneratorPage() {
     return signature.business_name || "Custom signature";
   };
 
-  const getDetailsSummary = () => {
-    const parts = [];
-    if (signature.full_name) parts.push(signature.full_name);
-    if (signature.job_title) parts.push(signature.job_title);
-    return parts.join(" · ") || "No sender details yet";
-  };
-
   const getContactSummary = () => {
     const parts = [];
     if (signature.email) parts.push(signature.email);
@@ -684,21 +676,6 @@ export default function EmailSignatureGeneratorPage() {
     if (signature.include_badge) parts.push("Badge on");
     parts.push(signature.template || "modern");
     return parts.join(" · ");
-  };
-
-  const applyTemplate = (templateId) => {
-    const template = SIGNATURE_TEMPLATES[templateId];
-    if (!template) return;
-
-    isUserEditingRef.current = true;
-    setActiveSignature((prev) => ({
-      ...prev,
-      template: templateId,
-      brand_primary: template.colors.primary,
-      brand_secondary: template.colors.secondary,
-      brand_accent: template.colors.accent,
-      text_color: template.colors.text,
-    }));
   };
 
   const handleBusinessChange = (nextId) => {
@@ -1175,44 +1152,6 @@ export default function EmailSignatureGeneratorPage() {
                         className={inputCls}
                         placeholder="Pacific Market"
                       />
-                    </div>
-                  </div>
-                </SignatureAccordionSection>
-
-                {/* Signature Details */}
-                <SignatureAccordionSection
-                  title="Signature Details"
-                  subtitle="Template and sender presentation"
-                  summary={getDetailsSummary()}
-                  icon={Briefcase}
-                  isOpen={openSections.includes("details")}
-                  onToggle={() => toggleSection("details")}
-                >
-                  <div className="mb-4">
-                    <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-2">
-                      Choose Template
-                    </label>
-
-                    <div className="grid gap-3">
-                      {Object.values(SIGNATURE_TEMPLATES).map((template) => (
-                        <button
-                          key={template.id}
-                          type="button"
-                          onClick={() => applyTemplate(template.id)}
-                          className={`p-4 rounded-xl border-2 text-left transition-all ${
-                            signature.template === template.id
-                              ? "border-[#0d4f4f] bg-[#0d4f4f]/5"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                        >
-                          <div className="font-semibold text-[#0a1628]">
-                            {template.name}
-                          </div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            {template.description}
-                          </div>
-                        </button>
-                      ))}
                     </div>
                   </div>
                 </SignatureAccordionSection>
