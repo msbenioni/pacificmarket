@@ -1,41 +1,20 @@
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { requireAdmin } from '@/lib/server-auth';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get all needed clients
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const { userClient } = auth;
 
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
-    // Fetch campaigns with recipient counts
-    const { data: campaigns, error } = await supabase
+    // Fetch campaigns using user client (respects RLS)
+    const { data: campaigns, error } = await userClient
       .from('email_campaigns')
       .select(`
         *,
@@ -73,35 +52,13 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get all needed clients
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { user, userClient } = auth;
     const { name, subject, html_content, audience, testEmail } = await request.json();
 
     // Validate required fields
@@ -110,7 +67,7 @@ export async function POST(request) {
     }
 
     if (testEmail) {
-      // Send test email
+      // Send test email using service client (requires elevated access for email sending)
       try {
         const { data, error } = await resend.emails.send({
           from: 'Pacific Market <hello@pacificmarket.co.nz>',
@@ -134,8 +91,8 @@ export async function POST(request) {
         return Response.json({ error: 'Failed to send test email' }, { status: 500 });
       }
     } else {
-      // Create campaign
-      const { data: campaign, error } = await supabase
+      // Create campaign using user client (respects RLS)
+      const { data: campaign, error } = await userClient
         .from('email_campaigns')
         .insert({
           name,

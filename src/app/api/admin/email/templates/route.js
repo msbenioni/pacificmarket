@@ -1,38 +1,17 @@
-import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/server-auth';
 
 export async function GET(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get user client
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const { userClient } = auth;
 
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
-    // Fetch templates
-    const { data: templates, error } = await supabase
+    // Fetch templates using user client (respects RLS)
+    const { data: templates, error } = await userClient
       .from('email_templates')
       .select('*')
       .order('created_at', { ascending: false });
@@ -51,35 +30,13 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get user client
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { user, userClient } = auth;
     const { name, subject, html_content, variables } = await request.json();
 
     // Validate required fields
@@ -95,8 +52,8 @@ export async function POST(request) {
       templateVariables = matches.map(match => match.replace(/[{}]/g, ''));
     }
 
-    // Create template
-    const { data: template, error } = await supabase
+    // Create template using user client (respects RLS)
+    const { data: template, error } = await userClient
       .from('email_templates')
       .insert({
         name,
@@ -126,42 +83,20 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get user client
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { userClient } = auth;
     const { templateId, name, subject, html_content, variables } = await request.json();
 
     if (!templateId) {
       return Response.json({ error: 'Template ID required' }, { status: 400 });
     }
 
-    // Update template
+    // Update template using user client (respects RLS)
     const updateData = {};
     if (name) updateData.name = name;
     if (subject) updateData.subject = subject;
@@ -176,7 +111,7 @@ export async function PUT(request) {
     }
     if (variables) updateData.variables = variables;
 
-    const { data: template, error } = await supabase
+    const { data: template, error } = await userClient
       .from('email_templates')
       .update(updateData)
       .eq('id', templateId)
@@ -201,42 +136,20 @@ export async function PUT(request) {
 
 export async function DELETE(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get user client
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { userClient } = auth;
     const { templateId } = await request.json();
 
     if (!templateId) {
       return Response.json({ error: 'Template ID required' }, { status: 400 });
     }
 
-    const { error } = await supabase
+    const { error } = await userClient
       .from('email_templates')
       .delete()
       .eq('id', templateId);

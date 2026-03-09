@@ -1,42 +1,20 @@
-import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/server-auth';
 
 export async function GET(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get user client
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { userClient } = auth;
     const { searchParams } = new URL(request.url);
     const source = searchParams.get('source');
     const status = searchParams.get('status');
 
-    // Build query
-    let query = supabase
+    // Build query using user client (respects RLS)
+    let query = userClient
       .from('email_subscribers')
       .select(`
         *,
@@ -81,35 +59,13 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get both clients
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { serviceClient } = auth;
     const { subscribers, source } = await request.json();
 
     if (!subscribers || !Array.isArray(subscribers) || subscribers.length === 0) {
@@ -127,7 +83,7 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // Insert subscribers using upsert to handle duplicates
+    // Insert subscribers using service client (elevated access needed)
     const subscriberRecords = subscribers.map(subscriber => ({
       email: subscriber.email.toLowerCase(),
       first_name: subscriber.first_name || 'Business Owner',
@@ -135,7 +91,7 @@ export async function POST(request) {
       status: 'subscribed'
     }));
 
-    const { data, error } = await supabase
+    const { data, error } = await serviceClient
       .from('email_subscribers')
       .upsert(subscriberRecords, { 
         onConflict: 'email',
@@ -161,35 +117,13 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get user client
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { userClient } = auth;
     const { subscriberId, status } = await request.json();
 
     if (!subscriberId || !status) {
@@ -201,7 +135,7 @@ export async function PUT(request) {
       return Response.json({ error: 'Invalid status' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await userClient
       .from('email_subscribers')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', subscriberId)

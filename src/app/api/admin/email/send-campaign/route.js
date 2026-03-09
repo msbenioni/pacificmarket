@@ -1,47 +1,25 @@
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { requireAdmin } from '@/lib/server-auth';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Authenticate admin and get both clients
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return Response.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return Response.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
+    const { userClient, serviceClient } = auth;
     const { campaignId } = await request.json();
 
     if (!campaignId) {
       return Response.json({ error: 'Campaign ID required' }, { status: 400 });
     }
 
-    // Fetch campaign details
-    const { data: campaign, error: campaignError } = await supabase
+    // Fetch campaign details using user client (respects RLS)
+    const { data: campaign, error: campaignError } = await userClient
       .from('email_campaigns')
       .select('*')
       .eq('id', campaignId)
@@ -55,12 +33,12 @@ export async function POST(request) {
       return Response.json({ error: 'Campaign already sent' }, { status: 400 });
     }
 
-    // Get audience emails based on campaign audience
+    // Get audience emails based on campaign audience using service client
     let emails = [];
     
     switch (campaign.audience) {
       case 'all':
-        const { data: allSubscribers } = await supabase
+        const { data: allSubscribers } = await serviceClient
           .from('email_subscribers')
           .select('email, first_name')
           .eq('status', 'subscribed');
@@ -68,7 +46,7 @@ export async function POST(request) {
         break;
 
       case 'business_owners':
-        const { data: businessOwners } = await supabase
+        const { data: businessOwners } = await serviceClient
           .from('profiles')
           .select('email, display_name as first_name')
           .in('role', ['business', 'admin']);
@@ -76,14 +54,14 @@ export async function POST(request) {
         break;
 
       case 'mana_plan':
-        const { data: manaBusinesses } = await supabase
+        const { data: manaBusinesses } = await serviceClient
           .from('businesses')
           .select('owner_user_id')
           .eq('subscription_tier', 'mana');
         
         const manaOwnerIds = manaBusinesses?.map(b => b.owner_user_id).filter(Boolean);
         if (manaOwnerIds.length > 0) {
-          const { data: manaOwners } = await supabase
+          const { data: manaOwners } = await serviceClient
             .from('profiles')
             .select('email, display_name as first_name')
             .in('id', manaOwnerIds);
@@ -92,14 +70,14 @@ export async function POST(request) {
         break;
 
       case 'moana_plan':
-        const { data: moanaBusinesses } = await supabase
+        const { data: moanaBusinesses } = await serviceClient
           .from('businesses')
           .select('owner_user_id')
           .eq('subscription_tier', 'moana');
         
         const moanaOwnerIds = moanaBusinesses?.map(b => b.owner_user_id).filter(Boolean);
         if (moanaOwnerIds.length > 0) {
-          const { data: moanaOwners } = await supabase
+          const { data: moanaOwners } = await serviceClient
             .from('profiles')
             .select('email, display_name as first_name')
             .in('id', moanaOwnerIds);
@@ -108,25 +86,34 @@ export async function POST(request) {
         break;
 
       case 'referral_participants':
-        const { data: referrers } = await supabase
+        const { data: referrers } = await serviceClient
           .from('referrals')
           .select('referrer_business_id')
           .eq('status', 'approved');
         
         const referrerBusinessIds = referrers?.map(r => r.referrer_business_id).filter(Boolean);
         if (referrerBusinessIds.length > 0) {
-          const { data: referrerBusinesses } = await supabase
+          const { data: referrerBusinesses } = await serviceClient
             .from('businesses')
-            .select('owner_user_id')
+            .select('owner_user_id, business_handle')
             .in('id', referrerBusinessIds);
           
           const referrerOwnerIds = referrerBusinesses?.map(b => b.owner_user_id).filter(Boolean);
           if (referrerOwnerIds.length > 0) {
-            const { data: referrerOwners } = await supabase
+            const { data: referrerOwners } = await serviceClient
               .from('profiles')
-              .select('email, display_name as first_name')
+              .select('id, email, display_name')
               .in('id', referrerOwnerIds);
-            emails = referrerOwners || [];
+            
+            // Combine with business handles for personalization
+            emails = referrerOwners?.map(owner => {
+              const business = referrerBusinesses?.find(b => b.owner_user_id === owner.id);
+              return {
+                email: owner.email,
+                first_name: owner.display_name,
+                business_handle: business?.business_handle
+              };
+            }) || [];
           }
         }
         break;
@@ -139,25 +126,25 @@ export async function POST(request) {
       return Response.json({ error: 'No subscribers found for this audience' }, { status: 400 });
     }
 
-    // Update campaign status to sending
-    await supabase
+    // Update campaign status to sending using user client
+    await userClient
       .from('email_campaigns')
       .update({ status: 'sending' })
       .eq('id', campaignId);
 
-    // Create recipient records
+    // Create recipient records using service client (elevated access needed)
     const recipientRecords = emails.map(email => ({
       campaign_id: campaignId,
       email: email.email,
       status: 'pending'
     }));
 
-    const { error: recipientsError } = await supabase
+    const { error: recipientsError } = await serviceClient
       .from('email_campaign_recipients')
       .insert(recipientRecords);
 
     if (recipientsError) {
-      await supabase
+      await userClient
         .from('email_campaigns')
         .update({ status: 'draft' })
         .eq('id', campaignId);
@@ -182,15 +169,8 @@ export async function POST(request) {
           
           // Add referral link if template requires it
           if (personalizedHtml.includes('{{referral_link}}')) {
-            // Get business handle for referral link
-            const { data: userBusiness } = await supabase
-              .from('businesses')
-              .select('business_handle')
-              .eq('owner_user_id', user.id)
-              .single();
-            
-            const referralLink = userBusiness?.business_handle 
-              ? `https://www.pacificmarket.co.nz/register/${userBusiness.business_handle}`
+            const referralLink = recipient.business_handle 
+              ? `https://www.pacificmarket.co.nz/register/${recipient.business_handle}`
               : 'https://www.pacificmarket.co.nz';
             
             personalizedHtml = personalizedHtml.replace(/\{\{referral_link\}\}/g, referralLink);
@@ -209,7 +189,7 @@ export async function POST(request) {
             failedCount++;
             
             // Update recipient status to failed
-            await supabase
+            await serviceClient
               .from('email_campaign_recipients')
               .update({ status: 'failed' })
               .eq('campaign_id', campaignId)
@@ -218,7 +198,7 @@ export async function POST(request) {
             sentCount++;
             
             // Update recipient status to sent
-            await supabase
+            await serviceClient
               .from('email_campaign_recipients')
               .update({ status: 'sent', sent_at: new Date().toISOString() })
               .eq('campaign_id', campaignId)
@@ -233,7 +213,7 @@ export async function POST(request) {
           failedCount++;
           
           // Update recipient status to failed
-          await supabase
+          await serviceClient
             .from('email_campaign_recipients')
             .update({ status: 'failed' })
             .eq('campaign_id', campaignId)
@@ -247,8 +227,8 @@ export async function POST(request) {
       }
     }
 
-    // Update campaign status
-    await supabase
+    // Update campaign status using user client
+    await userClient
       .from('email_campaigns')
       .update({ 
         status: 'sent',

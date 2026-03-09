@@ -9,6 +9,7 @@ export default function EmailMarketingDashboard() {
   const [subscribers, setSubscribers] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [stats, setStats] = useState({
     totalSubscribers: 0,
     totalCampaigns: 0,
@@ -23,96 +24,78 @@ export default function EmailMarketingDashboard() {
     { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 
-  useEffect(() => {
-    loadEmailData();
-  }, []);
+  const getAuthToken = () => {
+    // Get auth token from localStorage or your auth context
+    return localStorage.getItem('supabase.auth.token') || 
+           sessionStorage.getItem('supabase.auth.token');
+  };
+
+  const makeApiCall = async (endpoint, options = {}) => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`/api/admin/email/${endpoint}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      ...options
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'API request failed');
+    }
+
+    return response.json();
+  };
 
   const loadEmailData = async () => {
     try {
       setLoading(true);
-      // In real implementation, fetch from API
-      // For now, use mock data
+      setError("");
+
+      // Load all data in parallel
+      const [campaignsData, subscribersData, templatesData] = await Promise.all([
+        makeApiCall('campaigns'),
+        makeApiCall('subscribers'),
+        makeApiCall('templates')
+      ]);
+
+      setCampaigns(campaignsData.campaigns || []);
+      setSubscribers(subscribersData.subscribers || []);
+      setTemplates(templatesData.templates || []);
+
+      // Calculate stats from real data
+      const totalSent = campaignsData.campaigns?.reduce((sum, campaign) => 
+        sum + (Number(campaign.recipients) || 0), 0) || 0;
       
-      setCampaigns([
-        {
-          id: 1,
-          name: "Pacific Market Relaunch",
-          subject: "🌺 Pacific Market is Relaunching - Exciting Updates Inside!",
-          audience: "all",
-          status: "sent",
-          sent_at: "2026-03-01T10:00:00Z",
-          recipients: 245,
-          opens: 98,
-          clicks: 23
-        },
-        {
-          id: 2,
-          name: "Referral Program Launch",
-          subject: "🎉 Refer Businesses & Win a Free Website!",
-          audience: "business_owners",
-          status: "draft",
-          created_at: "2026-03-08T15:30:00Z",
-          recipients: 0,
-          opens: 0,
-          clicks: 0
-        }
-      ]);
-
-      setSubscribers([
-        {
-          id: 1,
-          email: "john@island-pepe.co.nz",
-          first_name: "John",
-          business_name: "Island Pepe",
-          source: "business_signup",
-          status: "subscribed",
-          created_at: "2026-02-15T08:00:00Z"
-        },
-        {
-          id: 2,
-          email: "sarah@tangata-whenua.com",
-          first_name: "Sarah",
-          business_name: "Tangata Whenua Carving",
-          source: "referral",
-          status: "subscribed",
-          created_at: "2026-02-20T14:30:00Z"
-        }
-      ]);
-
-      setTemplates([
-        {
-          id: 1,
-          name: "Pacific Market Relaunch",
-          subject: "🌺 Pacific Market is Relaunching - Exciting Updates Inside!",
-          variables: ["first_name", "email"]
-        },
-        {
-          id: 2,
-          name: "Referral Program Launch", 
-          subject: "🎉 Refer Businesses & Win a Free Website!",
-          variables: ["first_name", "email", "referral_link"]
-        },
-        {
-          id: 3,
-          name: "Moana Upgrade Offer",
-          subject: "🚀 Unlock Powerful Business Tools - Upgrade to Moana",
-          variables: ["first_name", "email"]
-        }
-      ]);
+      const totalOpens = campaignsData.campaigns?.reduce((sum, campaign) => 
+        sum + (Number(campaign.opens) || 0), 0) || 0;
+      
+      const avgOpenRate = totalSent > 0 ? Math.round((totalOpens / totalSent) * 100) : 0;
 
       setStats({
-        totalSubscribers: 245,
-        totalCampaigns: 2,
-        totalSent: 245,
-        avgOpenRate: 40.0
+        totalSubscribers: subscribersData.subscribers?.length || 0,
+        totalCampaigns: campaignsData.campaigns?.length || 0,
+        totalSent,
+        avgOpenRate
       });
 
     } catch (error) {
       console.error('Error loading email data:', error);
+      setError(error.message || 'Failed to load email data');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadEmailData();
+  }, []);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -122,6 +105,8 @@ export default function EmailMarketingDashboard() {
         return <Clock className="w-4 h-4 text-gray-400" />;
       case "scheduled":
         return <AlertCircle className="w-4 h-4 text-blue-600" />;
+      case "sending":
+        return <AlertCircle className="w-4 h-4 text-yellow-600" />;
       default:
         return <Clock className="w-4 h-4 text-gray-400" />;
     }
@@ -131,7 +116,8 @@ export default function EmailMarketingDashboard() {
     const styles = {
       sent: "bg-green-100 text-green-700 border-green-200",
       draft: "bg-gray-100 text-gray-700 border-gray-200", 
-      scheduled: "bg-blue-100 text-blue-700 border-blue-200"
+      scheduled: "bg-blue-100 text-blue-700 border-blue-200",
+      sending: "bg-yellow-100 text-yellow-700 border-yellow-200"
     };
     
     return (
@@ -141,6 +127,109 @@ export default function EmailMarketingDashboard() {
       </span>
     );
   };
+
+  const handleDeleteCampaign = async (campaignId) => {
+    if (!confirm('Are you sure you want to delete this campaign?')) return;
+    
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`/api/admin/email/campaigns/${campaignId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete campaign');
+      }
+
+      // Reload data
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+      setError(error.message || 'Failed to delete campaign');
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId) => {
+    if (!confirm('Are you sure you want to delete this template?')) return;
+    
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`/api/admin/email/templates`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ templateId })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete template');
+      }
+
+      // Reload data
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      setError(error.message || 'Failed to delete template');
+    }
+  };
+
+  const handleUpdateSubscriber = async (subscriberId, status) => {
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`/api/admin/email/subscribers`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ subscriberId, status })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update subscriber');
+      }
+
+      // Reload data
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error updating subscriber:', error);
+      setError(error.message || 'Failed to update subscriber');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0d4f4f]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600" />
+          <div>
+            <h4 className="font-semibold text-red-800">Error loading data</h4>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
+            <button 
+              onClick={loadEmailData}
+              className="mt-3 text-sm text-red-600 hover:text-red-800 underline"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const renderCampaigns = () => (
     <div className="space-y-6">
@@ -166,37 +255,48 @@ export default function EmailMarketingDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {campaigns.map((campaign) => (
-                <tr key={campaign.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4">
-                    <div>
-                      <div className="font-medium text-[#0a1628]">{campaign.name}</div>
-                      <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600 capitalize">{campaign.audience.replace('_', ' ')}</td>
-                  <td className="px-4 py-4">{getStatusBadge(campaign.status)}</td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {campaign.recipients > 0 ? campaign.recipients.toLocaleString() : '-'}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {campaign.recipients > 0 ? `${Math.round((campaign.opens / campaign.recipients) * 100)}%` : '-'}
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="text-gray-400 hover:text-red-600">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+              {campaigns.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="colSpan={6} px-4 py-8 text-center text-gray-500">
+                    No campaigns yet. Create your first campaign to get started.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                campaigns.map((campaign) => (
+                  <tr key={campaign.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4">
+                      <div>
+                        <div className="font-medium text-[#0a1628]">{campaign.name}</div>
+                        <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600 capitalize">{campaign.audience?.replace('_', ' ') || 'N/A'}</td>
+                    <td className="px-4 py-4">{getStatusBadge(campaign.status)}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {campaign.recipients > 0 ? campaign.recipients.toLocaleString() : '-'}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {campaign.recipients > 0 ? `${campaign.open_rate || 0}%` : '-'}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteCampaign(campaign.id)}
+                          className="text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -279,37 +379,59 @@ export default function EmailMarketingDashboard() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {subscribers.map((subscriber) => (
-                <tr key={subscriber.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4">
-                    <div>
-                      <div className="font-medium text-[#0a1628]">{subscriber.first_name}</div>
-                      <div className="text-sm text-gray-500">{subscriber.email}</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">{subscriber.business_name}</td>
-                  <td className="px-4 py-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                      {subscriber.source.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      subscriber.status === 'subscribed' 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {subscriber.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {new Date(subscriber.created_at).toLocaleDateString()}
+              {subscribers.length === 0 ? (
+                <tr>
+                  <td className="px-4 py-8 text-center text-gray-500">
+                    No subscribers yet. Import subscribers or they'll be added automatically when users sign up.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                subscribers.map((subscriber) => (
+                  <tr key={subscriber.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4">
+                      <div>
+                        <div className="font-medium text-[#0a1628]">{subscriber.first_name}</div>
+                        <div className="text-sm text-gray-500">{subscriber.email}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{subscriber.business_name}</td>
+                    <td className="px-4 py-4">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        {subscriber.source?.replace('_', ' ') || 'N/A'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        subscriber.status === 'subscribed' 
+                          ? 'bg-green-100 text-green-700' 
+                          : subscriber.status === 'unsubscribed'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {subscriber.status || 'unknown'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {new Date(subscriber.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-4">
+                      <select
+                        value={subscriber.status}
+                        onChange={(e) => handleUpdateSubscriber(subscriber.id, e.target.value)}
+                        className="text-xs border border-gray-200 rounded px-2 py-1"
+                      >
+                        <option value="subscribed">Subscribed</option>
+                        <option value="unsubscribed">Unsubscribed</option>
+                        <option value="bounced">Bounced</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -328,40 +450,51 @@ export default function EmailMarketingDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {templates.map((template) => (
-          <div key={template.id} className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h4 className="font-semibold text-[#0a1628]">{template.name}</h4>
-                <p className="text-sm text-gray-600 mt-1 line-clamp-2">{template.subject}</p>
-              </div>
-              <div className="flex items-center gap-1">
-                <button className="text-gray-400 hover:text-gray-600">
-                  <Edit className="w-4 h-4" />
-                </button>
-                <button className="text-gray-400 hover:text-red-600">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <div className="text-sm text-gray-600 mb-2">Variables:</div>
-              <div className="flex flex-wrap gap-1">
-                {template.variables.map((variable) => (
-                  <span key={variable} className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
-                    {`{{${variable}}}`}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            <button className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2">
-              <Send className="w-4 h-4" />
-              Use Template
-            </button>
+        {templates.length === 0 ? (
+          <div className="col-span-full bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">No templates yet</h3>
+            <p className="text-sm text-gray-500">Create your first email template to get started.</p>
           </div>
-        ))}
+        ) : (
+          templates.map((template) => (
+            <div key={template.id} className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h4 className="font-semibold text-[#0a1628]">{template.name}</h4>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{template.subject}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button className="text-gray-400 hover:text-gray-600">
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteTemplate(template.id)}
+                    className="text-gray-400 hover:text-red-600"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <div className="text-sm text-gray-600 mb-2">Variables:</div>
+                <div className="flex flex-wrap gap-1">
+                  {(template.variables || []).map((variable) => (
+                    <span key={variable} className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
+                      {`{{${variable}}}`}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <button className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2">
+                <Send className="w-4 h-4" />
+                Use Template
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
@@ -419,47 +552,47 @@ export default function EmailMarketingDashboard() {
 
       <div className="bg-white border border-gray-100 rounded-xl p-6">
         <h4 className="font-semibold text-[#0a1628] mb-4">Campaign Performance</h4>
-        <div className="space-y-4">
-          {campaigns.filter(c => c.status === 'sent').map((campaign) => (
-            <div key={campaign.id} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex justify-between items-center mb-3">
-                <h5 className="font-medium text-[#0a1628]">{campaign.name}</h5>
-                <span className="text-sm text-gray-500">{new Date(campaign.sent_at).toLocaleDateString()}</span>
-              </div>
-              <div className="grid grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-lg font-semibold text-[#0a1628]">{campaign.recipients}</div>
-                  <div className="text-xs text-gray-600">Sent</div>
+        {campaigns.filter(c => c.status === 'sent').length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No sent campaigns yet. Send your first campaign to see performance data.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {campaigns.filter(c => c.status === 'sent').map((campaign) => (
+              <div key={campaign.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h5 className="font-medium text-[#0a1628]">{campaign.name}</h5>
+                  <span className="text-sm text-gray-500">
+                    {campaign.sent_at ? new Date(campaign.sent_at).toLocaleDateString() : 'Recently'}
+                  </span>
                 </div>
-                <div>
-                  <div className="text-lg font-semibold text-green-600">{campaign.opens}</div>
-                  <div className="text-xs text-gray-600">Opens</div>
-                </div>
-                <div>
-                  <div className="text-lg font-semibold text-blue-600">{campaign.clicks}</div>
-                  <div className="text-xs text-gray-600">Clicks</div>
-                </div>
-                <div>
-                  <div className="text-lg font-semibold text-purple-600">
-                    {Math.round((campaign.opens / campaign.recipients) * 100)}%
+                <div className="grid grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-lg font-semibold text-[#0a1628]">{campaign.recipients || 0}</div>
+                    <div className="text-xs text-gray-600">Sent</div>
                   </div>
-                  <div className="text-xs text-gray-600">Open Rate</div>
+                  <div>
+                    <div className="text-lg font-semibold text-green-600">{campaign.opens || 0}</div>
+                    <div className="text-xs text-gray-600">Opens</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-blue-600">{campaign.clicks || 0}</div>
+                    <div className="text-xs text-gray-600">Clicks</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-purple-600">
+                      {campaign.open_rate || 0}%
+                    </div>
+                    <div className="text-xs text-gray-600">Open Rate</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0d4f4f]"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-6">
