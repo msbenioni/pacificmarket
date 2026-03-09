@@ -146,6 +146,11 @@ export async function POST(request) {
                 html: personalizedHtml
               });
 
+              // Validate Resend response before treating as success
+              if (!resendResponse || resendResponse.error) {
+                throw new Error(`Resend API error: ${resendResponse?.error?.message || 'Unknown error'}`);
+              }
+
               // Update recipient status with provider ID
               const recipientRecord = emailToRecordMap.get(recipient.email);
               if (recipientRecord) {
@@ -159,7 +164,7 @@ export async function POST(request) {
                   .eq('id', recipientRecord.id);
               }
 
-              sentCount++; // ✅ Increment success counter
+              sentCount++; // Increment success counter
 
               await new Promise(resolve => setTimeout(resolve, 200));
 
@@ -169,9 +174,19 @@ export async function POST(request) {
               if (recipientRecord) {
                 await serviceClient
                   .from('email_campaign_recipients')
-                  .update({ status: 'failed' })
+                  .update({ 
+                    status: 'failed',
+                    error_message: error.message || 'Failed to send email'
+                  })
                   .eq('id', recipientRecord.id);
               }
+              
+              // Log detailed error for debugging
+              console.error(`Failed to send email to ${recipient.email}:`, {
+                error: error.message,
+                recipient: recipient.email,
+                campaign: campaign.id
+              });
             }
           }
 
