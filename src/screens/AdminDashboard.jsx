@@ -2,178 +2,74 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { createPageUrl } from "@/utils";
+import { useAuth } from "@/lib/AuthContext";
 import { getSupabase } from "@/lib/supabase/client";
+import toast from "react-hot-toast";
 import {
   Building2,
-  Plus,
-  Edit,
-  Star,
-  Shield,
   CheckCircle,
-  ChevronRight,
-  AlertTriangle,
-  Trash2,
-  Search,
-  Users,
-  X,
-  Filter,
   Clock,
   XCircle,
+  Users,
+  Shield,
+  Search,
+  Filter,
   Download,
-  Eye,
+  Plus,
+  AlertTriangle,
+  ChevronRight,
 } from "lucide-react";
-import DetailedBusinessForm, { FORM_MODES } from "@/components/forms/DetailedBusinessForm";
-import {
-  COUNTRIES,
-  INDUSTRIES,
-  BUSINESS_STATUS,
-  BUSINESS_TIER,
-  BUSINESS_SOURCE,
-  getTierDisplayName,
-  getCountryDisplayName,
-  getIndustryDisplayName,
-} from "@/constants/unifiedConstants";
-import HeroRegistry from "@/components/shared/HeroRegistry";
-import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
-import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
+
 import PortalShell from "@/components/portal/PortalShell";
-import { useToast } from "@/components/ui/toast/ToastProvider";
+import HeroRegistry from "@/components/shared/HeroRegistry";
+import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
+import { COUNTRIES, INDUSTRIES, getCountryDisplayName, getIndustryDisplayName, getTierDisplayName } from "@/constants/unifiedConstants";
+
+function createPageUrl(page) {
+  return `/${page}`;
+}
 
 const TABS = [
   { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
   { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
   { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
   { id: "insights", label: "Insights", icon: Users, color: "text-purple-600" },
-  { id: "rejected", label: "Rejected", icon: XCircle, color: "text-red-500", status: BUSINESS_STATUS.REJECTED },
 ];
 
-const getBadgeStyles = (variant) => {
+const buttonCls = "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all";
+const primaryButtonCls = `${buttonCls} bg-[#0a1628] text-white hover:bg-[#122040]`;
+const secondaryButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
+const mobileButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
+const filterButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
+
+function getBadgeStyles(type) {
   const styles = {
-    success: "bg-green-100 text-green-800 border-green-200",
-    warning: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    danger: "bg-red-100 text-red-800 border-red-200",
-    info: "bg-blue-100 text-blue-800 border-blue-200",
-    premium: "bg-amber-100 text-amber-800 border-amber-200",
-    neutral: "bg-gray-100 text-gray-800 border-gray-200",
+    success: "border-green-200 bg-green-50 text-green-700",
+    danger: "border-red-200 bg-red-50 text-red-700",
+    warning: "border-yellow-200 bg-yellow-50 text-yellow-700",
+    info: "border-blue-200 bg-blue-50 text-blue-700",
+    neutral: "border-gray-200 bg-gray-50 text-gray-700",
+    premium: "border-purple-200 bg-purple-50 text-purple-700",
   };
-  return styles[variant] || styles.neutral;
-};
-
-const mobileButtonCls =
-  "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition";
-const primaryButtonCls =
-  `${mobileButtonCls} bg-[#0a1628] text-white hover:bg-[#122040]`;
-const secondaryButtonCls =
-  `${mobileButtonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
-const filterButtonCls =
-  `${mobileButtonCls} border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200`;
-
-function AdminBusinessMobileCard({
-  business,
-  onApprove,
-  onReject,
-  onEdit,
-  onDelete,
-}) {
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          {business.logo_url ? (
-            <img
-              src={business.logo_url}
-              alt=""
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                console.warn('Failed to load mobile business logo:', business.logo_url);
-                e.currentTarget.src = '/pm_logo.png';
-              }}
-            />
-          ) : (
-            <img
-              src="/pm_logo.png"
-              alt="Pacific Market"
-              className="h-full w-full object-cover"
-            />
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#0a1628] break-words">
-              {business.name}
-            </h3>
-
-            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
-              {business.subscription_tier || "vaka"}
-            </span>
-
-            {business.verified && (
-              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
-                Verified
-              </span>
-            )}
-          </div>
-
-          <p className="mt-1 text-xs text-gray-500">
-            {business.country || "Unknown"} · {business.industry || "No industry"}
-          </p>
-          <p className="mt-1 text-xs text-gray-400">
-            Submitted {business.created_date ? new Date(business.created_date).toLocaleDateString() : "—"}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {business.status === BUSINESS_STATUS.PENDING && (
-          <>
-            <button
-              onClick={onApprove}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("success")}`}
-            >
-              <CheckCircle className="h-3.5 w-3.5" />
-              Approve
-            </button>
-            <button
-              onClick={onReject}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
-            >
-              <XCircle className="h-3.5 w-3.5" />
-              Reject
-            </button>
-          </>
-        )}
-
-        <button
-          onClick={onEdit}
-          className={`${secondaryButtonCls} min-h-[40px] px-3 py-2 text-xs`}
-        >
-          <Edit className="h-3.5 w-3.5" />
-          Edit
-        </button>
-
-        <Link
-          href={createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`}
-          className={`${secondaryButtonCls} min-h-[40px] px-3 py-2 text-xs`}
-        >
-          <Eye className="h-3.5 w-3.5" />
-          View
-        </Link>
-
-        <button
-          onClick={onDelete}
-          className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete
-        </button>
-      </div>
-    </div>
-  );
+  return styles[type] || styles.neutral;
 }
 
 function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'approved':
+        return { text: 'Approved', style: getBadgeStyles("success") };
+      case 'rejected':
+        return { text: 'Rejected', style: getBadgeStyles("danger") };
+      case 'pending':
+        return { text: 'Pending', style: getBadgeStyles("warning") };
+      default:
+        return { text: status || 'Unknown', style: getBadgeStyles("neutral") };
+    }
+  };
+
+  const statusBadge = getStatusBadge(claim.status);
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
@@ -202,8 +98,8 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
             <h3 className="text-sm font-semibold text-[#0a1628] break-words">
               {business?.name || "Unknown Business"}
             </h3>
-            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("info")}`}>
-              Claim Request
+            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusBadge.style}`}>
+              {statusBadge.text}
             </span>
           </div>
 
@@ -212,25 +108,116 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
           </p>
           <p className="mt-1 text-xs text-gray-500 break-all">{claim.user_email}</p>
           <p className="mt-1 text-xs text-gray-400">
-            Requested {claim.created_date ? new Date(claim.created_date).toLocaleDateString() : "—"}
+            Requested {claim.created_at ? new Date(claim.created_at).toLocaleDateString() : "—"}
           </p>
         </div>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        {claim.status === 'pending' && (
+          <>
+            <button
+              onClick={onApprove}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("success")}`}
+            >
+              <CheckCircle className="h-3.5 w-3.5" />
+              Approve
+            </button>
+            <button
+              onClick={onDeny}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              Deny
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDelete }) {
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+          {business.logo_url ? (
+            <img
+              src={business.logo_url}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                console.warn('Failed to load admin business mobile logo:', business.logo_url);
+                e.currentTarget.src = '/pm_logo.png';
+              }}
+            />
+          ) : (
+            <img
+              src="/pm_logo.png"
+              alt="Pacific Market"
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold text-[#0a1628] break-words">
+              {business.name}
+            </h3>
+            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
+              {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
+            </span>
+            {business.verified && (
+              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
+                Verified
+              </span>
+            )}
+          </div>
+
+          <p className="mt-1 text-xs text-gray-500">
+            {getCountryDisplayName(business.country)} · {getIndustryDisplayName(business.industry) || "No industry"}
+          </p>
+          <p className="mt-1 text-xs text-gray-500 break-all">
+            {business.contact_email || "No email"}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            Submitted {business.created_date ? new Date(business.created_date).toLocaleDateString() : "—"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {business.status === BUSINESS_STATUS.PENDING && (
+          <>
+            <button
+              onClick={onApprove}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("success")}`}
+            >
+              <CheckCircle className="h-3.5 w-3.5" />
+              Approve
+            </button>
+            <button
+              onClick={onReject}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              Deny
+            </button>
+          </>
+        )}
         <button
-          onClick={onApprove}
-          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("success")}`}
+          onClick={onEdit}
+          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${secondaryButtonCls}`}
         >
-          <CheckCircle className="h-3.5 w-3.5" />
-          Approve
+          Edit
         </button>
         <button
-          onClick={onDeny}
+          onClick={onDelete}
           className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
         >
-          <XCircle className="h-3.5 w-3.5" />
-          Deny
+          Delete
         </button>
       </div>
     </div>
@@ -240,236 +227,356 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
 function InsightMobileCard({ business, snapshot, onView }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex items-start gap-3">
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+          {business.logo_url ? (
+            <img
+              src={business.logo_url}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                console.warn('Failed to load insight mobile logo:', business.logo_url);
+                e.currentTarget.src = '/pm_logo.png';
+              }}
+            />
+          ) : (
+            <img
+              src="/pm_logo.png"
+              alt="Pacific Market"
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#0a1628]">{business.name}</h3>
-            <span className={`rounded-full border px-2 py-0.5 text-[11px] ${getBadgeStyles("neutral")}`}>
-              {business.visibility_tier || 'none'}
+            <h3 className="text-sm font-semibold text-[#0a1628] break-words">
+              {business.name}
+            </h3>
+            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
+              {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
             </span>
             {business.verified && (
-              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("premium")}`}>
+              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
                 Verified
               </span>
             )}
           </div>
 
           <p className="mt-1 text-xs text-gray-500">
-            {business.country} · {business.industry || "No industry"}
+            {getCountryDisplayName(business.country)} · {getIndustryDisplayName(business.industry) || "No industry"}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            Submitted {business.founder_snapshot_completed_at ? new Date(business.founder_snapshot_completed_at).toLocaleDateString() : "—"}
           </p>
 
-          {business.founder_snapshot_completed_at && (
-            <p className="mt-1 text-xs text-gray-400">
-              Submitted {new Date(business.founder_snapshot_completed_at).toLocaleDateString()}
-            </p>
-          )}
-
           {snapshot && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {snapshot.year_started && (
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${getBadgeStyles("neutral")}`}>
-                  Year: {snapshot.year_started}
-                </span>
-              )}
-              {snapshot.team_size_band && (
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${getBadgeStyles("neutral")}`}>
-                  Team: {snapshot.team_size_band}
-                </span>
-              )}
-              {snapshot.business_stage && (
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${getBadgeStyles("neutral")}`}>
-                  Stage: {snapshot.business_stage}
-                </span>
-              )}
+            <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
+              <span>Year: {snapshot.year_started}</span>
+              <span>Team: {snapshot.team_size_band}</span>
+              <span>Stage: {snapshot.business_stage}</span>
             </div>
           )}
         </div>
+      </div>
 
+      <div className="mt-4">
         <button
           onClick={onView}
-          className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-[#0d4f4f] hover:bg-[#0d4f4f]/5"
+          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${secondaryButtonCls}`}
         >
-          View
-          <ChevronRight className="h-3.5 w-3.5" />
+          View Details <ChevronRight className="h-3.5 w-3.5" />
         </button>
       </div>
     </div>
   );
 }
 
+async function checkIsAdmin(user) {
+  if (!user) return false;
+  
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    
+    if (error || !data) {
+      console.error('Error checking admin role:', error);
+      return false;
+    }
+    
+    return data.role === 'admin';
+  } catch (error) {
+    console.error('Error checking admin role:', error);
+    return false;
+  }
+}
+
 export default function AdminDashboard() {
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [activeTab, setActiveTab] = useState("active");
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
-  const [insightSnapshots, setInsightSnapshots] = useState([]);
-  const [activeTab, setActiveTab] = useState("active");
-  const [editingBusiness, setEditingBusiness] = useState(null);
-  const [savingEdit, setSavingEdit] = useState(false);
-  const [currentEditStep, setCurrentEditStep] = useState(1);
-  const [creatingBusiness, setCreatingBusiness] = useState(false);
+  const [insights, setInsights] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState(null);
+  const [currentEditStep, setCurrentEditStep] = useState(1);
+  const [savingEdit, setSavingEdit] = useState(false);
   const [selectedInsightBusiness, setSelectedInsightBusiness] = useState(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     country: "",
     industry: "",
     tier: "",
     verified: "",
+    claimStatus: "",
   });
-  const [showFilters, setShowFilters] = useState(false);
 
-  const { toast } = useToast();
-
-  const getLatestSnapshot = (businessId) =>
-    insightSnapshots
-      .filter((s) => s.business_id === businessId)
-      .sort((a, b) => new Date(b.submitted_date || 0).getTime() - new Date(a.submitted_date || 0).getTime())[0];
-
+  // Check if user is admin
   useEffect(() => {
-    const loadAdminData = async () => {
-      try {
-        const supabase = getSupabase();
-
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
-
-        if (authError || !user) {
-          setLoading(false);
-          return;
-        }
-
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("role, display_name")
-          .eq("id", user.id)
-          .single();
-
-        const enhancedUser = {
-          ...user,
-          role: profileData?.role || "owner",
-          permissions: profileData?.role === "admin" ? ["read", "write", "delete"] : [],
-          full_name:
-            profileData?.display_name ||
-            user.user_metadata?.full_name ||
-            user.user_metadata?.display_name,
-          display_name:
-            profileData?.display_name ||
-            user.user_metadata?.display_name ||
-            user.user_metadata?.full_name,
-        };
-
-        setUser(enhancedUser);
-
-        if (checkIsAdmin(enhancedUser)) {
-          setIsAdmin(true);
-
-          const [businessesResult, claimsResult] = await Promise.all([
-            supabase
-              .from("businesses")
-              .select(`
-                id, name, business_handle, short_description, description,
-                logo_url, banner_url, contact_email, contact_phone, contact_website,
-                address, suburb, city, state_region, postal_code, country,
-                industry, social_links, business_hours, business_structure,
-                year_started, status, verified, claimed, claimed_at, claimed_by,
-                visibility_tier, homepage_featured, source, profile_completeness,
-                referral_code, owner_user_id, created_at, updated_at, subscription_tier
-              `)
-              .order("created_at", { ascending: false })
-              .limit(200),
-            supabase
-              .from("claim_requests")
-              .select(`
-                id, business_id, user_id, status, contact_email, contact_phone,
-                verification_documents, rejection_reason, reviewed_by, reviewed_at,
-                business_name, user_email, role, proof_url, created_at
-              `)
-              .order("created_date", { ascending: false })
-              .limit(100),
-          ]);
-
-          const loadedBusinesses = businessesResult.data || [];
-          const loadedClaims = claimsResult.data || [];
-
-          setBusinesses(loadedBusinesses);
-          setClaims(loadedClaims);
-
-          const businessIds = loadedBusinesses.map((business) => business.id);
-          let snapshots = [];
-
-          if (businessIds.length) {
-            const { data } = await supabase
-              .from("business_insights_snapshots")
-              .select("*")
-              .in("business_id", businessIds)
-              .order("submitted_date", { ascending: false });
-
-            snapshots = data || [];
-          }
-
-          setInsightSnapshots(snapshots);
-        }
-
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        setCheckingAdmin(false);
         setLoading(false);
+        return;
+      }
+
+      try {
+        const adminStatus = await checkIsAdmin(user);
+        setIsAdmin(adminStatus);
+        console.log('🔐 Admin status check:', {
+          user: user?.email,
+          isAdmin: adminStatus
+        });
       } catch (error) {
-        console.error("Error loading admin data:", error);
+        console.error('❌ Error checking admin status:', error);
+        setIsAdmin(false);
+      } finally {
+        setCheckingAdmin(false);
         setLoading(false);
       }
     };
 
-    loadAdminData();
-  }, []);
+    checkAdminStatus();
+  }, [user]);
 
-  const createVerifiedBusinessUpdates = () => ({
-    visibility_tier: "homepage",
-    verified: true,
-  });
+  // Debug user authentication state
+  useEffect(() => {
+    console.log('🔐 Auth state:', {
+      user: user?.email,
+      userRole: user?.role,
+      userRaw: user,
+      isAdmin: isAdmin,
+      loading: loading,
+      checkingAdmin: checkingAdmin
+    });
+  }, [user, isAdmin, loading, checkingAdmin]);
 
-  const updateStatus = async (business, status) => {
+  useEffect(() => {
+    // Only load data if user is authenticated as admin
+    if (user && isAdmin && !checkingAdmin) {
+      console.log('✅ User is admin, loading data...');
+      loadAdminData();
+    } else if (user && !checkingAdmin) {
+      console.log('⚠️ User is authenticated but not an admin');
+      setLoading(false);
+    } else if (!user && !checkingAdmin) {
+      console.log('⚠️ User not authenticated');
+      setLoading(false);
+    }
+  }, [user, isAdmin, checkingAdmin]);
+
+  const loadAdminData = async () => {
+    setLoading(true);
     try {
       const supabase = getSupabase();
+      
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+      
+      console.log('🔄 Loading admin data for user:', user?.email);
+      
+      // Use the correct column names from the actual database schema
+      const [businessesRes, claimsRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select(`
+            id, name, description, short_description, logo_url, contact_website,
+            contact_email, contact_phone, address, country, industry, city, 
+            status, visibility_tier, verified, claimed, business_handle, 
+            owner_user_id, created_at, updated_at, created_date
+          `)
+          .order("created_at", { ascending: false })
+          .limit(500),
+        
+        supabase
+          .from("claim_requests")
+          .select(`
+            id, business_id, user_id, status, contact_email, contact_phone,
+            verification_documents, rejection_reason, reviewed_by, reviewed_at,
+            business_name, user_email, role, proof_url, created_at, updated_at,
+            notes, message, admin_notes, listing_contact_email, listing_contact_phone,
+            created_date
+          `)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      ]);
 
-      const updates =
-        status === BUSINESS_STATUS.ACTIVE
-          ? { status, ...createVerifiedBusinessUpdates() }
-          : { status };
+      console.log('🔍 Query results:', {
+        businessesError: businessesRes.error,
+        businessesCount: businessesRes.data?.length || 0,
+        claimsError: claimsRes.error,
+        claimsCount: claimsRes.data?.length || 0,
+        sampleClaim: claimsRes.data?.[0]
+      });
 
+      // Try to load insights separately, but don't fail if it doesn't work
+      let insightsRes = { data: [], error: null };
+      try {
+        insightsRes = await supabase
+          .from("business_insights_snapshots")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(200);
+      } catch (insightsError) {
+        console.warn('⚠️ Insights table not available:', insightsError.message);
+        insightsRes = { data: [], error: null };
+      }
+
+      if (businessesRes.error) {
+        console.error('❌ Businesses query error:', businessesRes.error);
+        throw new Error(`Businesses query failed: ${businessesRes.error.message}`);
+      }
+      if (claimsRes.error) {
+        console.error('❌ Claims query error:', claimsRes.error);
+        throw new Error(`Claims query failed: ${claimsRes.error.message}`);
+      }
+      if (insightsRes.error) {
+        console.warn('⚠️ Insights query error:', insightsRes.error);
+        // Don't throw error for insights, just continue with empty data
+      }
+
+      setBusinesses(businessesRes.data || []);
+      setClaims(claimsRes.data || []);
+      setInsights(insightsRes.data || []);
+      
+      console.log('✅ Admin data loaded successfully');
+      console.log(`📊 Businesses: ${businessesRes.data?.length || 0}, Claims: ${claimsRes.data?.length || 0}, Insights: ${insightsRes.data?.length || 0}`);
+      
+      // Show sample of loaded data
+      if (claimsRes.data && claimsRes.data.length > 0) {
+        console.log('📄 Sample claim data:', claimsRes.data[0]);
+      }
+      
+    } catch (error) {
+      console.error("❌ Error loading admin data:", error);
+      toast.error(`Failed to load data: ${error.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (business, newStatus) => {
+    try {
+      const supabase = getSupabase();
+      
       const { error } = await supabase
         .from("businesses")
-        .update(updates)
+        .update({ 
+          status: newStatus,
+          updated_date: new Date().toISOString()
+        })
         .eq("id", business.id);
 
       if (error) throw error;
 
-      setBusinesses((prev) =>
-        prev.map((b) => (b.id === business.id ? { ...b, ...updates } : b))
+      setBusinesses(prev => 
+        prev.map(b => b.id === business.id ? { ...b, status: newStatus } : b)
       );
 
-      toast({
-        title: "Status Updated",
-        description:
-          status === BUSINESS_STATUS.ACTIVE
-            ? "Business approved and automatically verified!"
-            : `Business status has been updated to ${status}.`,
-        variant: "success",
-      });
+      toast.success(`Business status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
-      toast({
-        title: "Update Failed",
-        description: "Failed to update business status. Please try again.",
-        variant: "error",
-      });
+      toast.error("Unable to update business status.");
     }
   };
 
-  const handleEditStepChange = (stepInfo) => {
-    setCurrentEditStep(stepInfo.currentStep);
+  const updateClaim = async (claim, newStatus) => {
+    try {
+      const supabase = getSupabase();
+      
+      const { error } = await supabase
+        .from("claim_requests")
+        .update({ 
+          status: newStatus,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user?.id
+        })
+        .eq("id", claim.id);
+
+      if (error) throw error;
+
+      setClaims(prev => 
+        prev.map(c => c.id === claim.id ? { ...c, status: newStatus } : c)
+      );
+
+      // If approved, update business status
+      if (newStatus === "approved") {
+        await updateStatus(
+          businesses.find(b => b.id === claim.business_id),
+          BUSINESS_STATUS.ACTIVE
+        );
+      }
+
+      toast.success(`Claim status changed to ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating claim:", error);
+      toast.error("Unable to update claim status.");
+    }
+  };
+
+  const deleteBusiness = async (businessId) => {
+    if (!confirm("Are you sure you want to delete this business? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const supabase = getSupabase();
+      
+      const { error } = await supabase
+        .from("businesses")
+        .delete()
+        .eq("id", businessId);
+
+      if (error) throw error;
+
+      setBusinesses(prev => prev.filter(b => b.id !== businessId));
+
+      toast.success("The business has been permanently deleted.");
+    } catch (error) {
+      console.error("Error deleting business:", error);
+      toast.error("Unable to delete the business.");
+    }
+  };
+
+  const getLatestSnapshot = (businessId) => {
+    return insights
+      .filter(snapshot => snapshot.business_id === businessId)
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at || '').getTime();
+        const dateB = new Date(b.created_at || '').getTime();
+        return dateB - dateA;
+      })[0];
   };
 
   const saveBusiness = async (formData) => {
@@ -477,57 +584,23 @@ export default function AdminDashboard() {
     try {
       const supabase = getSupabase();
 
-      console.log("=== SAVE BUSINESS CALLED ===");
-      console.log("Current editingBusiness state:", editingBusiness);
-      console.log("Original formData:", formData);
-
-      console.log("=== SAVE BUSINESS PAYLOAD DEBUG ===");
-      console.log("Original formData:", formData);
-
       const { id, ...updateData } = formData;
-      console.log("Business ID:", id);
-      console.log("Update data before filtering:", updateData);
-
       const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
         if (
-          ![
-            "updated_date",
-            "created_date",
-            "verification_source",
-            "tagline",
-            "contact_website",
-            "year_started",
-            "full_time_employees",
-            "part_time_employees",
-            "annual_revenue_exact",
-            "homepage_featured",
-            "profile_completeness",
-            "claimed",
-            "verified"
-          ].includes(key)
+          !["updated_date", "created_date", "verification_source", "contact_website"].includes(key) &&
+          updateData[key] !== ""
         ) {
           acc[key] = updateData[key];
         }
         return acc;
       }, {});
 
-      console.log("Final safeUpdateData being sent to Supabase:", safeUpdateData);
-      console.log("Keys being sent:", Object.keys(safeUpdateData));
-      console.log("=====================================");
-
       const { error } = await supabase
         .from("businesses")
-        .update(safeUpdateData)
+        .update({ ...safeUpdateData, updated_date: new Date().toISOString() })
         .eq("id", id);
 
-      if (error) {
-        console.error("Supabase error details:", error);
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
-        console.error("Error details:", error.details);
-        console.error("Error hint:", error.hint);
-        throw new Error(error.message || `Failed to update business: ${JSON.stringify(error)}`);
-      }
+      if (error) throw error;
 
       setBusinesses((prev) =>
         prev.map((b) => (b.id === id ? { ...b, ...safeUpdateData } : b))
@@ -535,128 +608,34 @@ export default function AdminDashboard() {
       setEditingBusiness(null);
       setCurrentEditStep(1);
 
-      toast({
-        title: "Business Updated",
-        description: "Business updated successfully.",
-        variant: "success",
-      });
+      toast.success("The business has been successfully updated.");
     } catch (error) {
       console.error("Error updating business:", error);
-      toast({
-        title: "Update Failed",
-        description: "Failed to update business. Please try again.",
-        variant: "error",
-      });
+      toast.error("Unable to update the business.");
     } finally {
       setSavingEdit(false);
     }
   };
 
-  const deleteBusiness = async (id) => {
-    if (!confirm("Delete this business record? This cannot be undone.")) return;
-
+  const createVerifiedBusiness = async (formData) => {
     try {
       const supabase = getSupabase();
-      const { error } = await supabase.from("businesses").delete().eq("id", id);
-
-      if (error) throw error;
-
-      setBusinesses((prev) => prev.filter((b) => b.id !== id));
-
-      toast({
-        title: "Business Deleted",
-        description: "Business has been successfully deleted.",
-        variant: "success",
-      });
-    } catch (error) {
-      console.error("Error deleting business:", error);
-      toast({
-        title: "Delete Failed",
-        description: "Failed to delete business. Please try again.",
-        variant: "error",
-      });
-    }
-  };
-
-  const updateClaim = async (claim, status) => {
-    try {
-      const supabase = getSupabase();
-
-      const { error: claimError } = await supabase
-        .from("claim_requests")
-        .update({ status })
-        .eq("id", claim.id);
-
-      if (claimError) throw claimError;
-
-      setClaims((prev) =>
-        prev.map((c) => (c.id === claim.id ? { ...c, status } : c))
-      );
-
-      if (status === "approved") {
-        const businessUpdates = {
-          owner_user_id: claim.user_id,
-          claimed: true,
-          status: BUSINESS_STATUS.ACTIVE,
-          ...createVerifiedBusinessUpdates(),
-        };
-
-        const { error: businessError } = await supabase
-          .from("businesses")
-          .update(businessUpdates)
-          .eq("id", claim.business_id);
-
-        if (businessError) throw businessError;
-
-        setBusinesses((prev) =>
-          prev.map((b) =>
-            b.id === claim.business_id ? { ...b, ...businessUpdates } : b
-          )
-        );
-      }
-
-      toast({
-        title: `Claim ${status}`,
-        description:
-          status === "approved"
-            ? "Claim approved and business automatically verified!"
-            : `Claim request has been ${status}.`,
-        variant: status === "approved" ? "success" : "default",
-      });
-    } catch (error) {
-      console.error("Error updating claim:", error);
-      toast({
-        title: "Update Failed",
-        description: "Failed to update claim request. Please try again.",
-        variant: "error",
-      });
-    }
-  };
-
-  const createBusiness = async (formData) => {
-    setCreatingBusiness(true);
-    try {
-      const supabase = getSupabase();
-
+      
       const businessData = {
-        owner_user_id: formData.owner_user_id ?? null,
-        claimed: formData.claimed ?? false,
-        status: BUSINESS_STATUS.ACTIVE,
-        ...createVerifiedBusinessUpdates(),
         ...formData,
+        status: BUSINESS_STATUS.ACTIVE,
+        verified: true,
+        created_date: new Date().toISOString(),
+        updated_date: new Date().toISOString(),
       };
 
       const { data, error } = await supabase
         .from("businesses")
         .insert(businessData)
         .select(`
-          id, name, business_handle, short_description, description,
-          logo_url, banner_url, contact_email, contact_phone, contact_website,
-          address, suburb, city, state_region, postal_code, country,
-          industry, social_links, business_hours, business_structure,
-          year_started, status, verified, claimed, claimed_at, claimed_by,
-          visibility_tier, homepage_featured, source, profile_completeness,
-          referral_code, owner_user_id, created_date, updated_date
+          id, name, business_handle, description, industry, country, city, 
+          status, visibility_tier, verified, claimed, contact_email, website,
+          logo_url, owner_user_id, created_date, updated_date
         `)
         .single();
 
@@ -665,20 +644,10 @@ export default function AdminDashboard() {
       setBusinesses((prev) => [data, ...prev]);
       setShowCreateForm(false);
 
-      toast({
-        title: "Business Created & Verified",
-        description: "The listing was created and automatically verified.",
-        variant: "success",
-      });
+      toast.success("The listing was created and automatically verified.");
     } catch (error) {
       console.error("Error creating business:", error);
-      toast({
-        title: "Create Failed",
-        description: "Unable to create the listing.",
-        variant: "error",
-      });
-    } finally {
-      setCreatingBusiness(false);
+      toast.error("Unable to create the listing.");
     }
   };
 
@@ -686,15 +655,16 @@ export default function AdminDashboard() {
     const fields = [
       "name",
       "business_handle",
+      "description",
       "industry",
       "country",
       "city",
       "status",
-      "subscription_tier",
+      "visibility_tier",
       "verified",
       "claimed",
       "contact_email",
-      "website",
+      "contact_website",
     ];
     const header = fields.join(",");
     const rows = businesses.map((b) =>
@@ -719,21 +689,47 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!user || !checkIsAdmin(user)) {
+  if (!user || !isAdmin || checkingAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc] px-4">
         <div className="max-w-sm rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
-          <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
-          <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Access Denied</h2>
-          <p className="mb-6 text-sm text-gray-500">
-            Admin access required to view this page.
-          </p>
-          <Link
-            href={createPageUrl("BusinessLogin")}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-6 py-3 text-sm font-semibold text-white hover:bg-[#122040]"
-          >
-            Sign In <ChevronRight className="h-4 w-4" />
-          </Link>
+          {checkingAdmin ? (
+            <>
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent mx-auto mb-4" />
+              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Checking Access</h2>
+              <p className="mb-6 text-sm text-gray-500">
+                Verifying admin permissions...
+              </p>
+            </>
+          ) : !user ? (
+            <>
+              <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
+              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Access Denied</h2>
+              <p className="mb-6 text-sm text-gray-500">
+                Admin access required to view this page.
+              </p>
+              <Link
+                href={createPageUrl("BusinessLogin")}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-6 py-3 text-sm font-semibold text-white hover:bg-[#122040]"
+              >
+                Sign In <ChevronRight className="h-4 w-4" />
+              </Link>
+            </>
+          ) : (
+            <>
+              <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
+              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Access Denied</h2>
+              <p className="mb-6 text-sm text-gray-500">
+                Admin access required to view this page. Your account does not have admin privileges.
+              </p>
+              <Link
+                href={createPageUrl("BusinessLogin")}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-6 py-3 text-sm font-semibold text-white hover:bg-[#122040]"
+              >
+                Sign In <ChevronRight className="h-4 w-4" />
+              </Link>
+            </>
+          )}
         </div>
       </div>
     );
@@ -763,7 +759,7 @@ export default function AdminDashboard() {
       data = data.filter((business) => business.industry === filters.industry);
     }
     if (filters.tier) {
-      data = data.filter((business) => business.subscription_tier === filters.tier);
+      data = data.filter((business) => business.visibility_tier === filters.tier);
     }
     if (filters.verified !== "") {
       const isVerified = filters.verified === "true";
@@ -773,7 +769,33 @@ export default function AdminDashboard() {
     return data;
   };
 
+  const getFilteredClaims = () => {
+    let filteredClaims = claims;
+
+    // Apply claim status filter
+    if (filters.claimStatus) {
+      filteredClaims = filteredClaims.filter((claim) => claim.status === filters.claimStatus);
+    }
+
+    // Apply search filter
+    if (searchQuery) {
+      filteredClaims = filteredClaims.filter((claim) => {
+        const business = businesses.find((b) => b.id === claim.business_id);
+        return (
+          claim.user_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          claim.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          business?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          business?.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      });
+    }
+
+    return filteredClaims;
+  };
+
   const filteredData = getFilteredData();
+  const filteredClaimsData = getFilteredClaims();
+  const activeInsights = businesses.filter((b) => b.founder_snapshot_completed);
 
   const pendingCount = businesses.filter((b) => b.status === BUSINESS_STATUS.PENDING).length;
   const pendingClaimsCount = claims.filter((c) => c.status === "pending").length;
@@ -800,9 +822,6 @@ export default function AdminDashboard() {
       color: "text-purple-600",
     },
   ];
-
-  const activeClaims = claims.filter((c) => c.status === "pending");
-  const activeInsights = businesses.filter((b) => b.founder_snapshot_completed);
 
   const activeFilterCount = Object.values(filters).filter((v) => v !== "").length;
 
@@ -867,7 +886,7 @@ export default function AdminDashboard() {
 
               {showFilters && (
                 <div className="border-t border-gray-200 pt-4">
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
                     <select
                       value={filters.country}
                       onChange={(e) =>
@@ -922,6 +941,21 @@ export default function AdminDashboard() {
                       <option value="true">Verified</option>
                       <option value="false">Not Verified</option>
                     </select>
+
+                    {activeTab === "claims" && (
+                      <select
+                        value={filters.claimStatus}
+                        onChange={(e) =>
+                          setFilters((prev) => ({ ...prev, claimStatus: e.target.value }))
+                        }
+                        className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+                      >
+                        <option value="">All Claim Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    )}
                   </div>
 
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
@@ -932,6 +966,7 @@ export default function AdminDashboard() {
                           industry: "",
                           tier: "",
                           verified: "",
+                          claimStatus: "",
                         })
                       }
                       className={secondaryButtonCls}
@@ -991,15 +1026,15 @@ export default function AdminDashboard() {
               {/* Claims */}
               {activeTab === "claims" && (
                 <div className="space-y-3">
-                  {activeClaims.length === 0 ? (
+                  {filteredClaimsData.length === 0 ? (
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">
                       <Shield className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-                      <p className="text-sm text-gray-500">No pending claim requests.</p>
+                      <p className="text-sm text-gray-500">No claim requests found.</p>
                     </div>
                   ) : (
                     <>
                       <div className="space-y-3 lg:hidden">
-                        {activeClaims.map((claim) => {
+                        {filteredClaimsData.map((claim) => {
                           const business = businesses.find((b) => b.id === claim.business_id);
                           return (
                             <ClaimMobileCard
@@ -1007,14 +1042,14 @@ export default function AdminDashboard() {
                               claim={claim}
                               business={business}
                               onApprove={() => updateClaim(claim, "approved")}
-                              onDeny={() => updateClaim(claim, "denied")}
+                              onDeny={() => updateClaim(claim, "rejected")}
                             />
                           );
                         })}
                       </div>
 
                       <div className="hidden lg:block space-y-3">
-                        {activeClaims.map((claim) => {
+                        {filteredClaimsData.map((claim) => {
                           const business = businesses.find((b) => b.id === claim.business_id);
                           return (
                             <div
@@ -1046,12 +1081,17 @@ export default function AdminDashboard() {
                                     <span className="font-semibold text-[#0a1628]">
                                       {business?.name || "Unknown Business"}
                                     </span>
-                                    <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${getBadgeStyles("info")}`}>
-                                      Claim Request
+                                    <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+                                      claim.status === 'approved' ? getBadgeStyles("success") :
+                                      claim.status === 'rejected' ? getBadgeStyles("danger") :
+                                      claim.status === 'pending' ? getBadgeStyles("warning") :
+                                      getBadgeStyles("neutral")
+                                    }`}>
+                                      {claim.status ? claim.status.charAt(0).toUpperCase() + claim.status.slice(1) : 'Unknown'}
                                     </span>
                                     {business && (
                                       <span className={`rounded-full border px-2 py-0.5 text-xs ${getBadgeStyles("neutral")}`}>
-                                        {business.subscription_tier}
+                                        {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
                                       </span>
                                     )}
                                   </div>
@@ -1059,22 +1099,26 @@ export default function AdminDashboard() {
                                     {business?.country || "Unknown"} · {business?.industry || "Unknown"} · {claim.user_email}
                                   </p>
                                   <p className="mt-1 text-xs text-gray-400">
-                                    Requested {new Date(claim.created_date).toLocaleDateString()}
+                                    Requested {new Date(claim.created_at).toLocaleDateString()}
                                   </p>
                                 </div>
                                 <div className="flex flex-shrink-0 items-center gap-2">
-                                  <button
-                                    onClick={() => updateClaim(claim, "approved")}
-                                    className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles("success")}`}
-                                  >
-                                    <CheckCircle className="h-3 w-3" /> Approve
-                                  </button>
-                                  <button
-                                    onClick={() => updateClaim(claim, "denied")}
-                                    className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles("danger")}`}
-                                  >
-                                    <XCircle className="h-3 w-3" /> Deny
-                                  </button>
+                                  {claim.status === 'pending' && (
+                                    <>
+                                      <button
+                                        onClick={() => updateClaim(claim, "approved")}
+                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles("success")}`}
+                                      >
+                                        <CheckCircle className="h-3 w-3" /> Approve
+                                      </button>
+                                      <button
+                                        onClick={() => updateClaim(claim, "rejected")}
+                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles("danger")}`}
+                                      >
+                                        <XCircle className="h-3 w-3" /> Reject
+                                      </button>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -1118,7 +1162,7 @@ export default function AdminDashboard() {
                                 <div className="mb-2 flex items-center gap-2">
                                   <h4 className="font-semibold text-[#0a1628]">{business.name}</h4>
                                   <span className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles("neutral")}`}>
-                                    {business.subscription_tier}
+                                    {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
                                   </span>
                                   {business.verified && (
                                     <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("premium")}`}>
@@ -1129,7 +1173,7 @@ export default function AdminDashboard() {
 
                                 <div className="mb-3 flex flex-wrap items-center gap-4 text-xs text-gray-600">
                                   <span>
-                                    {business.country} • {business.industry || "No industry"}
+                                    {getCountryDisplayName(business.country)} • {getIndustryDisplayName(business.industry) || "No industry"}
                                   </span>
                                   {business.founder_snapshot_completed_at && (
                                     <span>
@@ -1181,11 +1225,6 @@ export default function AdminDashboard() {
                             onApprove={() => updateStatus(business, BUSINESS_STATUS.ACTIVE)}
                             onReject={() => updateStatus(business, BUSINESS_STATUS.REJECTED)}
                             onEdit={() => {
-                              console.log("=== EDIT BUTTON CLICKED ===");
-                              console.log("Business data being set:", business);
-                              console.log("Business ID:", business.id);
-                              console.log("Business name:", business.name);
-                              console.log("=============================");
                               setEditingBusiness(business);
                               setCurrentEditStep(1);
                             }}
@@ -1259,7 +1298,7 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-4">
                                   <div className="flex items-center gap-2">
                                     <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(b.verified ? "premium" : "neutral")}`}>
-                                      {getTierDisplayName(b.subscription_tier) || b.subscription_tier || "vaka"}
+                                      {getTierDisplayName(b.visibility_tier) || b.visibility_tier || "vaka"}
                                     </span>
                                     {b.verified && (
                                       <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("success")}`}>
@@ -1296,37 +1335,22 @@ export default function AdminDashboard() {
                                         </button>
                                       </>
                                     )}
-
                                     <button
                                       onClick={() => {
-                                        console.log("=== DESKTOP EDIT BUTTON CLICKED ===");
-                                        console.log("Business data being set:", b);
-                                        console.log("Business ID:", b.id);
-                                        console.log("Business name:", b.name);
-                                        console.log("=============================");
                                         setEditingBusiness(b);
                                         setCurrentEditStep(1);
                                       }}
-                                      className="rounded-lg border border-gray-200 p-1.5 transition-colors hover:border-[#0d4f4f] hover:text-[#0d4f4f]"
-                                      title="Edit"
+                                      className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${secondaryButtonCls}`}
                                     >
-                                      <Edit className="h-3 w-3" />
+                                      Edit
                                     </button>
-
-                                    <Link
-                                      href={createPageUrl("BusinessProfile") + `?handle=${b.business_handle || b.id}`}
-                                      className="rounded-lg p-1.5 transition-colors hover:bg-[#0d4f4f]/5"
-                                      title="View"
-                                    >
-                                      <Eye className="h-3.5 w-3.5" />
-                                    </Link>
-
                                     <button
                                       onClick={() => deleteBusiness(b.id)}
-                                      className="rounded-lg border border-red-200 p-1.5 text-red-500 transition-colors hover:bg-red-50"
-                                      title="Delete"
+                                      className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                        "danger"
+                                      )}`}
                                     >
-                                      <Trash2 className="h-3 w-3" />
+                                      Delete
                                     </button>
                                   </div>
                                 </td>
@@ -1337,110 +1361,6 @@ export default function AdminDashboard() {
                       </div>
                     </>
                   )}
-                </div>
-              )}
-
-              {/* Edit Modal */}
-              {editingBusiness && (
-                <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-                  <div
-                    className="absolute inset-0 bg-black/50"
-                    onClick={() => setEditingBusiness(null)}
-                  />
-                  <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-3xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
-                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4 sm:px-6">
-                      <div>
-                        <h3 className="font-bold text-[#0a1628]">
-                          Edit: {editingBusiness.name}
-                        </h3>
-                        <p className="mt-1 text-xs text-gray-500">
-                          Step {currentEditStep}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setEditingBusiness(null)}
-                        className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </div>
-                    <div className="p-4 sm:p-6">
-                      <DetailedBusinessForm
-                        onSubmit={saveBusiness}
-                        isLoading={savingEdit}
-                        initialData={editingBusiness}
-                        onStepChange={handleEditStepChange}
-                        mode={FORM_MODES.ADMIN_EDIT}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Create Modal */}
-              {showCreateForm && (
-                <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-                  <div
-                    className="absolute inset-0 bg-black/50"
-                    onClick={() => setShowCreateForm(false)}
-                  />
-                  <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-3xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
-                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4 sm:px-6">
-                      <h3 className="font-bold text-[#0a1628]">Create Business Listing</h3>
-                      <button
-                        onClick={() => setShowCreateForm(false)}
-                        className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </div>
-                    <div className="p-4 sm:p-6">
-                      <DetailedBusinessForm
-                        onSubmit={createBusiness}
-                        isLoading={creatingBusiness}
-                        onStepChange={() => {}}
-                        mode={FORM_MODES.ADMIN_CREATE}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Insight Detail Modal */}
-              {selectedInsightBusiness && (
-                <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-                  <div
-                    className="absolute inset-0 bg-black/50"
-                    onClick={() => setSelectedInsightBusiness(null)}
-                  />
-                  <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-4xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
-                    <div className="sticky top-0 z-10 border-b border-gray-200 bg-white p-4 sm:p-6">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <h2 className="text-lg font-bold text-[#0a1628] sm:text-xl">
-                            Founder Insights Details
-                          </h2>
-                          <p className="mt-1 text-sm text-gray-600">
-                            {selectedInsightBusiness.name}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setSelectedInsightBusiness(null)}
-                          className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-4 sm:p-6">
-                      <FounderInsightsSummary
-                        snapshot={getLatestSnapshot(selectedInsightBusiness.id)}
-                        business={selectedInsightBusiness}
-                        onEdit={() => {}}
-                      />
-                    </div>
-                  </div>
                 </div>
               )}
             </div>

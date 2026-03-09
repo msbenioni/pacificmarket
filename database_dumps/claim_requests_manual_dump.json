@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-03-09T21:58:00.000Z",
+  "tables": {
+    "claim_requests": {
+      "count": 3,
+      "data": [
+        {
+          "id": "df8c3d98-42d3-4d9a-aab3-bcf39370285d",
+          "business_id": "1ceaf4d4-8a5e-4f25-b75f-43a05cd656fb",
+          "user_id": "1eb66672-7581-4184-96a8-553abed10682",
+          "status": "approved",
+          "contact_email": "support@saasycookies.com",
+          "contact_phone": null,
+          "verification_documents": null,
+          "rejection_reason": null,
+          "reviewed_by": null,
+          "reviewed_at": null,
+          "created_at": "2026-03-06 22:07:14.05961+00",
+          "updated_at": "2026-03-06 22:07:14.05961+00",
+          "user_email": "msbenioni+1@gmail.com",
+          "business_name": "SaaSy Cookies",
+          "created_date": "2026-03-06",
+          "notes": null,
+          "message": null,
+          "admin_notes": null,
+          "role": "owner",
+          "listing_contact_email": "saasycookies@gmail.com",
+          "listing_contact_phone": null,
+          "proof_url": "https://saasycookies.com"
+        },
+        {
+          "id": "f51422a4-7034-426c-871f-a14ee6385741",
+          "business_id": "e0e03cd4-3a8b-48f9-8ffa-546abfa7925c",
+          "user_id": "1eb66672-7581-4184-96a8-553abed10682",
+          "status": "approved",
+          "contact_email": "msbenioni+2@gmail.com",
+          "contact_phone": null,
+          "verification_documents": null,
+          "rejection_reason": null,
+          "reviewed_by": null,
+          "reviewed_at": null,
+          "created_at": "2026-03-06 22:08:08.508163+00",
+          "updated_at": "2026-03-06 22:08:08.508163+00",
+          "user_email": "msbenioni+1@gmail.com",
+          "business_name": "SenseAI",
+          "created_date": "2026-03-06",
+          "notes": null,
+          "message": null,
+          "admin_notes": null,
+          "role": "owner",
+          "listing_contact_email": "msbenioni+1@gmail.com",
+          "listing_contact_phone": null,
+          "proof_url": "https://senseai.co.nz"
+        },
+        {
+          "id": "0cfb5ec1-090e-47d1-934c-d4293e661a98",
+          "business_id": "669c26b2-ceec-498e-9e38-17329d6b05ec",
+          "user_id": "364269e4-a6c5-4122-bf63-0d318607effd",
+          "status": "approved",
+          "contact_email": "travel@danielmaine.com",
+          "contact_phone": "+642102849862",
+          "verification_documents": null,
+          "rejection_reason": null,
+          "reviewed_by": null,
+          "reviewed_at": null,
+          "created_at": "2026-03-09 04:55:46.373935+00",
+          "updated_at": "2026-03-09 04:55:46.373935+00",
+          "user_email": "travel@danielmaine.com",
+          "business_name": "Oceanique Solutions",
+          "created_date": "2026-03-09",
+          "notes": null,
+          "message": null,
+          "admin_notes": null,
+          "role": "owner",
+          "listing_contact_email": null,
+          "listing_contact_phone": null,
+          "proof_url": null
+        }
+      ]
+    }
+  }
+}
