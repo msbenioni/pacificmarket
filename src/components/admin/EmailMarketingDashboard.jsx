@@ -398,7 +398,16 @@ export default function EmailMarketingDashboard() {
                         <div className="text-sm text-gray-500">{subscriber.email}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">{subscriber.business_name}</td>
+                    <td className="px-4 py-4">
+                      <div>
+                        <div className="text-sm text-gray-600">{subscriber.business_name}</div>
+                        {subscriber.business_count > 1 && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            {subscriber.business_count} businesses
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-4">
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                         {subscriber.source?.replace('_', ' ') || 'N/A'}

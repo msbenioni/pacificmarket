@@ -18,8 +18,10 @@ export async function GET(request) {
       .from('email_subscribers')
       .select(`
         *,
-        businesses (
-          name
+        email_subscriber_entities (
+          entity_type,
+          entity_name,
+          relationship_type
         )
       `)
       .order('created_at', { ascending: false });
@@ -39,15 +41,26 @@ export async function GET(request) {
     }
 
     // Transform data for frontend
-    const transformedSubscribers = subscribers.map(subscriber => ({
-      id: subscriber.id,
-      email: subscriber.email,
-      first_name: subscriber.first_name,
-      business_name: subscriber.businesses?.name || 'N/A',
-      source: subscriber.source,
-      status: subscriber.status,
-      created_at: subscriber.created_at
-    }));
+    const transformedSubscribers = subscribers.map(subscriber => {
+      // Get business names from entity relationships
+      const businessEntities = subscriber.email_subscriber_entities?.filter(
+        entity => entity.entity_type === 'business'
+      ) || [];
+      
+      const businessNames = businessEntities.map(entity => entity.entity_name).filter(Boolean);
+      
+      return {
+        id: subscriber.id,
+        email: subscriber.email,
+        first_name: subscriber.first_name,
+        business_name: businessNames.length > 0 ? businessNames.join(', ') : 'N/A',
+        business_count: businessEntities.length,
+        entities: subscriber.email_subscriber_entities || [],
+        source: subscriber.source,
+        status: subscriber.status,
+        created_at: subscriber.created_at
+      };
+    });
 
     return Response.json({ subscribers: transformedSubscribers });
 
