@@ -68,6 +68,12 @@ export const QUEUE_PRIORITY = {
 // Template Variable Regex (supports spaces inside braces)
 export const TEMPLATE_VARIABLE_REGEX = /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;
 
+// Helper function for extracting variables from HTML content
+export const extractTemplateVariables = (htmlContent) => {
+  const matches = [...htmlContent.matchAll(TEMPLATE_VARIABLE_REGEX)];
+  return [...new Set(matches.map(m => m[1].trim()))];
+};
+
 // Email Validation Regex
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

@@ -628,8 +628,8 @@ export default function EmailMarketingDashboard() {
             <tbody className="divide-y divide-gray-200">
               {subscribers.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-8 text-center text-gray-500">
-                    No subscribers yet. Import subscribers or they'll be added automatically when users sign up.
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    No subscribers yet. Import your first subscribers or they will be added automatically when businesses sign up.
                   </td>
                 </tr>
               ) : (

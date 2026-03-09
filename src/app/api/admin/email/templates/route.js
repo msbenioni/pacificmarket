@@ -1,4 +1,6 @@
+import { createServiceClient } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/server-auth';
+import { extractTemplateVariables } from '@/constants/emailConstants';
 
 export async function GET(request) {
   try {
@@ -47,9 +49,7 @@ export async function POST(request) {
     // Extract variables from HTML content if not provided
     let templateVariables = variables;
     if (!templateVariables) {
-      const variableRegex = /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;  // Allows spaces inside braces
-      const matches = html_content.match(variableRegex) || [];
-      templateVariables = matches.map(match => match.replace(/[{}]/g, ''));
+      templateVariables = extractTemplateVariables(html_content);
     }
 
     // Create template using user client (respects RLS)
@@ -103,11 +103,11 @@ export async function PUT(request) {
     if (html_content) {
       updateData.html_content = html_content;
       // Extract variables from HTML content if not provided
-      if (!variables) {
-        const variableRegex = /\{\{(\w+)\}\}/g;
-        const matches = html_content.match(variableRegex) || [];
-        updateData.variables = matches.map(match => match.replace(/[{}]/g, ''));
+      let templateVariables = variables;
+      if (!templateVariables) {
+        templateVariables = extractTemplateVariables(html_content);
       }
+      updateData.variables = templateVariables;
     }
     if (variables) updateData.variables = variables;
 
