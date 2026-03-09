@@ -38,13 +38,13 @@ export async function POST(request) {
       .select('id, status')
       .eq('campaign_id', campaignId)
       .in('status', ['queued', 'processing'])
-      .single();
+      .maybeSingle();
 
     if (existingQueueItem) {
-      return Response.json({ 
-        error: 'Campaign is already queued or processing', 
-        status: 400 
-      });
+      return Response.json(
+        { error: 'Campaign is already queued or processing' }, 
+        { status: 400 }
+      );
     }
 
     // Convert string priority to numeric
@@ -68,17 +68,17 @@ export async function POST(request) {
     if (queueError) {
       // Handle unique constraint violation (race condition protection)
       if (queueError.code === '23505' || queueError.message?.includes('duplicate key')) {
-        return Response.json({ 
-          error: 'Campaign is already queued or processing (race condition detected)', 
-          status: 400 
-        });
+        return Response.json(
+          { error: 'Campaign is already queued or processing (race condition detected)' }, 
+          { status: 400 }
+        );
       }
       
       console.error('Queue insertion error:', queueError);
-      return Response.json({ 
-        error: 'Failed to queue campaign', 
-        details: queueError.message 
-      }, { status: 500 });
+      return Response.json(
+        { error: 'Failed to queue campaign' }, 
+        { status: 500 }
+      );
     }
 
     // Update campaign status to queued

@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
     }
 
     // Get audience emails using shared utility (already deduplicated)
-    const { recipients, totalRecipients } = await buildAudienceRecipients(campaign, serviceClient);
+    const { recipients, totalRecipients, rawCount } = await buildAudienceRecipients(campaign, serviceClient);
 
     // Get sample emails for preview
     const sampleEmails = recipients.slice(0, 10).map(e => ({
@@ -56,9 +56,9 @@ export async function GET(request, { params }) {
         subject: campaign.subject
       },
       audience_preview: {
-        total_raw: recipients.length,
+        total_raw: rawCount,
         total_unique: totalRecipients,
-        duplicates_removed: recipients.length - totalRecipients,
+        duplicates_removed: rawCount - totalRecipients,
         sample_emails: sampleEmails,
         estimated_recipients: totalRecipients
       }

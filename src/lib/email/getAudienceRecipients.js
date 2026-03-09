@@ -242,6 +242,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
   const normalizedRecipients = Array.from(uniqueEmails.values());
 
   return {
+    rawCount: rawEmails.length,
     recipients: normalizedRecipients,
     subscriberData,
     totalRecipients: normalizedRecipients.length

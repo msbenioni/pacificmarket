@@ -15,7 +15,7 @@ export default function EmailMarketingDashboard() {
     totalSent: 0,
     avgOpenRate: 0
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [audiencePreviews, setAudiencePreviews] = useState({});
 
@@ -35,6 +35,31 @@ export default function EmailMarketingDashboard() {
       return session?.access_token;
     } catch (error) {
       console.error('Failed to get auth token:', error);
+      return null;
+    }
+  };
+
+  // Load audience preview for a specific campaign
+  const loadAudiencePreview = async (campaignId) => {
+    try {
+      const token = await getAuthToken();
+      const response = await fetch(`/api/admin/email/campaigns/${campaignId}/audience-preview`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch audience preview');
+      }
+
+      return data.audience_preview;
+    } catch (error) {
+      console.error('Audience preview error:', error);
       return null;
     }
   };
@@ -273,30 +298,6 @@ export default function EmailMarketingDashboard() {
       </div>
     );
   }
-
-  const loadAudiencePreview = async (campaignId) => {
-    try {
-      const token = await getAuthToken();
-      const response = await fetch(`/api/admin/email/campaigns/${campaignId}/audience-preview`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch audience preview');
-      }
-
-      return data.audience_preview;
-    } catch (error) {
-      console.error('Audience preview error:', error);
-      return null;
-    }
-  };
 
   const handleSendCampaign = async (campaignId) => {
     if (!confirm('Are you sure you want to send this campaign? This will queue the campaign for background sending.')) {
@@ -618,7 +619,7 @@ export default function EmailMarketingDashboard() {
               <TrendingUp className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-[#0a1628]">12%</div>
+              <div className="text-2xl font-bold text-[#0a1628]">Coming Soon</div>
               <div className="text-sm text-gray-600">Growth Rate</div>
             </div>
           </div>
