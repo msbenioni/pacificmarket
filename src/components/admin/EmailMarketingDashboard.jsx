@@ -241,13 +241,37 @@ export default function EmailMarketingDashboard() {
     );
   }
 
+  const loadAudiencePreview = async (campaignId) => {
+    try {
+      const token = await getAuthToken();
+      const response = await fetch(`/api/admin/email/campaigns/${campaignId}/audience-preview`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch audience preview');
+      }
+
+      return data.audience_preview;
+    } catch (error) {
+      console.error('Audience preview error:', error);
+      return null;
+    }
+  };
+
   const handleSendCampaign = async (campaignId) => {
-    if (!confirm('Are you sure you want to send this campaign? This cannot be undone.')) {
+    if (!confirm('Are you sure you want to send this campaign? This will queue the campaign for background sending.')) {
       return;
     }
 
     try {
-      const token = getAuthToken();
+      const token = await getAuthToken();
       const response = await fetch('/api/admin/email/send-campaign', {
         method: 'POST',
         headers: {
@@ -260,17 +284,17 @@ export default function EmailMarketingDashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send campaign');
+        throw new Error(data.error || 'Failed to queue campaign');
       }
 
       // Refresh data
       await loadEmailData();
       
-      alert('Campaign sent successfully!');
+      alert('Campaign queued for sending!');
       
     } catch (error) {
-      console.error('Send campaign error:', error);
-      alert(error.message || 'Failed to send campaign');
+      console.error('Queue campaign error:', error);
+      alert(error.message || 'Failed to queue campaign');
     }
   };
 
@@ -352,74 +376,112 @@ export default function EmailMarketingDashboard() {
     </div>
   );
 
-  const renderReadyToSend = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-[#0a1628]">Ready to Send</h3>
-        <span className="text-sm text-gray-500">
-          {campaigns.filter(c => c.status === 'draft').length} campaigns ready to send
-        </span>
-      </div>
+  const renderReadyToSend = () => {
+    const [audiencePreviews, setAudiencePreviews] = useState({});
+    
+    useEffect(() => {
+      // Load audience previews for all draft campaigns
+      const loadAllPreviews = async () => {
+        const draftCampaigns = campaigns.filter(c => c.status === 'draft');
+        const previews = {};
+        
+        for (const campaign of draftCampaigns) {
+          const preview = await loadAudiencePreview(campaign.id);
+          if (preview) {
+            previews[campaign.id] = preview;
+          }
+        }
+        
+        setAudiencePreviews(previews);
+      };
+      
+      loadAllPreviews();
+    }, [campaigns]);
 
-      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {campaigns.filter(c => c.status === 'draft').map((campaign) => (
-                <tr key={campaign.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4">
-                    <div>
-                      <div className="font-medium text-[#0a1628]">{campaign.name}</div>
-                      <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border-yellow-200">
-                      <Clock className="w-4 h-4 text-yellow-600" />
-                      Ready to send
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {campaign.recipients || 0}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border-blue-200">
-                      <AlertCircle className="w-4 h-4 text-blue-600" />
-                      High
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => handleSendCampaign(campaign.id)}
-                        className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                      >
-                        <Send className="w-4 h-4" />
-                        Send Now
-                      </button>
-                      <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2">
-                        <Eye className="w-4 h-4" />
-                        Test
-                      </button>
-                    </div>
-                  </td>
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-[#0a1628]">Ready to Send</h3>
+          <span className="text-sm text-gray-500">
+            {campaigns.filter(c => c.status === 'draft').length} campaigns ready to send
+          </span>
+        </div>
+
+        <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estimated Recipients</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {campaigns.filter(c => c.status === 'draft').map((campaign) => {
+                  const preview = audiencePreviews[campaign.id];
+                  return (
+                    <tr key={campaign.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-4">
+                        <div>
+                          <div className="font-medium text-[#0a1628]">{campaign.name}</div>
+                          <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border-yellow-200">
+                          <Clock className="w-4 h-4 text-yellow-600" />
+                          Ready to send
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {preview ? (
+                          <div>
+                            <div className="font-medium">{preview.estimated_recipients.toLocaleString()}</div>
+                            <div className="text-xs text-gray-500">
+                              {preview.duplicates_removed > 0 && `(${preview.duplicates_removed} duplicates removed)`}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                            <span>Loading...</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border-blue-200">
+                          <AlertCircle className="w-4 h-4 text-blue-600" />
+                          High
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => handleSendCampaign(campaign.id)}
+                            className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                          >
+                            <Send className="w-4 h-4" />
+                            Queue Send
+                          </button>
+                          <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2">
+                            <Eye className="w-4 h-4" />
+                            Test
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderSentCampaigns = () => (
     <div className="space-y-6">

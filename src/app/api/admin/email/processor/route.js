@@ -7,6 +7,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Background email processor - designed to be run by cron job
 export async function POST(request) {
   try {
+    // Verify internal secret for security
+    const authHeader = request.headers.get('Authorization');
+    const cronSecret = process.env.CRON_SECRET || process.env.INTERNAL_API_SECRET;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== cronSecret) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { limit = 10 } = await request.json();
 
     // Get next batch of queued campaigns

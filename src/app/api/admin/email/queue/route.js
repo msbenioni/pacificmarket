@@ -1,10 +1,16 @@
 import { createServiceClient } from '@/lib/server-auth';
-
-const serviceClient = createServiceClient();
+import { requireAdmin } from '@/lib/server-auth';
 
 // Queue email campaign for background processing
 export async function POST(request) {
   try {
+    // Authenticate admin and get both clients
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { userClient, serviceClient } = auth;
     const { campaignId, priority = 'normal' } = await request.json();
 
     if (!campaignId) {
@@ -64,6 +70,13 @@ export async function POST(request) {
 // Get queue status
 export async function GET(request) {
   try {
+    // Authenticate admin and get both clients
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { serviceClient } = auth;
     const { searchParams } = new URL(request.url);
     const campaignId = searchParams.get('campaign_id');
 
