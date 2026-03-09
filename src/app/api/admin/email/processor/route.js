@@ -1,7 +1,7 @@
 import { createServiceClient } from '@/lib/server-auth';
 import { Resend } from 'resend';
 import { extractTemplateVariables } from '@/constants/emailConstants';
-import { getAudienceRecipients } from '@/lib/email/getAudienceRecipients';
+import { buildAudienceRecipients } from '@/lib/email/getAudienceRecipients';
 
 const serviceClient = createServiceClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -73,18 +73,16 @@ export async function POST(request) {
           .eq('id', queueItem.campaign_id);
 
         // Get audience emails using shared utility (already deduplicated)
-        const { emails, subscriberData } = await getAudienceRecipients(campaign, serviceClient);
+        const { recipients, subscriberData } = await buildAudienceRecipients(campaign, serviceClient);
 
-        const uniqueEmails = emails;
-
-        if (uniqueEmails.length === 0) {
+        if (recipients.length === 0) {
           throw new Error('No valid subscribers found');
         }
 
         // Create recipient records using service client (elevated access needed)
-        const recipientRecords = uniqueEmails.map(email => {
+        const recipientRecords = recipients.map(email => {
           // Find the subscriber ID for this email
-          const subscriber = subscriberData?.find(s => s.email.toLowerCase() === email.email.toLowerCase());
+          const subscriber = subscriberData?.find(s => s.id === email.subscriber_id);
           return {
             campaign_id: campaign.id,
             subscriber_id: subscriber?.id || null,
@@ -106,8 +104,8 @@ export async function POST(request) {
         let sentCount = 0;
         let failedCount = 0;
 
-        for (let i = 0; i < uniqueEmails.length; i += batchSize) {
-          const batch = uniqueEmails.slice(i, i + batchSize);
+        for (let i = 0; i < recipients.length; i += batchSize) {
+          const batch = recipients.slice(i, i + batchSize);
           
           for (const recipient of batch) {
             try {
@@ -204,7 +202,7 @@ export async function POST(request) {
           status: finalStatus,
           sent_count: sentCount,
           failed_count: failedCount,
-          total_processed: uniqueEmails.length
+          total_processed: recipients.length
         });
 
       } catch (error) {

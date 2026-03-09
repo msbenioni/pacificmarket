@@ -1,5 +1,5 @@
 import { requireAdmin } from '@/lib/server-auth';
-import { getAudienceRecipients } from '@/lib/email/getAudienceRecipients';
+import { buildAudienceRecipients } from '@/lib/email/getAudienceRecipients';
 
 export async function GET(request, { params }) {
   try {
@@ -28,10 +28,10 @@ export async function GET(request, { params }) {
     }
 
     // Get audience emails using shared utility (already deduplicated)
-    const { emails, totalRecipients } = await getAudienceRecipients(campaign, serviceClient);
+    const { recipients, totalRecipients } = await buildAudienceRecipients(campaign, serviceClient);
 
     // Get sample emails for preview
-    const sampleEmails = emails.slice(0, 10).map(e => ({
+    const sampleEmails = recipients.slice(0, 10).map(e => ({
       email: e.email,
       first_name: e.first_name,
       business_handle: e.business_handle
@@ -56,9 +56,9 @@ export async function GET(request, { params }) {
         subject: campaign.subject
       },
       audience_preview: {
-        total_raw: emails.length,
+        total_raw: recipients.length,
         total_unique: totalRecipients,
-        duplicates_removed: emails.length - totalRecipients,
+        duplicates_removed: recipients.length - totalRecipients,
         sample_emails: sampleEmails,
         estimated_recipients: totalRecipients
       }

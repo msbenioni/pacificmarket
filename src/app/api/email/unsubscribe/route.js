@@ -25,7 +25,7 @@ export async function POST(request) {
       // Token-based unsubscribe - validate token directly
       const { data: tokenData, error: tokenError } = await serviceClient
         .from('email_unsubscribe_tokens')
-        .select('email, expires_at')
+        .select('email, expires_at, used_at')
         .eq('token', token)
         .single();
 
@@ -33,12 +33,24 @@ export async function POST(request) {
         return Response.json({ error: 'Invalid or expired token' }, { status: 400 });
       }
 
-      // Check if token is expired
-      if (new Date(tokenData.expires_at) < new Date()) {
-        return Response.json({ error: 'Token has expired' }, { status: 400 });
+      // Check if token is already used
+      if (tokenData.used_at) {
+        return Response.json({ error: 'Token has already been used' }, { status: 400 });
       }
 
-      normalizedEmail = tokenData.email;
+      // Check token expiry
+      if (new Date(tokenData.expires_at) < new Date()) {
+        return Response.json({ error: 'Token expired' }, { status: 400 });
+      }
+
+      normalizedEmail = tokenData.email.toLowerCase().trim();
+
+      // Mark token as used
+      await serviceClient
+        .from('email_unsubscribe_tokens')
+        .update({ used_at: new Date().toISOString() })
+        .eq('token', token)
+        .single();
     }
 
     // Update subscriber status using service client (bypasses RLS)
@@ -81,37 +93,77 @@ export async function POST(request) {
 }
 
 // Also support GET requests for unsubscribe page to check status
+// Supports both legacy email and modern token-based lookup
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
+    const token = searchParams.get('token');
 
-    if (!email) {
-      return Response.json({ error: 'Email parameter is required' }, { status: 400 });
+    // Support both email (legacy) and token (modern) lookup
+    if (!email && !token) {
+      return Response.json({ error: 'Email or token parameter is required' }, { status: 400 });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
-      return Response.json({ error: 'Invalid email address' }, { status: 400 });
-    }
+    let subscriberData = null;
 
-    // Check current subscriber status
-    const { data, error } = await serviceClient
-      .from('email_subscribers')
-      .select('email, status, first_name, created_at')
-      .eq('email', normalizedEmail)
-      .single();
+    if (token) {
+      // Modern token-based lookup
+      const { data: tokenData, error: tokenError } = await serviceClient
+        .from('email_unsubscribe_tokens')
+        .select('email, expires_at')
+        .eq('token', token)
+        .single();
 
-    if (error && error.code !== 'PGRST116') {
-      console.error('Check subscriber status error:', error);
-      return Response.json({ error: 'Failed to check subscriber status' }, { status: 500 });
+      if (tokenError) {
+        return Response.json({ error: 'Invalid or expired token' }, { status: 400 });
+      }
+
+      // Check token expiry
+      if (new Date(tokenData.expires_at) < new Date()) {
+        return Response.json({ error: 'Token expired' }, { status: 400 });
+      }
+
+      // Get subscriber data from token email
+      const { data, error } = await serviceClient
+        .from('email_subscribers')
+        .select('email, status, first_name, created_at')
+        .eq('email', tokenData.email)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Check subscriber status error:', error);
+        return Response.json({ error: 'Failed to check subscriber status' }, { status: 500 });
+      }
+
+      subscriberData = data;
+    } else {
+      // Legacy email-based lookup
+      const normalizedEmail = email.toLowerCase().trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(normalizedEmail)) {
+        return Response.json({ error: 'Invalid email address' }, { status: 400 });
+      }
+
+      // Check current subscriber status
+      const { data, error } = await serviceClient
+        .from('email_subscribers')
+        .select('email, status, first_name, created_at')
+        .eq('email', normalizedEmail)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Check subscriber status error:', error);
+        return Response.json({ error: 'Failed to check subscriber status' }, { status: 500 });
+      }
+
+      subscriberData = data;
     }
 
     return Response.json({
       success: true,
-      subscriber: data || null,
-      is_subscribed: data ? data.status === 'subscribed' : false
+      subscriber: subscriberData || null,
+      is_subscribed: subscriberData ? subscriberData.status === 'subscribed' : false
     });
 
   } catch (error) {

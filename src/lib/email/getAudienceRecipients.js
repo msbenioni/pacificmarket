@@ -1,12 +1,14 @@
 import { createServiceClient } from '@/lib/server-auth';
 
 /**
- * Shared utility to build audience recipients for email campaigns
+ * Centralized audience building utility for email campaigns
  * Used by preview endpoint, queue endpoint, and background processor
+ * 
+ * Returns normalized array of recipients with consistent structure
  */
 
-export async function getAudienceRecipients(campaign, serviceClient) {
-  let emails = [];
+export async function buildAudienceRecipients(campaign, serviceClient) {
+  let rawEmails = [];
   let subscriberData = [];
 
   switch (campaign.audience) {
@@ -33,7 +35,7 @@ export async function getAudienceRecipients(campaign, serviceClient) {
             .select('owner_user_id, business_handle')
             .in('owner_user_id', profileIds);
           
-          emails = allSubscribers.map(subscriber => {
+          rawEmails = allSubscribers.map(subscriber => {
             const profile = subscriberProfiles?.find(p => 
               p.email?.toLowerCase() === subscriber.email.toLowerCase()
             );
@@ -41,18 +43,20 @@ export async function getAudienceRecipients(campaign, serviceClient) {
             return {
               email: subscriber.email,
               first_name: subscriber.first_name,
-              business_handle: business?.business_handle
+              business_handle: business?.business_handle,
+              subscriber_id: subscriber.id
             };
           });
         } else {
-          emails = allSubscribers.map(subscriber => ({
+          rawEmails = allSubscribers.map(subscriber => ({
             email: subscriber.email,
             first_name: subscriber.first_name,
-            business_handle: null
+            business_handle: null,
+            subscriber_id: subscriber.id
           }));
         }
       } else {
-        emails = [];
+        rawEmails = [];
       }
       break;
 
@@ -70,11 +74,28 @@ export async function getAudienceRecipients(campaign, serviceClient) {
           .select('owner_user_id, business_handle')
           .in('owner_user_id', ownerIds);
         
-        emails = businessOwners.map(owner => ({
-          email: owner.email,
-          first_name: owner.display_name,
-          business_handle: ownerBusinesses?.find(b => b.owner_user_id === owner.id)?.business_handle
-        }));
+        // Get subscriber data for business owners
+        const ownerEmails = businessOwners.map(o => o.email);
+        const { data: ownerSubscribers } = await serviceClient
+          .from('email_subscribers')
+          .select('id, email, first_name')
+          .in('email', ownerEmails)
+          .eq('status', 'subscribed');
+        
+        subscriberData = ownerSubscribers || [];
+        
+        rawEmails = businessOwners.map(owner => {
+          const subscriber = ownerSubscribers?.find(s => 
+            s.email.toLowerCase() === owner.email.toLowerCase()
+          );
+          const business = ownerBusinesses?.find(b => b.owner_user_id === owner.id);
+          return {
+            email: owner.email,
+            first_name: owner.display_name,
+            business_handle: business?.business_handle,
+            subscriber_id: subscriber?.id || null
+          };
+        }).filter(recipient => recipient.subscriber_id); // Only include actual subscribers
       }
       break;
 
@@ -91,14 +112,28 @@ export async function getAudienceRecipients(campaign, serviceClient) {
           .select('id, email, display_name')
           .in('id', manaOwnerIds);
         
-        emails = manaOwners?.map(owner => {
+        // Get subscriber data for mana plan owners
+        const manaEmails = manaOwners?.map(o => o.email) || [];
+        const { data: manaSubscribers } = await serviceClient
+          .from('email_subscribers')
+          .select('id, email, first_name')
+          .in('email', manaEmails)
+          .eq('status', 'subscribed');
+        
+        subscriberData = manaSubscribers || [];
+        
+        rawEmails = manaOwners?.map(owner => {
           const business = manaBusinesses.find(b => b.owner_user_id === owner.id);
+          const subscriber = manaSubscribers?.find(s => 
+            s.email.toLowerCase() === owner.email.toLowerCase()
+          );
           return {
             email: owner.email,
             first_name: owner.display_name,
-            business_handle: business?.business_handle
+            business_handle: business?.business_handle,
+            subscriber_id: subscriber?.id || null
           };
-        }) || [];
+        }).filter(recipient => recipient.subscriber_id) || [];
       }
       break;
 
@@ -115,14 +150,28 @@ export async function getAudienceRecipients(campaign, serviceClient) {
           .select('id, email, display_name')
           .in('id', moanaOwnerIds);
         
-        emails = moanaOwners?.map(owner => {
+        // Get subscriber data for moana plan owners
+        const moanaEmails = moanaOwners?.map(o => o.email) || [];
+        const { data: moanaSubscribers } = await serviceClient
+          .from('email_subscribers')
+          .select('id, email, first_name')
+          .in('email', moanaEmails)
+          .eq('status', 'subscribed');
+        
+        subscriberData = moanaSubscribers || [];
+        
+        rawEmails = moanaOwners?.map(owner => {
           const business = moanaBusinesses.find(b => b.owner_user_id === owner.id);
+          const subscriber = moanaSubscribers?.find(s => 
+            s.email.toLowerCase() === owner.email.toLowerCase()
+          );
           return {
             email: owner.email,
             first_name: owner.display_name,
-            business_handle: business?.business_handle
+            business_handle: business?.business_handle,
+            subscriber_id: subscriber?.id || null
           };
-        }) || [];
+        }).filter(recipient => recipient.subscriber_id) || [];
       }
       break;
 
@@ -146,14 +195,28 @@ export async function getAudienceRecipients(campaign, serviceClient) {
             .select('id, email, display_name')
             .in('id', referrerOwnerIds);
           
-          emails = referrerOwners?.map(owner => {
+          // Get subscriber data for referrers
+          const referrerEmails = referrerOwners?.map(o => o.email) || [];
+          const { data: referrerSubscribers } = await serviceClient
+            .from('email_subscribers')
+            .select('id, email, first_name')
+            .in('email', referrerEmails)
+            .eq('status', 'subscribed');
+          
+          subscriberData = referrerSubscribers || [];
+          
+          rawEmails = referrerOwners?.map(owner => {
             const business = referrerBusinesses?.find(b => b.owner_user_id === owner.id);
+            const subscriber = referrerSubscribers?.find(s => 
+              s.email.toLowerCase() === owner.email.toLowerCase()
+            );
             return {
               email: owner.email,
               first_name: owner.display_name,
-              business_handle: business?.business_handle
+              business_handle: business?.business_handle,
+              subscriber_id: subscriber?.id || null
             };
-          }) || [];
+          }).filter(recipient => recipient.subscriber_id) || [];
         }
       }
       break;
@@ -162,18 +225,28 @@ export async function getAudienceRecipients(campaign, serviceClient) {
       throw new Error(`Unsupported audience type: ${campaign.audience}`);
   }
 
-  // Remove duplicates by email (case-insensitive)
+  // Remove duplicates by email (case-insensitive) and normalize structure
   const uniqueEmails = new Map();
-  emails.forEach(email => {
+  rawEmails.forEach(email => {
     const lowerEmail = email.email.toLowerCase();
     if (!uniqueEmails.has(lowerEmail)) {
-      uniqueEmails.set(lowerEmail, email);
+      uniqueEmails.set(lowerEmail, {
+        email: email.email,
+        first_name: email.first_name || '',
+        business_handle: email.business_handle || null,
+        subscriber_id: email.subscriber_id
+      });
     }
   });
 
+  const normalizedRecipients = Array.from(uniqueEmails.values());
+
   return {
-    emails: Array.from(uniqueEmails.values()),
+    recipients: normalizedRecipients,
     subscriberData,
-    totalRecipients: uniqueEmails.size
+    totalRecipients: normalizedRecipients.length
   };
 }
+
+// Legacy export for backward compatibility
+export const getAudienceRecipients = buildAudienceRecipients;
