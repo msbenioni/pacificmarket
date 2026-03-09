@@ -335,27 +335,6 @@ export default function EmailMarketingDashboard() {
     );
   }
 
-  // Action error banner (non-blocking)
-  if (error) {
-    return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-        <div className="flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-600" />
-          <div>
-            <h4 className="text-sm font-semibold text-yellow-800">Action Failed</h4>
-            <p className="text-yellow-600 text-sm">{error}</p>
-          </div>
-          <button 
-            onClick={() => setError("")}
-            className="ml-auto text-yellow-600 hover:text-yellow-800 text-sm"
-          >
-            Dismiss
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const handleQuickTest = async (campaignId) => {
     alert('Quick test feature coming soon!');
   };
@@ -961,6 +940,25 @@ export default function EmailMarketingDashboard() {
           <p className="text-sm text-gray-600">Manage campaigns and subscribers</p>
         </div>
       </div>
+
+      {/* Action Error Banner (Non-blocking) */}
+      {error && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <div>
+              <h4 className="text-sm font-semibold text-yellow-800">Action Failed</h4>
+              <p className="text-yellow-600 text-sm">{error}</p>
+            </div>
+            <button 
+              onClick={() => setError("")}
+              className="ml-auto text-yellow-600 hover:text-yellow-800 text-sm"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
