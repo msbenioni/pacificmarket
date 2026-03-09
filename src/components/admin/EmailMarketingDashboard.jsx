@@ -135,7 +135,7 @@ export default function EmailMarketingDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [draftCampaigns]);
+  }, [campaigns]);
 
   const makeApiCall = async (endpoint, options = {}, token) => {
     if (!token) {
@@ -430,7 +430,10 @@ export default function EmailMarketingDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-[#0a1628]">Email Campaigns</h3>
-        <button className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2">
+        <button className="bg-[#0d4f4f] hover:bg-[#1a6b6b] disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          disabled
+          title="Create Campaign feature coming soon"
+        >
           <Plus className="w-4 h-4" />
           Create Campaign
         </button>
@@ -478,7 +481,10 @@ export default function EmailMarketingDashboard() {
                         <button className="text-gray-400 hover:text-gray-600">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="text-gray-400 hover:text-gray-600">
+                        <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                        disabled
+                        title="Edit Campaign feature coming soon"
+                      >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button 
@@ -655,7 +661,10 @@ export default function EmailMarketingDashboard() {
                       <button className="text-gray-400 hover:text-gray-600">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="text-gray-400 hover:text-gray-600">
+                      <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                        disabled
+                        title="Edit Campaign feature coming soon"
+                      >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button className="text-gray-400 hover:text-red-600">
@@ -846,7 +855,10 @@ export default function EmailMarketingDashboard() {
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">{template.subject}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button className="text-gray-400 hover:text-gray-600">
+                  <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                    disabled
+                    title="Edit Template feature coming soon"
+                  >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button 

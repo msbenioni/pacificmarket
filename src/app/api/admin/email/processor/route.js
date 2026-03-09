@@ -108,7 +108,7 @@ export async function POST(request) {
           .select();
 
         if (recipientsError) {
-          throw new Error('Failed to create recipient records');
+          throw new Error(recipientsError.message || 'Failed to create recipient records');
         }
 
         // Build email-to-record map using returned inserted rows (no ordering assumptions)
@@ -296,10 +296,14 @@ export async function POST(request) {
         }
 
         // Update campaign status
-        await serviceClient
+        const { error: campaignFailedError } = await serviceClient
           .from('email_campaigns')
           .update({ status: 'failed' })
           .eq('id', queueItem.campaign_id);
+
+        if (campaignFailedError) {
+          console.error(`Failed to mark campaign ${queueItem.campaign_id} as failed`, campaignFailedError);
+        }
 
         results.push({
           queue_item_id: queueItem.id,
