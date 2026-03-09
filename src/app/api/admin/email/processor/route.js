@@ -159,6 +159,8 @@ export async function POST(request) {
                   .eq('id', recipientRecord.id);
               }
 
+              sentCount++; // ✅ Increment success counter
+
               await new Promise(resolve => setTimeout(resolve, 200));
 
             } catch (error) {
