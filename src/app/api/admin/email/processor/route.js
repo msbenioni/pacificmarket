@@ -91,13 +91,22 @@ export async function POST(request) {
           };
         });
 
-        const { error: recipientsError } = await serviceClient
+        const { data: insertedRecipients, error: recipientsError } = await serviceClient
           .from('email_campaign_recipients')
-          .insert(recipientRecords);
+          .insert(recipientRecords)
+          .select()
+          .order('created_at', { ascending: false })
+          .limit(recipientRecords.length);
 
         if (recipientsError) {
           throw new Error('Failed to create recipient records');
         }
+
+        // Map emails to their database records
+        const emailToRecordMap = new Map();
+        insertedRecipients?.forEach(record => {
+          emailToRecordMap.set(record.email, record);
+        });
 
         // Send emails (smaller batches for background processing)
         const batchSize = 25;
@@ -129,38 +138,38 @@ export async function POST(request) {
                 personalizedHtml = personalizedHtml.replace(regex, value);
               }
 
-              const { data, error } = await resend.emails.send({
-                from: 'Pacific Market <hello@pacificmarket.co.nz>',
+              // Send email using Resend
+              const resendResponse = await resend.emails.send({
+                from: 'Pacific Market <team@pacificmarket.co.nz>',
                 to: recipient.email,
                 subject: campaign.subject,
                 html: personalizedHtml
               });
 
-              if (error) {
-                failedCount++;
+              // Update recipient status with provider ID
+              const recipientRecord = emailToRecordMap.get(recipient.email);
+              if (recipientRecord) {
                 await serviceClient
                   .from('email_campaign_recipients')
-                  .update({ status: 'failed' })
-                  .eq('campaign_id', campaign.id)
-                  .eq('email', recipient.email);
-              } else {
-                sentCount++;
-                await serviceClient
-                  .from('email_campaign_recipients')
-                  .update({ status: 'sent', sent_at: new Date().toISOString() })
-                  .eq('campaign_id', campaign.id)
-                  .eq('email', recipient.email);
+                  .update({
+                    status: 'sent',
+                    sent_at: new Date().toISOString(),
+                    provider_message_id: resendResponse.data?.id
+                  })
+                  .eq('id', recipientRecord.id);
               }
 
               await new Promise(resolve => setTimeout(resolve, 200));
 
             } catch (error) {
               failedCount++;
-              await serviceClient
-                .from('email_campaign_recipients')
-                .update({ status: 'failed' })
-                .eq('campaign_id', campaign.id)
-                .eq('email', recipient.email);
+              const recipientRecord = emailToRecordMap.get(recipient.email);
+              if (recipientRecord) {
+                await serviceClient
+                  .from('email_campaign_recipients')
+                  .update({ status: 'failed' })
+                  .eq('id', recipientRecord.id);
+              }
             }
           }
 

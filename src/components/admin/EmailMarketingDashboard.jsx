@@ -18,6 +18,12 @@ export default function EmailMarketingDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [audiencePreviews, setAudiencePreviews] = useState({});
+  
+  // Per-action loading states
+  const [sendingCampaignId, setSendingCampaignId] = useState(null);
+  const [deletingCampaignId, setDeletingCampaignId] = useState(null);
+  const [deletingTemplateId, setDeletingTemplateId] = useState(null);
+  const [updatingSubscriberId, setUpdatingSubscriberId] = useState(null);
 
   const tabs = [
     { id: "campaigns", label: "Campaigns", icon: Mail, category: "creation" },
@@ -218,17 +224,18 @@ export default function EmailMarketingDashboard() {
     if (!confirm('Are you sure you want to delete this campaign?')) return;
     
     try {
+      setDeletingCampaignId(campaignId);
       const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/campaigns/${campaignId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete campaign');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete campaign');
       }
 
       // Reload data
@@ -236,6 +243,8 @@ export default function EmailMarketingDashboard() {
     } catch (error) {
       console.error('Error deleting campaign:', error);
       setError(error.message || 'Failed to delete campaign');
+    } finally {
+      setDeletingCampaignId(null);
     }
   };
 
@@ -243,6 +252,7 @@ export default function EmailMarketingDashboard() {
     if (!confirm('Are you sure you want to delete this template?')) return;
     
     try {
+      setDeletingTemplateId(templateId);
       const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/templates`, {
         method: 'DELETE',
@@ -254,7 +264,8 @@ export default function EmailMarketingDashboard() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete template');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete template');
       }
 
       // Reload data
@@ -262,11 +273,14 @@ export default function EmailMarketingDashboard() {
     } catch (error) {
       console.error('Error deleting template:', error);
       setError(error.message || 'Failed to delete template');
+    } finally {
+      setDeletingTemplateId(null);
     }
   };
 
   const handleUpdateSubscriber = async (subscriberId, status) => {
     try {
+      setUpdatingSubscriberId(subscriberId);
       const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/subscribers`, {
         method: 'PUT',
@@ -286,6 +300,8 @@ export default function EmailMarketingDashboard() {
     } catch (error) {
       console.error('Error updating subscriber:', error);
       setError(error.message || 'Failed to update subscriber');
+    } finally {
+      setUpdatingSubscriberId(null);
     }
   };
 
@@ -317,42 +333,40 @@ export default function EmailMarketingDashboard() {
     );
   }
 
+  const handleQuickTest = async (campaignId) => {
+    alert('Quick test feature coming soon!');
+  };
+
   const handleSendCampaign = async (campaignId) => {
     if (!confirm('Are you sure you want to send this campaign? This will queue the campaign for background sending.')) {
       return;
     }
 
     try {
+      setSendingCampaignId(campaignId);
       const token = await getAuthToken();
       const response = await fetch('/api/admin/email/queue-campaign', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ campaignId })
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to queue campaign');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to queue campaign');
       }
 
-      // Refresh data
+      // Reload data
       await loadEmailData();
-      
-      alert('Campaign queued for sending!');
-      
     } catch (error) {
-      console.error('Queue campaign error:', error);
-      alert(error.message || 'Failed to queue campaign');
+      console.error('Error queuing campaign:', error);
+      setError(error.message || 'Failed to queue campaign');
+    } finally {
+      setSendingCampaignId(null);
     }
-  };
-
-  const handleQuickTest = async (campaignId) => {
-    // TODO: Implement quick test functionality
-    alert('Quick test feature coming soon!');
   };
 
   const renderCampaigns = () => (
@@ -412,9 +426,14 @@ export default function EmailMarketingDashboard() {
                         </button>
                         <button 
                           onClick={() => handleDeleteCampaign(campaign.id)}
-                          className="text-gray-400 hover:text-red-600"
+                          disabled={deletingCampaignId === campaign.id}
+                          className="text-gray-400 hover:text-red-600 disabled:text-gray-300"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          {deletingCampaignId === campaign.id ? (
+                            <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -498,10 +517,20 @@ export default function EmailMarketingDashboard() {
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => handleSendCampaign(campaign.id)}
-                            className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                            disabled={sendingCampaignId === campaign.id}
+                            className="bg-[#0d4f4f] hover:bg-[#1a6b6b] disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                           >
-                            <Send className="w-4 h-4" />
-                            Queue Send
+                            {sendingCampaignId === campaign.id ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Queuing...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-4 h-4" />
+                                Queue Send
+                              </>
+                            )}
                           </button>
                           <button 
                             onClick={() => handleQuickTest(campaign.id)}
@@ -714,7 +743,8 @@ export default function EmailMarketingDashboard() {
                       <select
                         value={subscriber.status}
                         onChange={(e) => handleUpdateSubscriber(subscriber.id, e.target.value)}
-                        className="text-xs border border-gray-200 rounded px-2 py-1"
+                        disabled={updatingSubscriberId === subscriber.id}
+                        className="text-xs border border-gray-200 rounded px-2 py-1 disabled:bg-gray-100"
                       >
                         <option value="subscribed">Subscribed</option>
                         <option value="unsubscribed">Unsubscribed</option>
