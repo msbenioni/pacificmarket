@@ -79,10 +79,24 @@ function AdminBusinessMobileCard({
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          <span className="text-sm font-bold text-white">
-            {business.name?.[0] || "?"}
-          </span>
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+          {business.logo_url ? (
+            <img
+              src={business.logo_url}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                console.warn('Failed to load mobile business logo:', business.logo_url);
+                e.currentTarget.src = '/pm_logo.png';
+              }}
+            />
+          ) : (
+            <img
+              src="/pm_logo.png"
+              alt="Pacific Market"
+              className="h-full w-full object-cover"
+            />
+          )}
         </div>
 
         <div className="min-w-0 flex-1">
@@ -163,10 +177,24 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          <span className="text-sm font-bold text-white">
-            {business?.name?.[0] || "?"}
-          </span>
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+          {business?.logo_url ? (
+            <img
+              src={business.logo_url}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                console.warn('Failed to load claim mobile logo:', business.logo_url);
+                e.currentTarget.src = '/pm_logo.png';
+              }}
+            />
+          ) : (
+            <img
+              src="/pm_logo.png"
+              alt="Pacific Market"
+              className="h-full w-full object-cover"
+            />
+          )}
         </div>
 
         <div className="min-w-0 flex-1">
@@ -217,7 +245,7 @@ function InsightMobileCard({ business, snapshot, onView }) {
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-sm font-semibold text-[#0a1628]">{business.name}</h3>
             <span className={`rounded-full border px-2 py-0.5 text-[11px] ${getBadgeStyles("neutral")}`}>
-              {business.subscription_tier}
+              {business.visibility_tier || 'none'}
             </span>
             {business.verified && (
               <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("premium")}`}>
@@ -350,7 +378,7 @@ export default function AdminDashboard() {
                 industry, social_links, business_hours, business_structure,
                 year_started, status, verified, claimed, claimed_at, claimed_by,
                 visibility_tier, homepage_featured, source, profile_completeness,
-                referral_code, owner_user_id, created_at, updated_at
+                referral_code, owner_user_id, created_at, updated_at, subscription_tier
               `)
               .order("created_at", { ascending: false })
               .limit(200),
@@ -398,7 +426,7 @@ export default function AdminDashboard() {
   }, []);
 
   const createVerifiedBusinessUpdates = () => ({
-    subscription_tier: BUSINESS_TIER.VAKA,
+    visibility_tier: "homepage",
     verified: true,
   });
 
@@ -462,7 +490,21 @@ export default function AdminDashboard() {
 
       const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
         if (
-          !["updated_date", "created_date", "verification_source", "tagline", "contact_website"].includes(key)
+          ![
+            "updated_date",
+            "created_date",
+            "verification_source",
+            "tagline",
+            "contact_website",
+            "year_started",
+            "full_time_employees",
+            "part_time_employees",
+            "annual_revenue_exact",
+            "homepage_featured",
+            "profile_completeness",
+            "claimed",
+            "verified"
+          ].includes(key)
         ) {
           acc[key] = updateData[key];
         }
@@ -980,10 +1022,24 @@ export default function AdminDashboard() {
                               className="rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
                             >
                               <div className="flex items-start gap-4">
-                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                                  <span className="text-sm font-bold text-white">
-                                    {business?.name?.[0] || "?"}
-                                  </span>
+                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                                  {business?.logo_url ? (
+                                    <img
+                                      src={business.logo_url}
+                                      alt=""
+                                      className="h-full w-full object-cover"
+                                      onError={(e) => {
+                                        console.warn('Failed to load claim business logo:', business.logo_url);
+                                        e.currentTarget.src = '/pm_logo.png';
+                                      }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src="/pm_logo.png"
+                                      alt="Pacific Market"
+                                      className="h-full w-full object-cover"
+                                    />
+                                  )}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -1162,10 +1218,24 @@ export default function AdminDashboard() {
                               <tr key={b.id} className="hover:bg-gray-50">
                                 <td className="px-4 py-4">
                                   <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                                      <span className="text-xs font-bold text-white">
-                                        {b.name?.[0]}
-                                      </span>
+                                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                                      {b.logo_url ? (
+                                        <img
+                                          src={b.logo_url}
+                                          alt=""
+                                          className="h-full w-full object-cover"
+                                          onError={(e) => {
+                                            console.warn('Failed to load admin dashboard logo:', b.logo_url);
+                                            e.currentTarget.src = '/pm_logo.png';
+                                          }}
+                                        />
+                                      ) : (
+                                        <img
+                                          src="/pm_logo.png"
+                                          alt="Pacific Market"
+                                          className="h-full w-full object-cover"
+                                        />
+                                      )}
                                     </div>
                                     <div>
                                       <div className="font-medium text-[#0a1628]">{b.name}</div>
