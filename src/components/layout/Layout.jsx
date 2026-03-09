@@ -76,6 +76,7 @@ export default function Layout({ children, currentPageName }) {
 
   const navLinks = [
     { label: "Registry", page: "Registry" },
+    { label: "Tools", page: "Tools" },
     { label: "Insights", page: "Insights" },
     { label: "About", page: "About" },
     { label: "Pricing", page: "Pricing" },

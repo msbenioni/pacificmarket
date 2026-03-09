@@ -7,6 +7,7 @@ import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import StatsBar from "../components/home/StatsBar";
 import FeaturedSpotlight from "../components/home/FeaturedSpotlight";
 import HeroHomepage from "../components/shared/HeroHomepage";
+import ToolsHomepageSnippet from "../components/ToolsHomepageSnippet";
 
 export const dynamic = "force-dynamic";
 
@@ -125,6 +126,9 @@ export default function Home() {
           </span>
         </div>
       </section>
+
+      {/* Tools Homepage Snippet */}
+      <ToolsHomepageSnippet />
 
       {/* Featured Businesses */}
       {featured.length > 0 && (
