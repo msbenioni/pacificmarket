@@ -115,7 +115,7 @@ export async function POST(request) {
         // Build email-to-record map using returned inserted rows (no ordering assumptions)
         const emailToRecordMap = new Map();
         insertedRecipients?.forEach(record => {
-          emailToRecordMap.set(record.email, record);
+          emailToRecordMap.set(record.email.toLowerCase(), record);
         });
 
         // Extract template variables once per campaign
@@ -162,7 +162,7 @@ export async function POST(request) {
               }
 
               // Update recipient status with provider ID
-              const recipientRecord = emailToRecordMap.get(recipient.email);
+              const recipientRecord = emailToRecordMap.get(recipient.email.toLowerCase());
               if (recipientRecord) {
                 const { error: updateError } = await serviceClient
                   .from('email_campaign_recipients')
@@ -189,7 +189,7 @@ export async function POST(request) {
 
             } catch (error) {
               failedCount++;
-              const recipientRecord = emailToRecordMap.get(recipient.email);
+              const recipientRecord = emailToRecordMap.get(recipient.email.toLowerCase());
               if (recipientRecord) {
                 // Defensive error message handling
                 const errorMessage = error instanceof Error ? error.message : 'Failed to send email';

@@ -90,8 +90,6 @@ export default function EmailMarketingDashboard() {
         setAudiencePreviews({});
         return;
       }
-
-      const draftCampaigns = campaigns.filter(c => c.status === 'draft');
       
       if (draftCampaigns.length === 0) {
         // Clear previews if no draft campaigns
@@ -130,7 +128,7 @@ export default function EmailMarketingDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [campaigns]);
+  }, [draftCampaigns]);
 
   const makeApiCall = async (endpoint, options = {}, token) => {
     if (!token) {
@@ -362,13 +360,15 @@ export default function EmailMarketingDashboard() {
             <div className="flex gap-2 mt-3">
               <button 
                 onClick={loadEmailData}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                disabled={loading}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-lg"
               >
-                Try Again
+                {loading ? 'Loading...' : 'Try Again'}
               </button>
               <button 
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
+                disabled={loading}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg"
               >
                 Reload Page
               </button>
@@ -378,10 +378,6 @@ export default function EmailMarketingDashboard() {
       </div>
     );
   }
-
-  const handleQuickTest = async (campaignId) => {
-    alert('Quick test feature coming soon!');
-  };
 
   const handleSendCampaign = async (campaignId) => {
     if (!confirm('Are you sure you want to send this campaign? This will queue the campaign for background sending.')) {
@@ -587,7 +583,6 @@ export default function EmailMarketingDashboard() {
                             )}
                           </button>
                           <button 
-                            onClick={() => handleQuickTest(campaign.id)}
                             disabled
                             className="bg-gray-100 hover:bg-gray-200 text-gray-500 px-3 py-2 rounded-lg text-sm flex items-center gap-2 cursor-not-allowed"
                             title="Quick test feature coming soon"
@@ -939,7 +934,7 @@ export default function EmailMarketingDashboard() {
         <h4 className="font-semibold text-[#0a1628] mb-4">Campaign Performance</h4>
         {completedCampaigns.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No sent campaigns yet. Send your first campaign to see performance data.
+            No completed campaigns yet. Send your first campaign to see performance data.
           </div>
         ) : (
           <div className="space-y-4">
