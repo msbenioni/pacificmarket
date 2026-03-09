@@ -72,6 +72,45 @@ export default function BusinessLogin() {
 
   const { navigateToLogin } = useAuth();
 
+  // Helper function to ensure user has a profile record
+  const ensureProfileExists = async (user) => {
+    if (!user?.id) return;
+    
+    try {
+      const supabase = getSupabase();
+      
+      // Check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+      
+      // If no profile exists, create one
+      if (!existingProfile) {
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email,
+            display_name: user.user_metadata?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0],
+            role: 'owner', // Default role for business users
+            status: 'active',
+            gdpr_consent: user.user_metadata?.gdpr_consent || false,
+            gdpr_consent_date: user.user_metadata?.gdpr_consent_date || null,
+          });
+        
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          // Don't throw error - login should still work
+        }
+      }
+    } catch (error) {
+      console.error('Error ensuring profile exists:', error);
+      // Don't throw error - login should still work
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -127,12 +166,23 @@ export default function BusinessLogin() {
       }
 
       if (mode === "signin") {
-        setSuccess("Login successful! Redirecting...");
         // Refresh user context and redirect immediately
         const { data: { user: currentUser } } = await supabase.auth.getUser();
         setUser(currentUser);
+        
+        // Ensure profile exists for signin
+        if (currentUser) {
+          await ensureProfileExists(currentUser);
+        }
+        
+        setSuccess("Login successful! Redirecting...");
         router.push(createPageUrl("BusinessPortal"));
       } else {
+        // Create profile record after successful signup
+        if (result.data?.user) {
+          await ensureProfileExists(result.data.user);
+        }
+        
         setSuccess("✅ Account created! Please check your email for a confirmation link. After confirming, sign in to access your Business Portal where you can claim existing businesses or submit new listings.");
         // Switch to signin mode after successful signup
         setMode("signin");

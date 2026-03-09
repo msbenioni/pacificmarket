@@ -389,3 +389,14 @@ export const AGE_RANGES = [
   { value: '65+', label: '65+' },
   { value: 'prefer_not_to_say', label: 'Prefer not to say' }
 ];
+
+// Helper functions to get display names from values
+export const getCountryDisplayName = (value) => {
+  const country = COUNTRIES.find(c => c.value === value);
+  return country ? country.label : value;
+};
+
+export const getIndustryDisplayName = (value) => {
+  const industry = INDUSTRIES.find(i => i.value === value);
+  return industry ? industry.label : value;
+};

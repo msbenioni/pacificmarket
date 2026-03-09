@@ -29,6 +29,11 @@ export default function BusinessCard({ business, view = "grid" }) {
     business.description ||
     "";
 
+  const handleImageError = (e) => {
+    console.warn('Failed to load business logo:', business.logo_url);
+    e.currentTarget.src = '/pm_logo.png';
+  };
+
   if (view === "list") {
     return (
       <Link
@@ -43,6 +48,7 @@ export default function BusinessCard({ business, view = "grid" }) {
                 src={business.logo_url}
                 alt=""
                 className="h-full w-full object-cover"
+                onError={handleImageError}
               />
             ) : (
               <img
@@ -107,6 +113,7 @@ export default function BusinessCard({ business, view = "grid" }) {
                 src={business.logo_url}
                 alt=""
                 className="h-full w-full object-cover"
+                onError={handleImageError}
               />
             ) : (
               <img

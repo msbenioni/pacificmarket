@@ -244,7 +244,6 @@ export function ClaimAddBusinessModal({
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           status: "pending",
-          subscription_tier: "vaka",
           visibility_tier: "none",
         })
         .select();

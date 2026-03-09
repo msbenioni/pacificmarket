@@ -29,9 +29,17 @@ export default function Registry() {
         const supabase = getSupabase();
         const { data } = await supabase
           .from('businesses')
-          .select('*')
+          .select(`
+            id, name, business_handle, short_description, description,
+            logo_url, banner_url, contact_email, contact_phone, contact_website,
+            address, suburb, city, state_region, postal_code, country,
+            industry, social_links, business_hours, business_structure,
+            year_started, status, verified, claimed, claimed_at, claimed_by,
+            visibility_tier, homepage_featured, source, profile_completeness,
+            referral_code, owner_user_id, created_at, updated_at
+          `)
           .eq('status', BUSINESS_STATUS.ACTIVE)
-          .order('created_date', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(100);
         
         setBusinesses(data || []);
@@ -67,7 +75,7 @@ export default function Registry() {
     if (sort === "verified") result = [...result].sort((a, b) => (b.verified ? 1 : 0) - (a.verified ? 1 : 0));
     else if (sort === "featured") result = [...result].sort((a, b) => {
       const tierOrder = { moana: 0, mana: 1, vaka: 2 };
-      return (tierOrder[a.subscription_tier] ?? 2) - (tierOrder[b.subscription_tier] ?? 2);
+      return (tierOrder[a.subscription_tier ?? 2] ?? 2) - (tierOrder[b.subscription_tier ?? 2] ?? 2);
     });
     else if (sort === "alpha") result = [...result].sort((a, b) => a.name?.localeCompare(b.name));
 

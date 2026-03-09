@@ -31,6 +31,8 @@ import {
   BUSINESS_TIER,
   BUSINESS_SOURCE,
   getTierDisplayName,
+  getCountryDisplayName,
+  getIndustryDisplayName,
 } from "@/constants/unifiedConstants";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import FounderInsightsSummary from "@/components/insights/FounderInsightsSummary";
@@ -341,12 +343,24 @@ export default function AdminDashboard() {
           const [businessesResult, claimsResult] = await Promise.all([
             supabase
               .from("businesses")
-              .select("*")
-              .order("created_date", { ascending: false })
+              .select(`
+                id, name, business_handle, short_description, description,
+                logo_url, banner_url, contact_email, contact_phone, contact_website,
+                address, suburb, city, state_region, postal_code, country,
+                industry, social_links, business_hours, business_structure,
+                year_started, status, verified, claimed, claimed_at, claimed_by,
+                visibility_tier, homepage_featured, source, profile_completeness,
+                referral_code, owner_user_id, created_at, updated_at
+              `)
+              .order("created_at", { ascending: false })
               .limit(200),
             supabase
               .from("claim_requests")
-              .select("*")
+              .select(`
+                id, business_id, user_id, status, contact_email, contact_phone,
+                verification_documents, rejection_reason, reviewed_by, reviewed_at,
+                business_name, user_email, role, proof_url, created_at
+              `)
               .order("created_date", { ascending: false })
               .limit(100),
           ]);
@@ -593,7 +607,15 @@ export default function AdminDashboard() {
       const { data, error } = await supabase
         .from("businesses")
         .insert(businessData)
-        .select("*")
+        .select(`
+          id, name, business_handle, short_description, description,
+          logo_url, banner_url, contact_email, contact_phone, contact_website,
+          address, suburb, city, state_region, postal_code, country,
+          industry, social_links, business_hours, business_structure,
+          year_started, status, verified, claimed, claimed_at, claimed_by,
+          visibility_tier, homepage_featured, source, profile_completeness,
+          referral_code, owner_user_id, created_date, updated_date
+        `)
         .single();
 
       if (error) throw error;
@@ -1155,7 +1177,7 @@ export default function AdminDashboard() {
                                 </td>
                                 <td className="px-4 py-4">
                                   <div className="text-sm text-gray-600">
-                                    {b.country} · {b.industry || "No industry"}
+                                    {getCountryDisplayName(b.country)} · {getIndustryDisplayName(b.industry) || "No industry"}
                                   </div>
                                   <div className="text-xs text-gray-400">
                                     Submitted{" "}
@@ -1167,7 +1189,7 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-4">
                                   <div className="flex items-center gap-2">
                                     <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(b.verified ? "premium" : "neutral")}`}>
-                                      {b.subscription_tier}
+                                      {getTierDisplayName(b.subscription_tier) || b.subscription_tier || "vaka"}
                                     </span>
                                     {b.verified && (
                                       <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("success")}`}>

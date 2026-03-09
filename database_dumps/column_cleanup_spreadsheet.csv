@@ -1,0 +1,156 @@
+Table,Column,Current Location,Recommended Action,Target Location,Notes,Rationale
+profiles,id,profiles,Keep,,Primary key,Core identity
+profiles,email,profiles,Keep,,Login email,Account auth
+profiles,display_name,profiles,Keep,,Person display name,UI display
+profiles,role,profiles,Keep,,App permissions,Access control
+profiles,country,profiles,Keep,,Person location,Geographic data
+profiles,city,profiles,Keep,,Person location,Geographic data
+profiles,primary_cultural,profiles,Keep,,Founder identity,Cultural data
+profiles,languages,profiles,Keep,,Person languages,Communication
+profiles,gdpr_consent,profiles,Keep,,Legal consent,Compliance
+profiles,gdpr_consent_date,profiles,Keep,,Legal consent,Compliance
+profiles,status,profiles,Keep,,Account status,Workflow
+profiles,invited_by,profiles,Keep,,Referral tracking,Onboarding
+profiles,invited_date,profiles,Keep,,Referral tracking,Onboarding
+profiles,pending_business_id,profiles,Keep,,Onboarding state,Workflow
+profiles,pending_business_name,profiles,Keep,,Onboarding state,Workflow
+profiles,business_goals,profiles,Move,business_insights_snapshots,Founder journey data,Time-based insight
+profiles,challenges_faced,profiles,Move,business_insights_snapshots,Founder journey data,Time-based insight
+profiles,success_factors,profiles,Move,business_insights_snapshots,Founder journey data,Time-based insight
+profiles,community_involvement,profiles,Move,business_insights_snapshots,Founder journey data,Time-based insight
+profiles,skills_expertise,profiles,Move,business_insights_snapshots,Founder journey data,Time-based insight
+businesses,id,businesses,Keep,,Primary key,Core identity
+businesses,user_id,businesses,Remove,,Duplicate of owner_user_id,Schema cleanup
+businesses,owner_user_id,businesses,Keep,,Owner relationship,Core FK
+businesses,name,businesses,Keep,,Business name,Core data
+businesses,business_handle,businesses,Keep,,Public slug,URL/identity
+businesses,short_description,businesses,Keep,,Public description,Choose one vs tagline
+businesses,tagline,businesses,Remove,,Duplicate of short_description,Cleanup
+businesses,description,businesses,Keep,,Long description,Public content
+businesses,logo_url,businesses,Keep,,Media asset,Display
+businesses,banner_url,businesses,Keep,,Media asset,Display
+businesses,contact_email,businesses,Keep,,Public contact,Communication
+businesses,contact_phone,businesses,Keep,,Public contact,Communication
+businesses,contact_website,businesses,Keep,,Public website,External link
+businesses,address,businesses,Keep,,Location data,Geographic
+businesses,suburb,businesses,Keep,,Location data,Geographic
+businesses,city,businesses,Keep,,Location data,Geographic
+businesses,state_region,businesses,Keep,,Location data,Geographic
+businesses,postal_code,businesses,Keep,,Location data,Geographic
+businesses,country,businesses,Keep,,Location data,Geographic
+businesses,industry,businesses,Keep,,Classification,Categorization
+businesses,social_links,businesses,Keep,,External links,Social media
+businesses,business_hours,businesses,Keep,,Operating hours,Public info
+businesses,business_structure,businesses,Keep,,Legal structure,Business data
+businesses,year_started,businesses,Keep,,Historical data,Business age
+businesses,status,businesses,Keep,,Workflow state,Registry status
+businesses,verified,businesses,Keep,,Registry state,Verification
+businesses,claimed,businesses,Keep,,Workflow state,Ownership
+businesses,claimed_at,businesses,Keep,,Workflow timestamp,Audit
+businesses,claimed_by,businesses,Keep,,Workflow actor,Audit
+businesses,visibility_tier,businesses,Keep,,Registry setting,Display control
+businesses,homepage_featured,businesses,Keep,,Merchandising,Site features
+businesses,source,businesses,Keep,,Data origin,Tracking
+businesses,profile_completeness,businesses,Keep,,Derived metric,Quality score
+businesses,referral_code,businesses,Keep,,Referral tracking,Marketing
+businesses,created_date,businesses,Keep,,Audit timestamp,Tracking
+businesses,updated_date,businesses,Keep,,Audit timestamp,Tracking
+businesses,annual_revenue_exact,businesses,Move,business_insights_snapshots,Financial insight,Time-based data
+businesses,full_time_employees,businesses,Move,business_insights_snapshots,Team insight,Time-based data
+businesses,part_time_employees,businesses,Move,business_insights_snapshots,Team insight,Time-based data
+businesses,primary_market,businesses,Move,business_insights_snapshots,Market insight,Time-based data
+businesses,growth_stage,businesses,Move,business_insights_snapshots,Business insight,Time-based data
+businesses,funding_source,businesses,Move,business_insights_snapshots,Financial insight,Time-based data
+businesses,business_challenges,businesses,Move,business_insights_snapshots,Founder journey,Time-based data
+businesses,future_plans,businesses,Move,business_insights_snapshots,Founder journey,Time-based data
+businesses,tech_stack,businesses,Move,business_insights_snapshots,Technical insight,Time-based data
+businesses,customer_segments,businesses,Move,business_insights_snapshots,Market insight,Time-based data
+businesses,competitive_advantage,businesses,Move,business_insights_snapshots,Strategy insight,Time-based data
+businesses,subscription_tier,businesses,Move,subscriptions,Billing truth,Subscription ownership
+businesses,stripe_customer_id,businesses,Move,subscriptions,Billing truth,Subscription ownership
+businesses,subscription_status,businesses,Move,subscriptions,Billing truth,Subscription ownership
+businesses,subscription_period_end,businesses,Move,subscriptions,Billing truth,Subscription ownership
+businesses,listing_tier,businesses,Move,subscriptions,Billing truth,Subscription ownership
+business_insights_snapshots,id,business_insights_snapshots,Keep,,Primary key,Core identity
+business_insights_snapshots,business_id,business_insights_snapshots,Keep,,FK to businesses,Relationship
+business_insights_snapshots,snapshot_year,business_insights_snapshots,Keep,,Time context,Historical
+business_insights_snapshots,submitted_date,business_insights_snapshots,Keep,,Audit timestamp,Tracking
+business_insights_snapshots,founder_story,business_insights_snapshots,Keep,,Founder journey,Narrative
+business_insights_snapshots,founder_role,business_insights_snapshots,Keep,,Founder journey,Context
+business_insights_snapshots,motivation,business_insights_snapshots,Keep,,Founder journey,Insight
+business_insights_snapshots,problem_solved,business_insights_snapshots,Keep,,Founder journey,Insight
+business_insights_snapshots,team_size_band,business_insights_snapshots,Keep,,Business insight,Operational
+business_insights_snapshots,business_model,business_insights_snapshots,Keep,,Business insight,Strategy
+business_insights_snapshots,family_involvement,business_insights_snapshots,Keep,,Business insight,Cultural
+business_insights_snapshots,customer_region,business_insights_snapshots,Keep,,Market insight,Geographic
+business_insights_snapshots,sales_channels,business_insights_snapshots,Keep,,Business insight,Operational
+business_insights_snapshots,import_export_status,business_insights_snapshots,Keep,,Trade insight,International
+business_insights_snapshots,import_countries,business_insights_snapshots,Keep,,Trade insight,International
+business_insights_snapshots,export_countries,business_insights_snapshots,Keep,,Trade insight,International
+business_insights_snapshots,business_stage,business_insights_snapshots,Keep,,Business insight,Growth
+business_insights_snapshots,top_challenges,business_insights_snapshots,Keep,,Founder journey,Insight
+business_insights_snapshots,support_needed,business_insights_snapshots,Keep,,Founder journey,Needs
+business_insights_snapshots,goals_next_12_months,business_insights_snapshots,Keep,,Founder journey,Planning
+business_insights_snapshots,hiring_intentions,business_insights_snapshots,Keep,,Business insight,Growth
+business_insights_snapshots,community_impact_areas,business_insights_snapshots,Keep,,Founder journey,Social
+business_insights_snapshots,collaboration_interest,business_insights_snapshots,Keep,,Founder journey,Network
+business_insights_snapshots,revenue_band,business_insights_snapshots,Keep,,Financial insight,Performance
+business_insights_snapshots,expansion_plans,business_insights_snapshots,Keep,,Business insight,Growth
+business_insights_snapshots,culture_influence_details,business_insights_snapshots,Keep,,Founder journey,Cultural
+business_insights_snapshots,mentorship_access,business_insights_snapshots,Keep,,Founder journey,Ecosystem
+business_insights_snapshots,mentorship_offering,business_insights_snapshots,Keep,,Founder journey,Ecosystem
+business_insights_snapshots,open_to_future_contact,business_insights_snapshots,Keep,,Founder journey,Consent
+business_insights_snapshots,based_in_country,business_insights_snapshots,Keep,,Historical snapshot,Time-based
+business_insights_snapshots,based_in_city,business_insights_snapshots,Keep,,Historical snapshot,Time-based
+business_insights_snapshots,primary_industry,business_insights_snapshots,Keep,,Historical snapshot,Time-based
+subscriptions,id,subscriptions,Keep,,Primary key,Core identity
+subscriptions,user_id,subscriptions,Keep,,FK to profiles,Relationship
+subscriptions,business_id,subscriptions,Keep,,FK to businesses,Relationship
+subscriptions,stripe_subscription_id,subscriptions,Keep,,Billing system ID,Integration
+subscriptions,stripe_customer_id,subscriptions,Keep,,Billing system ID,Integration
+subscriptions,plan_type,subscriptions,Keep,,Billing plan,Core data
+subscriptions,status,subscriptions,Keep,,Billing state,Core data
+subscriptions,current_period_start,subscriptions,Keep,,Billing period,Core data
+subscriptions,current_period_end,subscriptions,Keep,,Billing period,Core data
+subscriptions,cancel_at_period_end,subscriptions,Keep,,Billing setting,Configuration
+subscriptions,created_at,subscriptions,Keep,,Audit timestamp,Tracking
+subscriptions,updated_at,subscriptions,Keep,,Audit timestamp,Tracking
+claim_requests,id,claim_requests,Keep,,Primary key,Core identity
+claim_requests,business_id,claim_requests,Keep,,FK to businesses,Relationship
+claim_requests,user_id,claim_requests,Keep,,FK to profiles,Relationship
+claim_requests,status,claim_requests,Keep,,Workflow state,Process
+claim_requests,contact_email,claim_requests,Keep,,Claim contact,Communication
+claim_requests,contact_phone,claim_requests,Keep,,Claim contact,Communication
+claim_requests,verification_documents,claim_requests,Keep,,Evidence,Process
+claim_requests,rejection_reason,claim_requests,Keep,,Admin notes,Process
+claim_requests,reviewed_by,claim_requests,Keep,,Admin audit,Accountability
+claim_requests,reviewed_at,claim_requests,Keep,,Admin audit,Timestamp
+claim_requests,business_name,claim_requests,Keep,,Snapshot data,Integrity
+claim_requests,user_email,claim_requests,Keep,,Snapshot data,Integrity
+claim_requests,role,claim_requests,Keep,,Claim context,Process
+claim_requests,proof_url,claim_requests,Keep,,Evidence,Process
+claim_requests,created_at,claim_requests,Keep,,Audit timestamp,Tracking
+business_images,id,business_images,Keep,,Primary key,Core identity
+business_images,business_id,business_images,Keep,,FK to businesses,Relationship
+business_images,image_url,business_images,Keep,,Media asset,Display
+business_images,alt_text,business_images,Keep,,Accessibility,UX
+business_images,display_order,business_images,Keep,,Sorting,Display
+business_images,created_at,business_images,Keep,,Audit timestamp,Tracking
+product_services,id,product_services,Keep,,Primary key,Core identity
+product_services,business_id,product_services,Keep,,FK to businesses,Relationship
+product_services,name,product_services,Keep,,Product name,Core data
+product_services,description,product_services,Keep,,Product details,Content
+product_services,category,product_services,Keep,,Classification,Organization
+product_services,price,product_services,Keep,,Commercial data,Pricing
+product_services,created_at,product_services,Keep,,Audit timestamp,Tracking
+business_invoice_settings,id,business_invoice_settings,Keep,,Primary key,Core identity
+business_invoice_settings,business_id,business_invoice_settings,Keep,,FK to businesses,Relationship
+business_invoice_settings,invoice_number_prefix,business_invoice_settings,Keep,,Configuration,Tool settings
+business_invoice_settings,company_details,business_invoice_settings,Keep,,Configuration,Tool settings
+business_invoice_settings,bank_details,business_invoice_settings,Keep,,Configuration,Tool settings
+business_invoice_settings,created_at,business_invoice_settings,Keep,,Audit timestamp,Tracking
+business_signature_settings,id,business_signature_settings,Keep,,Primary key,Core identity
+business_signature_settings,business_id,business_signature_settings,Keep,,FK to businesses,Relationship
+business_signature_settings,signature_text,business_signature_settings,Keep,,Configuration,Tool settings
+business_signature_settings,signature_font,business_signature_settings,Keep,,Configuration,Tool settings
+business_signature_settings,created_at,business_signature_settings,Keep,,Audit timestamp,Tracking

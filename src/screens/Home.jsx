@@ -20,7 +20,15 @@ export default function Home() {
         const supabase = getSupabase();
         const { data } = await supabase
           .from('businesses')
-          .select('*')
+          .select(`
+            id, name, business_handle, short_description, description,
+            logo_url, banner_url, contact_email, contact_phone, contact_website,
+            address, suburb, city, state_region, postal_code, country,
+            industry, social_links, business_hours, business_structure,
+            year_started, status, verified, claimed, claimed_at, claimed_by,
+            visibility_tier, homepage_featured, source, profile_completeness,
+            referral_code, owner_user_id, created_at, updated_at
+          `)
           .eq('status', BUSINESS_STATUS.ACTIVE)
           .eq('visibility_tier', 'homepage')
           .order('updated_at', { ascending: false });

@@ -72,15 +72,31 @@ export default function BusinessPortal() {
       const [businessesResult, claimsResult, profilesResult] = await Promise.all([
         supabase
           .from('businesses')
-          .select('*')
+          .select(`
+            id, name, business_handle, short_description, description,
+            logo_url, banner_url, contact_email, contact_phone, contact_website,
+            address, suburb, city, state_region, postal_code, country,
+            industry, social_links, business_hours, business_structure,
+            year_started, status, verified, claimed, claimed_at, claimed_by,
+            visibility_tier, homepage_featured, source, profile_completeness,
+            referral_code, owner_user_id, created_at, updated_date
+          `)
           .eq('owner_user_id', u.id),
         supabase
           .from('claim_requests')
-          .select('*')
+          .select(`
+            id, business_id, user_id, status, contact_email, contact_phone,
+            verification_documents, rejection_reason, reviewed_by, reviewed_at,
+            business_name, user_email, role, proof_url, created_at
+          `)
           .eq('user_id', u.id),
         supabase
           .from("profiles")
-          .select("*"),
+          .select(`
+            id, email, display_name, role, country, city, primary_cultural,
+            languages, gdpr_consent, gdpr_consent_date, status, invited_by,
+            invited_date, pending_business_id, pending_business_name
+          `),
       ]);
 
       const businesses = businessesResult.data || [];
@@ -126,7 +142,11 @@ export default function BusinessPortal() {
         // Get user profile for role and display info
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('role, display_name')
+          .select(`
+            id, email, display_name, role, country, city, primary_cultural,
+            languages, gdpr_consent, gdpr_consent_date, status, invited_by,
+            invited_date, pending_business_id, pending_business_name
+          `)
           .eq('id', user.id)
           .single();
 
@@ -278,7 +298,11 @@ export default function BusinessPortal() {
       
       const { data: existingProfile } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          id, email, display_name, role, country, city, primary_cultural,
+          languages, gdpr_consent, gdpr_consent_date, status, invited_by,
+          invited_date, pending_business_id, pending_business_name
+        `)
         .eq('email', newOwnerForm.email.toLowerCase().trim())
         .single();
 
@@ -286,7 +310,15 @@ export default function BusinessPortal() {
         // Profile exists, check if they already have access to this business
         const { data: existingBusiness } = await supabase
           .from('businesses')
-          .select('*')
+          .select(`
+            id, name, business_handle, short_description, description,
+            logo_url, banner_url, contact_email, contact_phone, contact_website,
+            address, suburb, city, state_region, postal_code, country,
+            industry, social_links, business_hours, business_structure,
+            year_started, status, verified, claimed, claimed_at, claimed_by,
+            visibility_tier, homepage_featured, source, profile_completeness,
+            referral_code, owner_user_id, created_at, updated_date
+          `)
           .eq('id', businessId)
           .eq('owner_user_id', existingProfile.id)
           .single();

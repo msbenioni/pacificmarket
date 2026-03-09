@@ -33,15 +33,15 @@ export async function POST(request) {
           .single();
           
         const { data: user } = await supabase
-          .from('users')
+          .from('profiles')
           .select('*')
-          .eq('id', business.user_id)
+          .eq('id', business.owner_user_id)
           .single();
         
         if (business && user) {
           // Determine plan from session metadata
           const newPlan = session.metadata?.plan || 'premium';
-          const previousPlan = business.listing_tier || 'basic';
+          const previousPlan = 'basic'; // Will be replaced with subscription lookup
           
           // Send notification if plan changed
           if (newPlan !== previousPlan) {
@@ -65,14 +65,22 @@ export async function POST(request) {
             .single();
             
           if (business) {
-            // Update subscription status
+            // Create or update subscription record
             await supabase
-              .from('businesses')
-              .update({
-                subscription_status: 'active',
-                subscription_period_end: new Date(subscription.current_period_end * 1000).toISOString()
+              .from('subscriptions')
+              .upsert({
+                business_id: business.id,
+                user_id: business.owner_user_id,
+                stripe_subscription_id: subscriptionId,
+                stripe_customer_id: subscription.customer,
+                plan_type: 'premium', // Will be mapped from price lookup key
+                status: 'active',
+                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                cancel_at_period_end: subscription.cancel_at_period_end,
+                updated_at: new Date().toISOString()
               })
-              .eq('id', business.id);
+              .eq('business_id', business.id);
           }
         }
         break;
@@ -88,9 +96,9 @@ export async function POST(request) {
           .single();
           
         const { data: user } = await supabase
-          .from('users')
+          .from('profiles')
           .select('*')
-          .eq('id', business.user_id)
+          .eq('id', business.owner_user_id)
           .single();
         
         if (business && user) {
@@ -102,17 +110,28 @@ export async function POST(request) {
           };
           
           const newPlan = planMap[subscription.items.data[0]?.price?.lookup_key] || 'basic';
-          const previousPlan = business.listing_tier || 'basic';
+          const previousPlan = 'basic'; // Will be replaced with subscription lookup
           
           // Send notification if plan changed
           if (newPlan !== previousPlan) {
             await notifyPlanUpgraded(business, user, previousPlan, newPlan);
             
-            // Update business plan
+            // Create or update subscription record
             await supabase
-              .from('businesses')
-              .update({ listing_tier: newPlan })
-              .eq('id', business.id);
+              .from('subscriptions')
+              .upsert({
+                business_id: business.id,
+                user_id: business.owner_user_id,
+                stripe_subscription_id: subscription.id,
+                stripe_customer_id: subscription.customer,
+                plan_type: newPlan,
+                status: subscription.status,
+                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                cancel_at_period_end: subscription.cancel_at_period_end,
+                updated_at: new Date().toISOString()
+              })
+              .eq('business_id', business.id);
           }
         }
         break;
@@ -128,15 +147,15 @@ export async function POST(request) {
           .single();
         
         if (business) {
-          // Downgrade to basic plan
+          // Cancel subscription record
           await supabase
-            .from('businesses')
+            .from('subscriptions')
             .update({
-              listing_tier: 'basic',
-              subscription_status: 'cancelled',
-              stripe_customer_id: null
+              status: 'cancelled',
+              updated_at: new Date().toISOString()
             })
-            .eq('id', business.id);
+            .eq('business_id', business.id)
+            .eq('stripe_subscription_id', subscription.id);
         }
         break;
       }
