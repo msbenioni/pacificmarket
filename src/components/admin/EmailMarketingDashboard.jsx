@@ -773,7 +773,9 @@ export default function EmailMarketingDashboard() {
               <Eye className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-[#0a1628]">{stats.avgOpenRate}%</div>
+              <div className="text-2xl font-bold text-[#0a1628]">
+              {stats.totalSent > 0 ? `${stats.avgOpenRate}%` : "Coming Soon"}
+            </div>
               <div className="text-sm text-gray-600">Avg Open Rate</div>
             </div>
           </div>
@@ -784,7 +786,7 @@ export default function EmailMarketingDashboard() {
               <TrendingUp className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-[#0a1628]">18.5%</div>
+              <div className="text-2xl font-bold text-[#0a1628]">Coming Soon</div>
               <div className="text-sm text-gray-600">Click Rate</div>
             </div>
           </div>
@@ -795,7 +797,7 @@ export default function EmailMarketingDashboard() {
               <Users className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-[#0a1628]">2.1%</div>
+              <div className="text-2xl font-bold text-[#0a1628]">Coming Soon</div>
               <div className="text-sm text-gray-600">Unsubscribe</div>
             </div>
           </div>
@@ -900,7 +902,9 @@ export default function EmailMarketingDashboard() {
               <BarChart3 className="w-5 h-5 text-purple-500" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-[#0a1628]">{stats.avgOpenRate}%</div>
+              <div className="text-2xl font-bold text-[#0a1628]">
+              {stats.totalSent > 0 ? `${stats.avgOpenRate}%` : "Coming Soon"}
+            </div>
               <div className="text-sm text-gray-600">Avg Open Rate</div>
             </div>
           </div>

@@ -73,12 +73,7 @@ export async function POST(request) {
 
     return Response.json({
       success: true,
-      message: successMessage,
-      data: data ? {
-        email: data.email,
-        status: data.status,
-        unsubscribed_at: data.updated_at
-      } : null
+      message: "If this email is on our mailing list, it has been unsubscribed."
     });
 
   } catch (error) {

@@ -16,7 +16,15 @@ export async function POST(request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { limit = 10 } = await request.json();
+    // Handle empty body safely for cron requests
+    let limit = 10;
+    try {
+      const body = await request.json();
+      limit = body?.limit ?? 10;
+    } catch {
+      // No body provided, use default limit
+      limit = 10;
+    }
 
     // Get next batch of queued campaigns
     const { data: queueItems, error: queueError } = await serviceClient

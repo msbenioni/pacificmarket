@@ -1,17 +1,13 @@
 import { createServiceClient } from '@/lib/server-auth';
 import { Resend } from 'resend';
+import { randomBytes } from 'crypto';
 
 const serviceClient = createServiceClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Generate secure unsubscribe token
+// Generate secure unsubscribe token using crypto
 function generateUnsubscribeToken() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
+  return randomBytes(24).toString('base64url');
 }
 
 export async function POST(request) {
