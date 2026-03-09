@@ -94,27 +94,54 @@ export async function POST(request) {
           throw new Error('No valid recipients found');
         }
 
-        // Create recipient records using service client (elevated access needed)
-        const recipientRecords = recipients.map((recipient) => ({
-          campaign_id: campaign.id,
-          subscriber_id: recipient.subscriber_id || null,
-          email: recipient.email,
-          status: 'pending'
-        }));
-
-        const { data: insertedRecipients, error: recipientsError } = await serviceClient
+        // Check for existing recipients to avoid duplicate insert conflicts
+        const { data: existingRecipients } = await serviceClient
           .from('email_campaign_recipients')
-          .insert(recipientRecords)
-          .select();
+          .select('email')
+          .eq('campaign_id', campaign.id);
 
-        if (recipientsError) {
-          throw new Error(recipientsError.message || 'Failed to create recipient records');
-        }
+        const existingEmailSet = new Set(
+          (existingRecipients || []).map(r => r.email.toLowerCase())
+        );
+
+        // Filter out existing recipients and create records only for new ones
+        const newRecipientRecords = recipients
+          .filter(recipient => !existingEmailSet.has(recipient.email.toLowerCase()))
+          .map((recipient) => ({
+            campaign_id: campaign.id,
+            subscriber_id: recipient.subscriber_id || null,
+            email: recipient.email,
+            status: 'pending'
+          }));
 
         // Build email-to-record map using returned inserted rows (no ordering assumptions)
         const emailToRecordMap = new Map();
-        insertedRecipients?.forEach(record => {
-          emailToRecordMap.set(record.email.toLowerCase(), record);
+        
+        if (newRecipientRecords.length === 0) {
+          console.log(`All recipients already exist for campaign ${campaign.id}`);
+        } else {
+          // Create recipient records using service client (elevated access needed)
+          const { data: insertedRecipients, error: recipientsError } = await serviceClient
+            .from('email_campaign_recipients')
+            .insert(newRecipientRecords)
+            .select();
+
+          if (recipientsError) {
+            throw new Error(recipientsError.message || 'Failed to create recipient records');
+          }
+
+          // Populate map with newly inserted records
+          insertedRecipients?.forEach(record => {
+            emailToRecordMap.set(record.email.toLowerCase(), record);
+          });
+        }
+
+        // Add existing recipients to map for email sending (they won't be resent)
+        existingRecipients?.forEach(record => {
+          emailToRecordMap.set(record.email.toLowerCase(), { 
+            id: null, // No ID needed for existing records
+            email: record.email 
+          });
         });
 
         // Extract template variables once per campaign
@@ -162,7 +189,7 @@ export async function POST(request) {
 
               // Update recipient status with provider ID
               const recipientRecord = emailToRecordMap.get(recipient.email.toLowerCase());
-              if (recipientRecord) {
+              if (recipientRecord && recipientRecord.id) {
                 const { error: updateError } = await serviceClient
                   .from('email_campaign_recipients')
                   .update({
@@ -177,9 +204,13 @@ export async function POST(request) {
                   // Don't increment sentCount if update failed
                   continue;
                 }
-              } else {
+              } else if (!recipientRecord) {
                 console.error(`No recipient record found for email ${recipient.email}`);
                 failedCount++;
+                continue;
+              } else {
+                // Existing recipient, already processed
+                console.log(`Skipping already processed email ${recipient.email}`);
                 continue;
               }
 
@@ -190,7 +221,7 @@ export async function POST(request) {
             } catch (error) {
               failedCount++;
               const recipientRecord = emailToRecordMap.get(recipient.email.toLowerCase());
-              if (recipientRecord) {
+              if (recipientRecord && recipientRecord.id) {
                 // Defensive error message handling
                 const errorMessage = error instanceof Error ? error.message : 'Failed to send email';
                 
@@ -205,8 +236,13 @@ export async function POST(request) {
                 if (updateError) {
                   console.error(`Failed to update recipient ${recipient.email} status to failed:`, updateError);
                 }
-              } else {
+              } else if (!recipientRecord) {
                 console.error(`No recipient record found for failed email ${recipient.email}`);
+                failedCount++;
+              } else {
+                // Existing recipient, already processed - this shouldn't happen in error path
+                console.error(`Unexpected error for already processed email ${recipient.email}:`, error);
+                failedCount++;
               }
               
               // Log detailed error for debugging
@@ -270,7 +306,7 @@ export async function POST(request) {
           status: finalStatus,
           sent_count: sentCount,
           failed_count: failedCount,
-          total_processed: recipients.length
+          total_processed: newRecipientRecords.length
         });
       } catch (error) {
         console.error(`Failed to process queue item ${queueItem.id}:`, error);

@@ -435,23 +435,43 @@ export default function AdminDashboard() {
     try {
       const supabase = getSupabase();
 
+      console.log("=== SAVE BUSINESS CALLED ===");
+      console.log("Current editingBusiness state:", editingBusiness);
+      console.log("Original formData:", formData);
+
+      console.log("=== SAVE BUSINESS PAYLOAD DEBUG ===");
+      console.log("Original formData:", formData);
+
       const { id, ...updateData } = formData;
+      console.log("Business ID:", id);
+      console.log("Update data before filtering:", updateData);
 
       const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
         if (
-          !["updated_date", "created_date", "verification_source", "tagline", "website"].includes(key)
+          !["updated_date", "created_date", "verification_source", "tagline", "contact_website"].includes(key)
         ) {
           acc[key] = updateData[key];
         }
         return acc;
       }, {});
 
+      console.log("Final safeUpdateData being sent to Supabase:", safeUpdateData);
+      console.log("Keys being sent:", Object.keys(safeUpdateData));
+      console.log("=====================================");
+
       const { error } = await supabase
         .from("businesses")
         .update(safeUpdateData)
         .eq("id", id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error details:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        console.error("Error details:", error.details);
+        console.error("Error hint:", error.hint);
+        throw new Error(error.message || `Failed to update business: ${JSON.stringify(error)}`);
+      }
 
       setBusinesses((prev) =>
         prev.map((b) => (b.id === id ? { ...b, ...safeUpdateData } : b))
@@ -1083,6 +1103,11 @@ export default function AdminDashboard() {
                             onApprove={() => updateStatus(business, BUSINESS_STATUS.ACTIVE)}
                             onReject={() => updateStatus(business, BUSINESS_STATUS.REJECTED)}
                             onEdit={() => {
+                              console.log("=== EDIT BUTTON CLICKED ===");
+                              console.log("Business data being set:", business);
+                              console.log("Business ID:", business.id);
+                              console.log("Business name:", business.name);
+                              console.log("=============================");
                               setEditingBusiness(business);
                               setCurrentEditStep(1);
                             }}
@@ -1156,22 +1181,37 @@ export default function AdminDashboard() {
                                     {b.status === BUSINESS_STATUS.PENDING && (
                                       <>
                                         <button
-                                          onClick={() => updateStatus(b, BUSINESS_STATUS.ACTIVE)}
-                                          className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("success")}`}
+                                          onClick={() =>
+                                            updateStatus(b, BUSINESS_STATUS.ACTIVE)
+                                          }
+                                          className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                            "success"
+                                          )}`}
                                         >
                                           <CheckCircle className="h-3 w-3" />
+                                          Approve
                                         </button>
                                         <button
-                                          onClick={() => updateStatus(b, BUSINESS_STATUS.REJECTED)}
-                                          className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("danger")}`}
+                                          onClick={() =>
+                                            updateStatus(b, BUSINESS_STATUS.REJECTED)
+                                          }
+                                          className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                            "danger"
+                                          )}`}
                                         >
                                           <XCircle className="h-3 w-3" />
+                                          Deny
                                         </button>
                                       </>
                                     )}
 
                                     <button
                                       onClick={() => {
+                                        console.log("=== DESKTOP EDIT BUTTON CLICKED ===");
+                                        console.log("Business data being set:", b);
+                                        console.log("Business ID:", b.id);
+                                        console.log("Business name:", b.name);
+                                        console.log("=============================");
                                         setEditingBusiness(b);
                                         setCurrentEditStep(1);
                                       }}
@@ -1207,112 +1247,112 @@ export default function AdminDashboard() {
                   )}
                 </div>
               )}
+
+              {/* Edit Modal */}
+              {editingBusiness && (
+                <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+                  <div
+                    className="absolute inset-0 bg-black/50"
+                    onClick={() => setEditingBusiness(null)}
+                  />
+                  <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-3xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
+                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4 sm:px-6">
+                      <div>
+                        <h3 className="font-bold text-[#0a1628]">
+                          Edit: {editingBusiness.name}
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Step {currentEditStep}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setEditingBusiness(null)}
+                        className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <div className="p-4 sm:p-6">
+                      <DetailedBusinessForm
+                        onSubmit={saveBusiness}
+                        isLoading={savingEdit}
+                        initialData={editingBusiness}
+                        onStepChange={handleEditStepChange}
+                        mode={FORM_MODES.ADMIN_EDIT}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Create Modal */}
+              {showCreateForm && (
+                <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+                  <div
+                    className="absolute inset-0 bg-black/50"
+                    onClick={() => setShowCreateForm(false)}
+                  />
+                  <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-3xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
+                    <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4 sm:px-6">
+                      <h3 className="font-bold text-[#0a1628]">Create Business Listing</h3>
+                      <button
+                        onClick={() => setShowCreateForm(false)}
+                        className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <div className="p-4 sm:p-6">
+                      <DetailedBusinessForm
+                        onSubmit={createBusiness}
+                        isLoading={creatingBusiness}
+                        onStepChange={() => {}}
+                        mode={FORM_MODES.ADMIN_CREATE}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Insight Detail Modal */}
+              {selectedInsightBusiness && (
+                <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+                  <div
+                    className="absolute inset-0 bg-black/50"
+                    onClick={() => setSelectedInsightBusiness(null)}
+                  />
+                  <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-4xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
+                    <div className="sticky top-0 z-10 border-b border-gray-200 bg-white p-4 sm:p-6">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <h2 className="text-lg font-bold text-[#0a1628] sm:text-xl">
+                            Founder Insights Details
+                          </h2>
+                          <p className="mt-1 text-sm text-gray-600">
+                            {selectedInsightBusiness.name}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setSelectedInsightBusiness(null)}
+                          className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-4 sm:p-6">
+                      <FounderInsightsSummary
+                        snapshot={getLatestSnapshot(selectedInsightBusiness.id)}
+                        business={selectedInsightBusiness}
+                        onEdit={() => {}}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Edit Modal */}
-          {editingBusiness && (
-            <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-              <div
-                className="absolute inset-0 bg-black/50"
-                onClick={() => setEditingBusiness(null)}
-              />
-              <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-3xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4 sm:px-6">
-                  <div>
-                    <h3 className="font-bold text-[#0a1628]">
-                      Edit: {editingBusiness.name}
-                    </h3>
-                    <p className="mt-1 text-xs text-gray-500">
-                      Step {currentEditStep}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setEditingBusiness(null)}
-                    className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                <div className="p-4 sm:p-6">
-                  <DetailedBusinessForm
-                    onSubmit={saveBusiness}
-                    isLoading={savingEdit}
-                    initialData={editingBusiness}
-                    onStepChange={handleEditStepChange}
-                    mode={FORM_MODES.ADMIN_EDIT}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Create Modal */}
-          {showCreateForm && (
-            <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-              <div
-                className="absolute inset-0 bg-black/50"
-                onClick={() => setShowCreateForm(false)}
-              />
-              <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-3xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4 sm:px-6">
-                  <h3 className="font-bold text-[#0a1628]">Create Business Listing</h3>
-                  <button
-                    onClick={() => setShowCreateForm(false)}
-                    className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                <div className="p-4 sm:p-6">
-                  <DetailedBusinessForm
-                    onSubmit={createBusiness}
-                    isLoading={creatingBusiness}
-                    onStepChange={() => {}}
-                    mode={FORM_MODES.ADMIN_CREATE}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Insight Detail Modal */}
-          {selectedInsightBusiness && (
-            <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-              <div
-                className="absolute inset-0 bg-black/50"
-                onClick={() => setSelectedInsightBusiness(null)}
-              />
-              <div className="relative w-full rounded-t-3xl bg-white shadow-2xl sm:max-w-4xl sm:rounded-2xl max-h-[92vh] overflow-y-auto">
-                <div className="sticky top-0 z-10 border-b border-gray-200 bg-white p-4 sm:p-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-lg font-bold text-[#0a1628] sm:text-xl">
-                        Founder Insights Details
-                      </h2>
-                      <p className="mt-1 text-sm text-gray-600">
-                        {selectedInsightBusiness.name}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setSelectedInsightBusiness(null)}
-                      className="rounded-lg p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-4 sm:p-6">
-                  <FounderInsightsSummary
-                    snapshot={getLatestSnapshot(selectedInsightBusiness.id)}
-                    business={selectedInsightBusiness}
-                    onEdit={() => {}}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </PortalShell>

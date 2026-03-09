@@ -155,21 +155,35 @@ export default function BusinessPortal() {
     try {
       const supabase = getSupabase();
       
+      // Log the incoming payload for debugging
+      console.log("=== BUSINESS PORTAL SAVE PAYLOAD DEBUG ===");
+      console.log("Original formData:", formData);
+      
       // Filter out potentially problematic fields
       const { id, ...updateData } = formData;
+      console.log("Business ID:", id);
+      console.log("Update data before filtering:", updateData);
+      
       const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
-        if (!['updated_date', 'created_date', 'verification_source'].includes(key)) {
+        if (!['updated_date', 'created_date', 'verification_source', 'contact_website'].includes(key)) {
           acc[key] = updateData[key];
         }
         return acc;
       }, {});
+      
+      console.log("Final safeUpdateData being sent to Supabase:", safeUpdateData);
+      console.log("Keys being sent:", Object.keys(safeUpdateData));
+      console.log("===========================================");
       
       const { error } = await supabase
         .from('businesses')
         .update(safeUpdateData)
         .eq('id', id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error details:", error);
+        throw new Error(error.message || `Failed to update business: ${JSON.stringify(error)}`);
+      }
       
       setBusinesses(prev => prev.map(b => b.id === formData.id ? { ...b, ...safeUpdateData } : b));
       setEditingBusiness(null);

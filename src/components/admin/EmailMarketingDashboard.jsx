@@ -478,9 +478,12 @@ export default function EmailMarketingDashboard() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <Eye className="w-4 h-4" />
-                        </button>
+                        <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                        disabled
+                        title="View Campaign feature coming soon"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
                         <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
                         disabled
                         title="Edit Campaign feature coming soon"
@@ -658,7 +661,10 @@ export default function EmailMarketingDashboard() {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <button className="text-gray-400 hover:text-gray-600">
+                      <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                        disabled
+                        title="View Campaign feature coming soon"
+                      >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
@@ -667,7 +673,10 @@ export default function EmailMarketingDashboard() {
                       >
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button className="text-gray-400 hover:text-red-600">
+                      <button className="text-gray-400 hover:text-red-600 disabled:text-gray-300"
+                        disabled
+                        title="Delete Campaign feature coming soon"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -886,10 +895,13 @@ export default function EmailMarketingDashboard() {
                 </div>
               </div>
               
-              <button className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2">
-                <Send className="w-4 h-4" />
-                Use Template
-              </button>
+              <button className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] disabled:bg-gray-400 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2"
+            disabled
+            title="Use Template feature coming soon"
+          >
+            <Send className="w-4 h-4" />
+            Use Template
+          </button>
             </div>
           ))
         )}
