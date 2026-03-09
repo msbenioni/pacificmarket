@@ -315,22 +315,38 @@ export async function POST(request) {
     }
 
     // Update campaign status using user client
+    let finalStatus;
+    if (sentCount === 0) {
+      finalStatus = 'failed';
+    } else if (failedCount > 0) {
+      finalStatus = 'sent_with_errors';
+    } else {
+      finalStatus = 'sent';
+    }
+
     await userClient
       .from('email_campaigns')
       .update({ 
-        status: 'sent',
+        status: finalStatus,
         sent_at: new Date().toISOString()
       })
       .eq('id', campaignId);
 
+    const statusMessage = {
+      'sent': 'Campaign sent successfully!',
+      'sent_with_errors': 'Campaign sent with some errors',
+      'failed': 'Campaign failed to send'
+    };
+
     return Response.json({
       success: true,
-      message: `Campaign sent successfully! ${sentCount} emails sent, ${failedCount} failed.`,
+      message: `${statusMessage[finalStatus]} ${sentCount} emails sent, ${failedCount} failed.`,
       stats: {
         total: uniqueEmails.length,
         sent: sentCount,
         failed: failedCount,
-        duplicates_removed: emails.length - uniqueEmails.length
+        duplicates_removed: emails.length - uniqueEmails.length,
+        status: finalStatus
       }
     });
 

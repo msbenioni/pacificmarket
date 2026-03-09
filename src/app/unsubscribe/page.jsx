@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import Layout from "@/components/layout/Layout";
 
 export default function UnsubscribePage() {
@@ -35,31 +34,26 @@ export default function UnsubscribePage() {
     setError("");
 
     try {
-      const supabase = getSupabase();
-      
-      // Update subscriber status to unsubscribed
-      const { error } = await supabase
-        .from('email_subscribers')
-        .update({ 
-          status: 'unsubscribed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('email', email.toLowerCase());
+      // Call public unsubscribe API
+      const response = await fetch('/api/email/unsubscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.toLowerCase().trim() })
+      });
 
-      if (error) {
-        // If subscriber doesn't exist, that's okay - they're not in our list
-        if (error.code === 'PGRST116') {
-          setUnsubscribed(true);
-        } else {
-          throw error;
-        }
-      } else {
-        setUnsubscribed(true);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process unsubscribe request');
       }
 
+      setUnsubscribed(true);
+      
     } catch (error) {
       console.error('Unsubscribe error:', error);
-      setError("Failed to process unsubscribe. Please try again or contact support.");
+      setError(error.message || 'Failed to process unsubscribe request. Please try again.');
     } finally {
       setLoading(false);
     }

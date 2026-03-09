@@ -18,10 +18,12 @@ export default function EmailMarketingDashboard() {
   });
 
   const tabs = [
-    { id: "campaigns", label: "Campaigns", icon: Mail },
-    { id: "subscribers", label: "Subscribers", icon: Users },
-    { id: "templates", label: "Templates", icon: FileText },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "campaigns", label: "Campaigns", icon: Mail, category: "creation" },
+    { id: "ready", label: "Ready to Send", icon: Send, category: "preparation" },
+    { id: "sent", label: "Sent Campaigns", icon: CheckCircle, category: "results" },
+    { id: "subscribers", label: "Subscribers", icon: Users, category: "audience" },
+    { id: "templates", label: "Templates", icon: FileText, category: "creation" },
+    { id: "analytics", label: "Analytics", icon: BarChart3, category: "insights" }
   ];
 
   const getAuthToken = () => {
@@ -231,6 +233,44 @@ export default function EmailMarketingDashboard() {
     );
   }
 
+  const handleSendCampaign = async (campaignId) => {
+    if (!confirm('Are you sure you want to send this campaign? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const token = getAuthToken();
+      const response = await fetch('/api/admin/email/send-campaign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ campaignId })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send campaign');
+      }
+
+      // Refresh data
+      await loadEmailData();
+      
+      alert('Campaign sent successfully!');
+      
+    } catch (error) {
+      console.error('Send campaign error:', error);
+      alert(error.message || 'Failed to send campaign');
+    }
+  };
+
+  const handleQuickTest = async (campaignId) => {
+    // TODO: Implement quick test functionality
+    alert('Quick test feature coming soon!');
+  };
+
   const renderCampaigns = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -297,6 +337,139 @@ export default function EmailMarketingDashboard() {
                   </tr>
                 ))
               )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderReadyToSend = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-[#0a1628]">Ready to Send</h3>
+        <span className="text-sm text-gray-500">
+          {campaigns.filter(c => c.status === 'draft').length} campaigns ready to send
+        </span>
+      </div>
+
+      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {campaigns.filter(c => c.status === 'draft').map((campaign) => (
+                <tr key={campaign.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <div>
+                      <div className="font-medium text-[#0a1628]">{campaign.name}</div>
+                      <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border-yellow-200">
+                      <Clock className="w-4 h-4 text-yellow-600" />
+                      Ready to send
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {campaign.recipients || 0}
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border-blue-200">
+                      <AlertCircle className="w-4 h-4 text-blue-600" />
+                      High
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => handleSendCampaign(campaign.id)}
+                        className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                      >
+                        <Send className="w-4 h-4" />
+                        Send Now
+                      </button>
+                      <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2">
+                        <Eye className="w-4 h-4" />
+                        Test
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSentCampaigns = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-[#0a1628]">Sent Campaigns</h3>
+        <span className="text-sm text-gray-500">
+          {campaigns.filter(c => c.status === 'sent').length} campaigns sent successfully
+        </span>
+      </div>
+
+      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Rate</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {campaigns.filter(c => c.status === 'sent').map((campaign) => (
+                <tr key={campaign.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <div>
+                      <div className="font-medium text-[#0a1628]">{campaign.name}</div>
+                      <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border-green-200">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      Sent
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {campaign.recipients || 0}
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {campaign.recipients > 0 ? `${campaign.open_rate || 0}%` : '-'}
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button className="text-gray-400 hover:text-red-600">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -690,6 +863,8 @@ export default function EmailMarketingDashboard() {
       {/* Tab Content */}
       <div>
         {activeTab === "campaigns" && renderCampaigns()}
+        {activeTab === "ready" && renderReadyToSend()}
+        {activeTab === "sent" && renderSentCampaigns()}
         {activeTab === "subscribers" && renderSubscribers()}
         {activeTab === "templates" && renderTemplates()}
         {activeTab === "analytics" && renderAnalytics()}

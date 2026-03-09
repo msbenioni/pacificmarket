@@ -47,7 +47,7 @@ export async function POST(request) {
     // Extract variables from HTML content if not provided
     let templateVariables = variables;
     if (!templateVariables) {
-      const variableRegex = /\{\{(\w+)\}\}/g;
+      const variableRegex = /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;  // Allows spaces inside braces
       const matches = html_content.match(variableRegex) || [];
       templateVariables = matches.map(match => match.replace(/[{}]/g, ''));
     }
