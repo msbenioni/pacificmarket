@@ -68,6 +68,7 @@ import ProfileSettings from './screens/ProfileSettings';
 import QRCodeGenerator from './screens/QRCodeGenerator';
 import Registry from './screens/Registry';
 import Terms from './screens/Terms';
+import Tools from './screens/Tools';
 import __Layout from './components/layout/Layout.jsx';
 
 
@@ -93,6 +94,7 @@ export const PAGES = {
     "QRCodeGenerator": QRCodeGenerator,
     "Registry": Registry,
     "Terms": Terms,
+    "Tools": Tools,
 }
 
 export const pagesConfig = {
