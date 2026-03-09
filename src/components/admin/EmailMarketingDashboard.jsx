@@ -19,17 +19,21 @@ export default function EmailMarketingDashboard() {
   const [error, setError] = useState("");
   const [pageError, setPageError] = useState("");
   const [audiencePreviews, setAudiencePreviews] = useState({});
-  
+
   // Per-action loading states
   const [sendingCampaignId, setSendingCampaignId] = useState(null);
   const [deletingCampaignId, setDeletingCampaignId] = useState(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState(null);
   const [updatingSubscriberId, setUpdatingSubscriberId] = useState(null);
 
+  // Derived campaign filters
+  const draftCampaigns = campaigns.filter(c => c.status === 'draft');
+  const completedCampaigns = campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors');
+
   const tabs = [
     { id: "campaigns", label: "Campaigns", icon: Mail, category: "creation" },
     { id: "ready", label: "Ready to Send", icon: Send, category: "preparation" },
-    { id: "sent", label: "Sent Campaigns", icon: CheckCircle, category: "results" },
+    { id: "sent", label: "Completed Campaigns", icon: CheckCircle, category: "results" },
     { id: "subscribers", label: "Subscribers", icon: Users, category: "audience" },
     { id: "templates", label: "Templates", icon: FileText, category: "creation" },
     { id: "analytics", label: "Analytics", icon: BarChart3, category: "insights" }
@@ -78,6 +82,8 @@ export default function EmailMarketingDashboard() {
 
   // Load audience previews for draft campaigns
   useEffect(() => {
+    let cancelled = false;
+
     const loadAllPreviews = async () => {
       // Clear all previews if no campaigns
       if (campaigns.length === 0) {
@@ -112,12 +118,18 @@ export default function EmailMarketingDashboard() {
         }
       });
       
-      setAudiencePreviews(newPreviews);
+      if (!cancelled) {
+        setAudiencePreviews(newPreviews);
+      }
     };
     
     if (campaigns.length > 0) {
       loadAllPreviews();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [campaigns]);
 
   const makeApiCall = async (endpoint, options = {}, token) => {
@@ -184,7 +196,8 @@ export default function EmailMarketingDashboard() {
 
     } catch (error) {
       console.error('Error loading email data:', error);
-      setPageError(error.message || 'Failed to load email data');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load email data';
+      setPageError(errorMessage || 'Failed to load email data');
     } finally {
       setLoading(false);
     }
@@ -252,7 +265,8 @@ export default function EmailMarketingDashboard() {
       await loadEmailData();
     } catch (error) {
       console.error('Error deleting campaign:', error);
-      setError(error.message || 'Failed to delete campaign');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete campaign';
+      setError(errorMessage || 'Failed to delete campaign');
     } finally {
       setDeletingCampaignId(null);
     }
@@ -288,7 +302,8 @@ export default function EmailMarketingDashboard() {
       await loadEmailData();
     } catch (error) {
       console.error('Error deleting template:', error);
-      setError(error.message || 'Failed to delete template');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete template';
+      setError(errorMessage || 'Failed to delete template');
     } finally {
       setDeletingTemplateId(null);
     }
@@ -321,7 +336,8 @@ export default function EmailMarketingDashboard() {
       await loadEmailData();
     } catch (error) {
       console.error('Error updating subscriber:', error);
-      setError(error.message || 'Failed to update subscriber');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update subscriber';
+      setError(errorMessage || 'Failed to update subscriber');
     } finally {
       setUpdatingSubscriberId(null);
     }
@@ -343,12 +359,20 @@ export default function EmailMarketingDashboard() {
           <div>
             <h3 className="text-lg font-semibold text-red-800">Failed to Load Dashboard</h3>
             <p className="text-red-600">{pageError}</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-            >
-              Reload Page
-            </button>
+            <div className="flex gap-2 mt-3">
+              <button 
+                onClick={loadEmailData}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+              >
+                Try Again
+              </button>
+              <button 
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
+              >
+                Reload Page
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -391,7 +415,8 @@ export default function EmailMarketingDashboard() {
       await loadEmailData();
     } catch (error) {
       console.error('Error queuing campaign:', error);
-      setError(error.message || 'Failed to queue campaign');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to queue campaign';
+      setError(errorMessage || 'Failed to queue campaign');
     } finally {
       setSendingCampaignId(null);
     }
@@ -480,7 +505,7 @@ export default function EmailMarketingDashboard() {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-[#0a1628]">Ready to Send</h3>
         <span className="text-sm text-gray-500">
-          {campaigns.filter(c => c.status === 'draft').length} campaigns ready to send
+          {draftCampaigns.length} campaigns ready to send
         </span>
       </div>
 
@@ -497,14 +522,14 @@ export default function EmailMarketingDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {campaigns.filter(c => c.status === 'draft').length === 0 ? (
+              {draftCampaigns.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                     No draft campaigns are ready to send.
                   </td>
                 </tr>
               ) : (
-                campaigns.filter(c => c.status === 'draft').map((campaign) => {
+                draftCampaigns.map((campaign) => {
                   const preview = audiencePreviews[campaign.id];
                   return (
                     <tr key={campaign.id} className="hover:bg-gray-50">
@@ -545,8 +570,9 @@ export default function EmailMarketingDashboard() {
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => handleSendCampaign(campaign.id)}
-                            disabled={sendingCampaignId === campaign.id}
+                            disabled={sendingCampaignId === campaign.id || !audiencePreviews[campaign.id]}
                             className="bg-[#0d4f4f] hover:bg-[#1a6b6b] disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                            title={!audiencePreviews[campaign.id] ? "Loading audience preview..." : undefined}
                           >
                             {sendingCampaignId === campaign.id ? (
                               <>
@@ -585,9 +611,9 @@ export default function EmailMarketingDashboard() {
   const renderSentCampaigns = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-[#0a1628]">Sent Campaigns</h3>
+        <h3 className="text-lg font-semibold text-[#0a1628]">Completed Campaigns</h3>
         <span className="text-sm text-gray-500">
-          {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').length} campaigns sent
+          {completedCampaigns.length} campaigns completed
         </span>
       </div>
 
@@ -604,7 +630,7 @@ export default function EmailMarketingDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').map((campaign) => (
+              {completedCampaigns.map((campaign) => (
                 <tr key={campaign.id} className="hover:bg-gray-50">
                   <td className="px-4 py-4">
                     <div>
@@ -911,13 +937,13 @@ export default function EmailMarketingDashboard() {
 
       <div className="bg-white border border-gray-100 rounded-xl p-6">
         <h4 className="font-semibold text-[#0a1628] mb-4">Campaign Performance</h4>
-        {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').length === 0 ? (
+        {completedCampaigns.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             No sent campaigns yet. Send your first campaign to see performance data.
           </div>
         ) : (
           <div className="space-y-4">
-            {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').map((campaign) => (
+            {completedCampaigns.map((campaign) => (
               <div key={campaign.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-center mb-3">
                   <h5 className="font-medium text-[#0a1628]">{campaign.name}</h5>

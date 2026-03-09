@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/server-auth';
 import { Resend } from 'resend';
-import { extractTemplateVariables } from '@/constants/emailConstants';
+import { extractTemplateVariables, BACKGROUND_BATCH_SIZE, BACKGROUND_BATCH_DELAY, EMAIL_SEND_DELAY } from '@/constants/emailConstants';
 import { buildAudienceRecipients } from '@/lib/email/getAudienceRecipients';
 
 const serviceClient = createServiceClient();
@@ -83,11 +83,12 @@ export async function POST(request) {
           .update({ status: 'sending' })
           .eq('id', queueItem.campaign_id);
 
-        // Get audience emails using shared utility (already deduplicated)
+        // Build audience recipients using centralized utility
         const { recipients, subscriberData } = await buildAudienceRecipients(campaign, serviceClient);
 
-        if (recipients.length === 0) {
-          throw new Error('No valid subscribers found');
+        if (!recipients || recipients.length === 0) {
+          console.log(`No recipients found for campaign ${campaign.id}`);
+          continue; // Skip to next queue item
         }
 
         // Create recipient records using service client (elevated access needed)
@@ -121,7 +122,7 @@ export async function POST(request) {
         const templateVariables = extractTemplateVariables(campaign.html_content);
 
         // Send emails (smaller batches for background processing)
-        const batchSize = 25;
+        const batchSize = BACKGROUND_BATCH_SIZE;
         let sentCount = 0;
         let failedCount = 0;
 
@@ -184,17 +185,20 @@ export async function POST(request) {
 
               sentCount++; // Only increment on successful update
 
-              await new Promise(resolve => setTimeout(resolve, 200));
+              await new Promise(resolve => setTimeout(resolve, EMAIL_SEND_DELAY));
 
             } catch (error) {
               failedCount++;
               const recipientRecord = emailToRecordMap.get(recipient.email);
               if (recipientRecord) {
+                // Defensive error message handling
+                const errorMessage = error instanceof Error ? error.message : 'Failed to send email';
+                
                 const { error: updateError } = await serviceClient
                   .from('email_campaign_recipients')
                   .update({ 
                     status: 'failed',
-                    error_message: error.message || 'Failed to send email'
+                    error_message: errorMessage
                   })
                   .eq('id', recipientRecord.id);
 
@@ -207,14 +211,17 @@ export async function POST(request) {
               
               // Log detailed error for debugging
               console.error(`Failed to send email to ${recipient.email}:`, {
-                error: error.message,
+                error: error instanceof Error ? error.message : 'Unknown error',
                 recipient: recipient.email,
                 campaign: campaign.id
               });
             }
           }
 
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Only delay between batches, not after the final batch
+          if (i + batchSize < recipients.length) {
+            await new Promise(resolve => setTimeout(resolve, BACKGROUND_BATCH_DELAY));
+          }
         }
 
         // Update final campaign status
@@ -261,17 +268,18 @@ export async function POST(request) {
           failed_count: failedCount,
           total_processed: recipients.length
         });
-
       } catch (error) {
         console.error(`Failed to process queue item ${queueItem.id}:`, error);
+        
+        // Defensive error message handling
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         
         // Mark as failed (defensive update)
         const { data: failed, error: failedError } = await serviceClient
           .from('email_campaign_queue')
           .update({ 
             status: 'failed',
-            error_message: error.message,
-            completed_at: new Date().toISOString()
+            error_message: errorMessage
           })
           .eq('id', queueItem.id)
           .eq('status', 'processing')
@@ -279,7 +287,7 @@ export async function POST(request) {
           .maybeSingle();
 
         if (failedError || !failed) {
-          console.log(`Queue item ${queueItem.id} failed update failed (may have been claimed by another worker)`);
+          console.error(`Queue item ${queueItem.id} failed update failed (may have been claimed by another worker)`);
         }
 
         // Update campaign status
@@ -287,13 +295,6 @@ export async function POST(request) {
           .from('email_campaigns')
           .update({ status: 'failed' })
           .eq('id', queueItem.campaign_id);
-
-        results.push({
-          queue_item_id: queueItem.id,
-          campaign_id: queueItem.campaign_id,
-          status: 'failed',
-          error: error.message
-        });
       }
     }
 
@@ -302,7 +303,6 @@ export async function POST(request) {
       message: `Processed ${queueItems.length} campaigns`,
       results
     });
-
   } catch (error) {
     console.error('Background processor error:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
