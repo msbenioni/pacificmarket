@@ -3,10 +3,10 @@
 
 -- Update any existing templates that have object format to array format
 UPDATE email_templates 
-SET variables = ARRAY(
-    SELECT key 
+SET variables = (
+    SELECT JSONB_AGG(key)
     FROM jsonb_each_text(variables)
-) 
+)
 WHERE jsonb_typeof(variables) = 'object';
 
 -- Ensure all template variables are arrays
