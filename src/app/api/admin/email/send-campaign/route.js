@@ -198,6 +198,21 @@ export async function POST(request) {
       return Response.json({ error: 'No subscribers found for this audience' }, { status: 400 });
     }
 
+    // Remove duplicates by email (case-insensitive)
+    const uniqueEmails = Array.from(
+      new Map(
+        emails
+          .filter(e => e.email)
+          .map(e => [e.email.toLowerCase(), { ...e, email: e.email.toLowerCase() }])
+      ).values()
+    );
+
+    if (uniqueEmails.length === 0) {
+      return Response.json({ error: 'No valid subscribers found after deduplication' }, { status: 400 });
+    }
+
+    console.log(`Found ${emails.length} total emails, deduplicated to ${uniqueEmails.length} unique emails`);
+
     // Update campaign status to sending using user client
     await userClient
       .from('email_campaigns')
@@ -205,7 +220,7 @@ export async function POST(request) {
       .eq('id', campaignId);
 
     // Create recipient records using service client (elevated access needed)
-    const recipientRecords = emails.map(email => ({
+    const recipientRecords = uniqueEmails.map(email => ({
       campaign_id: campaignId,
       email: email.email,
       status: 'pending'
@@ -229,8 +244,8 @@ export async function POST(request) {
     let sentCount = 0;
     let failedCount = 0;
 
-    for (let i = 0; i < emails.length; i += batchSize) {
-      const batch = emails.slice(i, i + batchSize);
+    for (let i = 0; i < uniqueEmails.length; i += batchSize) {
+      const batch = uniqueEmails.slice(i, i + batchSize);
       
       for (const recipient of batch) {
         try {
@@ -294,7 +309,7 @@ export async function POST(request) {
       }
 
       // Add delay between batches
-      if (i + batchSize < emails.length) {
+      if (i + batchSize < uniqueEmails.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -312,9 +327,10 @@ export async function POST(request) {
       success: true,
       message: `Campaign sent successfully! ${sentCount} emails sent, ${failedCount} failed.`,
       stats: {
-        total: emails.length,
+        total: uniqueEmails.length,
         sent: sentCount,
-        failed: failedCount
+        failed: failedCount,
+        duplicates_removed: emails.length - uniqueEmails.length
       }
     });
 
