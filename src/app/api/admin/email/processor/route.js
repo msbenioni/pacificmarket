@@ -94,15 +94,13 @@ export async function POST(request) {
         const { data: insertedRecipients, error: recipientsError } = await serviceClient
           .from('email_campaign_recipients')
           .insert(recipientRecords)
-          .select()
-          .order('created_at', { ascending: false })
-          .limit(recipientRecords.length);
+          .select();
 
         if (recipientsError) {
           throw new Error('Failed to create recipient records');
         }
 
-        // Map emails to their database records
+        // Build email-to-record map using returned inserted rows (no ordering assumptions)
         const emailToRecordMap = new Map();
         insertedRecipients?.forEach(record => {
           emailToRecordMap.set(record.email, record);
