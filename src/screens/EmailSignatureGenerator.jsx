@@ -1152,6 +1152,20 @@ export default function EmailSignatureGeneratorPage() {
                     </div>
 
                     <div className="md:col-span-2">
+                      <label className="flex items-center gap-3 mt-2">
+                        <input
+                          type="checkbox"
+                          checked={signature.include_pronouns}
+                          onChange={(e) => setField("include_pronouns", e.target.checked)}
+                          className={checkboxCls}
+                        />
+                        <span className="text-sm text-gray-700">
+                          Show pronouns in signature
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="md:col-span-2">
                       <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">
                         Business Name
                       </label>
@@ -1200,20 +1214,6 @@ export default function EmailSignatureGeneratorPage() {
                         </button>
                       ))}
                     </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={signature.include_pronouns}
-                        onChange={(e) => setField("include_pronouns", e.target.checked)}
-                        className={checkboxCls}
-                      />
-                      <span className="text-sm text-gray-700">
-                        Show pronouns in signature
-                      </span>
-                    </label>
                   </div>
                 </SignatureAccordionSection>
 
