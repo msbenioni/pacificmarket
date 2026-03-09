@@ -1,5 +1,6 @@
 import { createServiceClient } from '@/lib/server-auth';
 import { Resend } from 'resend';
+import { extractTemplateVariables } from '@/constants/emailConstants';
 
 const serviceClient = createServiceClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -151,16 +152,24 @@ export async function POST(request) {
           
           for (const recipient of batch) {
             try {
-              let personalizedHtml = campaign.html_content;
-              personalizedHtml = personalizedHtml.replace(/\{\{first_name\}\}/g, recipient.first_name || 'Business Owner');
-              personalizedHtml = personalizedHtml.replace(/\{\{email\}\}/g, recipient.email);
+              // Extract variables from campaign template
+              const templateVariables = extractTemplateVariables(campaign.html_content);
               
-              if (personalizedHtml.includes('{{referral_link}}')) {
-                const referralLink = recipient.business_handle 
+              // Create recipient data for personalization
+              const recipientData = {
+                first_name: recipient.first_name || 'Business Owner',
+                email: recipient.email,
+                referral_link: recipient.business_handle 
                   ? `https://www.pacificmarket.co.nz/register/${recipient.business_handle}`
-                  : 'https://www.pacificmarket.co.nz';
-                
-                personalizedHtml = personalizedHtml.replace(/\{\{referral_link\}\}/g, referralLink);
+                  : 'https://www.pacificmarket.co.nz'
+              };
+
+              // Personalize email content dynamically
+              let personalizedHtml = campaign.html_content;
+              for (const variable of templateVariables) {
+                const value = recipientData[variable] || '';
+                const regex = new RegExp(`\\{\\{\\s*${variable}\\s*\\}\\}`, 'g');
+                personalizedHtml = personalizedHtml.replace(regex, value);
               }
 
               const { data, error } = await resend.emails.send({
