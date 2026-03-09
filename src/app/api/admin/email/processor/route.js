@@ -117,6 +117,9 @@ export async function POST(request) {
           emailToRecordMap.set(record.email, record);
         });
 
+        // Extract template variables once per campaign
+        const templateVariables = extractTemplateVariables(campaign.html_content);
+
         // Send emails (smaller batches for background processing)
         const batchSize = 25;
         let sentCount = 0;
@@ -127,9 +130,6 @@ export async function POST(request) {
           
           for (const recipient of batch) {
             try {
-              // Extract variables from campaign template
-              const templateVariables = extractTemplateVariables(campaign.html_content);
-              
               // Create recipient data for personalization
               const recipientData = {
                 first_name: recipient.first_name || 'Business Owner',

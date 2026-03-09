@@ -50,6 +50,11 @@ export default function EmailMarketingDashboard() {
   const loadAudiencePreview = async (campaignId) => {
     try {
       const token = await getAuthToken();
+      if (!token) {
+        console.error('No authentication token available for audience preview');
+        return null;
+      }
+      
       const response = await fetch(`/api/admin/email/campaigns/${campaignId}/audience-preview`, {
         method: 'GET',
         headers: {
@@ -131,7 +136,7 @@ export default function EmailMarketingDashboard() {
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ error: 'API request failed' }));
       throw new Error(error.error || 'API request failed');
     }
 
@@ -226,6 +231,11 @@ export default function EmailMarketingDashboard() {
       setError(""); // Clear previous action errors
       setDeletingCampaignId(campaignId);
       const token = await getAuthToken();
+      if (!token) {
+        setError('Authentication required');
+        return;
+      }
+      
       const response = await fetch(`/api/admin/email/campaigns/${campaignId}`, {
         method: 'DELETE',
         headers: {
@@ -255,6 +265,11 @@ export default function EmailMarketingDashboard() {
       setError(""); // Clear previous action errors
       setDeletingTemplateId(templateId);
       const token = await getAuthToken();
+      if (!token) {
+        setError('Authentication required');
+        return;
+      }
+      
       const response = await fetch(`/api/admin/email/templates`, {
         method: 'DELETE',
         headers: {
@@ -284,6 +299,11 @@ export default function EmailMarketingDashboard() {
       setError(""); // Clear previous action errors
       setUpdatingSubscriberId(subscriberId);
       const token = await getAuthToken();
+      if (!token) {
+        setError('Authentication required');
+        return;
+      }
+      
       const response = await fetch(`/api/admin/email/subscribers`, {
         method: 'PUT',
         headers: {
@@ -348,6 +368,11 @@ export default function EmailMarketingDashboard() {
       setError(""); // Clear previous action errors
       setSendingCampaignId(campaignId);
       const token = await getAuthToken();
+      if (!token) {
+        setError('Authentication required');
+        return;
+      }
+      
       const response = await fetch('/api/admin/email/queue-campaign', {
         method: 'POST',
         headers: {
@@ -513,7 +538,7 @@ export default function EmailMarketingDashboard() {
                       <td className="px-4 py-4">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border-blue-200">
                           <AlertCircle className="w-4 h-4 text-blue-600" />
-                          High
+                          Default
                         </span>
                       </td>
                       <td className="px-4 py-4">
@@ -537,10 +562,12 @@ export default function EmailMarketingDashboard() {
                           </button>
                           <button 
                             onClick={() => handleQuickTest(campaign.id)}
-                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
+                            disabled
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-500 px-3 py-2 rounded-lg text-sm flex items-center gap-2 cursor-not-allowed"
+                            title="Quick test feature coming soon"
                           >
                             <Eye className="w-4 h-4" />
-                            Test
+                            Test (Coming Soon)
                           </button>
                         </div>
                       </td>
