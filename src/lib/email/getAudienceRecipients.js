@@ -37,7 +37,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
           
           rawEmails = allSubscribers.map(subscriber => {
             const profile = subscriberProfiles?.find(p => 
-              p.email?.toLowerCase() === subscriber.email.toLowerCase()
+              p.email?.toLowerCase() === subscriber.email?.toLowerCase()
             );
             const business = subscriberBusinesses?.find(b => b.owner_user_id === profile?.id);
             return {
@@ -46,7 +46,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
               business_handle: business?.business_handle,
               subscriber_id: subscriber.id
             };
-          });
+          }).filter(recipient => recipient.email); // Filter out invalid emails
         } else {
           rawEmails = allSubscribers.map(subscriber => ({
             email: subscriber.email,
@@ -86,7 +86,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         
         rawEmails = businessOwners.map(owner => {
           const subscriber = ownerSubscribers?.find(s => 
-            s.email.toLowerCase() === owner.email.toLowerCase()
+            s.email?.toLowerCase() === owner.email?.toLowerCase()
           );
           const business = ownerBusinesses?.find(b => b.owner_user_id === owner.id);
           return {
@@ -95,7 +95,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
             business_handle: business?.business_handle,
             subscriber_id: subscriber?.id || null
           };
-        }).filter(recipient => recipient.subscriber_id); // Only include actual subscribers
+        }).filter(recipient => recipient.email && recipient.subscriber_id); // Only include actual subscribers with valid emails
       }
       break;
 
@@ -125,7 +125,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         rawEmails = manaOwners?.map(owner => {
           const business = manaBusinesses.find(b => b.owner_user_id === owner.id);
           const subscriber = manaSubscribers?.find(s => 
-            s.email.toLowerCase() === owner.email.toLowerCase()
+            s.email?.toLowerCase() === owner.email?.toLowerCase()
           );
           return {
             email: owner.email,
@@ -133,7 +133,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
             business_handle: business?.business_handle,
             subscriber_id: subscriber?.id || null
           };
-        }).filter(recipient => recipient.subscriber_id) || [];
+        }).filter(recipient => recipient.email && recipient.subscriber_id) || [];
       }
       break;
 
@@ -163,7 +163,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         rawEmails = moanaOwners?.map(owner => {
           const business = moanaBusinesses.find(b => b.owner_user_id === owner.id);
           const subscriber = moanaSubscribers?.find(s => 
-            s.email.toLowerCase() === owner.email.toLowerCase()
+            s.email?.toLowerCase() === owner.email?.toLowerCase()
           );
           return {
             email: owner.email,
@@ -171,7 +171,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
             business_handle: business?.business_handle,
             subscriber_id: subscriber?.id || null
           };
-        }).filter(recipient => recipient.subscriber_id) || [];
+        }).filter(recipient => recipient.email && recipient.subscriber_id) || [];
       }
       break;
 
@@ -208,7 +208,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
           rawEmails = referrerOwners?.map(owner => {
             const business = referrerBusinesses?.find(b => b.owner_user_id === owner.id);
             const subscriber = referrerSubscribers?.find(s => 
-              s.email.toLowerCase() === owner.email.toLowerCase()
+              s.email?.toLowerCase() === owner.email?.toLowerCase()
             );
             return {
               email: owner.email,
@@ -216,7 +216,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
               business_handle: business?.business_handle,
               subscriber_id: subscriber?.id || null
             };
-          }).filter(recipient => recipient.subscriber_id) || [];
+          }).filter(recipient => recipient.email && recipient.subscriber_id) || [];
         }
       }
       break;

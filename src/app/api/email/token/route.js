@@ -66,7 +66,7 @@ export async function GET(request) {
     // Validate token and check if it's expired
     const { data: tokenData, error: tokenError } = await serviceClient
       .from('email_unsubscribe_tokens')
-      .select('email, expires_at')
+      .select('email, expires_at, used_at')
       .eq('token', token)
       .single();
 
@@ -77,6 +77,11 @@ export async function GET(request) {
     // Check if token is expired
     if (new Date(tokenData.expires_at) < new Date()) {
       return Response.json({ error: 'Token has expired' }, { status: 400 });
+    }
+
+    // Check if token has already been used
+    if (tokenData.used_at) {
+      return Response.json({ error: 'Token has already been used' }, { status: 400 });
     }
 
     return Response.json({

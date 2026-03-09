@@ -67,7 +67,25 @@ export default function EmailMarketingDashboard() {
   // Load audience previews for draft campaigns
   useEffect(() => {
     const loadAllPreviews = async () => {
+      // Clear all previews if no campaigns
+      if (campaigns.length === 0) {
+        setAudiencePreviews({});
+        return;
+      }
+
       const draftCampaigns = campaigns.filter(c => c.status === 'draft');
+      
+      // Clear previews for campaigns that are no longer draft
+      const currentDraftIds = new Set(draftCampaigns.map(c => c.id));
+      setAudiencePreviews(prev => {
+        const filtered = {};
+        Object.keys(prev).forEach(campaignId => {
+          if (currentDraftIds.has(campaignId)) {
+            filtered[campaignId] = prev[campaignId];
+          }
+        });
+        return filtered;
+      });
       
       // Use Promise.all for parallel execution instead of sequential
       const results = await Promise.all(
@@ -432,64 +450,72 @@ export default function EmailMarketingDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {campaigns.filter(c => c.status === 'draft').map((campaign) => {
-                const preview = audiencePreviews[campaign.id];
-                return (
-                  <tr key={campaign.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-4">
-                      <div>
-                        <div className="font-medium text-[#0a1628]">{campaign.name}</div>
-                        <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border-yellow-200">
-                        <Clock className="w-4 h-4 text-yellow-600" />
-                        Ready to send
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {preview ? (
+              {campaigns.filter(c => c.status === 'draft').length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    No draft campaigns are ready to send.
+                  </td>
+                </tr>
+              ) : (
+                campaigns.filter(c => c.status === 'draft').map((campaign) => {
+                  const preview = audiencePreviews[campaign.id];
+                  return (
+                    <tr key={campaign.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-4">
                         <div>
-                          <div className="font-medium">{preview.estimated_recipients.toLocaleString()}</div>
-                          <div className="text-xs text-gray-500">
-                            {preview.duplicates_removed > 0 && `(${preview.duplicates_removed} duplicates removed)`}
+                          <div className="font-medium text-[#0a1628]">{campaign.name}</div>
+                          <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border-yellow-200">
+                          <Clock className="w-4 h-4 text-yellow-600" />
+                          Ready to send
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {preview ? (
+                          <div>
+                            <div className="font-medium">{preview.estimated_recipients.toLocaleString()}</div>
+                            <div className="text-xs text-gray-500">
+                              {preview.duplicates_removed > 0 && `(${preview.duplicates_removed} duplicates removed)`}
+                            </div>
                           </div>
-                        </div>
-                      ) : (
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                            <span>Loading...</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border-blue-200">
+                          <AlertCircle className="w-4 h-4 text-blue-600" />
+                          High
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                          <span>Loading...</span>
+                          <button 
+                            onClick={() => handleSendCampaign(campaign.id)}
+                            className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                          >
+                            <Send className="w-4 h-4" />
+                            Queue Send
+                          </button>
+                          <button 
+                            onClick={() => handleQuickTest(campaign.id)}
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Test
+                          </button>
                         </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border-blue-200">
-                        <AlertCircle className="w-4 h-4 text-blue-600" />
-                        High
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => handleSendCampaign(campaign.id)}
-                          className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                        >
-                          <Send className="w-4 h-4" />
-                          Queue Send
-                        </button>
-                        <button 
-                          onClick={() => handleQuickTest(campaign.id)}
-                          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Test
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -502,7 +528,7 @@ export default function EmailMarketingDashboard() {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-[#0a1628]">Sent Campaigns</h3>
         <span className="text-sm text-gray-500">
-          {campaigns.filter(c => c.status === 'sent').length} campaigns sent successfully
+          {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').length} campaigns sent
         </span>
       </div>
 
@@ -519,7 +545,7 @@ export default function EmailMarketingDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {campaigns.filter(c => c.status === 'sent').map((campaign) => (
+              {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').map((campaign) => (
                 <tr key={campaign.id} className="hover:bg-gray-50">
                   <td className="px-4 py-4">
                     <div>
@@ -826,7 +852,7 @@ export default function EmailMarketingDashboard() {
           </div>
         ) : (
           <div className="space-y-4">
-            {campaigns.filter(c => c.status === 'sent').map((campaign) => (
+            {campaigns.filter(c => c.status === 'sent' || c.status === 'sent_with_errors').map((campaign) => (
               <div key={campaign.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-center mb-3">
                   <h5 className="font-medium text-[#0a1628]">{campaign.name}</h5>
