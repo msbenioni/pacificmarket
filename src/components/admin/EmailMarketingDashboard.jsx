@@ -257,7 +257,7 @@ export default function EmailMarketingDashboard() {
             <tbody className="divide-y divide-gray-200">
               {campaigns.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="colSpan={6} px-4 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                     No campaigns yet. Create your first campaign to get started.
                   </td>
                 </tr>
