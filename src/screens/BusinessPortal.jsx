@@ -20,6 +20,7 @@ import { portalUI } from "@/components/portal/portalUI";
 import PortalBusinessCard from "@/components/portal/PortalBusinessCard";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { useToast } from "@/components/ui/toast/ToastProvider";
+import ReferralDashboard from "@/components/referrals/ReferralDashboard";
 
 export default function BusinessPortal() {
   const [user, setUser] = useState(null);
@@ -775,25 +776,34 @@ className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c]
     getIndustryLabel(b.industry),
   ].filter(Boolean);
 
-  return (
-    <PortalBusinessCard
-      key={b.id}
-      business={b}
-      tierLabel={b.subscription_tier ? tierInfo[b.subscription_tier]?.label : null}
-      tierStyles={tierStyles}
-      statusStyles={statusStyles}
-      metaLine={metaParts.join(" · ")}
-      ownerName={b.owner_user_id ? getBusinessOwnerName(b.owner_user_id, profiles) : null}
-      ownerEmail={owner?.email || null}
-      onEdit={() => setEditingBusiness(b)}
-      onDelete={() => handleDeleteBusiness(b.id)}
-      onAddOwner={() => setShowAddOwnerModal(b.id)}
-      onLogoUpload={(e) => handleLogoUpload(e, b.id)}
-      primaryActionCls={primaryActionCls}
-      showUpgradePrompt={b.subscription_tier === BUSINESS_TIER.VAKA}
-    />
-  );
-})}                </div>
+                    return (
+                      <PortalBusinessCard
+                        key={b.id}
+                        business={b}
+                        tierLabel={b.subscription_tier ? tierInfo[b.subscription_tier]?.label : null}
+                        tierStyles={tierStyles}
+                        statusStyles={statusStyles}
+                        metaLine={metaParts.join(" · ")}
+                        ownerName={b.owner_user_id ? getBusinessOwnerName(b.owner_user_id, profiles) : null}
+                        ownerEmail={owner?.email || null}
+                        onEdit={() => setEditingBusiness(b)}
+                        onDelete={() => handleDeleteBusiness(b.id)}
+                        onAddOwner={() => setShowAddOwnerModal(b.id)}
+                        onLogoUpload={(e) => handleLogoUpload(e, b.id)}
+                        primaryActionCls={primaryActionCls}
+                        showUpgradePrompt={b.subscription_tier === BUSINESS_TIER.VAKA}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Referral Dashboard - show if user has businesses */}
+              {businesses.length > 0 && (
+                <ReferralDashboard
+                  businessId={businesses[0]?.id}
+                  businessHandle={businesses[0]?.business_handle}
+                />
               )}
             </div>
           )}

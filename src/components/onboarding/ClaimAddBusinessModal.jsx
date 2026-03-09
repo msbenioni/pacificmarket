@@ -256,6 +256,22 @@ export function ClaimAddBusinessModal({
 
       console.log("Business created successfully:", data);
 
+      // Handle referral if present
+      if (data && data[0]) {
+        try {
+          const { createReferralIfPresent } = await import("../../utils/referrals");
+          const referralCode = userRes.user?.user_metadata?.referral_code;
+          
+          if (referralCode) {
+            await createReferralIfPresent(referralCode, data[0].id);
+            console.log('Referral processed for business:', data[0].id);
+          }
+        } catch (referralError) {
+          console.error('Error processing referral:', referralError);
+          // Don't fail the business creation if referral processing fails
+        }
+      }
+
       // Send notification for business addition
       if (data && data[0]) {
         try {

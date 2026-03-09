@@ -140,20 +140,20 @@ export const BUSINESS_SOURCE = {
   CLAIM: 'claim',
 };
 
-export const TEAM_SIZE_BAND = {
-  SOLO: 'solo',
-  SMALL: '2-5',
-  MEDIUM: '6-10',
-  LARGE: '11-50',
-  ENTERPRISE: '51+',
-};
+export const TEAM_SIZE_BAND = [
+  { value: 'solo', label: 'Just me (1 person)' },
+  { value: '2-5', label: '2-5 people' },
+  { value: '6-10', label: '6-10 people' },
+  { value: '11-50', label: '11-50 people' },
+  { value: '51+', label: '51+ people' },
+];
 
-export const BUSINESS_STAGE = {
-  IDEA: 'idea',
-  STARTUP: 'startup',
-  GROWTH: 'growth',
-  MATURE: 'mature',
-};
+export const BUSINESS_STAGE = [
+  { value: 'idea', label: 'Idea/Concept' },
+  { value: 'startup', label: 'Startup/Launch' },
+  { value: 'growth', label: 'Growth/Scaling' },
+  { value: 'mature', label: 'Mature/Established' },
+];
 
 export const IMPORT_EXPORT_STATUS = {
   NONE: 'none',
@@ -163,12 +163,12 @@ export const IMPORT_EXPORT_STATUS = {
 };
 
 // Business operations constants
-export const BUSINESS_OPERATING_STATUS = {
-  PLANNING: 'planning',
-  OPERATING: 'operating',
-  PAUSED: 'paused',
-  CLOSED: 'closed',
-};
+export const BUSINESS_OPERATING_STATUS = [
+  { value: 'planning', label: 'Planning' },
+  { value: 'operating', label: 'Operating' },
+  { value: 'paused', label: 'Paused' },
+  { value: 'closed', label: 'Closed' },
+];
 
 export const SALES_CHANNELS = [
   { value: 'online', label: 'Online/E-commerce' },
