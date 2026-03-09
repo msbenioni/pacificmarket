@@ -1179,44 +1179,6 @@ export default function EmailSignatureGeneratorPage() {
                   </div>
                 </SignatureAccordionSection>
 
-                {/* Signature Details */}
-                <SignatureAccordionSection
-                  title="Signature Details"
-                  subtitle="Template and sender presentation"
-                  summary={getDetailsSummary()}
-                  icon={Briefcase}
-                  isOpen={openSections.includes("details")}
-                  onToggle={() => toggleSection("details")}
-                >
-                  <div className="mb-4">
-                    <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-2">
-                      Choose Template
-                    </label>
-
-                    <div className="grid gap-3">
-                      {Object.values(SIGNATURE_TEMPLATES).map((template) => (
-                        <button
-                          key={template.id}
-                          type="button"
-                          onClick={() => applyTemplate(template.id)}
-                          className={`p-4 rounded-xl border-2 text-left transition-all ${
-                            signature.template === template.id
-                              ? "border-[#0d4f4f] bg-[#0d4f4f]/5"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                        >
-                          <div className="font-semibold text-[#0a1628]">
-                            {template.name}
-                          </div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            {template.description}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </SignatureAccordionSection>
-
                 {/* Contact & Links */}
                 <SignatureAccordionSection
                   title="Contact & Links"
