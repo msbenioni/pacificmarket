@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { getSupabase } from "@/lib/supabase/client";
-import { Plus, Trash2, Download, ArrowLeft, FileText, Building, Calendar, User, ShoppingCart, DollarSign, CreditCard, Palette, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Download, ArrowLeft, FileText, Building, Calendar, User, ShoppingCart, DollarSign, CreditCard, Palette, ChevronDown, Upload } from "lucide-react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import HeroRegistry from "../components/shared/HeroRegistry";
@@ -307,6 +307,74 @@ export default function InvoiceGenerator() {
     setActiveInvoice(i => ({ ...i, adjustments: i.adjustments.filter((_, j) => j !== idx) }));
   };
 
+  // Logo upload handler
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 5MB",
+        variant: "error"
+      });
+      return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file (PNG, JPG, GIF)",
+        variant: "error"
+      });
+      return;
+    }
+    
+    try {
+      const supabase = getSupabase();
+      
+      // Upload file to Supabase storage
+      const bucket = "admin-listings";
+      const folder = "invoice-logos";
+      const filePath = `${folder}/${Date.now()}-${file.name}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+      
+      const logoUrl = data.publicUrl;
+      
+      // Update invoice with new logo URL
+      setField("sender_logo_url", logoUrl);
+      
+      toast({
+        title: "Logo uploaded successfully",
+        description: "Your business logo has been added to the invoice",
+        variant: "success"
+      });
+      
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload logo. Please try again.",
+        variant: "error"
+      });
+    }
+    
+    // Reset file input
+    e.target.value = '';
+  };
+
   // Save business settings (only in business mode)
   const saveBusinessSettings = async () => {
     if (mode !== "business" || !selectedBusinessId) return;
@@ -508,10 +576,14 @@ export default function InvoiceGenerator() {
   };
 
   const getBrandSummary = () => {
+    const parts = [];
+    if (invoice.sender_logo_url) parts.push("Logo added");
     if (invoice.brand_primary === "#0a1628" && invoice.brand_accent === "#c9a84c") {
-      return "Pacific Market colours";
+      parts.push("Pacific Market colours");
+    } else {
+      parts.push("Custom colours");
     }
-    return "Custom colours enabled";
+    return parts.join(" · ") || "Default branding";
   };
 
   return (
@@ -840,12 +912,12 @@ export default function InvoiceGenerator() {
                               value={adj.label}
                               onChange={e => updateAdjustment(i, "label", e.target.value)}
                               placeholder="Label (e.g., Service Fee)"
-                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]"
+                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628] placeholder-gray-400"
                             />
                             <select
                               value={adj.kind}
                               onChange={e => updateAdjustment(i, "kind", e.target.value)}
-                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]"
+                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628]"
                             >
                               <option value="fee">Fee</option>
                               <option value="discount">Discount</option>
@@ -853,7 +925,7 @@ export default function InvoiceGenerator() {
                             <select
                               value={adj.value_type}
                               onChange={e => updateAdjustment(i, "value_type", e.target.value)}
-                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]"
+                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628]"
                             >
                               <option value="fixed">Fixed Amount</option>
                               <option value="percent">Percentage</option>
@@ -863,12 +935,12 @@ export default function InvoiceGenerator() {
                               value={adj.value}
                               onChange={e => updateAdjustment(i, "value", parseFloat(e.target.value) || 0)}
                               placeholder="Value"
-                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]"
+                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628] placeholder-gray-400"
                             />
                             <select
                               value={adj.apply_stage}
                               onChange={e => updateAdjustment(i, "apply_stage", e.target.value)}
-                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f]"
+                              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628]"
                             >
                               <option value="before_tax">Before Tax</option>
                               <option value="after_tax">After Tax</option>
@@ -885,9 +957,9 @@ export default function InvoiceGenerator() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500 text-sm">
-                    <p>No adjustments added</p>
-                    <p className="text-xs mt-1">Add fees or discounts that apply before or after tax</p>
+                  <div className="text-center py-8">
+                    <p className="text-sm font-medium text-gray-700">No adjustments added</p>
+                    <p className="text-xs mt-1 text-gray-500">Add fees or discounts that apply before or after tax</p>
                   </div>
                 )}
                 
@@ -925,6 +997,51 @@ export default function InvoiceGenerator() {
                 onToggle={() => toggleSection("brand")}
               >
                 <div className="space-y-4">
+                  {/* Logo Upload */}
+                  <div>
+                    <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Business Logo</label>
+                    <div className="space-y-3">
+                      {invoice.sender_logo_url && (
+                        <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                          <img 
+                            src={invoice.sender_logo_url} 
+                            alt="Business logo" 
+                            className="w-12 h-12 object-contain rounded border border-gray-200 bg-white"
+                          />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-700">Logo uploaded</p>
+                            <p className="text-xs text-gray-500">Click to replace or remove below</p>
+                          </div>
+                          <button
+                            onClick={() => setField("sender_logo_url", "")}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                            title="Remove logo"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-3">
+                        <label className="flex-1 cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                          />
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#0d4f4f] hover:bg-[#0d4f4f]/5 transition-colors">
+                            <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm font-medium text-gray-700">
+                              {invoice.sender_logo_url ? "Replace logo" : "Upload logo"}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider block mb-1">Primary Colour</label>
