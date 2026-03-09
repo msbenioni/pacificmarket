@@ -164,7 +164,7 @@ export default function EmailMarketingDashboard() {
     if (!confirm('Are you sure you want to delete this campaign?')) return;
     
     try {
-      const token = getAuthToken();
+      const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/campaigns/${campaignId}`, {
         method: 'DELETE',
         headers: {
@@ -189,7 +189,7 @@ export default function EmailMarketingDashboard() {
     if (!confirm('Are you sure you want to delete this template?')) return;
     
     try {
-      const token = getAuthToken();
+      const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/templates`, {
         method: 'DELETE',
         headers: {
@@ -213,7 +213,7 @@ export default function EmailMarketingDashboard() {
 
   const handleUpdateSubscriber = async (subscriberId, status) => {
     try {
-      const token = getAuthToken();
+      const token = await getAuthToken();
       const response = await fetch(`/api/admin/email/subscribers`, {
         method: 'PUT',
         headers: {
