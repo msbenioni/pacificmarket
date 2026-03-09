@@ -1476,90 +1476,90 @@ export default function EmailSignatureGeneratorPage() {
                     </button>
                   </div>
                 </SignatureAccordionSection>
-              </div>
-            </div>
 
-            {/* Right Preview */}
-            <div className="lg:col-span-1">
-              <div className="lg:sticky lg:top-8">
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                    Live Preview
-                  </h3>
-                </div>
+                {/* Right Preview */}
+                <div className="lg:col-span-1">
+                  <div className="lg:sticky lg:top-8">
+                    <div className="mb-4">
+                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                        Live Preview
+                      </h3>
+                    </div>
 
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                  <div className="bg-[#0a1628] text-white p-4 sm:p-5 border-b border-white/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                        <Mail className="w-5 h-5 text-[#00c4cc]" />
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                      <div className="bg-[#0a1628] text-white p-4 sm:p-5 border-b border-white/10">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                            <Mail className="w-5 h-5 text-[#00c4cc]" />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-sm">Email Signature Preview</div>
+                            <div className="text-xs text-gray-300">
+                              Preview updates as you type
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-semibold text-sm">Email Signature Preview</div>
-                        <div className="text-xs text-gray-300">
-                          Preview updates as you type
+
+                      <div className="p-4 sm:p-6 bg-[#f8fafc]">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 overflow-x-auto">
+                          <div
+                            dangerouslySetInnerHTML={{ __html: previewHtml }}
+                          />
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={copyHtmlToClipboard}
+                            className="flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm"
+                          >
+                            <Copy className="w-4 h-4" />
+                            {copied ? "Copied" : "Copy HTML"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={downloadHtml}
+                            className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm"
+                          >
+                            <Download className="w-4 h-4" />
+                            Download HTML
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={downloadText}
+                            className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm sm:col-span-2"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Download Text Version
+                          </button>
+
+                          {mode === "business" ? (
+                            <button
+                              type="button"
+                              onClick={saveBusinessSignatureSettings}
+                              disabled={saving}
+                              className="flex items-center justify-center gap-2 bg-[#0a1628] hover:bg-[#13233a] text-white font-semibold px-4 py-3 rounded-xl transition-all text-sm sm:col-span-2 disabled:opacity-50"
+                            >
+                              <Save className="w-4 h-4" />
+                              {saving ? "Saving..." : "Save Business Signature Settings"}
+                            </button>
+                          ) : null}
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="p-4 sm:p-6 bg-[#f8fafc]">
-                    <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 overflow-x-auto">
-                      <div
-                        dangerouslySetInnerHTML={{ __html: previewHtml }}
-                      />
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={copyHtmlToClipboard}
-                        className="flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm"
-                      >
-                        <Copy className="w-4 h-4" />
-                        {copied ? "Copied" : "Copy HTML"}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={downloadHtml}
-                        className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download HTML
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={downloadText}
-                        className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#0a1628] font-semibold px-4 py-3 rounded-xl transition-all text-sm sm:col-span-2"
-                      >
-                        <FileText className="w-4 h-4" />
-                        Download Text Version
-                      </button>
-
-                      {mode === "business" ? (
-                        <button
-                          type="button"
-                          onClick={saveBusinessSignatureSettings}
-                          disabled={saving}
-                          className="flex items-center justify-center gap-2 bg-[#0a1628] hover:bg-[#13233a] text-white font-semibold px-4 py-3 rounded-xl transition-all text-sm sm:col-span-2 disabled:opacity-50"
-                        >
-                          <Save className="w-4 h-4" />
-                          {saving ? "Saving..." : "Save Business Signature Settings"}
-                        </button>
-                      ) : null}
+                    <div className="mt-4 bg-white border border-gray-200 rounded-2xl p-4">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        Best Use
+                      </p>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        Use <span className="font-semibold text-[#0a1628]">Business Signature</span> for your saved business identity, and <span className="font-semibold text-[#0a1628]">Custom Signature</span> for staff, contractors, or temporary campaign-specific signatures.
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-4 bg-white border border-gray-200 rounded-2xl p-4">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Best Use
-                  </p>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    Use <span className="font-semibold text-[#0a1628]">Business Signature</span> for your saved business identity, and <span className="font-semibold text-[#0a1628]">Custom Signature</span> for staff, contractors, or temporary campaign-specific signatures.
-                  </p>
                 </div>
               </div>
             </div>
