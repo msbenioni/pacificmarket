@@ -1,68 +1,88 @@
--- Email Marketing System Tables for Pacific Market
--- Create these tables in Supabase SQL editor
+-- Complete Email System Setup - Fixed Version
+-- This file handles all the issues: policy conflicts, duplicate constraints, and data shape mismatches
 
--- 1. Email Subscribers - Master email list
+-- Clean up existing tables first
+DROP TABLE IF EXISTS email_campaigns CASCADE;
+DROP TABLE IF EXISTS email_campaign_recipients CASCADE;
+DROP TABLE IF EXISTS email_subscribers CASCADE;
+DROP TABLE IF EXISTS email_events CASCADE;
+DROP TABLE IF EXISTS email_templates CASCADE;
+
+-- Create email subscribers (master email list)
 CREATE TABLE IF NOT EXISTS email_subscribers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
-    first_name VARCHAR(100),
+    first_name VARCHAR(255),
     business_id UUID REFERENCES businesses(id),
-    source VARCHAR(50) NOT NULL DEFAULT 'manual_import',
-    status VARCHAR(20) NOT NULL DEFAULT 'subscribed',
+    source VARCHAR(50) DEFAULT 'manual_import', -- business_signup, referral, manual_import
+    status VARCHAR(20) DEFAULT 'subscribed', -- subscribed, unsubscribed, bounced
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. Email Campaigns - Store campaigns created by admin
+-- Create email campaigns
 CREATE TABLE IF NOT EXISTS email_campaigns (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     subject VARCHAR(255) NOT NULL,
     html_content TEXT NOT NULL,
-    audience VARCHAR(50) NOT NULL DEFAULT 'all',
-    status VARCHAR(20) NOT NULL DEFAULT 'draft',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    audience VARCHAR(50) NOT NULL, -- all, business_owners, mana_plan, moana_plan, referral_participants
+    status VARCHAR(20) DEFAULT 'draft', -- draft, scheduled, sending, sent, failed
     sent_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_by UUID REFERENCES profiles(id)
 );
 
--- 3. Email Campaign Recipients - Track who received each email
+-- Create campaign recipients (track who received each email)
 CREATE TABLE IF NOT EXISTS email_campaign_recipients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    campaign_id UUID REFERENCES email_campaigns(id) ON DELETE CASCADE,
+    campaign_id UUID NOT NULL REFERENCES email_campaigns(id) ON DELETE CASCADE,
     email VARCHAR(255) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending',
-    opened BOOLEAN DEFAULT FALSE,
-    clicked BOOLEAN DEFAULT FALSE,
-    sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    status VARCHAR(20) DEFAULT 'pending', -- pending, sent, failed, bounced
+    sent_at TIMESTAMP WITH TIME ZONE,
+    opened_at TIMESTAMP WITH TIME ZONE,
+    clicked_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(campaign_id, email)
 );
 
--- 4. Email Events - Track engagement (optional but powerful)
+-- Create email events (track opens, clicks, unsubscribes)
 CREATE TABLE IF NOT EXISTS email_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL,
     campaign_id UUID REFERENCES email_campaigns(id) ON DELETE CASCADE,
-    event_type VARCHAR(20) NOT NULL,
-    event_data JSONB,
+    recipient_id UUID REFERENCES email_campaign_recipients(id) ON DELETE CASCADE,
+    event_type VARCHAR(20) NOT NULL, -- open, click, unsubscribe, bounce
+    event_data JSONB, -- store additional event data
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_email_subscribers_email ON email_subscribers(email);
-CREATE INDEX IF NOT EXISTS idx_email_subscribers_status ON email_subscribers(status);
-CREATE INDEX IF NOT EXISTS idx_email_subscribers_source ON email_subscribers(source);
-CREATE INDEX IF NOT EXISTS idx_email_campaigns_status ON email_campaigns(status);
-CREATE INDEX IF NOT EXISTS idx_email_campaign_recipients_campaign_id ON email_campaign_recipients(campaign_id);
-CREATE INDEX IF NOT EXISTS idx_email_campaign_recipients_email ON email_campaign_recipients(email);
-CREATE INDEX IF NOT EXISTS idx_email_events_campaign_id ON email_events(campaign_id);
-CREATE INDEX IF NOT EXISTS idx_email_events_email ON email_events(email);
+-- Create email templates (stored as campaign templates)
+CREATE TABLE IF NOT EXISTS email_templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL UNIQUE,
+    subject VARCHAR(255) NOT NULL,
+    html_content TEXT NOT NULL,
+    variables JSONB DEFAULT '[]'::jsonb, -- Array of variable names
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by UUID REFERENCES profiles(id)
+);
 
--- Add RLS policies
+-- Enable RLS for all tables
 ALTER TABLE email_subscribers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_campaign_recipients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE email_templates ENABLE ROW LEVEL SECURITY;
+
+-- Now clean up existing policies (after tables exist)
+DROP POLICY IF EXISTS "Anyone can view email_subscribers" ON email_subscribers;
+DROP POLICY IF EXISTS "Admins can insert email_subscribers" ON email_subscribers;
+DROP POLICY IF EXISTS "Admins can update email_subscribers" ON email_subscribers;
+DROP POLICY IF EXISTS "Admins full access to email_campaigns" ON email_campaigns;
+DROP POLICY IF EXISTS "Admins full access to email_campaign_recipients" ON email_campaign_recipients;
+DROP POLICY IF EXISTS "Admins full access to email_events" ON email_events;
+DROP POLICY IF EXISTS "Admins full access to email_templates" ON email_templates;
 
 -- RLS Policies for email_subscribers
 CREATE POLICY "Anyone can view email_subscribers" ON email_subscribers
@@ -116,50 +136,7 @@ CREATE POLICY "Admins full access to email_events" ON email_events
         )
     );
 
--- Create updated_at trigger
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-CREATE TRIGGER update_email_subscribers_updated_at BEFORE UPDATE
-    ON email_subscribers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Insert initial subscribers from existing businesses
-INSERT INTO email_subscribers (email, first_name, business_id, source, status)
-SELECT DISTINCT 
-    COALESCE(p.email, 'unknown') as email,
-    COALESCE(p.display_name, 'Business Owner') as first_name,
-    b.id as business_id,
-    'business_signup' as source,
-    'subscribed' as status
-FROM businesses b
-LEFT JOIN profiles p ON b.owner_user_id = p.id
-WHERE p.email IS NOT NULL
-AND p.email != 'unknown'
-ON CONFLICT (email) DO UPDATE SET
-    business_id = EXCLUDED.business_id,
-    source = EXCLUDED.source,
-    updated_at = NOW();
-
--- Create email templates (stored as campaign templates)
-CREATE TABLE IF NOT EXISTS email_templates (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL UNIQUE,
-    subject VARCHAR(255) NOT NULL,
-    html_content TEXT NOT NULL,
-    variables JSONB DEFAULT '[]'::jsonb,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_by UUID REFERENCES profiles(id)
-);
-
--- Enable RLS for templates
-ALTER TABLE email_templates ENABLE ROW LEVEL SECURITY;
-
+-- RLS Policies for templates
 CREATE POLICY "Admins full access to email_templates" ON email_templates
     FOR ALL USING (
         EXISTS (
@@ -169,7 +146,7 @@ CREATE POLICY "Admins full access to email_templates" ON email_templates
         )
     );
 
--- Insert initial templates (use ON CONFLICT to handle duplicates)
+-- Insert initial templates with proper ON CONFLICT handling
 INSERT INTO email_templates (name, subject, html_content, variables) VALUES
 (
     'Pacific Market Relaunch',
@@ -236,16 +213,15 @@ INSERT INTO email_templates (name, subject, html_content, variables) VALUES
         
         <div style="background: linear-gradient(135deg, #c9a84c 0%, #f2d98b 100%); padding: 30px; border-radius: 12px; color: #0a1628;">
             <h2 style="color: #0a1628; font-size: 24px; margin-bottom: 20px; text-align: center;">
-                Monthly Website Draw! 🏆
+                🏆 Win a Free Website Build!
             </h2>
-            
-            <p style="font-size: 18px; line-height: 1.6; margin-bottom: 25px; text-align: center;">
-                Every approved referral = 1 entry to win a FREE website build (just $50/month hosting!)
+            <p style="color: #0a1628; line-height: 1.6; margin-bottom: 25px; text-align: center;">
+                Hi {{first_name}}, refer Pacific businesses to Pacific Market and each successful referral earns you an entry to win a complete website build!
             </p>
             
-            <div style="background: rgba(255,255,255,0.9); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <h3 style="color: #0d4f4f; margin-bottom: 15px;">Your Referral Link:</h3>
-                <div style="background: #0a1628; color: #00c4cc; padding: 15px; border-radius: 6px; font-family: monospace; word-break: break-all; text-align: center;">
+            <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+                <h3 style="color: #0a1628; font-size: 18px; margin-bottom: 15px;">Your Referral Link:</h3>
+                <div style="background: white; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 16px; color: #0d4f4f;">
                     {{referral_link}}
                 </div>
             </div>
@@ -344,8 +320,18 @@ ON CONFLICT (name) DO UPDATE SET
     updated_at = NOW()
 WHERE email_templates.name = EXCLUDED.name;
 
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_email_subscribers_email ON email_subscribers(email);
+CREATE INDEX IF NOT EXISTS idx_email_subscribers_status ON email_subscribers(status);
+CREATE INDEX IF NOT EXISTS idx_email_campaigns_status ON email_campaigns(status);
+CREATE INDEX IF NOT EXISTS idx_email_campaign_recipients_campaign_id ON email_campaign_recipients(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_email_campaign_recipients_email ON email_campaign_recipients(email);
+CREATE INDEX IF NOT EXISTS idx_email_events_campaign_id ON email_events(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_email_events_recipient_id ON email_events(recipient_id);
+
+-- Add comments
 COMMENT ON TABLE email_subscribers IS 'Master email list for marketing campaigns';
 COMMENT ON TABLE email_campaigns IS 'Email campaigns created by admin';
 COMMENT ON TABLE email_campaign_recipients IS 'Track who received each email campaign';
 COMMENT ON TABLE email_events IS 'Track email engagement events';
-COMMENT ON TABLE email_templates IS 'Pre-built email templates with variables';
+COMMENT ON TABLE email_templates IS 'Pre-built email templates with variables (array format)';
