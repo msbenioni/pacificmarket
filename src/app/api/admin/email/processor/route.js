@@ -1,6 +1,7 @@
 import { createServiceClient } from '@/lib/server-auth';
 import { Resend } from 'resend';
 import { extractTemplateVariables } from '@/constants/emailConstants';
+import { getAudienceRecipients } from '@/lib/email/getAudienceRecipients';
 
 const serviceClient = createServiceClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -71,68 +72,10 @@ export async function POST(request) {
           .update({ status: 'sending' })
           .eq('id', queueItem.campaign_id);
 
-        // Get audience emails (reuse existing logic)
-        let emails = [];
-        let subscriberData = []; // Store original subscriber data
-        
-        switch (campaign.audience) {
-          case 'all':
-            const { data: allSubscribers } = await serviceClient
-              .from('email_subscribers')
-              .select('id, email, first_name')
-              .eq('status', 'subscribed');
-            
-            subscriberData = allSubscribers || [];
-            
-            // Enrich with business handles for referral links
-            if (allSubscribers && allSubscribers.length > 0) {
-              const subscriberEmails = allSubscribers.map(s => s.email);
-              const { data: subscriberProfiles } = await serviceClient
-                .from('profiles')
-                .select('id, email')
-                .in('email', subscriberEmails);
-              
-              if (subscriberProfiles && subscriberProfiles.length > 0) {
-                const profileIds = subscriberProfiles.map(p => p.id);
-                const { data: subscriberBusinesses } = await serviceClient
-                  .from('businesses')
-                  .select('owner_user_id, business_handle')
-                  .in('owner_user_id', profileIds);
-                
-                emails = allSubscribers.map(subscriber => {
-                  const profile = subscriberProfiles?.find(p => p.email === subscriber.email);
-                  const business = subscriberBusinesses?.find(b => b.owner_user_id === profile?.id);
-                  return {
-                    email: subscriber.email,
-                    first_name: subscriber.first_name,
-                    business_handle: business?.business_handle
-                  };
-                });
-              } else {
-                emails = allSubscribers.map(subscriber => ({
-                  email: subscriber.email,
-                  first_name: subscriber.first_name,
-                  business_handle: null
-                }));
-              }
-            } else {
-              emails = [];
-            }
-            break;
+        // Get audience emails using shared utility (already deduplicated)
+        const { emails, subscriberData } = await getAudienceRecipients(campaign, serviceClient);
 
-          // Add other audience types as needed...
-          default:
-            throw new Error(`Unsupported audience type: ${campaign.audience}`);
-        }
-
-        // Deduplicate emails
-        const uniqueEmails = Array.from(
-          new Map(
-            emails
-              .filter(e => e.email)
-              .map(e => [e.email.toLowerCase(), { ...e, email: e.email.toLowerCase() }])
-          ).values()
-        );
+        const uniqueEmails = emails;
 
         if (uniqueEmails.length === 0) {
           throw new Error('No valid subscribers found');
