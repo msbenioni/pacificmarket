@@ -52,7 +52,9 @@ export async function GET(request, { params }) {
               .in('owner_user_id', profileIds);
             
             emails = allSubscribers.map(subscriber => {
-              const profile = subscriberProfiles?.find(p => p.email === subscriber.email);
+              const profile = subscriberProfiles?.find(p => 
+                p.email?.toLowerCase() === subscriber.email.toLowerCase()
+              );
               const business = subscriberBusinesses?.find(b => b.owner_user_id === profile?.id);
               return {
                 email: subscriber.email,

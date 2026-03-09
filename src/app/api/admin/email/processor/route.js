@@ -65,13 +65,16 @@ export async function POST(request) {
 
         // Get audience emails (reuse existing logic)
         let emails = [];
+        let subscriberData = []; // Store original subscriber data
         
         switch (campaign.audience) {
           case 'all':
             const { data: allSubscribers } = await serviceClient
               .from('email_subscribers')
-              .select('email, first_name')
+              .select('id, email, first_name')
               .eq('status', 'subscribed');
+            
+            subscriberData = allSubscribers || [];
             
             // Enrich with business handles for referral links
             if (allSubscribers && allSubscribers.length > 0) {
@@ -127,12 +130,17 @@ export async function POST(request) {
           throw new Error('No valid subscribers found');
         }
 
-        // Create recipient records
-        const recipientRecords = uniqueEmails.map(email => ({
-          campaign_id: campaign.id,
-          email: email.email,
-          status: 'pending'
-        }));
+        // Create recipient records using service client (elevated access needed)
+        const recipientRecords = uniqueEmails.map(email => {
+          // Find the subscriber ID for this email
+          const subscriber = subscriberData?.find(s => s.email.toLowerCase() === email.email.toLowerCase());
+          return {
+            campaign_id: campaign.id,
+            subscriber_id: subscriber?.id || null,
+            email: email.email,
+            status: 'pending'
+          };
+        });
 
         const { error: recipientsError } = await serviceClient
           .from('email_campaign_recipients')

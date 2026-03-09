@@ -12,7 +12,7 @@ export async function POST(request) {
     }
 
     const { userClient, serviceClient } = auth;
-    const { campaignId, priority = 'normal' } = await request.json();
+    const { campaignId, priority = 'normal', allSubscribers } = await request.json();
 
     if (!campaignId) {
       return Response.json({ error: 'Campaign ID required' }, { status: 400 });
@@ -32,6 +32,45 @@ export async function POST(request) {
     // Check if campaign is in draft status
     if (campaign.status !== 'draft') {
       return Response.json({ error: 'Campaign already sent or queued' }, { status: 400 });
+    }
+
+    let emails = [];
+
+    // Enrich with business handles for referral links
+    if (allSubscribers && allSubscribers.length > 0) {
+      const subscriberEmails = allSubscribers.map(s => s.email);
+      const { data: subscriberProfiles } = await serviceClient
+        .from('profiles')
+        .select('id, email')
+        .in('email', subscriberEmails);
+      
+      if (subscriberProfiles && subscriberProfiles.length > 0) {
+        const profileIds = subscriberProfiles.map(p => p.id);
+        const { data: subscriberBusinesses } = await serviceClient
+          .from('businesses')
+          .select('owner_user_id, business_handle')
+          .in('owner_user_id', profileIds);
+        
+        emails = allSubscribers.map(subscriber => {
+          const profile = subscriberProfiles?.find(p => 
+            p.email?.toLowerCase() === subscriber.email.toLowerCase()
+          );
+          const business = subscriberBusinesses?.find(b => b.owner_user_id === profile?.id);
+          return {
+            email: subscriber.email,
+            first_name: subscriber.first_name,
+            business_handle: business?.business_handle
+          };
+        });
+      } else {
+        emails = allSubscribers.map(subscriber => ({
+          email: subscriber.email,
+          first_name: subscriber.first_name,
+          business_handle: null
+        }));
+      }
+    } else {
+      emails = [];
     }
 
     // Add campaign to processing queue

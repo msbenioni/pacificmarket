@@ -58,11 +58,11 @@ export const QUEUE_STATUS = {
   FAILED: 'failed'
 };
 
-// Queue Priorities
+// Queue Priorities (numeric for proper sorting)
 export const QUEUE_PRIORITY = {
-  HIGH: 'high',
-  NORMAL: 'normal',
-  LOW: 'low'
+  HIGH: 3,
+  NORMAL: 2,
+  LOW: 1
 };
 
 // Template Variable Regex (supports spaces inside braces)
