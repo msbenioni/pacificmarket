@@ -15,6 +15,7 @@ export default function UnsubscribePage() {
   const [tokenFromUrl, setTokenFromUrl] = useState("");
   const [isValidToken, setIsValidToken] = useState(false);
   const [maskedEmail, setMaskedEmail] = useState("");
+  const [displayEmail, setDisplayEmail] = useState("");
 
   useEffect(() => {
     const tokenParam = searchParams.get('token');
@@ -26,6 +27,7 @@ export default function UnsubscribePage() {
     } else if (emailParam) {
       // Legacy email support
       setEmail(emailParam);
+      setDisplayEmail(emailParam);
     }
   }, [searchParams]);
 
@@ -45,6 +47,7 @@ export default function UnsubscribePage() {
           const [username, domain] = data.email.split('@');
           const maskedUsername = username.slice(0, 2) + '***' + username.slice(-1);
           setMaskedEmail(`${maskedUsername}@${domain}`);
+          setDisplayEmail(`${maskedUsername}@${domain}`);
         }
       } else {
         setIsValidToken(false);
@@ -124,7 +127,7 @@ export default function UnsubscribePage() {
                 <div className="space-y-4">
                   <div className="bg-gray-50 rounded-xl p-4">
                     <p className="text-sm text-gray-600 mb-2">Unsubscribed email:</p>
-                    <p className="font-medium text-[#0a1628]">{email}</p>
+                    <p className="font-medium text-[#0a1628]">{displayEmail}</p>
                   </div>
                   
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
