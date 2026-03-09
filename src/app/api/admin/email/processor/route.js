@@ -49,11 +49,22 @@ export async function POST(request) {
     // Process each queued campaign
     for (const queueItem of queueItems) {
       try {
-        // Mark as processing
-        await serviceClient
+        // Claim the queue item defensively (only if still queued)
+        const { data: claimed, error: claimError } = await serviceClient
           .from('email_campaign_queue')
-          .update({ status: 'processing', started_at: new Date().toISOString() })
-          .eq('id', queueItem.id);
+          .update({ 
+            status: 'processing', 
+            started_at: new Date().toISOString() 
+          })
+          .eq('id', queueItem.id)
+          .eq('status', 'queued')
+          .select()
+          .maybeSingle();
+
+        if (claimError || !claimed) {
+          console.log(`Queue item ${queueItem.id} was not claimed (likely processed by another worker)`);
+          continue; // Skip to next queue item
+        }
 
         // Get campaign details
         const { data: campaign, error: campaignError } = await serviceClient
@@ -209,8 +220,8 @@ export async function POST(request) {
           })
           .eq('id', queueItem.campaign_id);
 
-        // Mark queue item as completed
-        await serviceClient
+        // Mark queue item as completed (defensive update)
+        const { data: completed, error: completeError } = await serviceClient
           .from('email_campaign_queue')
           .update({ 
             status: 'completed',
@@ -218,7 +229,14 @@ export async function POST(request) {
             sent_count: sentCount,
             failed_count: failedCount
           })
-          .eq('id', queueItem.id);
+          .eq('id', queueItem.id)
+          .eq('status', 'processing')
+          .select()
+          .maybeSingle();
+
+        if (completeError || !completed) {
+          console.log(`Queue item ${queueItem.id} completion update failed (may have been claimed by another worker)`);
+        }
 
         results.push({
           queue_item_id: queueItem.id,
@@ -232,15 +250,22 @@ export async function POST(request) {
       } catch (error) {
         console.error(`Failed to process queue item ${queueItem.id}:`, error);
         
-        // Mark as failed
-        await serviceClient
+        // Mark as failed (defensive update)
+        const { data: failed, error: failedError } = await serviceClient
           .from('email_campaign_queue')
           .update({ 
             status: 'failed',
             error_message: error.message,
             completed_at: new Date().toISOString()
           })
-          .eq('id', queueItem.id);
+          .eq('id', queueItem.id)
+          .eq('status', 'processing')
+          .select()
+          .maybeSingle();
+
+        if (failedError || !failed) {
+          console.log(`Queue item ${queueItem.id} failed update failed (may have been claimed by another worker)`);
+        }
 
         // Update campaign status
         await serviceClient
