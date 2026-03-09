@@ -294,7 +294,7 @@ export default function EmailMarketingDashboard() {
 
     try {
       const token = await getAuthToken();
-      const response = await fetch('/api/admin/email/send-campaign', {
+      const response = await fetch('/api/admin/email/queue-campaign', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,7 +1,5 @@
-import { Resend } from 'resend';
 import { requireAdmin } from '@/lib/server-auth';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { QUEUE_PRIORITY } from '@/constants/emailConstants';
 
 export async function POST(request) {
   try {
@@ -12,7 +10,7 @@ export async function POST(request) {
     }
 
     const { userClient, serviceClient } = auth;
-    const { campaignId, priority = 'normal', allSubscribers } = await request.json();
+    const { campaignId, priority = 'normal' } = await request.json();
 
     if (!campaignId) {
       return Response.json({ error: 'Campaign ID required' }, { status: 400 });
@@ -34,44 +32,25 @@ export async function POST(request) {
       return Response.json({ error: 'Campaign already sent or queued' }, { status: 400 });
     }
 
-    let emails = [];
+    // Check if campaign is already queued or processing
+    const { data: existingQueueItem } = await serviceClient
+      .from('email_campaign_queue')
+      .select('id, status')
+      .eq('campaign_id', campaignId)
+      .in('status', ['queued', 'processing'])
+      .single();
 
-    // Enrich with business handles for referral links
-    if (allSubscribers && allSubscribers.length > 0) {
-      const subscriberEmails = allSubscribers.map(s => s.email);
-      const { data: subscriberProfiles } = await serviceClient
-        .from('profiles')
-        .select('id, email')
-        .in('email', subscriberEmails);
-      
-      if (subscriberProfiles && subscriberProfiles.length > 0) {
-        const profileIds = subscriberProfiles.map(p => p.id);
-        const { data: subscriberBusinesses } = await serviceClient
-          .from('businesses')
-          .select('owner_user_id, business_handle')
-          .in('owner_user_id', profileIds);
-        
-        emails = allSubscribers.map(subscriber => {
-          const profile = subscriberProfiles?.find(p => 
-            p.email?.toLowerCase() === subscriber.email.toLowerCase()
-          );
-          const business = subscriberBusinesses?.find(b => b.owner_user_id === profile?.id);
-          return {
-            email: subscriber.email,
-            first_name: subscriber.first_name,
-            business_handle: business?.business_handle
-          };
-        });
-      } else {
-        emails = allSubscribers.map(subscriber => ({
-          email: subscriber.email,
-          first_name: subscriber.first_name,
-          business_handle: null
-        }));
-      }
-    } else {
-      emails = [];
+    if (existingQueueItem) {
+      return Response.json({ 
+        error: 'Campaign is already queued or processing', 
+        status: 400 
+      });
     }
+
+    // Convert string priority to numeric
+    const numericPriority = priority === 'high' ? QUEUE_PRIORITY.HIGH : 
+                            priority === 'low' ? QUEUE_PRIORITY.LOW : 
+                            QUEUE_PRIORITY.NORMAL;
 
     // Add campaign to processing queue
     const { data: queueItem, error: queueError } = await serviceClient
@@ -79,7 +58,7 @@ export async function POST(request) {
       .insert({
         campaign_id: campaignId,
         status: 'queued',
-        priority: priority,
+        priority: numericPriority,
         created_at: new Date().toISOString(),
         scheduled_at: new Date().toISOString()
       })
