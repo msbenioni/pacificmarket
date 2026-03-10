@@ -122,17 +122,7 @@ const InlineBusinessForm = ({
             />
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Tagline</label>
-            <input
-              type="text"
-              value={formData?.tagline || ""}
-              onChange={(e) => handleInputChange("tagline", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Short catchy description"
-            />
-          </div>
-
+          
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Contact Name</label>
             <input
