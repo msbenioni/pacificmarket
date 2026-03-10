@@ -12,7 +12,6 @@ const BUSINESS_PUBLIC_FIELDS = `
   description,
   short_description,
   business_handle,
-  tagline,
   logo_url,
   banner_url,
   contact_email,

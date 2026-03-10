@@ -164,7 +164,6 @@ const InlineBusinessForm = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Logo</label>
-
             <div className="flex items-center space-x-4">
               {formData?.logo_url ? (
                 <div className="relative">
@@ -186,7 +185,6 @@ const InlineBusinessForm = ({
                   <span className="text-xs text-gray-400">No logo</span>
                 </div>
               )}
-
               <div>
                 <input
                   type="file"
@@ -205,19 +203,10 @@ const InlineBusinessForm = ({
                 <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</p>
               </div>
             </div>
-
-            <input
-              type="text"
-              value={formData?.logo_url || ""}
-              onChange={(e) => handleInputChange("logo_url", e.target.value)}
-              className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Or enter logo URL directly"
-            />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Banner Image</label>
-
             <div className="flex items-center space-x-4">
               {formData?.banner_url ? (
                 <div className="relative">
@@ -239,7 +228,6 @@ const InlineBusinessForm = ({
                   <span className="text-xs text-gray-400">No banner</span>
                 </div>
               )}
-
               <div>
                 <input
                   type="file"
@@ -258,14 +246,6 @@ const InlineBusinessForm = ({
                 <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 5MB</p>
               </div>
             </div>
-
-            <input
-              type="text"
-              value={formData?.banner_url || ""}
-              onChange={(e) => handleInputChange("banner_url", e.target.value)}
-              className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Or enter banner URL directly"
-            />
           </div>
         </div>
 
