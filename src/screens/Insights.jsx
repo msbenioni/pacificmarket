@@ -283,10 +283,10 @@ export default function Insights() {
     : [];
   
   // Founder insights metrics
-  const byBusinessStage = Object.entries(BUSINESS_STAGE)
-    .map(([key, value]) => ({
-      label: getBusinessStageLabel(value), 
-      value: insights.filter(i => i.growth_stage === value).length
+  const byBusinessStage = BUSINESS_STAGE
+    .map(stage => ({
+      label: stage.label, 
+      value: insights.filter(i => i.growth_stage === stage.value).length
     }));
   
   // Calculate founder experience (years as entrepreneur)
@@ -372,7 +372,7 @@ export default function Insights() {
 
   // Investment interest analysis - people looking to invest in businesses
   const investmentInterestRate = insights.length > 0
-    ? Math.round((insights.filter(i => i.angel_investor_interest === 'interested' || i.angel_investor_interest === 'actively-looking').length / insights.length) * 100)
+    ? Math.round((insights.filter(i => i.angel_investor_interest === 'actively-investing' || i.angel_investor_interest === 'considering-future' || i.angel_investor_interest === 'exploring-options').length / insights.length) * 100)
     : 0;
 
   return (
@@ -576,17 +576,18 @@ export default function Insights() {
                     <h3 className={UI.sectionTitle}>Founder Motivations</h3>
                     <p className={UI.sectionDesc}>What drives Pacific entrepreneurs to start businesses?</p>
                     <div className="mt-4">
-                      <HorizontalBar
-                        title="Founder Motivations"
+                      <HorizontalBar 
+                        title="Founder Motivations" 
                         data={Object.entries(motivationKeywords)
-                          .map(([motivation, count]) => ({
-                            label: getMotivationLabel(motivation),
-                            value: count
+                          .map(([motivation, count]) => ({ 
+                            label: getMotivationLabel(motivation), 
+                            value: count 
                           }))
                           .sort((a, b) => b.value - a.value)
-                          .slice(0, 5)}
-                        color="#8b5cf6"
+                          .slice(0, 5)} 
+                        color="#8b5cf6" 
                         maxHeight="220px"
+                        valueFormatter={() => ""} // Hide actual counts
                       />
                     </div>
                   </div>
@@ -618,6 +619,7 @@ export default function Insights() {
                       .sort((a, b) => b.value - a.value)
                       .slice(0, 5)} 
                     color="#8b5cf6" 
+                    valueFormatter={() => ""} // Hide actual counts
                   />
                 </div>
               </div>
@@ -654,7 +656,13 @@ export default function Insights() {
                     <h3 className={UI.sectionTitle}>Top Challenges</h3>
                     <p className={UI.sectionDesc}>Biggest hurdles facing Pacific entrepreneurs</p>
                     <div className="mt-4">
-                      <HorizontalBar title="Top Challenges" data={topChallenges} color="#ef4444" maxHeight="220px" />
+                      <HorizontalBar 
+                        title="Top Challenges" 
+                        data={topChallenges} 
+                        color="#ef4444" 
+                        maxHeight="220px"
+                        valueFormatter={() => ""} // Hide actual counts
+                      />
                     </div>
                   </div>
 
@@ -673,6 +681,7 @@ export default function Insights() {
                           .slice(0, 5)} 
                         color="#10b981" 
                         maxHeight="220px"
+                        valueFormatter={() => ""} // Hide actual counts
                       />
                     </div>
                   </div>
@@ -686,7 +695,7 @@ export default function Insights() {
                 <h3 className={UI.sectionTitle}>Top Challenges</h3>
                 <p className={UI.sectionDesc}>Biggest hurdles facing Pacific entrepreneurs</p>
                 <div className="mt-4">
-                  <HorizontalBar title="Top Challenges" data={topChallenges} color="#ef4444" />
+                  <HorizontalBar title="Top Challenges" data={topChallenges} color="#ef4444" valueFormatter={() => ""} />
                 </div>
               </div>
 
@@ -704,6 +713,7 @@ export default function Insights() {
                       .sort((a, b) => b.value - a.value)
                       .slice(0, 5)} 
                     color="#10b981" 
+                    valueFormatter={() => ""} // Hide actual counts
                   />
                 </div>
               </div>
