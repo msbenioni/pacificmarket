@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { getSupabase } from "@/lib/supabase/client";
+import { getUserBusinesses, updateBusiness, deleteBusiness, createBusiness } from "@/lib/supabase/queries/businesses";
+import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
 import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users, Mail } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
@@ -67,21 +68,19 @@ export default function BusinessPortal() {
     if (!u?.id) return;
 
     try {
+      // Import getSupabase for claims and profiles only
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const [businessesResult, claimsResult, profilesResult] = await Promise.all([
-        supabase
-          .from('businesses')
-          .select(`
-            id, name, business_handle, short_description, description,
-            logo_url, banner_url, contact_email, contact_phone, contact_website,
-            address, suburb, city, state_region, postal_code, country,
-            industry, social_links, business_hours, business_structure,
-            year_started, status, verified, claimed, claimed_at, claimed_by,
-            visibility_tier, homepage_featured, source, profile_completeness,
-            referral_code, owner_user_id, created_at, updated_date
-          `)
-          .eq('owner_user_id', u.id),
+      // Get user's businesses using shared query
+      const { data: businessesData, error: businessesError } = await getUserBusinesses(u.id);
+      
+      if (businessesError) {
+        console.error("Error fetching businesses:", businessesError);
+        throw businessesError;
+      }
+
+      const [claimsResult, profilesResult] = await Promise.all([
         supabase
           .from('claim_requests')
           .select(`
@@ -99,7 +98,7 @@ export default function BusinessPortal() {
           `),
       ]);
 
-      const businesses = businessesResult.data || [];
+      const businesses = businessesData || [];
       const claims = claimsResult.data || [];
       const profiles = profilesResult.data || [];
 
@@ -130,6 +129,8 @@ export default function BusinessPortal() {
   useEffect(() => {
     const loadPortalData = async () => {
       try {
+        // Import getSupabase for auth and profiles only
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         
         // Get current user with profile data
@@ -173,7 +174,8 @@ export default function BusinessPortal() {
   const handleSave = async (formData) => {
     setSaving(true);
     try {
-      const supabase = getSupabase();
+      // Import getSupabase for debugging only
+      const { getSupabase } = await import("@/lib/supabase/client");
       
       // Log the incoming payload for debugging
       console.log("=== BUSINESS PORTAL SAVE PAYLOAD DEBUG ===");
@@ -195,10 +197,8 @@ export default function BusinessPortal() {
       console.log("Keys being sent:", Object.keys(safeUpdateData));
       console.log("===========================================");
       
-      const { error } = await supabase
-        .from('businesses')
-        .update(safeUpdateData)
-        .eq('id', id);
+      // Use shared query for business update
+      const { error } = await updateBusiness(id, safeUpdateData);
       
       if (error) {
         console.error("Supabase error details:", error);
@@ -229,6 +229,8 @@ export default function BusinessPortal() {
     if (!file) return;
     
     try {
+      // Import getSupabase for storage operations
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // Upload file to Supabase storage
@@ -293,7 +295,8 @@ export default function BusinessPortal() {
     
     setAddingOwner(true);
     try {
-      // Check if profile already exists
+      // Import getSupabase for profiles and businesses only
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const { data: existingProfile } = await supabase
@@ -410,11 +413,8 @@ export default function BusinessPortal() {
     if (!deleteConfirmBusiness) return;
     
     try {
-      const supabase = getSupabase();
-      const { error } = await supabase
-        .from('businesses')
-        .delete()
-        .eq('id', deleteConfirmBusiness);
+      // Use shared query for business deletion
+      const { error } = await deleteBusiness(deleteConfirmBusiness);
       
       if (error) throw error;
       
@@ -438,6 +438,8 @@ export default function BusinessPortal() {
   const handleFounderInsightsSubmit = async (insightsData) => {
     setInsightsSubmitting(true);
     try {
+      // Import getSupabase for insights snapshots only
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
       const existing = insightSnapshots.find(

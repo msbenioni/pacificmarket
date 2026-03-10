@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getSupabase } from '../lib/supabase/client';
+import { getUserBusinesses } from '../lib/supabase/queries/businesses';
+import { getBusinessWebsite } from '../lib/business/helpers';
 
 /**
  * Hook to compute onboarding status and next actions
@@ -25,6 +26,8 @@ export function useOnboardingStatus() {
       setLoading(true);
       setError(null);
 
+      // Import getSupabase for auth and profiles only
+      const { getSupabase } = await import('../lib/supabase/client');
       const supabase = getSupabase();
       const { data: { user: userData } } = await supabase.auth.getUser();
 
@@ -38,16 +41,20 @@ export function useOnboardingStatus() {
 
       setUser(userData);
 
-      const [profileResult, businessesResult, claimsResult] = await Promise.all([
+      // Get user's businesses using shared query
+      const { data: businessesData, error: businessesError } = await getUserBusinesses(userData.id);
+
+      if (businessesError) {
+        console.error("Error fetching businesses:", businessesError);
+        throw businessesError;
+      }
+
+      const [profileResult, claimsResult] = await Promise.all([
         supabase
           .from('profiles')
           .select('*')
           .eq('id', userData.id)
           .single(),
-        supabase
-          .from('businesses')
-          .select('*')
-          .eq('owner_user_id', userData.id),
         supabase
           .from('claim_requests')
           .select('*')
@@ -59,7 +66,7 @@ export function useOnboardingStatus() {
       }
 
       setProfile(profileResult.data || null);
-      setBusinesses(businessesResult.data || []);
+      setBusinesses(businessesData || []);
       setClaims(claimsResult.data || []);
     } catch (err) {
       console.error('Error fetching onboarding data:', err);
@@ -83,7 +90,7 @@ export function useOnboardingStatus() {
       !business.description ||
       !business.industry ||
       !business.year_founded ||
-      !business.contact_website
+      !getBusinessWebsite(business)
     );
 
     let currentStep = 1;

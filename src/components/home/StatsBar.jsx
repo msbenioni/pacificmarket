@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSupabase } from "@/lib/supabase/client";
+import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import { Building2, Globe, CheckCircle, LayoutGrid } from "lucide-react";
 
@@ -10,17 +10,14 @@ export default function StatsBar() {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const supabase = getSupabase();
-        const { data } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('status', BUSINESS_STATUS.ACTIVE);
+        // Get public businesses using shared query
+        const { data: businesses } = await getPublicBusinesses({ limit: 1000 });
         
-        const businesses = data || [];
-        const countries = new Set(businesses.map(b => b.country)).size;
-        const industries = new Set(businesses.map(b => b.industry)).size;
-        const verified = businesses.filter(b => b.verified).length;
-        setStats({ total: businesses.length, countries, industries, verified });
+        const businessList = businesses || [];
+        const countries = new Set(businessList.map(b => b.country)).size;
+        const industries = new Set(businessList.map(b => b.industry)).size;
+        const verified = businessList.filter(b => b.verified).length;
+        setStats({ total: businessList.length, countries, industries, verified });
         setLoading(false);
       } catch (error) {
         console.error("Error loading stats:", error);
