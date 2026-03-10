@@ -505,18 +505,15 @@ export default function AdminDashboard() {
   }, [user, isAdmin, loading, checkingAdmin]);
 
   useEffect(() => {
-    // Only load data if user is authenticated as admin
-    if (user && isAdmin && !checkingAdmin) {
-      console.log('✅ User is admin, loading data...');
-      loadAdminData();
-    } else if (user && !checkingAdmin && !isAdmin) {
-      console.log('⚠️ User is authenticated but not an admin');
-      setLoading(false);
-    } else if (!user && !checkingAdmin) {
-      console.log('⚠️ User not authenticated');
-      setLoading(false);
+    // Only set loading false when we have final status
+    if (!checkingAdmin) {
+      if (user && isAdmin) {
+        console.log('✅ User is admin, loading data...');
+        loadAdminData();
+      } else if (!user || !isAdmin) {
+        setLoading(false);
+      }
     }
-    // If checkingAdmin is true, keep loading true (handled by initial state)
   }, [user, isAdmin, checkingAdmin]);
 
   const loadAdminData = async () => {
@@ -819,41 +816,38 @@ export default function AdminDashboard() {
     a.click();
   };
 
-  if (loading) {
+  // Show loading while checking admin or loading data
+  if (loading || checkingAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent" />
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent mx-auto mb-4" />
+          <h2 className="mb-2 text-xl font-bold text-[#0a1628]">
+            {checkingAdmin ? "Checking Access" : "Loading Dashboard"}
+          </h2>
+          <p className="text-sm text-gray-500">
+            {checkingAdmin ? "Verifying admin privileges..." : "Loading admin data..."}
+          </p>
+        </div>
       </div>
     );
   }
 
-  if (!user || checkingAdmin) {
+  if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc] px-4">
         <div className="max-w-sm rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
-          {checkingAdmin ? (
-            <>
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent mx-auto mb-4" />
-              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Checking Access</h2>
-              <p className="text-sm text-gray-500">
-                Verifying admin privileges...
-              </p>
-            </>
-          ) : (
-            <>
-              <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
-              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Authentication Required</h2>
-              <p className="mb-6 text-sm text-gray-500">
-                Please sign in to access this page.
-              </p>
-              <button
-                onClick={() => window.location.href = '/BusinessLogin'}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1a6b6b] transition-colors"
-              >
-                Sign In
-              </button>
-            </>
-          )}
+          <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
+          <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Authentication Required</h2>
+          <p className="mb-6 text-sm text-gray-500">
+            Please sign in to access this page.
+          </p>
+          <button
+            onClick={() => window.location.href = '/BusinessLogin'}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1a6b6b] transition-colors"
+          >
+            Sign In
+          </button>
         </div>
       </div>
     );
