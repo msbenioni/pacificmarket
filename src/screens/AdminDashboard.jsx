@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
@@ -440,8 +440,8 @@ async function checkIsAdmin(user) {
 }
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const [dashboardLoading, setDashboardLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [activeTab, setActiveTab] = useState("active");
@@ -463,69 +463,15 @@ export default function AdminDashboard() {
     claimStatus: "",
   });
 
-  // Check if user is admin
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!user) {
-        setIsAdmin(false);
-        setCheckingAdmin(false);
-        setLoading(false);
-        return;
-      }
+  const loadAdminData = useCallback(async () => {
+    if (!user) return;
 
-      try {
-        const adminStatus = await checkIsAdmin(user);
-        setIsAdmin(adminStatus);
-        console.log('🔐 Admin status check:', {
-          user: user?.email,
-          isAdmin: adminStatus
-        });
-      } catch (error) {
-        console.error('❌ Error checking admin status:', error);
-        setIsAdmin(false);
-      } finally {
-        setCheckingAdmin(false);
-        // Don't set loading to false here - let the useEffect handle it
-      }
-    };
+    setDashboardLoading(true);
 
-    checkAdminStatus();
-  }, [user]);
-
-  // Debug user authentication state
-  useEffect(() => {
-    console.log('🔐 Auth state:', {
-      user: user?.email,
-      userRole: user?.role,
-      userRaw: user,
-      isAdmin: isAdmin,
-      loading: loading,
-      checkingAdmin: checkingAdmin
-    });
-  }, [user, isAdmin, loading, checkingAdmin]);
-
-  useEffect(() => {
-    // Only set loading false when we have final status
-    if (!checkingAdmin) {
-      if (user && isAdmin) {
-        console.log('✅ User is admin, loading data...');
-        loadAdminData();
-      } else if (!user || !isAdmin) {
-        setLoading(false);
-      }
-    }
-  }, [user, isAdmin, checkingAdmin]);
-
-  const loadAdminData = async () => {
-    setLoading(true);
     try {
       // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      
-      if (!supabase) {
-        throw new Error('Supabase client not initialized');
-      }
       
       console.log('🔄 Loading admin data for user:', user?.email);
       
@@ -607,9 +553,62 @@ export default function AdminDashboard() {
       console.error("❌ Error loading admin data:", error);
       toast.error(`Failed to load data: ${error.message || 'Unknown error'}`);
     } finally {
-      setLoading(false);
+      setDashboardLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (authLoading) return;
+
+      if (!user) {
+        setIsAdmin(false);
+        setCheckingAdmin(false);
+        setDashboardLoading(false);
+        return;
+      }
+
+      try {
+        setCheckingAdmin(true);
+        const adminStatus = await checkIsAdmin(user);
+        setIsAdmin(adminStatus);
+
+        console.log('🔐 Admin status check:', {
+          user: user?.email,
+          isAdmin: adminStatus,
+        });
+      } catch (error) {
+        console.error('❌ Error checking admin status:', error);
+        setIsAdmin(false);
+      } finally {
+        setCheckingAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user, authLoading]);
+
+  useEffect(() => {
+    console.log('🔐 Auth state:', {
+      user: user?.email,
+      userRole: user?.role,
+      userRaw: user,
+      isAdmin,
+      authLoading,
+      checkingAdmin,
+      dashboardLoading,
+    });
+  }, [user, isAdmin, authLoading, checkingAdmin, dashboardLoading]);
+
+  useEffect(() => {
+    if (authLoading || checkingAdmin) return;
+
+    if (user && isAdmin) {
+      loadAdminData();
+    } else {
+      setDashboardLoading(false);
+    }
+  }, [user, isAdmin, authLoading, checkingAdmin, loadAdminData]);
 
   const updateStatus = async (business, newStatus) => {
     try {
@@ -816,17 +815,20 @@ export default function AdminDashboard() {
     a.click();
   };
 
-  // Show loading while checking admin or loading data
-  if (loading || checkingAdmin) {
+  if (authLoading || checkingAdmin || dashboardLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc]">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent mx-auto mb-4" />
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent" />
           <h2 className="mb-2 text-xl font-bold text-[#0a1628]">
-            {checkingAdmin ? "Checking Access" : "Loading Dashboard"}
+            {authLoading ? "Restoring Session" : checkingAdmin ? "Checking Access" : "Loading Dashboard"}
           </h2>
           <p className="text-sm text-gray-500">
-            {checkingAdmin ? "Verifying admin privileges..." : "Loading admin data..."}
+            {authLoading
+              ? "Signing you in..."
+              : checkingAdmin
+              ? "Verifying admin privileges..."
+              : "Loading admin data..."}
           </p>
         </div>
       </div>
