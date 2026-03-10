@@ -570,7 +570,7 @@ export default function AdminDashboard() {
           .order("submitted_date", { ascending: false })
           .limit(200);
         
-        if (insightsRes.error && Object.keys(insightsRes.error).length > 0) {
+        if (insightsRes.error && insightsRes.error.message && Object.keys(insightsRes.error).length > 0) {
           console.error('❌ Insights query error:', insightsRes.error);
         }
       } catch (insightsError) {
@@ -586,7 +586,7 @@ export default function AdminDashboard() {
         console.error('❌ Claims query error:', claimsRes.error);
         throw new Error(`Claims query failed: ${claimsRes.error.message}`);
       }
-      if (insightsRes.error && Object.keys(insightsRes.error).length > 0) {
+      if (insightsRes.error && insightsRes.error.message && Object.keys(insightsRes.error).length > 0) {
         console.warn('⚠️ Insights query error:', insightsRes.error);
         // Don't throw error for insights, just continue with empty data
       }
