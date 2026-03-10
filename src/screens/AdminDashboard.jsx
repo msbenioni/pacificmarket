@@ -572,7 +572,7 @@ export default function AdminDashboard() {
           .order("submitted_date", { ascending: false })
           .limit(200);
         
-        if (insightsRes.error) {
+        if (insightsRes.error && Object.keys(insightsRes.error).length > 0) {
           console.error('❌ Insights query error:', insightsRes.error);
         }
       } catch (insightsError) {
@@ -588,7 +588,7 @@ export default function AdminDashboard() {
         console.error('❌ Claims query error:', claimsRes.error);
         throw new Error(`Claims query failed: ${claimsRes.error.message}`);
       }
-      if (insightsRes.error) {
+      if (insightsRes.error && Object.keys(insightsRes.error).length > 0) {
         console.warn('⚠️ Insights query error:', insightsRes.error);
         // Don't throw error for insights, just continue with empty data
       }
@@ -826,7 +826,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!user || !isAdmin || checkingAdmin) {
+  if (!user || checkingAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc] px-4">
         <div className="max-w-sm rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
@@ -834,39 +834,45 @@ export default function AdminDashboard() {
             <>
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent mx-auto mb-4" />
               <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Checking Access</h2>
-              <p className="mb-6 text-sm text-gray-500">
-                Verifying admin permissions...
+              <p className="text-sm text-gray-500">
+                Verifying admin privileges...
               </p>
-            </>
-          ) : !user ? (
-            <>
-              <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
-              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Access Denied</h2>
-              <p className="mb-6 text-sm text-gray-500">
-                Admin access required to view this page.
-              </p>
-              <Link
-                href={createPageUrl("BusinessLogin")}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-6 py-3 text-sm font-semibold text-white hover:bg-[#122040]"
-              >
-                Sign In <ChevronRight className="h-4 w-4" />
-              </Link>
             </>
           ) : (
             <>
               <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
-              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Access Denied</h2>
+              <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Authentication Required</h2>
               <p className="mb-6 text-sm text-gray-500">
-                Admin access required to view this page. Your account does not have admin privileges.
+                Please sign in to access this page.
               </p>
-              <Link
-                href={createPageUrl("BusinessLogin")}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-6 py-3 text-sm font-semibold text-white hover:bg-[#122040]"
+              <button
+                onClick={() => window.location.href = '/BusinessLogin'}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1a6b6b] transition-colors"
               >
-                Sign In <ChevronRight className="h-4 w-4" />
-              </Link>
+                Sign In
+              </button>
             </>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc] px-4">
+        <div className="max-w-sm rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+          <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
+          <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Access Denied</h2>
+          <p className="mb-6 text-sm text-gray-500">
+            Admin access required to view this page. Your account does not have admin privileges.
+          </p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1a6b6b] transition-colors"
+          >
+            Return Home
+          </button>
         </div>
       </div>
     );
