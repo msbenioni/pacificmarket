@@ -1041,7 +1041,6 @@ className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c]
           )}
         </div>
       </div>
-
       {/* Add Owner Modal */}
       {showAddOwnerModal && (
         <ModalWrapper isOpen={showAddOwnerModal} onClose={() => setShowAddOwnerModal(null)} className="max-w-md">
