@@ -46,6 +46,7 @@ const secondaryButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#
 const mobileButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
 const filterButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
 
+/** @type {Record<string, any>} */
 const emptyBusinessForm = {
   name: "",
   business_handle: "",
@@ -91,6 +92,7 @@ function sanitizeBusinessPayload(formData) {
     ...updateData
   } = formData;
 
+  /** @type {Record<string, any>} */
   const safeUpdateData = Object.entries(updateData).reduce((acc, [key, value]) => {
     if (value === undefined) return acc;
 
@@ -105,7 +107,7 @@ function sanitizeBusinessPayload(formData) {
 
     acc[key] = value;
     return acc;
-  }, {});
+  }, /** @type {Record<string, any>} */ ({}));
 
   return { id, safeUpdateData };
 }
@@ -441,7 +443,7 @@ export default function AdminDashboard() {
   const [showFilters, setShowFilters] = useState(false);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [createForm, setCreateForm] = useState(emptyBusinessForm);
+  const [createForm, setCreateForm] = useState({ ...emptyBusinessForm });
   const [savingCreate, setSavingCreate] = useState(false);
 
   const [editingBusinessId, setEditingBusinessId] = useState(null);
@@ -553,9 +555,7 @@ export default function AdminDashboard() {
     setDraftBusiness({
       ...emptyBusinessForm,
       ...business,
-      languages_spoken: Array.isArray(business.languages_spoken)
-        ? business.languages_spoken
-        : [],
+      languages_spoken: Array.isArray(business.languages_spoken) ? business.languages_spoken : [],
     });
   };
 
@@ -566,7 +566,7 @@ export default function AdminDashboard() {
 
   const resetCreateForm = () => {
     setShowCreateForm(false);
-    setCreateForm(emptyBusinessForm);
+    setCreateForm({ ...emptyBusinessForm });
   };
 
   const updateStatus = async (business, newStatus) => {
@@ -663,29 +663,30 @@ export default function AdminDashboard() {
         throw new Error("Missing business id for update.");
       }
 
+      /** @type {Record<string, any>} */
       let updatedData = { ...safeUpdateData };
 
       if (formData.logo_file) {
         try {
           const file = formData.logo_file;
           const filePath = `logos/${id}-${Date.now()}-${file.name}`;
-          
+
           const { error: uploadError } = await supabase.storage
-            .from('admin-listings')
+            .from("admin-listings")
             .upload(filePath, file);
-          
+
           if (uploadError) throw uploadError;
-          
+
           const { data: logoPublicUrlData } = supabase.storage
-            .from('admin-listings')
+            .from("admin-listings")
             .getPublicUrl(filePath);
-          
+
           if (logoPublicUrlData?.publicUrl) {
             updatedData.logo_url = logoPublicUrlData.publicUrl;
           }
         } catch (uploadError) {
-          console.error('Error uploading logo:', uploadError);
-          toast.error('Failed to upload logo. Using existing logo URL.');
+          console.error("Error uploading logo:", uploadError);
+          toast.error("Failed to upload logo. Using existing logo URL.");
         }
       }
 
@@ -693,26 +694,27 @@ export default function AdminDashboard() {
         try {
           const file = formData.banner_file;
           const filePath = `banners/${id}-${Date.now()}-${file.name}`;
-          
+
           const { error: uploadError } = await supabase.storage
-            .from('admin-listings')
+            .from("admin-listings")
             .upload(filePath, file);
-          
+
           if (uploadError) throw uploadError;
-          
+
           const { data: bannerPublicUrlData } = supabase.storage
-            .from('admin-listings')
+            .from("admin-listings")
             .getPublicUrl(filePath);
-          
+
           if (bannerPublicUrlData?.publicUrl) {
             updatedData.banner_url = bannerPublicUrlData.publicUrl;
           }
         } catch (uploadError) {
-          console.error('Error uploading banner:', uploadError);
-          toast.error('Failed to upload banner. Using existing banner URL.');
+          console.error("Error uploading banner:", uploadError);
+          toast.error("Failed to upload banner. Using existing banner URL.");
         }
       }
 
+      /** @type {Record<string, any>} */
       const payload = {
         ...updatedData,
         updated_date: new Date().toISOString(),
@@ -743,6 +745,7 @@ export default function AdminDashboard() {
 
       const { safeUpdateData } = sanitizeBusinessPayload(formData);
 
+      /** @type {Record<string, any>} */
       let businessData = {
         ...safeUpdateData,
         status: formData.status || BUSINESS_STATUS.ACTIVE,
@@ -752,7 +755,6 @@ export default function AdminDashboard() {
         updated_date: new Date().toISOString(),
       };
 
-      // Upload logo file if present
       if (formData.logo_file) {
         try {
           const file = formData.logo_file;
@@ -777,7 +779,6 @@ export default function AdminDashboard() {
         }
       }
 
-      // Upload banner file if present
       if (formData.banner_file) {
         try {
           const file = formData.banner_file;
