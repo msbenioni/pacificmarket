@@ -96,6 +96,15 @@ export default function DetailedBusinessForm({
     description: initialData.description || "",
     contact_email: initialData.contact_email || "",
     contact_phone: initialData.contact_phone || "",
+    // Handle business_stage -> growth_stage mapping
+    growth_stage: initialData.growth_stage || initialData.business_stage || "",
+    // Remove the old business_stage field if it exists
+    ...(initialData.business_stage ? { business_stage: undefined } : {}),
+    // Handle annual_revenue_exact -> revenue_band mapping
+    ...(initialData.annual_revenue_exact ? { 
+      revenue_band: "", // Clear the old field, user can select new one
+      annual_revenue_exact: undefined 
+    } : {}),
   } : {
     // Identity fields
     name: "", 
@@ -141,7 +150,6 @@ export default function DetailedBusinessForm({
     tech_stack: "",
     full_time_employees: null,
     part_time_employees: null,
-    annual_revenue_exact: null,
     cultural_identity: "",
     languages_spoken: [],
     tagline: "",
@@ -314,6 +322,12 @@ export default function DetailedBusinessForm({
     delete submissionData.tagline;
     delete submissionData.website;
     
+    // Ensure no business_stage field gets submitted (use growth_stage instead)
+    delete submissionData.business_stage;
+    
+    // Ensure no annual_revenue_exact field gets submitted (use revenue_band instead)
+    delete submissionData.annual_revenue_exact;
+    
     onSubmit(submissionData);
   };
 
@@ -423,8 +437,8 @@ export default function DetailedBusinessForm({
             <div>
               <label className={labelCls}>Business Stage</label>
               <select
-                value={form.business_stage || ""}
-                onChange={e => set("business_stage", e.target.value)}
+                value={form.growth_stage || ""}
+                onChange={e => set("growth_stage", e.target.value)}
                 className={inputCls}
               >
                 <option value="">Select stage</option>

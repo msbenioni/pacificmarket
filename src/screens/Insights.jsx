@@ -286,7 +286,7 @@ export default function Insights() {
   const byBusinessStage = Object.entries(BUSINESS_STAGE)
     .map(([key, value]) => ({
       label: getBusinessStageLabel(value), 
-      value: insights.filter(i => i.business_stage === value).length
+      value: insights.filter(i => i.growth_stage === value).length
     }));
   
   // Calculate founder experience (years as entrepreneur)

@@ -1,4 +1,5 @@
 import { CheckCircle, Users, Target, Globe, TrendingUp, Award, Calendar, Edit } from "lucide-react";
+import { TEAM_SIZE_BAND, BUSINESS_STAGE, IMPORT_EXPORT_STATUS } from "@/constants/unifiedConstants";
 
 const displayValue = (key, value) => {
   if (value === null || value === undefined || value === "") return "Not specified";
@@ -8,31 +9,23 @@ const displayValue = (key, value) => {
   }
   if (typeof value === "boolean") return value ? "Yes" : "No";
 
+  // Use unified constants for consistent labels
+  const getLabelFromArray = (array, value) => {
+    const item = array.find(item => item.value === value);
+    return item ? item.label : value;
+  };
+
+  const getLabelFromObject = (obj, value) => {
+    const key = Object.keys(obj).find(k => obj[k] === value);
+    return key ? getLabelFromArray(BUSINESS_STAGE, key) || value : value;
+  };
+
   const maps = {
-    team_size_band: {
-      solo: "Just me (solo)",
-      small: "2–5 people",
-      medium: "6–10 people",
-      large: "11–50 people",
-      enterprise: "50+ people",
-    },
-    business_stage: {
-      idea: "Idea/Planning",
-      startup: "Startup (0-2 years)",
-      growth: "Growth (2-5 years)",
-      mature: "Mature (5+ years)",
-      pre_seed: "Pre-seed (idea stage)",
-      seed: "Seed (early development)",
-      early_stage: "Early stage (product launched)",
-      growth_stage: "Growth stage (scaling)",
-      established: "Established (mature business)",
-      not_seeking: "Not seeking investment",
-    },
-    import_export_status: {
-      none: "No import/export",
-      import_only: "Import only",
-      export_only: "Export only",
-      both: "Import and export",
+    team_size_band: (value) => getLabelFromArray(TEAM_SIZE_BAND, value),
+    growth_stage: (value) => getLabelFromArray(BUSINESS_STAGE, value),
+    import_export_status: (value) => {
+      const key = Object.keys(IMPORT_EXPORT_STATUS).find(k => IMPORT_EXPORT_STATUS[k] === value);
+      return key ? key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : value;
     },
     business_model: {
       b2c: "Business to Consumer (B2C)",
@@ -108,6 +101,11 @@ const displayValue = (key, value) => {
     },
   };
 
+  // Use the mapping functions
+  if (typeof maps[key] === 'function') {
+    return maps[key](value);
+  }
+  
   return maps[key]?.[value] || value;
 };
 
@@ -232,7 +230,7 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       icon: Award,
       color: "text-pink-600",
       fields: [
-        { label: "Business Stage", key: "business_stage", value: snapshot.business_stage },
+        { label: "Business Stage", key: "growth_stage", value: snapshot.growth_stage },
         { label: "Goals (12 months)", key: "goals_next_12_months_array", value: snapshot.goals_next_12_months_array },
         { label: "Goals Details", key: "goals_details", value: snapshot.goals_details },
         { label: "Hiring Intentions", key: "hiring_intentions", value: snapshot.hiring_intentions },

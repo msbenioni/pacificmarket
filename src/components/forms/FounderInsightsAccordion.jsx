@@ -94,7 +94,7 @@ const SECTION_FIELDS = {
     "investor_capacity",
   ],
   challenges: ["top_challenges", "support_needed_next"],
-  growth: ["business_stage", "goals_next_12_months_array", "goals_details"],
+  growth: ["growth_stage", "goals_next_12_months_array", "goals_details"],
   community: [
     "community_impact_areas",
     "collaboration_interest",
@@ -137,7 +137,7 @@ export default function FounderInsightsAccordion({
       top_challenges: [],
       support_needed_next: [],
 
-      business_stage: "",
+      growth_stage: "",
       goals_next_12_months_array: [],
       goals_details: "",
 
@@ -172,7 +172,15 @@ export default function FounderInsightsAccordion({
 
   useEffect(() => {
     if (initialData) {
-      setForm((prev) => ({ ...prev, ...initialData }));
+      // Map business_stage to growth_stage if present
+      const mappedData = {
+        ...initialData,
+        ...(initialData.business_stage ? { 
+          growth_stage: initialData.business_stage,
+          business_stage: undefined 
+        } : {})
+      };
+      setForm((prev) => ({ ...prev, ...mappedData }));
     }
   }, [initialData]);
 
@@ -274,7 +282,7 @@ export default function FounderInsightsAccordion({
         top_challenges: form.top_challenges ?? [],
         support_needed_next: form.support_needed_next ?? [],
 
-        business_stage: form.business_stage,
+        growth_stage: form.growth_stage,
         goals_next_12_months_array: form.goals_next_12_months_array ?? [],
         goals_details: form.goals_details,
 
@@ -907,15 +915,15 @@ export default function FounderInsightsAccordion({
               {section.key === "growth" && (
                 <div className="space-y-4">
                   <div>
-                    <label className={getLabelClass("growth", "business_stage")}>
+                    <label className={getLabelClass("growth", "growth_stage")}>
                       Current business stage
                     </label>
                     <select
-                      value={form.business_stage || ""}
+                      value={form.growth_stage || ""}
                       onChange={(e) =>
                         setFormState((prev) => ({
                           ...prev,
-                          business_stage: e.target.value,
+                          growth_stage: e.target.value,
                         }))
                       }
                       className={selectCls}

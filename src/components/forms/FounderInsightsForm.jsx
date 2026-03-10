@@ -24,13 +24,13 @@ const DEFAULT_FORM_STATE = {
   // Business Reality
   business_operating_status: "",
   business_age: "",
-  primary_industry: "",
+  industry: "",
   team_size_band: "",
+  revenue_band: "",
   business_registered: false,
   employs_anyone: false,
   employs_family_community: false,
   sales_channels: [],
-  revenue_band: "",
 
   // Pacific Context
   pacific_identity: [],
@@ -49,7 +49,7 @@ const DEFAULT_FORM_STATE = {
   mentorship_access: false,
 
   // Growth & Future
-  business_stage: "",
+  growth_stage: "",
   goals_next_12_months_array: [],
   goals_details: "",
   hiring_intentions: false,
@@ -412,7 +412,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
             <div>
               <label className={labelCls}>Primary Industry *</label>
-              <select value={form.primary_industry || ""} onChange={e => setForm({ ...form, primary_industry: e.target.value })} className={inputCls}>
+              <select value={form.industry || ""} onChange={e => setForm({ ...form, industry: e.target.value })} className={inputCls}>
                 <option value="">Select industry</option>
                 <option value="retail">Retail</option>
                 <option value="hospitality">Hospitality/Food & Beverage</option>
@@ -557,13 +557,17 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               <option value="">Select revenue range (optional)</option>
               <option value="pre-revenue">Pre-revenue</option>
               <option value="under-10k">Under $10,000</option>
-              <option value="10k-50k">$10,000 - $50,000</option>
+              <option value="10k-25k">$10,000 - $25,000</option>
+              <option value="25k-50k">$25,000 - $50,000</option>
               <option value="50k-100k">$50,000 - $100,000</option>
               <option value="100k-250k">$100,000 - $250,000</option>
-              <option value="250k+">$250,000+</option>
-              <option value="prefer-not-to-say">Prefer not to say</option>
+              <option value="250k-500k">$250,000 - $500,000</option>
+              <option value="500k-1m">$500,000 - $1M</option>
+              <option value="1m-5m">$1M - $5M</option>
+              <option value="5m+">$5M+</option>
             </select>
           </div>
+
           </div>
         </div>
       )}
@@ -874,7 +878,7 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
 
           <div>
             <label className={labelCls}>What stage best describes your business today? *</label>
-            <select value={form.business_stage || ""} onChange={e => setForm({ ...form, business_stage: e.target.value })} className={inputCls}>
+            <select value={form.growth_stage || ""} onChange={e => setForm({ ...form, growth_stage: e.target.value })} className={inputCls}>
               <option value="">Select stage</option>
               <option value={BUSINESS_STAGE[0].value}>{BUSINESS_STAGE[0].label}</option>
               <option value={BUSINESS_STAGE[1].value}>{BUSINESS_STAGE[1].label}</option>

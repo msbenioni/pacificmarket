@@ -261,8 +261,8 @@ function InsightMobileCard({ insight }) {
               {insight.team_size_band && (
                 <span>Team: {insight.team_size_band}</span>
               )}
-              {insight.business_stage && (
-                <span>Stage: {insight.business_stage}</span>
+              {insight.growth_stage && (
+                <span>Stage: {insight.growth_stage}</span>
               )}
               {insight.snapshot_year && (
                 <span>Year: {insight.snapshot_year}</span>
@@ -354,10 +354,10 @@ function InsightMobileCard({ insight }) {
                   <p className="font-medium">{insight.team_size_band}</p>
                 </div>
               )}
-              {insight.business_stage && (
+              {insight.growth_stage && (
                 <div>
                   <span className="text-gray-500">Business Stage:</span>
-                  <p className="font-medium">{insight.business_stage}</p>
+                  <p className="font-medium">{insight.growth_stage}</p>
                 </div>
               )}
               {insight.snapshot_year && (
@@ -566,7 +566,7 @@ export default function AdminDashboard() {
             id, business_id, user_id, snapshot_year, submitted_date, year_started,
             problem_solved, team_size_band, business_model, family_involvement,
             customer_region, sales_channels, import_export_status, import_countries,
-            export_countries, business_stage, top_challenges, hiring_intentions,
+            export_countries, growth_stage, top_challenges, hiring_intentions,
             founder_role, founder_story, founder_motivation_array
           `)
           .order("submitted_date", { ascending: false })
@@ -1343,10 +1343,10 @@ export default function AdminDashboard() {
                                       <span> {insight.team_size_band}</span>
                                     </div>
                                   )}
-                                  {insight.business_stage && (
+                                  {insight.growth_stage && (
                                     <div>
                                       <span className="font-medium text-gray-700">Stage:</span>
-                                      <span> {insight.business_stage}</span>
+                                      <span> {insight.growth_stage}</span>
                                     </div>
                                   )}
                                   {insight.snapshot_year && (

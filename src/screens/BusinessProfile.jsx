@@ -46,8 +46,21 @@ export default function BusinessProfile() {
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        const businessId = window.location.pathname.split('/').pop();
-        const { data: businessData } = await getBusinessById(businessId);
+        // Get business ID from URL parameters, not pathname
+        const urlParams = new URLSearchParams(window.location.search);
+        const businessId = urlParams.get('id');
+        const businessHandle = urlParams.get('handle');
+        
+        // Use handle as fallback if no ID provided
+        const identifier = businessId || businessHandle;
+        
+        if (!identifier) {
+          console.error("No business ID or handle found in URL");
+          setLoading(false);
+          return;
+        }
+        
+        const { data: businessData } = await getBusinessById(identifier);
         
         if (businessData) {
           setBusiness(businessData);

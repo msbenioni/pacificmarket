@@ -187,7 +187,7 @@ export const BUSINESS_PROFILE_STEPS = [
     purpose: 'Measure the economic impact of Pacific businesses',
     fields: [
       {
-        id: 'business_stage',
+        id: 'growth_stage',
         label: 'Business stage',
         type: 'select',
         required: false,
@@ -371,7 +371,7 @@ export const BUSINESS_PROFILE_SCHEMA = {
   languages: 'text[]',
   
   // Economic Scale
-  business_stage: 'text',
+  growth_stage: 'text',
   employee_count: 'text',
   revenue_band: 'text',
   exporting: 'boolean',
@@ -383,7 +383,6 @@ export const BUSINESS_PROFILE_SCHEMA = {
   full_time_employees: 'integer',        // Exact full-time count (private)
   part_time_employees: 'integer',        // Exact part-time count (private)
   primary_market: 'text',                // Main market focus (private)
-  growth_stage: 'text',                  // Detailed growth stage (private)
   funding_source: 'text',                // Self-funded, loans, investors (private)
   business_challenges: 'text[]',         // Key challenges (private)
   future_plans: 'text',                  // Growth/expansion plans (private)
@@ -448,7 +447,7 @@ export const BUSINESS_PROFILE_VALIDATION_RULES = {
   },
   
   // Economic Scale validation
-  business_stage: {
+  growth_stage: {
     allowedValues: ['startup', 'growth', 'established']
   },
   employee_count: {
@@ -483,7 +482,7 @@ export const BUSINESS_PROFILE_PUBLIC_FIELDS = [
   'cultural_identity',
   'community',
   'languages',
-  'business_stage',
+  'growth_stage',
   'exporting'
 ];
 
@@ -524,7 +523,7 @@ export const DASHBOARD_DATA_MAPPING = {
   'Economic scale': 'employee_count / revenue_band',
   'Export activity': 'business.exporting',
   'Market reach': 'business.markets_served',
-  'Business maturity': 'business.business_stage / business.year_founded'
+  'Business maturity': 'business.growth_stage / business.year_founded'
 };
 
 // Export commonly used constants for backward compatibility

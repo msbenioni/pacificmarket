@@ -26,12 +26,24 @@ const BUSINESS_PUBLIC_FIELDS = `
   postal_code,
   country,
   industry,
+  primary_market,
   social_links,
   business_hours,
   business_structure,
   year_started,
+  business_age,
+  growth_stage,
+  business_operating_status,
+  team_size_band,
+  full_time_employees,
+  part_time_employees,
+  business_registered,
+  sales_channels,
+  import_export_status,
+  revenue_band,
   languages_spoken,
   cultural_identity,
+  competitive_advantage,
   status,
   verified,
   claimed,
@@ -93,18 +105,31 @@ export async function getHomepageBusinesses(options: {
 }
 
 /**
- * Get single business by ID
+ * Get single business by ID or handle
  */
 export async function getBusinessById(id: string) {
   // Import getSupabase dynamically
   const { getSupabase } = await import('../client');
   const supabase = getSupabase();
 
-  return supabase
-    .from('businesses')
-    .select(BUSINESS_PUBLIC_FIELDS)
-    .eq('id', id)
-    .single();
+  // Check if the ID looks like a UUID (8-4-4-4-12 format with hyphens)
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  
+  if (isUUID) {
+    // Query by UUID
+    return supabase
+      .from('businesses')
+      .select(BUSINESS_PUBLIC_FIELDS)
+      .eq('id', id)
+      .single();
+  } else {
+    // Query by business handle
+    return supabase
+      .from('businesses')
+      .select(BUSINESS_PUBLIC_FIELDS)
+      .eq('business_handle', id)
+      .single();
+  }
 }
 
 /**
