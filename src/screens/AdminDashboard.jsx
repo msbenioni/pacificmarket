@@ -743,7 +743,7 @@ export default function AdminDashboard() {
 
       const { safeUpdateData } = sanitizeBusinessPayload(formData);
 
-      const businessData = {
+      let businessData = {
         ...safeUpdateData,
         status: formData.status || BUSINESS_STATUS.ACTIVE,
         verified: formData.verified ?? true,
@@ -752,13 +752,63 @@ export default function AdminDashboard() {
         updated_date: new Date().toISOString(),
       };
 
+      // Upload logo file if present
+      if (formData.logo_file) {
+        try {
+          const file = formData.logo_file;
+          const filePath = `logos/new-${Date.now()}-${file.name}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("admin-listings")
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: logoPublicUrlData } = supabase.storage
+            .from("admin-listings")
+            .getPublicUrl(filePath);
+
+          if (logoPublicUrlData?.publicUrl) {
+            businessData.logo_url = logoPublicUrlData.publicUrl;
+          }
+        } catch (uploadError) {
+          console.error("Error uploading logo:", uploadError);
+          toast.error("Failed to upload logo.");
+        }
+      }
+
+      // Upload banner file if present
+      if (formData.banner_file) {
+        try {
+          const file = formData.banner_file;
+          const filePath = `banners/new-${Date.now()}-${file.name}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("admin-listings")
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: bannerPublicUrlData } = supabase.storage
+            .from("admin-listings")
+            .getPublicUrl(filePath);
+
+          if (bannerPublicUrlData?.publicUrl) {
+            businessData.banner_url = bannerPublicUrlData.publicUrl;
+          }
+        } catch (uploadError) {
+          console.error("Error uploading banner:", uploadError);
+          toast.error("Failed to upload banner.");
+        }
+      }
+
       const { data, error } = await supabase
         .from("businesses")
         .insert(businessData)
         .select(`
           id, name, business_handle, description, industry, country, city,
           status, visibility_tier, verified, claimed, contact_email, contact_website,
-          logo_url, owner_user_id, created_date, updated_date, subscription_tier
+          logo_url, banner_url, owner_user_id, created_date, updated_date, subscription_tier
         `)
         .single();
 
