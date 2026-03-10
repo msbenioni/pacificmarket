@@ -1,23 +1,36 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { Fragment, useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
-import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
 import toast from "react-hot-toast";
 import {
-  ChevronRight, ChevronDown, ChevronUp, Search, Filter, Download, Edit, Trash2, X, Plus, Users, Building2, TrendingUp, CheckCircle, Clock, Shield, XCircle, AlertTriangle
+  ChevronRight,
+  ChevronUp,
+  Search,
+  Filter,
+  Download,
+  X,
+  Plus,
+  Users,
+  Building2,
+  CheckCircle,
+  Clock,
+  Shield,
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
-import { COUNTRIES, INDUSTRIES, getCountryDisplayName, getIndustryDisplayName, getTierDisplayName } from "@/constants/unifiedConstants";
-
-function createPageUrl(page) {
-  return `/${page}`;
-}
+import {
+  COUNTRIES,
+  INDUSTRIES,
+  getCountryDisplayName,
+  getIndustryDisplayName,
+  getTierDisplayName,
+} from "@/constants/unifiedConstants";
 
 const TABS = [
   { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
@@ -44,17 +57,577 @@ function getBadgeStyles(type) {
   return styles[type] || styles.neutral;
 }
 
+function sanitizeBusinessPayload(formData) {
+  const {
+    id,
+    created_date,
+    updated_date,
+    verification_source,
+    ...updateData
+  } = formData;
+
+  const safeUpdateData = Object.entries(updateData).reduce((acc, [key, value]) => {
+    if (value === undefined) return acc;
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (trimmed === "") return acc;
+      acc[key] = trimmed;
+      return acc;
+    }
+
+    if (value === null) return acc;
+
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  return { id, safeUpdateData };
+}
+
+function InlineBusinessForm({
+  title,
+  formData,
+  setFormData,
+  onSave,
+  onCancel,
+  saving,
+  saveLabel = "Save Changes",
+  mode = "edit" // "create" or "edit"
+}) {
+  const updateField = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleFileUpload = async (event, type) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      // Create a temporary URL for preview
+      const tempUrl = URL.createObjectURL(file);
+      
+      if (type === 'logo') {
+        setFormData(prev => ({
+          ...prev,
+          logo_url: tempUrl,
+          logo_file: file // Store the actual file for upload
+        }));
+      } else if (type === 'banner') {
+        setFormData(prev => ({
+          ...prev,
+          banner_url: tempUrl,
+          banner_file: file // Store the actual file for upload
+        }));
+      }
+    } catch (error) {
+      console.error('Error handling file upload:', error);
+    }
+  };
+
+  const removeImage = (type) => {
+    if (type === 'logo') {
+      setFormData(prev => ({
+        ...prev,
+        logo_url: null,
+        logo_file: null
+      }));
+    } else if (type === 'banner') {
+      setFormData(prev => ({
+        ...prev,
+        banner_url: null,
+        banner_file: null
+      }));
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-base font-semibold text-[#0a1628]">{title}</h3>
+          <p className="text-sm text-gray-500">Review and update the business details inline.</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button onClick={onCancel} className={secondaryButtonCls}>
+            <X className="h-4 w-4" />
+            Cancel
+          </button>
+          <button onClick={onSave} disabled={saving} className={primaryButtonCls}>
+            {saving ? "Saving..." : saveLabel}
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Business Name *</label>
+            <input
+              type="text"
+              value={formData.name || ""}
+              onChange={(e) => updateField("name", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Business Handle</label>
+            <input
+              type="text"
+              value={formData.business_handle || ""}
+              onChange={(e) => updateField("business_handle", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="unique-business-handle"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Tagline</label>
+            <input
+              type="text"
+              value={formData.tagline || ""}
+              onChange={(e) => updateField("tagline", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="Short catchy description"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Name</label>
+            <input
+              type="text"
+              value={formData.contact_name || ""}
+              onChange={(e) => updateField("contact_name", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Descriptions */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Short Description</label>
+            <textarea
+              rows={3}
+              value={formData.short_description || ""}
+              onChange={(e) => updateField("short_description", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="Brief description (max 150 characters)"
+              maxLength={150}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Full Description</label>
+            <textarea
+              rows={4}
+              value={formData.description || ""}
+              onChange={(e) => updateField("description", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="Detailed business description"
+            />
+          </div>
+        </div>
+
+        {/* Logo and Banner Upload */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Logo</label>
+            <div className="flex items-center space-x-4">
+              {formData.logo_url ? (
+                <div className="relative">
+                  <img
+                    src={formData.logo_url}
+                    alt="Logo preview"
+                    className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage('logo')}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+                  <span className="text-xs text-gray-400">No logo</span>
+                </div>
+              )}
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, 'logo')}
+                  className="hidden"
+                  id="logo-upload"
+                />
+                <label
+                  htmlFor="logo-upload"
+                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                >
+                  Upload Logo
+                </label>
+                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 2MB</p>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={formData.logo_url || ""}
+              onChange={(e) => updateField("logo_url", e.target.value)}
+              className="w-full mt-2 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="Or enter logo URL directly"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Banner Image</label>
+            <div className="flex items-center space-x-4">
+              {formData.banner_url ? (
+                <div className="relative">
+                  <img
+                    src={formData.banner_url}
+                    alt="Banner preview"
+                    className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage('banner')}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+                  <span className="text-xs text-gray-400">No banner</span>
+                </div>
+              )}
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, 'banner')}
+                  className="hidden"
+                  id="banner-upload"
+                />
+                <label
+                  htmlFor="banner-upload"
+                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                >
+                  Upload Banner
+                </label>
+                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={formData.banner_url || ""}
+              onChange={(e) => updateField("banner_url", e.target.value)}
+              className="w-full mt-2 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="Or enter banner URL directly"
+            />
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Email</label>
+            <input
+              type="email"
+              value={formData.contact_email || ""}
+              onChange={(e) => updateField("contact_email", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Phone</label>
+            <input
+              type="tel"
+              value={formData.contact_phone || ""}
+              onChange={(e) => updateField("contact_phone", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Website</label>
+            <input
+              type="url"
+              value={formData.contact_website || ""}
+              onChange={(e) => updateField("contact_website", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="https://example.com"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Business Hours</label>
+            <input
+              type="text"
+              value={formData.business_hours || ""}
+              onChange={(e) => updateField("business_hours", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              placeholder="Mon-Fri 9AM-5PM"
+            />
+          </div>
+        </div>
+
+        {/* Location Information */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Country *</label>
+            <select
+              value={formData.country || ""}
+              onChange={(e) => updateField("country", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              required
+            >
+              <option value="">Select Country</option>
+              {COUNTRIES.map((country) => (
+                <option key={country.value} value={country.value}>
+                  {country.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Industry *</label>
+            <select
+              value={formData.industry || ""}
+              onChange={(e) => updateField("industry", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              required
+            >
+              <option value="">Select Industry</option>
+              {INDUSTRIES.map((industry) => (
+                <option key={industry.value} value={industry.value}>
+                  {industry.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">City</label>
+            <input
+              type="text"
+              value={formData.city || ""}
+              onChange={(e) => updateField("city", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Suburb</label>
+            <input
+              type="text"
+              value={formData.suburb || ""}
+              onChange={(e) => updateField("suburb", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Address */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Address</label>
+          <input
+            type="text"
+            value={formData.address || ""}
+            onChange={(e) => updateField("address", e.target.value)}
+            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            placeholder="Street address"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">State/Region</label>
+            <input
+              type="text"
+              value={formData.state_region || ""}
+              onChange={(e) => updateField("state_region", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Postal Code</label>
+            <input
+              type="text"
+              value={formData.postal_code || ""}
+              onChange={(e) => updateField("postal_code", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Year Started</label>
+            <input
+              type="number"
+              value={formData.year_started || ""}
+              onChange={(e) => updateField("year_started", parseInt(e.target.value) || null)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+              min="1900"
+              max={new Date().getFullYear()}
+              placeholder="2020"
+            />
+          </div>
+        </div>
+
+        {/* Business Details */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Business Structure</label>
+            <select
+              value={formData.business_structure || ""}
+              onChange={(e) => updateField("business_structure", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            >
+              <option value="">Select Structure</option>
+              <option value="sole-proprietorship">Sole Proprietorship</option>
+              <option value="partnership">Partnership</option>
+              <option value="llc">LLC</option>
+              <option value="corporation">Corporation</option>
+              <option value="non-profit">Non-Profit</option>
+              <option value="cooperative">Cooperative</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Subscription Tier</label>
+            <select
+              value={formData.subscription_tier || "vaka"}
+              onChange={(e) => updateField("subscription_tier", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            >
+              <option value="vaka">Vaka (Free)</option>
+              <option value="mana">Mana (Premium)</option>
+              <option value="moana">Moana (Featured+)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
+            <select
+              value={formData.status || BUSINESS_STATUS.PENDING}
+              onChange={(e) => updateField("status", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            >
+              <option value={BUSINESS_STATUS.PENDING}>Pending</option>
+              <option value={BUSINESS_STATUS.ACTIVE}>Active</option>
+              <option value={BUSINESS_STATUS.REJECTED}>Rejected</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Team Size</label>
+            <select
+              value={formData.team_size_band || ""}
+              onChange={(e) => updateField("team_size_band", e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            >
+              <option value="">Select Team Size</option>
+              <option value="1">1 person</option>
+              <option value="2-5">2-5 people</option>
+              <option value="6-10">6-10 people</option>
+              <option value="11-20">11-20 people</option>
+              <option value="21-50">21-50 people</option>
+              <option value="51-100">51-100 people</option>
+              <option value="100+">100+ people</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Cultural Identity */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Cultural Identity</label>
+          <textarea
+            rows={3}
+            value={formData.cultural_identity || ""}
+            onChange={(e) => updateField("cultural_identity", e.target.value)}
+            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            placeholder="Describe the cultural identity and values of your business"
+          />
+        </div>
+
+        {/* Languages Spoken */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Languages Spoken</label>
+          <input
+            type="text"
+            value={formData.languages_spoken?.join(', ') || ""}
+            onChange={(e) => updateField("languages_spoken", e.target.value.split(',').map(lang => lang.trim()).filter(Boolean))}
+            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+            placeholder="English, French, Samoan"
+          />
+        </div>
+
+        {/* Admin Toggles */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={!!formData.verified}
+                onChange={(e) => updateField("verified", e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              Verified
+            </label>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={!!formData.claimed}
+                onChange={(e) => updateField("claimed", e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              Claimed
+            </label>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={!!formData.homepage_featured}
+                onChange={(e) => updateField("homepage_featured", e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              Homepage Featured
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'approved':
-        return { text: 'Approved', style: getBadgeStyles("success") };
-      case 'rejected':
-        return { text: 'Rejected', style: getBadgeStyles("danger") };
-      case 'pending':
-        return { text: 'Pending', style: getBadgeStyles("warning") };
+      case "approved":
+        return { text: "Approved", style: getBadgeStyles("success") };
+      case "rejected":
+        return { text: "Rejected", style: getBadgeStyles("danger") };
+      case "pending":
+        return { text: "Pending", style: getBadgeStyles("warning") };
       default:
-        return { text: status || 'Unknown', style: getBadgeStyles("neutral") };
+        return { text: status || "Unknown", style: getBadgeStyles("neutral") };
     }
   };
 
@@ -70,22 +643,17 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
               alt=""
               className="h-full w-full object-cover"
               onError={(e) => {
-                console.warn('Failed to load claim mobile logo:', business.logo_url);
-                e.currentTarget.src = '/pm_logo.png';
+                e.currentTarget.src = "/pm_logo.png";
               }}
             />
           ) : (
-            <img
-              src="/pm_logo.png"
-              alt="Pacific Market"
-              className="h-full w-full object-cover"
-            />
+            <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
           )}
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#0a1628] break-words">
+            <h3 className="break-words text-sm font-semibold text-[#0a1628]">
               {business?.name || "Unknown Business"}
             </h3>
             <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusBadge.style}`}>
@@ -96,15 +664,18 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
           <p className="mt-1 text-xs text-gray-500">
             {business?.country || "Unknown"} · {business?.industry || "Unknown"}
           </p>
-          <p className="mt-1 text-xs text-gray-500 break-all">{claim.user_email}</p>
+          <p className="mt-1 break-all text-xs text-gray-500">{claim.user_email}</p>
           <p className="mt-1 text-xs text-gray-400">
-            Requested {claim.created_at || claim.created_date ? new Date(claim.created_at || claim.created_date).toLocaleDateString() : "—"}
+            Requested{" "}
+            {claim.created_at || claim.created_date
+              ? new Date(claim.created_at || claim.created_date).toLocaleDateString()
+              : "—"}
           </p>
         </div>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {claim.status === 'pending' && (
+        {claim.status === "pending" && (
           <>
             <button
               onClick={onApprove}
@@ -127,7 +698,19 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
   );
 }
 
-function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDelete }) {
+function AdminBusinessMobileCard({
+  business,
+  isEditing,
+  draftBusiness,
+  setDraftBusiness,
+  onApprove,
+  onReject,
+  onEdit,
+  onDelete,
+  onSave,
+  onCancel,
+  savingEdit,
+}) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
@@ -138,24 +721,17 @@ function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDele
               alt=""
               className="h-full w-full object-cover"
               onError={(e) => {
-                console.warn('Failed to load admin business mobile logo:', business.logo_url);
-                e.currentTarget.src = '/pm_logo.png';
+                e.currentTarget.src = "/pm_logo.png";
               }}
             />
           ) : (
-            <img
-              src="/pm_logo.png"
-              alt="Pacific Market"
-              className="h-full w-full object-cover"
-            />
+            <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
           )}
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#0a1628] break-words">
-              {business.name}
-            </h3>
+            <h3 className="break-words text-sm font-semibold text-[#0a1628]">{business.name}</h3>
             <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
               {getTierDisplayName(business.subscription_tier) || business.subscription_tier || "vaka"}
             </span>
@@ -169,9 +745,7 @@ function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDele
           <p className="mt-1 text-xs text-gray-500">
             {getCountryDisplayName(business.country)} · {getIndustryDisplayName(business.industry) || "No industry"}
           </p>
-          <p className="mt-1 text-xs text-gray-500 break-all">
-            {business.contact_email || "No email"}
-          </p>
+          <p className="mt-1 break-all text-xs text-gray-500">{business.contact_email || "No email"}</p>
           <p className="mt-1 text-xs text-gray-400">
             Submitted {business.created_date ? new Date(business.created_date).toLocaleDateString() : "—"}
           </p>
@@ -197,12 +771,14 @@ function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDele
             </button>
           </>
         )}
+
         <button
           onClick={onEdit}
           className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${secondaryButtonCls}`}
         >
-          Edit
+          {isEditing ? "Close" : "Edit"}
         </button>
+
         <button
           onClick={onDelete}
           className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
@@ -210,20 +786,33 @@ function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDele
           Delete
         </button>
       </div>
+
+      {isEditing && draftBusiness && (
+        <div className="mt-4 border-t border-gray-200 pt-4">
+          <InlineBusinessForm
+            title={`Edit ${business.name}`}
+            formData={draftBusiness}
+            setFormData={setDraftBusiness}
+            onSave={onSave}
+            onCancel={onCancel}
+            saving={savingEdit}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
 function InsightMobileCard({ insight }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="p-4">
         <div className="flex items-start gap-3">
           <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
             {insight.business_name && (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0d4f4f] to-[#1a5c5c] text-white text-xs font-bold">
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0d4f4f] to-[#1a5c5c] text-xs font-bold text-white">
                 {insight.business_name.charAt(0).toUpperCase()}
               </div>
             )}
@@ -231,9 +820,7 @@ function InsightMobileCard({ insight }) {
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold text-[#0a1628] break-words">
-                {insight.business_name}
-              </h3>
+              <h3 className="break-words text-sm font-semibold text-[#0a1628]">{insight.business_name}</h3>
               <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
                 {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
               </span>
@@ -245,7 +832,8 @@ function InsightMobileCard({ insight }) {
             </div>
 
             <p className="mt-1 text-xs text-gray-500">
-              {getCountryDisplayName(insight.business_country)} · {getIndustryDisplayName(insight.business_industry) || "No industry"}
+              {getCountryDisplayName(insight.business_country)} ·{" "}
+              {getIndustryDisplayName(insight.business_industry) || "No industry"}
             </p>
             <p className="mt-1 text-xs text-gray-400">
               Submitted {insight.submitted_date ? new Date(insight.submitted_date).toLocaleDateString() : "—"}
@@ -253,20 +841,14 @@ function InsightMobileCard({ insight }) {
 
             {insight.problem_solved && (
               <div className="mt-2">
-                <p className="text-xs text-gray-600 line-clamp-2">{insight.problem_solved}</p>
+                <p className="line-clamp-2 text-xs text-gray-600">{insight.problem_solved}</p>
               </div>
             )}
 
             <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
-              {insight.team_size_band && (
-                <span>Team: {insight.team_size_band}</span>
-              )}
-              {insight.growth_stage && (
-                <span>Stage: {insight.growth_stage}</span>
-              )}
-              {insight.snapshot_year && (
-                <span>Year: {insight.snapshot_year}</span>
-              )}
+              {insight.team_size_band && <span>Team: {insight.team_size_band}</span>}
+              {insight.growth_stage && <span>Stage: {insight.growth_stage}</span>}
+              {insight.snapshot_year && <span>Year: {insight.snapshot_year}</span>}
             </div>
           </div>
         </div>
@@ -290,63 +872,50 @@ function InsightMobileCard({ insight }) {
         </div>
       </div>
 
-      {/* Accordion Content */}
       {isExpanded && (
-        <div className="border-t border-gray-200 bg-gray-50 p-4 space-y-4">
-          {/* Business Information */}
+        <div className="space-y-4 border-t border-gray-200 bg-gray-50 p-4">
           <div>
-            <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Business Information</h4>
+            <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Business Information</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-500">Country:</span>
-                <p className="font-medium">
-                  {getCountryDisplayName(insight.business_country) || 'Not specified'}
-                </p>
+                <p className="font-medium">{getCountryDisplayName(insight.business_country) || "Not specified"}</p>
               </div>
               <div>
                 <span className="text-gray-500">Industry:</span>
-                <p className="font-medium">
-                  {getIndustryDisplayName(insight.business_industry) || 'Not specified'}
-                </p>
+                <p className="font-medium">{getIndustryDisplayName(insight.business_industry) || "Not specified"}</p>
               </div>
               <div>
                 <span className="text-gray-500">Subscription Tier:</span>
                 <p className="font-medium">
-                  {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || 'vaka'}
+                  {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
                 </p>
               </div>
               <div>
                 <span className="text-gray-500">Verified:</span>
-                <p className="font-medium">
-                  {insight.verified ? 'Yes' : 'No'}
-                </p>
+                <p className="font-medium">{insight.verified ? "Yes" : "No"}</p>
               </div>
             </div>
           </div>
 
-          {/* Problem Solved */}
           {insight.problem_solved && (
             <div>
-              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Problem Solved</h4>
-              <p className="text-sm text-gray-700 bg-white p-3 rounded-lg">
-                {insight.problem_solved}
-              </p>
+              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Problem Solved</h4>
+              <p className="rounded-lg bg-white p-3 text-sm text-gray-700">{insight.problem_solved}</p>
             </div>
           )}
 
-          {/* Founder Story */}
           {insight.founder_story && (
             <div>
-              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Founder Story</h4>
-              <p className="text-sm text-gray-700 bg-white p-3 rounded-lg whitespace-pre-wrap">
+              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Founder Story</h4>
+              <p className="rounded-lg bg-white p-3 text-sm text-gray-700 whitespace-pre-wrap">
                 {insight.founder_story}
               </p>
             </div>
           )}
 
-          {/* Business Details */}
           <div>
-            <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Business Details</h4>
+            <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Business Details</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               {insight.team_size_band && (
                 <div>
@@ -375,13 +944,12 @@ function InsightMobileCard({ insight }) {
             </div>
           </div>
 
-          {/* Challenges */}
           {insight.top_challenges && insight.top_challenges.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Top Challenges</h4>
+              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Top Challenges</h4>
               <div className="flex flex-wrap gap-2">
                 {insight.top_challenges.map((challenge, index) => (
-                  <span 
+                  <span
                     key={index}
                     className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
                   >
@@ -392,13 +960,12 @@ function InsightMobileCard({ insight }) {
             </div>
           )}
 
-          {/* Motivations */}
           {insight.founder_motivation_array && insight.founder_motivation_array.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Founder Motivations</h4>
+              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Founder Motivations</h4>
               <div className="flex flex-wrap gap-2">
                 {insight.founder_motivation_array.map((motivation, index) => (
-                  <span 
+                  <span
                     key={index}
                     className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
                   >
@@ -416,43 +983,59 @@ function InsightMobileCard({ insight }) {
 
 async function checkIsAdmin(user) {
   if (!user) return false;
-  
+
   try {
-    // Import getSupabase dynamically
     const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-    
+    const { data, error } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+
     if (error || !data) {
-      console.error('Error checking admin role:', error);
+      console.error("Error checking admin role:", error);
       return false;
     }
-    
-    return data.role === 'admin';
+
+    return data.role === "admin";
   } catch (error) {
-    console.error('Error checking admin role:', error);
+    console.error("Error checking admin role:", error);
     return false;
   }
 }
 
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth();
+
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [activeTab, setActiveTab] = useState("active");
+
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
   const [insights, setInsights] = useState([]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingBusiness, setEditingBusiness] = useState(null);
-  const [currentEditStep, setCurrentEditStep] = useState(1);
+  const [createForm, setCreateForm] = useState({
+    name: "",
+    business_handle: "",
+    description: "",
+    industry: "",
+    country: "",
+    city: "",
+    status: BUSINESS_STATUS.ACTIVE,
+    verified: true,
+    claimed: false,
+    contact_email: "",
+    contact_website: "",
+    logo_url: "",
+    subscription_tier: "vaka",
+  });
+  const [savingCreate, setSavingCreate] = useState(false);
+
+  const [editingBusinessId, setEditingBusinessId] = useState(null);
+  const [draftBusiness, setDraftBusiness] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
 
   const [filters, setFilters] = useState({
@@ -469,16 +1052,11 @@ export default function AdminDashboard() {
     setDashboardLoading(true);
 
     try {
-      // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      
-      console.log('🔄 Loading admin data for user:', user?.email);
-      
-      // Use the correct column names from the actual database schema
+
       const [businessesRes, claimsRes] = await Promise.all([
-        getAdminBusinesses({ limit: 500, status: ['active', 'pending', 'rejected'] }),
-        
+        getAdminBusinesses({ limit: 500, status: ["active", "pending", "rejected"] }),
         supabase
           .from("claim_requests")
           .select(`
@@ -489,20 +1067,11 @@ export default function AdminDashboard() {
             created_date
           `)
           .order("created_at", { ascending: false })
-          .limit(100)
+          .limit(100),
       ]);
 
-      console.log('🔍 Query results:', {
-        businessesError: businessesRes.error,
-        businessesCount: businessesRes.data?.length || 0,
-        claimsError: claimsRes.error,
-        claimsCount: claimsRes.data?.length || 0,
-        sampleClaim: claimsRes.data?.[0]
-      });
-
-      // Load insights from the single source of truth
-      console.log('🔄 Loading insights from business_insights_snapshots...');
       let insightsRes = { data: [], error: null };
+
       try {
         insightsRes = await supabase
           .from("business_insights_snapshots")
@@ -515,43 +1084,19 @@ export default function AdminDashboard() {
           `)
           .order("submitted_date", { ascending: false })
           .limit(200);
-        
-        if (insightsRes.error && insightsRes.error.message && Object.keys(insightsRes.error).length > 0 && insightsRes.error.message.trim() !== '') {
-          console.error('❌ Insights query error:', insightsRes.error);
-        }
       } catch (insightsError) {
-        console.error('❌ Insights query failed:', insightsError);
         insightsRes = { data: [], error: insightsError };
       }
 
-      if (businessesRes.error) {
-        console.error('❌ Businesses query error:', businessesRes.error);
-        throw new Error(`Businesses query failed: ${businessesRes.error.message}`);
-      }
-      if (claimsRes.error) {
-        console.error('❌ Claims query error:', claimsRes.error);
-        throw new Error(`Claims query failed: ${claimsRes.error.message}`);
-      }
-      if (insightsRes.error && insightsRes.error.message && Object.keys(insightsRes.error).length > 0 && insightsRes.error.message.trim() !== '') {
-        console.warn('⚠️ Insights query error:', insightsRes.error);
-        // Don't throw error for insights, just continue with empty data
-      }
+      if (businessesRes.error) throw new Error(`Businesses query failed: ${businessesRes.error.message}`);
+      if (claimsRes.error) throw new Error(`Claims query failed: ${claimsRes.error.message}`);
 
       setBusinesses(businessesRes.data || []);
       setClaims(claimsRes.data || []);
       setInsights(insightsRes.data || []);
-      
-      console.log('✅ Admin data loaded successfully');
-      console.log(`📊 Businesses: ${businessesRes.data?.length || 0}, Claims: ${claimsRes.data?.length || 0}, Insights: ${insightsRes.data?.length || 0}`);
-      
-      // Show sample of loaded data
-      if (claimsRes.data && claimsRes.data.length > 0) {
-        console.log('📄 Sample claim data:', claimsRes.data[0]);
-      }
-      
     } catch (error) {
-      console.error("❌ Error loading admin data:", error);
-      toast.error(`Failed to load data: ${error.message || 'Unknown error'}`);
+      console.error("Error loading admin data:", error);
+      toast.error(`Failed to load data: ${error.message || "Unknown error"}`);
     } finally {
       setDashboardLoading(false);
     }
@@ -572,13 +1117,8 @@ export default function AdminDashboard() {
         setCheckingAdmin(true);
         const adminStatus = await checkIsAdmin(user);
         setIsAdmin(adminStatus);
-
-        console.log('🔐 Admin status check:', {
-          user: user?.email,
-          isAdmin: adminStatus,
-        });
       } catch (error) {
-        console.error('❌ Error checking admin status:', error);
+        console.error("Error checking admin status:", error);
         setIsAdmin(false);
       } finally {
         setCheckingAdmin(false);
@@ -587,18 +1127,6 @@ export default function AdminDashboard() {
 
     checkAdminStatus();
   }, [user, authLoading]);
-
-  useEffect(() => {
-    console.log('🔐 Auth state:', {
-      user: user?.email,
-      userRole: user?.role,
-      userRaw: user,
-      isAdmin,
-      authLoading,
-      checkingAdmin,
-      dashboardLoading,
-    });
-  }, [user, isAdmin, authLoading, checkingAdmin, dashboardLoading]);
 
   useEffect(() => {
     if (authLoading || checkingAdmin) return;
@@ -610,26 +1138,51 @@ export default function AdminDashboard() {
     }
   }, [user, isAdmin, authLoading, checkingAdmin, loadAdminData]);
 
+  const startEditingBusiness = (business) => {
+    setEditingBusinessId(business.id);
+    setDraftBusiness({ ...business });
+  };
+
+  const cancelEditingBusiness = () => {
+    setEditingBusinessId(null);
+    setDraftBusiness(null);
+  };
+
+  const resetCreateForm = () => {
+    setShowCreateForm(false);
+    setCreateForm({
+      name: "",
+      business_handle: "",
+      description: "",
+      industry: "",
+      country: "",
+      city: "",
+      status: BUSINESS_STATUS.ACTIVE,
+      verified: true,
+      claimed: false,
+      contact_email: "",
+      contact_website: "",
+      logo_url: "",
+      subscription_tier: "vaka",
+    });
+  };
+
   const updateStatus = async (business, newStatus) => {
     try {
-      // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      
+
       const { error } = await supabase
         .from("businesses")
-        .update({ 
+        .update({
           status: newStatus,
-          updated_date: new Date().toISOString()
+          updated_date: new Date().toISOString(),
         })
         .eq("id", business.id);
 
       if (error) throw error;
 
-      setBusinesses(prev => 
-        prev.map(b => b.id === business.id ? { ...b, status: newStatus } : b)
-      );
-
+      setBusinesses((prev) => prev.map((b) => (b.id === business.id ? { ...b, status: newStatus } : b)));
       toast.success(`Business status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -639,31 +1192,27 @@ export default function AdminDashboard() {
 
   const updateClaim = async (claim, newStatus) => {
     try {
-      // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      
+
       const { error } = await supabase
         .from("claim_requests")
-        .update({ 
+        .update({
           status: newStatus,
           reviewed_at: new Date().toISOString(),
-          reviewed_by: user?.id
+          reviewed_by: user?.id,
         })
         .eq("id", claim.id);
 
       if (error) throw error;
 
-      setClaims(prev => 
-        prev.map(c => c.id === claim.id ? { ...c, status: newStatus } : c)
-      );
+      setClaims((prev) => prev.map((c) => (c.id === claim.id ? { ...c, status: newStatus } : c)));
 
-      // If approved, update business status
       if (newStatus === "approved") {
-        await updateStatus(
-          businesses.find(b => b.id === claim.business_id),
-          BUSINESS_STATUS.ACTIVE
-        );
+        const matchedBusiness = businesses.find((b) => b.id === claim.business_id);
+        if (matchedBusiness) {
+          await updateStatus(matchedBusiness, BUSINESS_STATUS.ACTIVE);
+        }
       }
 
       toast.success(`Claim status changed to ${newStatus}`);
@@ -679,18 +1228,18 @@ export default function AdminDashboard() {
     }
 
     try {
-      // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      
-      const { error } = await supabase
-        .from("businesses")
-        .delete()
-        .eq("id", businessId);
+
+      const { error } = await supabase.from("businesses").delete().eq("id", businessId);
 
       if (error) throw error;
 
-      setBusinesses(prev => prev.filter(b => b.id !== businessId));
+      setBusinesses((prev) => prev.filter((b) => b.id !== businessId));
+
+      if (editingBusinessId === businessId) {
+        cancelEditingBusiness();
+      }
 
       toast.success("The business has been permanently deleted.");
     } catch (error) {
@@ -699,66 +1248,100 @@ export default function AdminDashboard() {
     }
   };
 
-  const getLatestSnapshot = (businessId) => {
-    return insights
-      .filter(snapshot => snapshot.business_id === businessId)
-      .sort((a, b) => {
-        const dateA = new Date(a.submitted_date || '').getTime();
-        const dateB = new Date(b.submitted_date || '').getTime();
-        return dateB - dateA;
-      })[0];
-  };
-
   const saveBusiness = async (formData) => {
     setSavingEdit(true);
+
     try {
-      // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const { id, ...updateData } = formData;
-      const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
-        if (
-          !["updated_date", "created_date", "verification_source", "contact_website"].includes(key) &&
-          updateData[key] !== ""
-        ) {
-          acc[key] = updateData[key];
-        }
-        return acc;
-      }, {});
+      const { id, safeUpdateData } = sanitizeBusinessPayload(formData);
 
-      const { error } = await supabase
-        .from("businesses")
-        .update({ ...safeUpdateData, updated_date: new Date().toISOString() })
-        .eq("id", id);
+      if (!id) {
+        throw new Error("Missing business id for update.");
+      }
+
+      let updatedData = { ...safeUpdateData };
+
+      if (formData.logo_file) {
+        try {
+          const file = formData.logo_file;
+          const filePath = `logos/${id}-${Date.now()}-${file.name}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('admin-listings')
+            .upload(filePath, file);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data } = await supabase.storage
+            .from('admin-listings')
+            .getPublicUrl(filePath);
+          
+          updatedData.logo_url = data.publicUrl;
+        } catch (uploadError) {
+          console.error('Error uploading logo:', uploadError);
+          toast.error('Failed to upload logo. Using existing logo URL.');
+        }
+      }
+
+      if (formData.banner_file) {
+        try {
+          const file = formData.banner_file;
+          const filePath = `banners/${id}-${Date.now()}-${file.name}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('admin-listings')
+            .upload(filePath, file);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data } = await supabase.storage
+            .from('admin-listings')
+            .getPublicUrl(filePath);
+          
+          updatedData.banner_url = data.publicUrl;
+        } catch (uploadError) {
+          console.error('Error uploading banner:', uploadError);
+          toast.error('Failed to upload banner. Using existing banner URL.');
+        }
+      }
+
+      const payload = {
+        ...updatedData,
+        updated_date: new Date().toISOString(),
+      };
+
+      const { error } = await supabase.from("businesses").update(payload).eq("id", id);
 
       if (error) throw error;
 
-      setBusinesses((prev) =>
-        prev.map((b) => (b.id === id ? { ...b, ...safeUpdateData } : b))
-      );
-      setEditingBusiness(null);
-      setCurrentEditStep(1);
+      setBusinesses((prev) => prev.map((b) => (b.id === id ? { ...b, ...payload } : b)));
+      cancelEditingBusiness();
 
       toast.success("The business has been successfully updated.");
     } catch (error) {
       console.error("Error updating business:", error);
-      toast.error("Unable to update the business.");
+      toast.error(error?.message || "Unable to update the business.");
     } finally {
       setSavingEdit(false);
     }
   };
 
   const createVerifiedBusiness = async (formData) => {
+    setSavingCreate(true);
+
     try {
-      // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      
+
+      const { safeUpdateData } = sanitizeBusinessPayload(formData);
+
       const businessData = {
-        ...formData,
-        status: BUSINESS_STATUS.ACTIVE,
-        verified: true,
+        ...safeUpdateData,
+        status: formData.status || BUSINESS_STATUS.ACTIVE,
+        verified: formData.verified ?? true,
+        claimed: formData.claimed ?? false,
         created_date: new Date().toISOString(),
         updated_date: new Date().toISOString(),
       };
@@ -767,7 +1350,7 @@ export default function AdminDashboard() {
         .from("businesses")
         .insert(businessData)
         .select(`
-          id, name, business_handle, description, industry, country, city, 
+          id, name, business_handle, description, industry, country, city,
           status, visibility_tier, verified, claimed, contact_email, contact_website,
           logo_url, owner_user_id, created_date, updated_date, subscription_tier
         `)
@@ -776,12 +1359,14 @@ export default function AdminDashboard() {
       if (error) throw error;
 
       setBusinesses((prev) => [data, ...prev]);
-      setShowCreateForm(false);
+      resetCreateForm();
 
       toast.success("The listing was created and automatically verified.");
     } catch (error) {
       console.error("Error creating business:", error);
-      toast.error("Unable to create the listing.");
+      toast.error(error?.message || "Unable to create the listing.");
+    } finally {
+      setSavingCreate(false);
     }
   };
 
@@ -800,12 +1385,12 @@ export default function AdminDashboard() {
       "contact_email",
       "contact_website",
     ];
+
     const header = fields.join(",");
     const rows = businesses.map((b) =>
-      fields
-        .map((f) => `"${(b[f] ?? "").toString().replace(/"/g, '""')}"`)
-        .join(",")
+      fields.map((f) => `"${(b[f] ?? "").toString().replace(/"/g, '""')}"`).join(",")
     );
+
     const csv = [header, ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -841,12 +1426,10 @@ export default function AdminDashboard() {
         <div className="max-w-sm rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
           <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
           <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Authentication Required</h2>
-          <p className="mb-6 text-sm text-gray-500">
-            Please sign in to access this page.
-          </p>
+          <p className="mb-6 text-sm text-gray-500">Please sign in to access this page.</p>
           <button
-            onClick={() => window.location.href = '/BusinessLogin'}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1a6b6b] transition-colors"
+            onClick={() => (window.location.href = "/BusinessLogin")}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1a6b6b]"
           >
             Sign In
           </button>
@@ -865,8 +1448,8 @@ export default function AdminDashboard() {
             Admin access required to view this page. Your account does not have admin privileges.
           </p>
           <button
-            onClick={() => window.location.href = '/'}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1a6b6b] transition-colors"
+            onClick={() => (window.location.href = "/")}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1a6b6b]"
           >
             Return Home
           </button>
@@ -876,9 +1459,7 @@ export default function AdminDashboard() {
   }
 
   const statusTab = TABS.find((tab) => tab.id === activeTab && tab.status);
-  const filtered = statusTab
-    ? businesses.filter((b) => b.status === statusTab.status)
-    : [];
+  const filtered = statusTab ? businesses.filter((b) => b.status === statusTab.status) : [];
 
   const getFilteredData = () => {
     let data = filtered;
@@ -912,12 +1493,10 @@ export default function AdminDashboard() {
   const getFilteredClaims = () => {
     let filteredClaims = claims;
 
-    // Apply claim status filter
     if (filters.claimStatus) {
       filteredClaims = filteredClaims.filter((claim) => claim.status === filters.claimStatus);
     }
 
-    // Apply search filter
     if (searchQuery) {
       filteredClaims = filteredClaims.filter((claim) => {
         const business = businesses.find((b) => b.id === claim.business_id);
@@ -935,17 +1514,16 @@ export default function AdminDashboard() {
 
   const filteredData = getFilteredData();
   const filteredClaimsData = getFilteredClaims();
-  
-  // Use insights data directly from business_insights_snapshots
-  const activeInsights = insights.map(snapshot => {
-    const business = businesses.find(b => b.id === snapshot.business_id);
+
+  const activeInsights = insights.map((snapshot) => {
+    const business = businesses.find((b) => b.id === snapshot.business_id);
     return {
       ...snapshot,
-      business_name: business?.name || 'Unknown Business',
+      business_name: business?.name || "Unknown Business",
       business_country: business?.country,
       business_industry: business?.industry,
       subscription_tier: business?.subscription_tier,
-      verified: business?.verified
+      verified: business?.verified,
     };
   });
 
@@ -991,7 +1569,6 @@ export default function AdminDashboard() {
 
       <div className="min-h-screen bg-[#f8f9fc]">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-          {/* Action Row */}
           <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -1003,7 +1580,7 @@ export default function AdminDashboard() {
                       placeholder="Search businesses..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="min-h-[44px] w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm focus:border-[#0d4f4f] focus:bg-white focus:outline-none transition-colors"
+                      className="min-h-[44px] w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-[#0d4f4f] focus:bg-white focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1020,18 +1597,19 @@ export default function AdminDashboard() {
                     <Filter className="h-4 w-4" />
                     Filters
                     {activeFilterCount > 0 && (
-                      <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[11px]">
-                        {activeFilterCount}
-                      </span>
+                      <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[11px]">{activeFilterCount}</span>
                     )}
                   </button>
 
                   <button
-                    onClick={() => setShowCreateForm(true)}
+                    onClick={() => {
+                      setShowCreateForm((prev) => !prev);
+                      cancelEditingBusiness();
+                    }}
                     className={primaryButtonCls}
                   >
                     <Plus className="h-4 w-4" />
-                    Create Listing
+                    {showCreateForm ? "Close Create" : "Create Listing"}
                   </button>
                 </div>
               </div>
@@ -1041,9 +1619,7 @@ export default function AdminDashboard() {
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
                     <select
                       value={filters.country}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, country: e.target.value }))
-                      }
+                      onChange={(e) => setFilters((prev) => ({ ...prev, country: e.target.value }))}
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Countries</option>
@@ -1056,9 +1632,7 @@ export default function AdminDashboard() {
 
                     <select
                       value={filters.industry}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, industry: e.target.value }))
-                      }
+                      onChange={(e) => setFilters((prev) => ({ ...prev, industry: e.target.value }))}
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Industries</option>
@@ -1071,9 +1645,7 @@ export default function AdminDashboard() {
 
                     <select
                       value={filters.tier}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, tier: e.target.value }))
-                      }
+                      onChange={(e) => setFilters((prev) => ({ ...prev, tier: e.target.value }))}
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Tiers</option>
@@ -1084,9 +1656,7 @@ export default function AdminDashboard() {
 
                     <select
                       value={filters.verified}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, verified: e.target.value }))
-                      }
+                      onChange={(e) => setFilters((prev) => ({ ...prev, verified: e.target.value }))}
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Verification</option>
@@ -1097,9 +1667,7 @@ export default function AdminDashboard() {
                     {activeTab === "claims" && (
                       <select
                         value={filters.claimStatus}
-                        onChange={(e) =>
-                          setFilters((prev) => ({ ...prev, claimStatus: e.target.value }))
-                        }
+                        onChange={(e) => setFilters((prev) => ({ ...prev, claimStatus: e.target.value }))}
                         className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                       >
                         <option value="">All Claim Status</option>
@@ -1131,9 +1699,21 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Main Content */}
+          {showCreateForm && (
+            <div className="mb-6">
+              <InlineBusinessForm
+                title="Create Verified Business Listing"
+                formData={createForm}
+                setFormData={setCreateForm}
+                onSave={() => createVerifiedBusiness(createForm)}
+                onCancel={resetCreateForm}
+                saving={savingCreate}
+                saveLabel="Create Listing"
+              />
+            </div>
+          )}
+
           <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-            {/* Tabs */}
             <div className="border-b border-gray-200 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="overflow-x-auto">
@@ -1141,16 +1721,17 @@ export default function AdminDashboard() {
                     {TABS.map((tab) => (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          cancelEditingBusiness();
+                        }}
                         className={`inline-flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                           activeTab === tab.id
                             ? "bg-white text-[#0a1628] shadow-sm"
                             : "text-gray-600 hover:text-[#0a1628]"
                         }`}
                       >
-                        <tab.icon
-                          className={`h-4 w-4 ${activeTab === tab.id ? "text-[#0d4f4f]" : ""}`}
-                        />
+                        <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? "text-[#0d4f4f]" : ""}`} />
                         {tab.label}
                         {tab.id === "pending" && pendingCount > 0 && (
                           <span className="rounded-full bg-yellow-500 px-1.5 py-0.5 text-[11px] text-white">
@@ -1175,7 +1756,6 @@ export default function AdminDashboard() {
             </div>
 
             <div className="p-4">
-              {/* Claims */}
               {activeTab === "claims" && (
                 <div className="space-y-3">
                   {filteredClaimsData.length === 0 ? (
@@ -1200,7 +1780,7 @@ export default function AdminDashboard() {
                         })}
                       </div>
 
-                      <div className="hidden lg:block space-y-3">
+                      <div className="hidden space-y-3 lg:block">
                         {filteredClaimsData.map((claim) => {
                           const business = businesses.find((b) => b.id === claim.business_id);
                           return (
@@ -1216,46 +1796,57 @@ export default function AdminDashboard() {
                                       alt=""
                                       className="h-full w-full object-cover"
                                       onError={(e) => {
-                                        console.warn('Failed to load claim business logo:', business.logo_url);
-                                        e.currentTarget.src = '/pm_logo.png';
+                                        e.currentTarget.src = "/pm_logo.png";
                                       }}
                                     />
                                   ) : (
-                                    <img
-                                      src="/pm_logo.png"
-                                      alt="Pacific Market"
-                                      className="h-full w-full object-cover"
-                                    />
+                                    <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
                                   )}
                                 </div>
+
                                 <div className="min-w-0 flex-1">
                                   <div className="mb-1 flex flex-wrap items-center gap-2">
                                     <span className="font-semibold text-[#0a1628]">
                                       {business?.name || "Unknown Business"}
                                     </span>
-                                    <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
-                                      claim.status === 'approved' ? getBadgeStyles("success") :
-                                      claim.status === 'rejected' ? getBadgeStyles("danger") :
-                                      claim.status === 'pending' ? getBadgeStyles("warning") :
-                                      getBadgeStyles("neutral")
-                                    }`}>
-                                      {claim.status ? claim.status.charAt(0).toUpperCase() + claim.status.slice(1) : 'Unknown'}
+                                    <span
+                                      className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+                                        claim.status === "approved"
+                                          ? getBadgeStyles("success")
+                                          : claim.status === "rejected"
+                                          ? getBadgeStyles("danger")
+                                          : claim.status === "pending"
+                                          ? getBadgeStyles("warning")
+                                          : getBadgeStyles("neutral")
+                                      }`}
+                                    >
+                                      {claim.status
+                                        ? claim.status.charAt(0).toUpperCase() + claim.status.slice(1)
+                                        : "Unknown"}
                                     </span>
                                     {business && (
                                       <span className={`rounded-full border px-2 py-0.5 text-xs ${getBadgeStyles("neutral")}`}>
-                                        {getTierDisplayName(business.subscription_tier) || business.subscription_tier || "vaka"}
+                                        {getTierDisplayName(business.subscription_tier) ||
+                                          business.subscription_tier ||
+                                          "vaka"}
                                       </span>
                                     )}
                                   </div>
+
                                   <p className="text-xs text-gray-500">
-                                    {business?.country || "Unknown"} · {business?.industry || "Unknown"} · {claim.user_email}
+                                    {business?.country || "Unknown"} · {business?.industry || "Unknown"} ·{" "}
+                                    {claim.user_email}
                                   </p>
                                   <p className="mt-1 text-xs text-gray-400">
-                                    Requested {claim.created_at || claim.created_date ? new Date(claim.created_at || claim.created_date).toLocaleDateString() : "—"}
+                                    Requested{" "}
+                                    {claim.created_at || claim.created_date
+                                      ? new Date(claim.created_at || claim.created_date).toLocaleDateString()
+                                      : "—"}
                                   </p>
                                 </div>
+
                                 <div className="flex flex-shrink-0 items-center gap-2">
-                                  {claim.status === 'pending' && (
+                                  {claim.status === "pending" && (
                                     <>
                                       <button
                                         onClick={() => updateClaim(claim, "approved")}
@@ -1282,7 +1873,6 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* Insights */}
               {activeTab === "insights" && (
                 <div className="space-y-4">
                   {activeInsights.length === 0 ? (
@@ -1294,14 +1884,11 @@ export default function AdminDashboard() {
                     <>
                       <div className="space-y-3 lg:hidden">
                         {activeInsights.map((insight) => (
-                          <InsightMobileCard
-                            key={insight.id}
-                            insight={insight}
-                          />
+                          <InsightMobileCard key={insight.id} insight={insight} />
                         ))}
                       </div>
 
-                      <div className="hidden lg:block space-y-4">
+                      <div className="hidden space-y-4 lg:block">
                         {activeInsights.map((insight) => (
                           <div
                             key={insight.id}
@@ -1312,10 +1899,14 @@ export default function AdminDashboard() {
                                 <div className="mb-2 flex items-center gap-2">
                                   <h4 className="font-semibold text-[#0a1628]">{insight.business_name}</h4>
                                   <span className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles("neutral")}`}>
-                                    {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
+                                    {getTierDisplayName(insight.subscription_tier) ||
+                                      insight.subscription_tier ||
+                                      "vaka"}
                                   </span>
                                   {insight.verified && (
-                                    <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("premium")}`}>
+                                    <span
+                                      className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("premium")}`}
+                                    >
                                       Verified
                                     </span>
                                   )}
@@ -1323,18 +1914,17 @@ export default function AdminDashboard() {
 
                                 <div className="mb-3 flex flex-wrap items-center gap-4 text-xs text-gray-600">
                                   <span>
-                                    {getCountryDisplayName(insight.business_country)} • {getIndustryDisplayName(insight.business_industry) || "No industry"}
+                                    {getCountryDisplayName(insight.business_country)} •{" "}
+                                    {getIndustryDisplayName(insight.business_industry) || "No industry"}
                                   </span>
                                   {insight.submitted_date && (
-                                    <span>
-                                      Submitted {new Date(insight.submitted_date).toLocaleDateString()}
-                                    </span>
+                                    <span>Submitted {new Date(insight.submitted_date).toLocaleDateString()}</span>
                                   )}
                                 </div>
 
                                 {insight.problem_solved && (
                                   <div className="mb-3">
-                                    <h5 className="text-xs font-semibold text-gray-700 mb-1">Problem Solved</h5>
+                                    <h5 className="mb-1 text-xs font-semibold text-gray-700">Problem Solved</h5>
                                     <p className="text-xs text-gray-600">{insight.problem_solved}</p>
                                   </div>
                                 )}
@@ -1362,9 +1952,7 @@ export default function AdminDashboard() {
                               </div>
 
                               <div className="flex flex-shrink-0 items-center gap-2">
-                                <div className="text-sm text-gray-500">
-                                  Details available in mobile view
-                                </div>
+                                <div className="text-sm text-gray-500">Details available in mobile view</div>
                               </div>
                             </div>
                           </div>
@@ -1375,7 +1963,6 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* Business Tabs */}
               {activeTab !== "claims" && activeTab !== "insights" && (
                 <div className="space-y-3">
                   {filteredData.length === 0 ? (
@@ -1385,25 +1972,33 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <>
-                      {/* Mobile cards */}
                       <div className="space-y-3 lg:hidden">
                         {filteredData.map((business) => (
                           <AdminBusinessMobileCard
                             key={business.id}
                             business={business}
+                            isEditing={editingBusinessId === business.id}
+                            draftBusiness={editingBusinessId === business.id ? draftBusiness : null}
+                            setDraftBusiness={setDraftBusiness}
                             onApprove={() => updateStatus(business, BUSINESS_STATUS.ACTIVE)}
                             onReject={() => updateStatus(business, BUSINESS_STATUS.REJECTED)}
                             onEdit={() => {
-                              setEditingBusiness(business);
-                              setCurrentEditStep(1);
+                              if (editingBusinessId === business.id) {
+                                cancelEditingBusiness();
+                              } else {
+                                startEditingBusiness(business);
+                                setShowCreateForm(false);
+                              }
                             }}
                             onDelete={() => deleteBusiness(business.id)}
+                            onSave={() => saveBusiness(draftBusiness)}
+                            onCancel={cancelEditingBusiness}
+                            savingEdit={savingEdit}
                           />
                         ))}
                       </div>
 
-                      {/* Desktop table */}
-                      <div className="hidden lg:block overflow-hidden rounded-xl border border-gray-200 bg-white">
+                      <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white lg:block">
                         <table className="w-full">
                           <thead className="border-b border-gray-200 bg-gray-50">
                             <tr>
@@ -1421,109 +2016,129 @@ export default function AdminDashboard() {
                               </th>
                             </tr>
                           </thead>
+
                           <tbody className="divide-y divide-gray-200">
                             {filteredData.map((b) => (
-                              <tr key={b.id} className="hover:bg-gray-50">
-                                <td className="px-4 py-4">
-                                  <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                                      {b.logo_url ? (
-                                        <img
-                                          src={b.logo_url}
-                                          alt=""
-                                          className="h-full w-full object-cover"
-                                          onError={(e) => {
-                                            console.warn('Failed to load admin dashboard logo:', b.logo_url);
-                                            e.currentTarget.src = '/pm_logo.png';
-                                          }}
-                                        />
-                                      ) : (
-                                        <img
-                                          src="/pm_logo.png"
-                                          alt="Pacific Market"
-                                          className="h-full w-full object-cover"
-                                        />
-                                      )}
-                                    </div>
-                                    <div>
-                                      <div className="font-medium text-[#0a1628]">{b.name}</div>
-                                      <div className="text-xs text-gray-500">
-                                        {b.contact_email || "No email"}
+                              <Fragment key={b.id}>
+                                <tr className="hover:bg-gray-50">
+                                  <td className="px-4 py-4">
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                                        {b.logo_url ? (
+                                          <img
+                                            src={b.logo_url}
+                                            alt=""
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => {
+                                              e.currentTarget.src = "/pm_logo.png";
+                                            }}
+                                          />
+                                        ) : (
+                                          <img
+                                            src="/pm_logo.png"
+                                            alt="Pacific Market"
+                                            className="h-full w-full object-cover"
+                                          />
+                                        )}
+                                      </div>
+
+                                      <div>
+                                        <div className="font-medium text-[#0a1628]">{b.name}</div>
+                                        <div className="text-xs text-gray-500">{b.contact_email || "No email"}</div>
                                       </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className="px-4 py-4">
-                                  <div className="text-sm text-gray-600">
-                                    {getCountryDisplayName(b.country)} · {getIndustryDisplayName(b.industry) || "No industry"}
-                                  </div>
-                                  <div className="text-xs text-gray-400">
-                                    Submitted{" "}
-                                    {b.created_date
-                                      ? new Date(b.created_date).toLocaleDateString()
-                                      : "—"}
-                                  </div>
-                                </td>
-                                <td className="px-4 py-4">
-                                  <div className="flex items-center gap-2">
-                                    <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(b.verified ? "premium" : "neutral")}`}>
-                                      {getTierDisplayName(b.subscription_tier) || b.subscription_tier || "vaka"}
-                                    </span>
-                                    {b.verified && (
-                                      <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("success")}`}>
-                                        Verified
+                                  </td>
+
+                                  <td className="px-4 py-4">
+                                    <div className="text-sm text-gray-600">
+                                      {getCountryDisplayName(b.country)} ·{" "}
+                                      {getIndustryDisplayName(b.industry) || "No industry"}
+                                    </div>
+                                    <div className="text-xs text-gray-400">
+                                      Submitted {b.created_date ? new Date(b.created_date).toLocaleDateString() : "—"}
+                                    </div>
+                                  </td>
+
+                                  <td className="px-4 py-4">
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(
+                                          b.verified ? "premium" : "neutral"
+                                        )}`}
+                                      >
+                                        {getTierDisplayName(b.subscription_tier) || b.subscription_tier || "vaka"}
                                       </span>
-                                    )}
-                                  </div>
-                                </td>
-                                <td className="px-4 py-4">
-                                  <div className="flex items-center justify-end gap-2">
-                                    {b.status === BUSINESS_STATUS.PENDING && (
-                                      <>
-                                        <button
-                                          onClick={() =>
-                                            updateStatus(b, BUSINESS_STATUS.ACTIVE)
-                                          }
-                                          className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
-                                            "success"
-                                          )}`}
+                                      {b.verified && (
+                                        <span
+                                          className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("success")}`}
                                         >
-                                          <CheckCircle className="h-3 w-3" />
-                                          Approve
-                                        </button>
-                                        <button
-                                          onClick={() =>
-                                            updateStatus(b, BUSINESS_STATUS.REJECTED)
+                                          Verified
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+
+                                  <td className="px-4 py-4">
+                                    <div className="flex items-center justify-end gap-2">
+                                      {b.status === BUSINESS_STATUS.PENDING && (
+                                        <>
+                                          <button
+                                            onClick={() => updateStatus(b, BUSINESS_STATUS.ACTIVE)}
+                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("success")}`}
+                                          >
+                                            <CheckCircle className="h-3 w-3" />
+                                            Approve
+                                          </button>
+
+                                          <button
+                                            onClick={() => updateStatus(b, BUSINESS_STATUS.REJECTED)}
+                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("danger")}`}
+                                          >
+                                            <XCircle className="h-3 w-3" />
+                                            Deny
+                                          </button>
+                                        </>
+                                      )}
+
+                                      <button
+                                        onClick={() => {
+                                          setShowCreateForm(false);
+                                          if (editingBusinessId === b.id) {
+                                            cancelEditingBusiness();
+                                          } else {
+                                            startEditingBusiness(b);
                                           }
-                                          className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
-                                            "danger"
-                                          )}`}
-                                        >
-                                          <XCircle className="h-3 w-3" />
-                                          Deny
-                                        </button>
-                                      </>
-                                    )}
-                                    <button
-                                      onClick={() => {
-                                        setEditingBusiness(b);
-                                        setCurrentEditStep(1);
-                                      }}
-                                      className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${secondaryButtonCls}`}
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      onClick={() => deleteBusiness(b.id)}
-                                      className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
-                                        "danger"
-                                      )}`}
-                                    >
-                                      Delete
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
+                                        }}
+                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${secondaryButtonCls}`}
+                                      >
+                                        {editingBusinessId === b.id ? "Close" : "Edit"}
+                                      </button>
+
+                                      <button
+                                        onClick={() => deleteBusiness(b.id)}
+                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("danger")}`}
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+
+                                {editingBusinessId === b.id && draftBusiness && (
+                                  <tr>
+                                    <td colSpan={4} className="bg-gray-50 px-4 py-5">
+                                      <InlineBusinessForm
+                                        title={`Edit ${b.name}`}
+                                        formData={draftBusiness}
+                                        setFormData={setDraftBusiness}
+                                        onSave={() => saveBusiness(draftBusiness)}
+                                        onCancel={cancelEditingBusiness}
+                                        saving={savingEdit}
+                                      />
+                                    </td>
+                                  </tr>
+                                )}
+                              </Fragment>
                             ))}
                           </tbody>
                         </table>
