@@ -876,7 +876,7 @@ className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c]
                       <div className="min-w-0">
                         <p className="font-semibold text-[#0a1628] truncate">{c.business_name || c.business_id}</p>
                         <p className="text-xs text-slate-500 mt-1">
-                          Submitted {new Date(c.created_date).toLocaleDateString()}
+                          Submitted {c.created_at ? new Date(c.created_at).toLocaleDateString() : "—"}
                         </p>
                       </div>
 

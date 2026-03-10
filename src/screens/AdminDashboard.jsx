@@ -98,7 +98,7 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
           </p>
           <p className="mt-1 text-xs text-gray-500 break-all">{claim.user_email}</p>
           <p className="mt-1 text-xs text-gray-400">
-            Requested {claim.created_at ? new Date(claim.created_at).toLocaleDateString() : "—"}
+            Requested {claim.created_at || claim.created_date ? new Date(claim.created_at || claim.created_date).toLocaleDateString() : "—"}
           </p>
         </div>
       </div>
@@ -1248,7 +1248,7 @@ export default function AdminDashboard() {
                                     {business?.country || "Unknown"} · {business?.industry || "Unknown"} · {claim.user_email}
                                   </p>
                                   <p className="mt-1 text-xs text-gray-400">
-                                    Requested {new Date(claim.created_at).toLocaleDateString()}
+                                    Requested {claim.created_at || claim.created_date ? new Date(claim.created_at || claim.created_date).toLocaleDateString() : "—"}
                                   </p>
                                 </div>
                                 <div className="flex flex-shrink-0 items-center gap-2">
