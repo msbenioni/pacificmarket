@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 
-export default function UnsubscribePage() {
+function UnsubscribeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -286,5 +286,26 @@ export default function UnsubscribePage() {
         </div>
       </div>
     </Layout>
+  );
+}
+
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={
+      <Layout currentPageName="unsubscribe">
+        <div className="min-h-screen bg-gradient-to-br from-[#f8f9fc] to-[#e8f4f8] flex items-center justify-center px-4">
+          <div className="max-w-md w-full">
+            <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-lg">
+              <div className="text-center">
+                <Loader2 className="w-8 h-8 text-[#0d4f4f] animate-spin mx-auto mb-4" />
+                <p className="text-gray-600">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    }>
+      <UnsubscribeContent />
+    </Suspense>
   );
 }
