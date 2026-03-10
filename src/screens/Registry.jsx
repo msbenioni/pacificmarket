@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { getSupabase } from "@/lib/supabase/client";
-import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
+import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
+import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
 import { LayoutGrid, List, SlidersHorizontal, X, Search } from "lucide-react";
 import BusinessCard from "../components/registry/BusinessCard";
 import RegistryFilters from "../components/registry/RegistryFilters";
@@ -26,21 +26,7 @@ export default function Registry() {
   useEffect(() => {
     const loadBusinesses = async () => {
       try {
-        const supabase = getSupabase();
-        const { data } = await supabase
-          .from('businesses')
-          .select(`
-            id, name, business_handle, short_description, description,
-            logo_url, banner_url, contact_email, contact_phone, contact_website,
-            address, suburb, city, state_region, postal_code, country,
-            industry, social_links, business_hours, business_structure,
-            year_started, status, verified, claimed, claimed_at, claimed_by,
-            visibility_tier, homepage_featured, source, profile_completeness,
-            referral_code, owner_user_id, created_at, updated_at
-          `)
-          .eq('status', BUSINESS_STATUS.ACTIVE)
-          .order('created_at', { ascending: false })
-          .limit(100);
+        const { data } = await getPublicBusinesses({ limit: 100 });
         
         setBusinesses(data || []);
         setLoading(false);

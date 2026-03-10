@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { getSupabase } from "@/lib/supabase/client";
+import { getBusinessById } from "@/lib/supabase/queries/businesses";
+import { 
+  getBusinessWebsite, 
+  getBusinessTier, 
+  getBusinessTierDisplay,
+  isVerifiedBusiness,
+  getBusinessCountryDisplay,
+  getBusinessIndustryDisplay,
+  getBusinessSocialLinks,
+  getBusinessFullAddress
+} from "@/lib/business/helpers";
 import {
   CheckCircle,
   Globe,
@@ -20,17 +30,6 @@ import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
 import BusinessGallery from "@/components/profile/BusinessGallery";
 import ProductsServices from "@/components/profile/ProductsServices";
-import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
-
-function getCountryLabel(value) {
-  const match = COUNTRIES.find((item) => item.value === value);
-  return match?.label || value || "";
-}
-
-function getIndustryLabel(value) {
-  const match = INDUSTRIES.find((item) => item.value === value);
-  return match?.label || value || "Industry";
-}
 
 export default function BusinessProfile() {
   const [business, setBusiness] = useState(null);
@@ -47,38 +46,14 @@ export default function BusinessProfile() {
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        const supabase = getSupabase();
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        setUser(user);
-
-        const params = new URLSearchParams(window.location.search);
-        const handle = params.get("handle");
-
-        if (handle) {
-          const { data: businessByHandle } = await supabase
-            .from("businesses")
-            .select("*")
-            .eq("business_handle", handle)
-            .single();
-
-          let biz = businessByHandle;
-
-          if (!biz) {
-            const { data: businessById } = await supabase
-              .from("businesses")
-              .select("*")
-              .eq("id", handle)
-              .single();
-            biz = businessById;
-          }
-
-          setBusiness(biz);
-          if (biz) await fetchExtras(biz);
+        const businessId = window.location.pathname.split('/').pop();
+        const { data: businessData } = await getBusinessById(businessId);
+        
+        if (businessData) {
+          setBusiness(businessData);
+          await fetchExtras(businessData);
         }
-
+        
         setLoading(false);
       } catch (error) {
         console.error("Error loading profile data:", error);
@@ -91,10 +66,13 @@ export default function BusinessProfile() {
 
   const fetchExtras = async (biz) => {
     try {
+      // Import here to avoid circular dependencies
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      const tier = biz.subscription_tier ?? biz.tier;
+      
+      const tier = getBusinessTier(biz);
 
-      if (tier === "verified" || tier === "featured_plus" || tier === "moana") {
+      if (tier === "mana" || tier === "moana") {
         const { data: imgs } = await supabase
           .from("business_images")
           .select("*")
@@ -102,7 +80,7 @@ export default function BusinessProfile() {
         setGalleryImages(imgs || []);
       }
 
-      if (tier === "featured_plus" || tier === "moana") {
+      if (tier === "moana") {
         const { data: prods } = await supabase
           .from("product_services")
           .select("*")
@@ -149,12 +127,12 @@ export default function BusinessProfile() {
     );
   }
 
-  const countryLabel = getCountryLabel(business.country);
-  const industryLabel = getIndustryLabel(business.industry);
-  const tier = business.subscription_tier ?? business.tier;
+  const countryLabel = getBusinessCountryDisplay(business);
+  const industryLabel = getBusinessIndustryDisplay(business);
+  const tier = getBusinessTier(business);
 
   const socials = [
-    { icon: Globe, label: "Website", value: business.website, href: business.website },
+    { icon: Globe, label: "Website", value: getBusinessWebsite(business), href: getBusinessWebsite(business) },
     {
       icon: Instagram,
       label: "Instagram",
@@ -168,17 +146,16 @@ export default function BusinessProfile() {
     { icon: Globe, label: "TikTok", value: business.tiktok, href: business.tiktok },
   ].filter((s) => s.value);
 
-  const socialLinks =
-    business.social_links && typeof business.social_links === "object"
-      ? Object.entries(business.social_links)
-          .filter(([, value]) => value)
-          .map(([label, value]) => ({
-            icon: Globe,
-            label: label.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-            value,
-            href: value,
-          }))
-      : [];
+  const socialLinks = getBusinessSocialLinks(business) ? 
+    Object.entries(getBusinessSocialLinks(business))
+      .filter(([, value]) => value)
+      .map(([label, value]) => ({
+        icon: Globe,
+        label: label.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+        value,
+        href: value,
+      }))
+    : [];
 
   const allSocials = [...socials, ...socialLinks];
 

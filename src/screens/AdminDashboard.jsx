@@ -4,20 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
 import { getSupabase } from "@/lib/supabase/client";
+import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
+import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
 import toast from "react-hot-toast";
 import {
-  Building2,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Users,
-  Shield,
-  Search,
-  Filter,
-  Download,
-  Plus,
-  AlertTriangle,
-  ChevronRight,
+  ChevronRight, ChevronDown, ChevronUp, Search, Filter, Download, Edit, Trash2, X, Plus, Users, Building2, TrendingUp, CheckCircle, Clock, Shield, XCircle, AlertTriangle
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
@@ -167,7 +158,7 @@ function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDele
               {business.name}
             </h3>
             <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
-              {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
+              {getTierDisplayName(business.subscription_tier) || business.subscription_tier || "vaka"}
             </span>
             {business.verified && (
               <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
@@ -224,70 +215,202 @@ function AdminBusinessMobileCard({ business, onApprove, onReject, onEdit, onDele
   );
 }
 
-function InsightMobileCard({ business, snapshot, onView }) {
+function InsightMobileCard({ insight }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          {business.logo_url ? (
-            <img
-              src={business.logo_url}
-              alt=""
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                console.warn('Failed to load insight mobile logo:', business.logo_url);
-                e.currentTarget.src = '/pm_logo.png';
-              }}
-            />
-          ) : (
-            <img
-              src="/pm_logo.png"
-              alt="Pacific Market"
-              className="h-full w-full object-cover"
-            />
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#0a1628] break-words">
-              {business.name}
-            </h3>
-            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
-              {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
-            </span>
-            {business.verified && (
-              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
-                Verified
-              </span>
+    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+            {insight.business_name && (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0d4f4f] to-[#1a5c5c] text-white text-xs font-bold">
+                {insight.business_name.charAt(0).toUpperCase()}
+              </div>
             )}
           </div>
 
-          <p className="mt-1 text-xs text-gray-500">
-            {getCountryDisplayName(business.country)} · {getIndustryDisplayName(business.industry) || "No industry"}
-          </p>
-          <p className="mt-1 text-xs text-gray-400">
-            Submitted {business.founder_snapshot_completed_at ? new Date(business.founder_snapshot_completed_at).toLocaleDateString() : "—"}
-          </p>
-
-          {snapshot && (
-            <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
-              <span>Year: {snapshot.year_started}</span>
-              <span>Team: {snapshot.team_size_band}</span>
-              <span>Stage: {snapshot.business_stage}</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold text-[#0a1628] break-words">
+                {insight.business_name}
+              </h3>
+              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
+                {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
+              </span>
+              {insight.verified && (
+                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
+                  Verified
+                </span>
+              )}
             </div>
-          )}
+
+            <p className="mt-1 text-xs text-gray-500">
+              {getCountryDisplayName(insight.business_country)} · {getIndustryDisplayName(insight.business_industry) || "No industry"}
+            </p>
+            <p className="mt-1 text-xs text-gray-400">
+              Submitted {insight.submitted_date ? new Date(insight.submitted_date).toLocaleDateString() : "—"}
+            </p>
+
+            {insight.problem_solved && (
+              <div className="mt-2">
+                <p className="text-xs text-gray-600 line-clamp-2">{insight.problem_solved}</p>
+              </div>
+            )}
+
+            <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
+              {insight.team_size_band && (
+                <span>Team: {insight.team_size_band}</span>
+              )}
+              {insight.business_stage && (
+                <span>Stage: {insight.business_stage}</span>
+              )}
+              {insight.snapshot_year && (
+                <span>Year: {insight.snapshot_year}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${secondaryButtonCls}`}
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="h-3.5 w-3.5" />
+                Hide Details
+              </>
+            ) : (
+              <>
+                View Details <ChevronRight className="h-3.5 w-3.5" />
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      <div className="mt-4">
-        <button
-          onClick={onView}
-          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${secondaryButtonCls}`}
-        >
-          View Details <ChevronRight className="h-3.5 w-3.5" />
-        </button>
-      </div>
+      {/* Accordion Content */}
+      {isExpanded && (
+        <div className="border-t border-gray-200 bg-gray-50 p-4 space-y-4">
+          {/* Business Information */}
+          <div>
+            <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Business Information</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-500">Country:</span>
+                <p className="font-medium">
+                  {getCountryDisplayName(insight.business_country) || 'Not specified'}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-500">Industry:</span>
+                <p className="font-medium">
+                  {getIndustryDisplayName(insight.business_industry) || 'Not specified'}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-500">Subscription Tier:</span>
+                <p className="font-medium">
+                  {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || 'vaka'}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-500">Verified:</span>
+                <p className="font-medium">
+                  {insight.verified ? 'Yes' : 'No'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Problem Solved */}
+          {insight.problem_solved && (
+            <div>
+              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Problem Solved</h4>
+              <p className="text-sm text-gray-700 bg-white p-3 rounded-lg">
+                {insight.problem_solved}
+              </p>
+            </div>
+          )}
+
+          {/* Founder Story */}
+          {insight.founder_story && (
+            <div>
+              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Founder Story</h4>
+              <p className="text-sm text-gray-700 bg-white p-3 rounded-lg whitespace-pre-wrap">
+                {insight.founder_story}
+              </p>
+            </div>
+          )}
+
+          {/* Business Details */}
+          <div>
+            <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Business Details</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {insight.team_size_band && (
+                <div>
+                  <span className="text-gray-500">Team Size:</span>
+                  <p className="font-medium">{insight.team_size_band}</p>
+                </div>
+              )}
+              {insight.business_stage && (
+                <div>
+                  <span className="text-gray-500">Business Stage:</span>
+                  <p className="font-medium">{insight.business_stage}</p>
+                </div>
+              )}
+              {insight.snapshot_year && (
+                <div>
+                  <span className="text-gray-500">Snapshot Year:</span>
+                  <p className="font-medium">{insight.snapshot_year}</p>
+                </div>
+              )}
+              {insight.year_started && (
+                <div>
+                  <span className="text-gray-500">Year Started:</span>
+                  <p className="font-medium">{insight.year_started}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Challenges */}
+          {insight.top_challenges && insight.top_challenges.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Top Challenges</h4>
+              <div className="flex flex-wrap gap-2">
+                {insight.top_challenges.map((challenge, index) => (
+                  <span 
+                    key={index}
+                    className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
+                  >
+                    {challenge}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Motivations */}
+          {insight.founder_motivation_array && insight.founder_motivation_array.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-[#0a1628] mb-2">Founder Motivations</h4>
+              <div className="flex flex-wrap gap-2">
+                {insight.founder_motivation_array.map((motivation, index) => (
+                  <span 
+                    key={index}
+                    className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
+                  >
+                    {motivation}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -330,7 +453,6 @@ export default function AdminDashboard() {
   const [editingBusiness, setEditingBusiness] = useState(null);
   const [currentEditStep, setCurrentEditStep] = useState(1);
   const [savingEdit, setSavingEdit] = useState(false);
-  const [selectedInsightBusiness, setSelectedInsightBusiness] = useState(null);
 
   const [filters, setFilters] = useState({
     country: "",
@@ -408,16 +530,7 @@ export default function AdminDashboard() {
       
       // Use the correct column names from the actual database schema
       const [businessesRes, claimsRes] = await Promise.all([
-        supabase
-          .from("businesses")
-          .select(`
-            id, name, description, short_description, logo_url, contact_website,
-            contact_email, contact_phone, address, country, industry, city, 
-            status, visibility_tier, verified, claimed, business_handle, 
-            owner_user_id, created_at, updated_at, created_date
-          `)
-          .order("created_at", { ascending: false })
-          .limit(500),
+        getAdminBusinesses({ limit: 500, status: ['active', 'pending', 'rejected'] }),
         
         supabase
           .from("claim_requests")
@@ -440,17 +553,28 @@ export default function AdminDashboard() {
         sampleClaim: claimsRes.data?.[0]
       });
 
-      // Try to load insights separately, but don't fail if it doesn't work
+      // Load insights from the single source of truth
+      console.log('🔄 Loading insights from business_insights_snapshots...');
       let insightsRes = { data: [], error: null };
       try {
         insightsRes = await supabase
           .from("business_insights_snapshots")
-          .select("*")
-          .order("created_at", { ascending: false })
+          .select(`
+            id, business_id, user_id, snapshot_year, submitted_date, year_started,
+            problem_solved, team_size_band, business_model, family_involvement,
+            customer_region, sales_channels, import_export_status, import_countries,
+            export_countries, business_stage, top_challenges, hiring_intentions,
+            founder_role, founder_story, founder_motivation_array
+          `)
+          .order("submitted_date", { ascending: false })
           .limit(200);
+        
+        if (insightsRes.error) {
+          console.error('❌ Insights query error:', insightsRes.error);
+        }
       } catch (insightsError) {
-        console.warn('⚠️ Insights table not available:', insightsError.message);
-        insightsRes = { data: [], error: null };
+        console.error('❌ Insights query failed:', insightsError);
+        insightsRes = { data: [], error: insightsError };
       }
 
       if (businessesRes.error) {
@@ -573,8 +697,8 @@ export default function AdminDashboard() {
     return insights
       .filter(snapshot => snapshot.business_id === businessId)
       .sort((a, b) => {
-        const dateA = new Date(a.created_at || '').getTime();
-        const dateB = new Date(b.created_at || '').getTime();
+        const dateA = new Date(a.submitted_date || '').getTime();
+        const dateB = new Date(b.submitted_date || '').getTime();
         return dateB - dateA;
       })[0];
   };
@@ -634,8 +758,8 @@ export default function AdminDashboard() {
         .insert(businessData)
         .select(`
           id, name, business_handle, description, industry, country, city, 
-          status, visibility_tier, verified, claimed, contact_email, website,
-          logo_url, owner_user_id, created_date, updated_date
+          status, visibility_tier, verified, claimed, contact_email, contact_website,
+          logo_url, owner_user_id, created_date, updated_date, subscription_tier
         `)
         .single();
 
@@ -660,7 +784,7 @@ export default function AdminDashboard() {
       "country",
       "city",
       "status",
-      "visibility_tier",
+      "subscription_tier",
       "verified",
       "claimed",
       "contact_email",
@@ -759,7 +883,7 @@ export default function AdminDashboard() {
       data = data.filter((business) => business.industry === filters.industry);
     }
     if (filters.tier) {
-      data = data.filter((business) => business.visibility_tier === filters.tier);
+      data = data.filter((business) => business.subscription_tier === filters.tier);
     }
     if (filters.verified !== "") {
       const isVerified = filters.verified === "true";
@@ -795,7 +919,19 @@ export default function AdminDashboard() {
 
   const filteredData = getFilteredData();
   const filteredClaimsData = getFilteredClaims();
-  const activeInsights = businesses.filter((b) => b.founder_snapshot_completed);
+  
+  // Use insights data directly from business_insights_snapshots
+  const activeInsights = insights.map(snapshot => {
+    const business = businesses.find(b => b.id === snapshot.business_id);
+    return {
+      ...snapshot,
+      business_name: business?.name || 'Unknown Business',
+      business_country: business?.country,
+      business_industry: business?.industry,
+      subscription_tier: business?.subscription_tier,
+      verified: business?.verified
+    };
+  });
 
   const pendingCount = businesses.filter((b) => b.status === BUSINESS_STATUS.PENDING).length;
   const pendingClaimsCount = claims.filter((c) => c.status === "pending").length;
@@ -1091,7 +1227,7 @@ export default function AdminDashboard() {
                                     </span>
                                     {business && (
                                       <span className={`rounded-full border px-2 py-0.5 text-xs ${getBadgeStyles("neutral")}`}>
-                                        {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
+                                        {getTierDisplayName(business.subscription_tier) || business.subscription_tier || "vaka"}
                                       </span>
                                     )}
                                   </div>
@@ -1141,30 +1277,28 @@ export default function AdminDashboard() {
                   ) : (
                     <>
                       <div className="space-y-3 lg:hidden">
-                        {activeInsights.map((business) => (
+                        {activeInsights.map((insight) => (
                           <InsightMobileCard
-                            key={business.id}
-                            business={business}
-                            snapshot={getLatestSnapshot(business.id)}
-                            onView={() => setSelectedInsightBusiness(business)}
+                            key={insight.id}
+                            insight={insight}
                           />
                         ))}
                       </div>
 
                       <div className="hidden lg:block space-y-4">
-                        {activeInsights.map((business) => (
+                        {activeInsights.map((insight) => (
                           <div
-                            key={business.id}
+                            key={insight.id}
                             className="rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
                                 <div className="mb-2 flex items-center gap-2">
-                                  <h4 className="font-semibold text-[#0a1628]">{business.name}</h4>
+                                  <h4 className="font-semibold text-[#0a1628]">{insight.business_name}</h4>
                                   <span className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles("neutral")}`}>
-                                    {getTierDisplayName(business.visibility_tier) || business.visibility_tier || "vaka"}
+                                    {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
                                   </span>
-                                  {business.verified && (
+                                  {insight.verified && (
                                     <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("premium")}`}>
                                       Verified
                                     </span>
@@ -1173,30 +1307,49 @@ export default function AdminDashboard() {
 
                                 <div className="mb-3 flex flex-wrap items-center gap-4 text-xs text-gray-600">
                                   <span>
-                                    {getCountryDisplayName(business.country)} • {getIndustryDisplayName(business.industry) || "No industry"}
+                                    {getCountryDisplayName(insight.business_country)} • {getIndustryDisplayName(insight.business_industry) || "No industry"}
                                   </span>
-                                  {business.founder_snapshot_completed_at && (
+                                  {insight.submitted_date && (
                                     <span>
-                                      Submitted {new Date(business.founder_snapshot_completed_at).toLocaleDateString()}
+                                      Submitted {new Date(insight.submitted_date).toLocaleDateString()}
                                     </span>
                                   )}
                                 </div>
 
-                                {getLatestSnapshot(business.id) && (
-                                  <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                                    <span>Year: {getLatestSnapshot(business.id).year_started}</span>
-                                    <span>Team: {getLatestSnapshot(business.id).team_size_band}</span>
-                                    <span>Stage: {getLatestSnapshot(business.id).business_stage}</span>
+                                {insight.problem_solved && (
+                                  <div className="mb-3">
+                                    <h5 className="text-xs font-semibold text-gray-700 mb-1">Problem Solved</h5>
+                                    <p className="text-xs text-gray-600">{insight.problem_solved}</p>
                                   </div>
                                 )}
+
+                                <div className="grid grid-cols-2 gap-4 text-xs">
+                                  {insight.team_size_band && (
+                                    <div>
+                                      <span className="font-medium text-gray-700">Team Size:</span>
+                                      <span> {insight.team_size_band}</span>
+                                    </div>
+                                  )}
+                                  {insight.business_stage && (
+                                    <div>
+                                      <span className="font-medium text-gray-700">Stage:</span>
+                                      <span> {insight.business_stage}</span>
+                                    </div>
+                                  )}
+                                  {insight.snapshot_year && (
+                                    <div>
+                                      <span className="font-medium text-gray-700">Year:</span>
+                                      <span> {insight.snapshot_year}</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
 
-                              <button
-                                onClick={() => setSelectedInsightBusiness(business)}
-                                className="flex items-center gap-1 text-xs font-medium text-[#0d4f4f] hover:text-[#0a1628]"
-                              >
-                                View Details <ChevronRight className="h-3 w-3" />
-                              </button>
+                              <div className="flex flex-shrink-0 items-center gap-2">
+                                <div className="text-sm text-gray-500">
+                                  Details available in mobile view
+                                </div>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -1298,7 +1451,7 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-4">
                                   <div className="flex items-center gap-2">
                                     <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(b.verified ? "premium" : "neutral")}`}>
-                                      {getTierDisplayName(b.visibility_tier) || b.visibility_tier || "vaka"}
+                                      {getTierDisplayName(b.subscription_tier) || b.subscription_tier || "vaka"}
                                     </span>
                                     {b.verified && (
                                       <span className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("success")}`}>

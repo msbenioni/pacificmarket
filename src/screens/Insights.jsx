@@ -2,9 +2,30 @@ import { useState, useEffect } from "react";
 import { Building2, Users, TrendingUp, Rocket, ChevronDown, ChevronUp, Globe, Target, Lightbulb, AlertCircle } from "lucide-react";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import HorizontalBar from "@/components/insights/HorizontalBar";
-import { getSupabase } from "@/lib/supabase/client";
+import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
+import { getBusinessTier, getBusinessCountryDisplay, getBusinessIndustryDisplay } from "@/lib/business/helpers";
 import { tally } from "@/lib/utils";
 import { BUSINESS_STATUS, BUSINESS_STAGE, BUSINESS_CHALLENGES, FOUNDER_MOTIVATIONS, COUNTRIES } from "@/constants/unifiedConstants";
+
+// Fetch insights data from the single source of truth
+const fetchInsightsData = async () => {
+  try {
+    const { getSupabase } = await import('../lib/supabase/client');
+    const supabase = getSupabase();
+    
+    const { data, error } = await supabase
+      .from('business_insights_snapshots')  // Use single source of truth
+      .select('*')
+      .order('submitted_date', { ascending: false })
+      .limit(100);  // Limit to recent insights for public view
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching insights:', error);
+    return [];
+  }
+};
 
 // Country standardization function
 const standardizeCountry = (countryValue) => {
@@ -218,21 +239,8 @@ export default function Insights() {
     const loadInsightsData = async () => {
       setLoading(true);
       try {
-        const supabase = getSupabase();
-        
         const [businessesResult, insightsData] = await Promise.all([
-          supabase
-            .from('businesses')
-            .select(`
-              id, name, business_handle, short_description, description,
-              logo_url, banner_url, contact_email, contact_phone, contact_website,
-              address, suburb, city, state_region, postal_code, country,
-              industry, social_links, business_hours, business_structure,
-              year_started, status, verified, claimed, claimed_at, claimed_by,
-              visibility_tier, homepage_featured, source, profile_completeness,
-              referral_code, owner_user_id, created_at, updated_at
-            `)
-            .eq('status', BUSINESS_STATUS.ACTIVE),
+          getPublicBusinesses({ limit: 500 }),
           fetchInsightsData()
         ]);
         
@@ -244,37 +252,19 @@ export default function Insights() {
         setLoading(false);
       }
     };
-
+    
     loadInsightsData();
-  }, []);
-
-  const fetchInsightsData = async () => {
-    try {
-      const { getSupabase } = await import('../lib/supabase/client');
-      const supabase = getSupabase();
-      
-      const { data, error } = await supabase
-        .from('latest_business_insights')
-        .select('*');
-      
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error fetching insights:', error);
-      return [];
-    }
-  };
-
+  }, []); // Empty dependency array to run only once
+  
   const total = businesses.length;
-  const verified = businesses.filter(b => b.verified).length;
-  const countries = new Set(businesses.map(b => b.country).filter(Boolean)).size;
   const insightsCount = insights.length;
   
   // Business metrics
-  // Standardize countries for accurate analytics
+  // Standardize countries for accurate analytics using helper functions
   const standardizedBusinesses = businesses.map(business => ({
     ...business,
-    country: standardizeCountry(business.country)
+    country: standardizeCountry(business.country),
+    tier: getBusinessTier(business) // Use helper for consistency
   }));
   
   const byCountry = tally(standardizedBusinesses, "country")
@@ -283,7 +273,7 @@ export default function Insights() {
       value: item.value 
     }));
   const byIndustry = tally(businesses, "industry");
-  const byTier = tally(businesses, "subscription_tier");
+  const byTier = tally(standardizedBusinesses, "tier"); // Use standardized tier data
   const totalTierCount = byTier.reduce((sum, tier) => sum + tier.value, 0);
   const byTierPercentage = totalTierCount > 0
     ? byTier.map(tier => ({
