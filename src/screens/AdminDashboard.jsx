@@ -485,7 +485,7 @@ export default function AdminDashboard() {
         setIsAdmin(false);
       } finally {
         setCheckingAdmin(false);
-        setLoading(false);
+        // Don't set loading to false here - let the useEffect handle it
       }
     };
 
@@ -509,13 +509,14 @@ export default function AdminDashboard() {
     if (user && isAdmin && !checkingAdmin) {
       console.log('✅ User is admin, loading data...');
       loadAdminData();
-    } else if (user && !checkingAdmin) {
+    } else if (user && !checkingAdmin && !isAdmin) {
       console.log('⚠️ User is authenticated but not an admin');
       setLoading(false);
     } else if (!user && !checkingAdmin) {
       console.log('⚠️ User not authenticated');
       setLoading(false);
     }
+    // If checkingAdmin is true, keep loading true (handled by initial state)
   }, [user, isAdmin, checkingAdmin]);
 
   const loadAdminData = async () => {
