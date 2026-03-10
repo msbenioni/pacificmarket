@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { getSupabase } from "@/lib/supabase/client";
 import { QrCode, Download, Link as LinkIcon, Building2, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
+import { getUserBusinesses } from "@/lib/supabase/queries/businesses";
+import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { BUSINESS_TIER } from "@/constants/unifiedConstants";
 import QRCode from 'qrcode';
@@ -21,24 +22,23 @@ export default function QRCodeGenerator() {
   useEffect(() => {
     const loadQRData = async () => {
       try {
+        // Import getSupabase for auth only
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         
         setUser(user);
         
-        // Get user's businesses
-        const { data: businesses } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('owner_user_id', user.id);
+        // Get user's businesses using shared query
+        const { data: businesses } = await getUserBusinesses(user.id);
         
         if (businesses && businesses.length > 0) {
           setBusinesses(businesses);
-          // Find the first business with a website
-          const businessWithWebsite = businesses.find(b => b.contact_website);
+          // Find the first business with a website using helper
+          const businessWithWebsite = businesses.find(b => getBusinessWebsite(b));
           if (businessWithWebsite) {
-            setUrl(businessWithWebsite.contact_website);
+            setUrl(getBusinessWebsite(businessWithWebsite));
             setLabel(businessWithWebsite.name);
           }
         }
@@ -81,8 +81,8 @@ export default function QRCodeGenerator() {
   }, [url, size]);
 
   const handleBusinessSelect = (b) => {
-    // Only use the business's actual website
-    const profileUrl = b.contact_website;
+    // Use helper function for consistent website access
+    const profileUrl = getBusinessWebsite(b);
     setUrl(profileUrl);
     setLabel(b.name);
   };
@@ -176,7 +176,8 @@ export default function QRCodeGenerator() {
                 <p className="text-xs text-gray-500 mb-3">Choose which business website to generate a QR code for</p>
                 <div className="space-y-2">
                   {businesses.map(b => {
-                    const hasWebsite = !!b.contact_website;
+                    const website = getBusinessWebsite(b);
+                    const hasWebsite = !!website;
                     return (
                       <div key={b.id}>
                         {hasWebsite ? (

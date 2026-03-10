@@ -29,7 +29,8 @@ import {
   Instagram,
 } from "lucide-react";
 
-import { getSupabase } from "@/lib/supabase/client";
+import { getUserBusinesses, getBusinessById, updateBusiness } from "@/lib/supabase/queries/businesses";
+import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
 import { createPageUrl } from "@/utils";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { useToast } from "@/components/ui/toast/ToastProvider";
@@ -478,6 +479,8 @@ export default function EmailSignatureGeneratorPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Import getSupabase for auth and claims only
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
 
         const {
@@ -491,10 +494,8 @@ export default function EmailSignatureGeneratorPage() {
 
         setUser(authUser);
 
-        const { data: ownedBusinesses, error: ownedError } = await supabase
-          .from("businesses")
-          .select("*")
-          .eq("owner_user_id", authUser.id);
+        // Get user's owned businesses using shared query
+        const { data: ownedBusinesses, error: ownedError } = await getUserBusinesses(authUser.id);
 
         if (ownedError) throw ownedError;
 
@@ -512,13 +513,10 @@ export default function EmailSignatureGeneratorPage() {
 
         let claimedBusinesses = [];
         if (claimedIds.length > 0) {
-          const { data: claimed, error: claimedError } = await supabase
-            .from("businesses")
-            .select("*")
-            .in("id", claimedIds);
-
-          if (claimedError) throw claimedError;
-          claimedBusinesses = claimed || [];
+          // Use shared query for claimed businesses
+          const claimedBusinessPromises = claimedIds.map(id => getBusinessById(id));
+          const claimedResults = await Promise.all(claimedBusinessPromises);
+          claimedBusinesses = claimedResults.filter(result => result.data).map(result => result.data);
         }
 
         const merged = [...(ownedBusinesses || []), ...claimedBusinesses];
@@ -550,13 +548,12 @@ export default function EmailSignatureGeneratorPage() {
 
     const loadBusinessSettings = async () => {
       try {
+        // Import getSupabase for signature settings only
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
 
-        const { data: business, error: businessError } = await supabase
-          .from("businesses")
-          .select("*")
-          .eq("id", selectedBusinessId)
-          .single();
+        // Get business details using shared query
+        const { data: business, error: businessError } = await getBusinessById(selectedBusinessId);
 
         if (businessError) throw businessError;
 
@@ -570,11 +567,8 @@ export default function EmailSignatureGeneratorPage() {
           throw settingsError;
         }
 
-        const businessWebsite =
-          business?.contact_website ||
-          business?.website ||
-          business?.website_url ||
-          "";
+        // Use helper function for consistent website access
+        const businessWebsite = getBusinessWebsite(business) || "";
 
         const businessAddress = formatBusinessAddress(business);
 
@@ -741,6 +735,8 @@ export default function EmailSignatureGeneratorPage() {
     }
 
     try {
+      // Import getSupabase for storage operations
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const bucket = "admin-listings";
       const path = `signature-logos/${Date.now()}-${file.name}`;
@@ -778,6 +774,8 @@ export default function EmailSignatureGeneratorPage() {
     try {
       setSaving(true);
 
+      // Import getSupabase for signature settings only
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
       const businessUpdate = {
@@ -787,10 +785,8 @@ export default function EmailSignatureGeneratorPage() {
         logo_url: signature.logo_url || null,
       };
 
-      const { error: businessError } = await supabase
-        .from("businesses")
-        .update(businessUpdate)
-        .eq("id", selectedBusinessId);
+      // Use shared query for business update
+      const { error: businessError } = await updateBusiness(selectedBusinessId, businessUpdate);
 
       if (businessError) throw businessError;
 

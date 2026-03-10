@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { getSupabase } from "@/lib/supabase/client";
 import { Plus, Trash2, Download, ArrowLeft, FileText, Building, Calendar, User, ShoppingCart, DollarSign, CreditCard, Palette, ChevronDown, Upload } from "lucide-react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
+import { getUserBusinesses, getBusinessById, updateBusiness } from "@/lib/supabase/queries/businesses";
+import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -143,17 +144,16 @@ export default function InvoiceGenerator() {
   useEffect(() => {
     const loadInvoiceData = async () => {
       try {
-        const supabase = getSupabase();
+        // Import getSupabase for auth and claims only
+        const { getSupabase: getClient } = await import("@/lib/supabase/client");
+        const supabase = getClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         
         setUser(user);
         
-        // Get user's owned businesses
-        const { data: ownedBusinesses } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('owner_user_id', user.id);
+        // Get user's owned businesses using shared query
+        const { data: ownedBusinesses } = await getUserBusinesses(user.id);
 
         // Get approved claimed businesses for this user
         const { data: claims } = await supabase
@@ -165,11 +165,10 @@ export default function InvoiceGenerator() {
         const claimedIds = (claims || []).map(claim => claim.business_id).filter(Boolean);
         let claimedBusinesses = [];
         if (claimedIds.length > 0) {
-          const { data: claimed } = await supabase
-            .from('businesses')
-            .select('*')
-            .in('id', claimedIds);
-          claimedBusinesses = claimed || [];
+          // Use shared query for claimed businesses
+          const claimedBusinessPromises = claimedIds.map(id => getBusinessById(id));
+          const claimedResults = await Promise.all(claimedBusinessPromises);
+          claimedBusinesses = claimedResults.filter(result => result.data).map(result => result.data);
         }
 
         const mergedBusinesses = [...(ownedBusinesses || []), ...claimedBusinesses];
@@ -194,14 +193,12 @@ export default function InvoiceGenerator() {
     
     const loadBusinessSettings = async () => {
       try {
+        // Import getSupabase for invoice settings only
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         
-        // Get business details
-        const { data: business } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('id', selectedBusinessId)
-          .single();
+        // Get business details using shared query
+        const { data: business } = await getBusinessById(selectedBusinessId);
         
         // Get invoice settings
         const { data: settings, error: settingsError } = await supabase
@@ -333,7 +330,9 @@ export default function InvoiceGenerator() {
     }
     
     try {
-      const supabase = getSupabase();
+      // Import getSupabase for storage operations
+      const { getSupabase: getClient } = await import("@/lib/supabase/client");
+      const supabase = getClient();
       
       // Upload file to Supabase storage
       const bucket = "admin-listings";
@@ -380,9 +379,11 @@ export default function InvoiceGenerator() {
     if (mode !== "business" || !selectedBusinessId) return;
     
     try {
+      // Import getSupabase for invoice settings only
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
-      // First update business details
+      // First update business details using shared query
       const businessUpdate = {
         name: invoice.sender_name,
         contact_email: invoice.sender_email,
@@ -395,10 +396,7 @@ export default function InvoiceGenerator() {
         country: invoice.sender_country,
       };
       
-      await supabase
-        .from('businesses')
-        .update(businessUpdate)
-        .eq('id', selectedBusinessId);
+      await updateBusiness(selectedBusinessId, businessUpdate);
       
       // Then update invoice settings
       const settingsUpdate = {
