@@ -25,7 +25,6 @@ export default function BusinessCard({ business, view = "grid" }) {
 
   const description =
     business.short_description ||
-    business.tagline ||
     business.description ||
     "";
 

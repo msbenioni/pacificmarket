@@ -164,14 +164,16 @@ const InlineBusinessForm = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Logo</label>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-start space-x-4">
               {formData?.logo_url ? (
                 <div className="relative">
-                  <img
-                    src={formData.logo_url}
-                    alt="Logo preview"
-                    className="h-16 w-16 rounded-lg border border-gray-200 object-cover"
-                  />
+                  <div className="w-16 h-16 rounded-2xl border-2 border-white shadow-md overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                    <img
+                      src={formData.logo_url}
+                      alt="Logo preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeImage("logo")}
@@ -181,8 +183,8 @@ const InlineBusinessForm = ({
                   </button>
                 </div>
               ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
-                  <span className="text-xs text-gray-400">No logo</span>
+                <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                  <span className="text-xs text-gray-400 text-center">No logo</span>
                 </div>
               )}
               <div>
@@ -201,20 +203,23 @@ const InlineBusinessForm = ({
                   Upload Logo
                 </label>
                 <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</p>
+                <p className="mt-1 text-xs text-gray-400">Logo will be displayed as 64x64px square on profile</p>
               </div>
             </div>
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Banner Image</label>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-start space-x-4">
               {formData?.banner_url ? (
                 <div className="relative">
-                  <img
-                    src={formData.banner_url}
-                    alt="Banner preview"
-                    className="h-16 w-16 rounded-lg border border-gray-200 object-cover"
-                  />
+                  <div className="w-48 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                    <img
+                      src={formData.banner_url}
+                      alt="Banner preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeImage("banner")}
@@ -224,8 +229,8 @@ const InlineBusinessForm = ({
                   </button>
                 </div>
               ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
-                  <span className="text-xs text-gray-400">No banner</span>
+                <div className="w-48 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                  <span className="text-xs text-gray-400 text-center">No banner</span>
                 </div>
               )}
               <div>
@@ -244,6 +249,7 @@ const InlineBusinessForm = ({
                   Upload Banner
                 </label>
                 <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                <p className="mt-1 text-xs text-gray-400">Banner will be displayed as full-width header on profile</p>
               </div>
             </div>
           </div>

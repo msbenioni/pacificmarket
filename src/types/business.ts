@@ -10,7 +10,6 @@ export type Business = {
   description: string | null;
   short_description: string | null;
   business_handle: string | null;
-  tagline: string | null;
 
   // Visual assets
   logo_url: string | null;

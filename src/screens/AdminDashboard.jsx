@@ -577,7 +577,7 @@ export default function AdminDashboard() {
         .from("businesses")
         .update({
           status: newStatus,
-          updated_date: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .eq("id", business.id);
 
@@ -709,19 +709,6 @@ export default function AdminDashboard() {
           }
         } catch (uploadError) {
           console.error("Error uploading banner:", uploadError);
-          toast.error("Failed to upload banner. Using existing banner URL.");
-        }
-      }
-
-      /** @type {Record<string, any>} */
-      const payload = {
-        ...updatedData,
-        updated_date: new Date().toISOString(),
-      };
-
-      const { error } = await supabase.from("businesses").update(payload).eq("id", id);
-
-      if (error) throw error;
 
       setBusinesses((prev) => prev.map((b) => (b.id === id ? { ...b, ...payload } : b)));
       cancelEditingBusiness();
