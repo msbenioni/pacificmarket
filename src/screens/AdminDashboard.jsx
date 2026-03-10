@@ -1278,7 +1278,10 @@ export default function AdminDashboard() {
             .from('admin-listings')
             .getPublicUrl(filePath);
           
-          updatedData.logo_url = data['publicUrl'];
+          const publicUrl = data?.publicUrl || data?.['publicUrl'];
+          if (publicUrl) {
+            updatedData.logo_url = publicUrl;
+          }
         } catch (uploadError) {
           console.error('Error uploading logo:', uploadError);
           toast.error('Failed to upload logo. Using existing logo URL.');
@@ -1300,7 +1303,10 @@ export default function AdminDashboard() {
             .from('admin-listings')
             .getPublicUrl(filePath);
           
-          updatedData.banner_url = data['publicUrl'];
+          const publicUrl = data?.publicUrl || data?.['publicUrl'];
+          if (publicUrl) {
+            updatedData.banner_url = publicUrl;
+          }
         } catch (uploadError) {
           console.error('Error uploading banner:', uploadError);
           toast.error('Failed to upload banner. Using existing banner URL.');
