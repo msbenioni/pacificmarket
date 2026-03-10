@@ -23,6 +23,7 @@ import {
 
 import PortalShell from "@/components/portal/PortalShell";
 import HeroRegistry from "@/components/shared/HeroRegistry";
+import InlineBusinessForm from "@/components/forms/InlineBusinessForm";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import {
   COUNTRIES,
@@ -45,17 +46,39 @@ const secondaryButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#
 const mobileButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
 const filterButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
 
-function getBadgeStyles(type) {
-  const styles = {
-    success: "border-green-200 bg-green-50 text-green-700",
-    danger: "border-red-200 bg-red-50 text-red-700",
-    warning: "border-yellow-200 bg-yellow-50 text-yellow-700",
-    info: "border-blue-200 bg-blue-50 text-blue-700",
-    neutral: "border-gray-200 bg-gray-50 text-gray-700",
-    premium: "border-purple-200 bg-purple-50 text-purple-700",
-  };
-  return styles[type] || styles.neutral;
-}
+const emptyBusinessForm = {
+  name: "",
+  business_handle: "",
+  tagline: "",
+  short_description: "",
+  description: "",
+  logo_url: "",
+  logo_file: null,
+  banner_url: "",
+  banner_file: null,
+  contact_name: "",
+  contact_email: "",
+  contact_phone: "",
+  contact_website: "",
+  business_hours: "",
+  country: "",
+  industry: "",
+  city: "",
+  suburb: "",
+  address: "",
+  state_region: "",
+  postal_code: "",
+  year_started: null,
+  business_structure: "",
+  team_size_band: "",
+  cultural_identity: "",
+  languages_spoken: [],
+  status: BUSINESS_STATUS.ACTIVE,
+  verified: true,
+  claimed: false,
+  homepage_featured: false,
+  subscription_tier: "vaka",
+};
 
 function sanitizeBusinessPayload(formData) {
   const {
@@ -63,6 +86,8 @@ function sanitizeBusinessPayload(formData) {
     created_date,
     updated_date,
     verification_source,
+    logo_file,
+    banner_file,
     ...updateData
   } = formData;
 
@@ -85,536 +110,36 @@ function sanitizeBusinessPayload(formData) {
   return { id, safeUpdateData };
 }
 
-function InlineBusinessForm({
-  title,
-  formData,
-  setFormData,
-  onSave,
-  onCancel,
-  saving,
-  saveLabel = "Save Changes",
-  mode = "edit" // "create" or "edit"
-}) {
-  const updateField = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+function getBadgeStyles(type) {
+  const styles = {
+    success: "border-green-200 bg-green-50 text-green-700",
+    danger: "border-red-200 bg-red-50 text-red-700",
+    warning: "border-yellow-200 bg-yellow-50 text-yellow-700",
+    info: "border-blue-200 bg-blue-50 text-blue-700",
+    neutral: "border-gray-200 bg-gray-50 text-gray-700",
+    premium: "border-purple-200 bg-purple-50 text-purple-700",
   };
+  return styles[type] || styles.neutral;
+}
 
-  const handleFileUpload = async (event, type) => {
-    const file = event.target.files[0];
-    if (!file) return;
+async function checkIsAdmin(user) {
+  if (!user) return false;
 
-    try {
-      // Create a temporary URL for preview
-      const tempUrl = URL.createObjectURL(file);
-      
-      if (type === 'logo') {
-        setFormData(prev => ({
-          ...prev,
-          logo_url: tempUrl,
-          logo_file: file // Store the actual file for upload
-        }));
-      } else if (type === 'banner') {
-        setFormData(prev => ({
-          ...prev,
-          banner_url: tempUrl,
-          banner_file: file // Store the actual file for upload
-        }));
-      }
-    } catch (error) {
-      console.error('Error handling file upload:', error);
+  try {
+    const { getSupabase } = await import("@/lib/supabase/client");
+    const supabase = getSupabase();
+    const { data, error } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+
+    if (error || !data) {
+      console.error("Error checking admin role:", error);
+      return false;
     }
-  };
 
-  const removeImage = (type) => {
-    if (type === 'logo') {
-      setFormData(prev => ({
-        ...prev,
-        logo_url: null,
-        logo_file: null
-      }));
-    } else if (type === 'banner') {
-      setFormData(prev => ({
-        ...prev,
-        banner_url: null,
-        banner_file: null
-      }));
-    }
-  };
-
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-base font-semibold text-[#0a1628]">{title}</h3>
-          <p className="text-sm text-gray-500">Review and update the business details inline.</p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <button onClick={onCancel} className={secondaryButtonCls}>
-            <X className="h-4 w-4" />
-            Cancel
-          </button>
-          <button onClick={onSave} disabled={saving} className={primaryButtonCls}>
-            {saving ? "Saving..." : saveLabel}
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        {/* Basic Information */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Name *</label>
-            <input
-              type="text"
-              value={formData.name || ""}
-              onChange={(e) => updateField("name", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Handle</label>
-            <input
-              type="text"
-              value={formData.business_handle || ""}
-              onChange={(e) => updateField("business_handle", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="unique-business-handle"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Tagline</label>
-            <input
-              type="text"
-              value={formData.tagline || ""}
-              onChange={(e) => updateField("tagline", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Short catchy description"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Name</label>
-            <input
-              type="text"
-              value={formData.contact_name || ""}
-              onChange={(e) => updateField("contact_name", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Descriptions */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Short Description</label>
-            <textarea
-              rows={3}
-              value={formData.short_description || ""}
-              onChange={(e) => updateField("short_description", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Brief description (max 150 characters)"
-              maxLength={150}
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Full Description</label>
-            <textarea
-              rows={4}
-              value={formData.description || ""}
-              onChange={(e) => updateField("description", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Detailed business description"
-            />
-          </div>
-        </div>
-
-        {/* Logo and Banner Upload */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Logo</label>
-            <div className="flex items-center space-x-4">
-              {formData.logo_url ? (
-                <div className="relative">
-                  <img
-                    src={formData.logo_url}
-                    alt="Logo preview"
-                    className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage('logo')}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
-                  <span className="text-xs text-gray-400">No logo</span>
-                </div>
-              )}
-              <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, 'logo')}
-                  className="hidden"
-                  id="logo-upload"
-                />
-                <label
-                  htmlFor="logo-upload"
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
-                >
-                  Upload Logo
-                </label>
-                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 2MB</p>
-              </div>
-            </div>
-            <input
-              type="text"
-              value={formData.logo_url || ""}
-              onChange={(e) => updateField("logo_url", e.target.value)}
-              className="w-full mt-2 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Or enter logo URL directly"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Banner Image</label>
-            <div className="flex items-center space-x-4">
-              {formData.banner_url ? (
-                <div className="relative">
-                  <img
-                    src={formData.banner_url}
-                    alt="Banner preview"
-                    className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage('banner')}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
-                  <span className="text-xs text-gray-400">No banner</span>
-                </div>
-              )}
-              <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, 'banner')}
-                  className="hidden"
-                  id="banner-upload"
-                />
-                <label
-                  htmlFor="banner-upload"
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
-                >
-                  Upload Banner
-                </label>
-                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
-              </div>
-            </div>
-            <input
-              type="text"
-              value={formData.banner_url || ""}
-              onChange={(e) => updateField("banner_url", e.target.value)}
-              className="w-full mt-2 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Or enter banner URL directly"
-            />
-          </div>
-        </div>
-
-        {/* Contact Information */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Email</label>
-            <input
-              type="email"
-              value={formData.contact_email || ""}
-              onChange={(e) => updateField("contact_email", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Phone</label>
-            <input
-              type="tel"
-              value={formData.contact_phone || ""}
-              onChange={(e) => updateField("contact_phone", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Website</label>
-            <input
-              type="url"
-              value={formData.contact_website || ""}
-              onChange={(e) => updateField("contact_website", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="https://example.com"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Hours</label>
-            <input
-              type="text"
-              value={formData.business_hours || ""}
-              onChange={(e) => updateField("business_hours", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              placeholder="Mon-Fri 9AM-5PM"
-            />
-          </div>
-        </div>
-
-        {/* Location Information */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Country *</label>
-            <select
-              value={formData.country || ""}
-              onChange={(e) => updateField("country", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              required
-            >
-              <option value="">Select Country</option>
-              {COUNTRIES.map((country) => (
-                <option key={country.value} value={country.value}>
-                  {country.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Industry *</label>
-            <select
-              value={formData.industry || ""}
-              onChange={(e) => updateField("industry", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              required
-            >
-              <option value="">Select Industry</option>
-              {INDUSTRIES.map((industry) => (
-                <option key={industry.value} value={industry.value}>
-                  {industry.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">City</label>
-            <input
-              type="text"
-              value={formData.city || ""}
-              onChange={(e) => updateField("city", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Suburb</label>
-            <input
-              type="text"
-              value={formData.suburb || ""}
-              onChange={(e) => updateField("suburb", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Address */}
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Address</label>
-          <input
-            type="text"
-            value={formData.address || ""}
-            onChange={(e) => updateField("address", e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            placeholder="Street address"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">State/Region</label>
-            <input
-              type="text"
-              value={formData.state_region || ""}
-              onChange={(e) => updateField("state_region", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Postal Code</label>
-            <input
-              type="text"
-              value={formData.postal_code || ""}
-              onChange={(e) => updateField("postal_code", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Year Started</label>
-            <input
-              type="number"
-              value={formData.year_started || ""}
-              onChange={(e) => updateField("year_started", parseInt(e.target.value) || null)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-              min="1900"
-              max={new Date().getFullYear()}
-              placeholder="2020"
-            />
-          </div>
-        </div>
-
-        {/* Business Details */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Structure</label>
-            <select
-              value={formData.business_structure || ""}
-              onChange={(e) => updateField("business_structure", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            >
-              <option value="">Select Structure</option>
-              <option value="sole-proprietorship">Sole Proprietorship</option>
-              <option value="partnership">Partnership</option>
-              <option value="llc">LLC</option>
-              <option value="corporation">Corporation</option>
-              <option value="non-profit">Non-Profit</option>
-              <option value="cooperative">Cooperative</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Subscription Tier</label>
-            <select
-              value={formData.subscription_tier || "vaka"}
-              onChange={(e) => updateField("subscription_tier", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            >
-              <option value="vaka">Vaka (Free)</option>
-              <option value="mana">Mana (Premium)</option>
-              <option value="moana">Moana (Featured+)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
-            <select
-              value={formData.status || BUSINESS_STATUS.PENDING}
-              onChange={(e) => updateField("status", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            >
-              <option value={BUSINESS_STATUS.PENDING}>Pending</option>
-              <option value={BUSINESS_STATUS.ACTIVE}>Active</option>
-              <option value={BUSINESS_STATUS.REJECTED}>Rejected</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Team Size</label>
-            <select
-              value={formData.team_size_band || ""}
-              onChange={(e) => updateField("team_size_band", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            >
-              <option value="">Select Team Size</option>
-              <option value="1">1 person</option>
-              <option value="2-5">2-5 people</option>
-              <option value="6-10">6-10 people</option>
-              <option value="11-20">11-20 people</option>
-              <option value="21-50">21-50 people</option>
-              <option value="51-100">51-100 people</option>
-              <option value="100+">100+ people</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Cultural Identity */}
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Cultural Identity</label>
-          <textarea
-            rows={3}
-            value={formData.cultural_identity || ""}
-            onChange={(e) => updateField("cultural_identity", e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            placeholder="Describe the cultural identity and values of your business"
-          />
-        </div>
-
-        {/* Languages Spoken */}
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Languages Spoken</label>
-          <input
-            type="text"
-            value={formData.languages_spoken?.join(', ') || ""}
-            onChange={(e) => updateField("languages_spoken", e.target.value.split(',').map(lang => lang.trim()).filter(Boolean))}
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            placeholder="English, French, Samoan"
-          />
-        </div>
-
-        {/* Admin Toggles */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                checked={!!formData.verified}
-                onChange={(e) => updateField("verified", e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              Verified
-            </label>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                checked={!!formData.claimed}
-                onChange={(e) => updateField("claimed", e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              Claimed
-            </label>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                checked={!!formData.homepage_featured}
-                onChange={(e) => updateField("homepage_featured", e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              Homepage Featured
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    return data.role === "admin";
+  } catch (error) {
+    console.error("Error checking admin role:", error);
+    return false;
+  }
 }
 
 function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
@@ -832,40 +357,28 @@ function InsightMobileCard({ insight }) {
             </div>
 
             <p className="mt-1 text-xs text-gray-500">
-              {getCountryDisplayName(insight.business_country)} ·{" "}
-              {getIndustryDisplayName(insight.business_industry) || "No industry"}
+              {getCountryDisplayName(insight.business_country)} · {getIndustryDisplayName(insight.business_industry) || "No industry"}
             </p>
             <p className="mt-1 text-xs text-gray-400">
               Submitted {insight.submitted_date ? new Date(insight.submitted_date).toLocaleDateString() : "—"}
             </p>
-
-            {insight.problem_solved && (
-              <div className="mt-2">
-                <p className="line-clamp-2 text-xs text-gray-600">{insight.problem_solved}</p>
-              </div>
-            )}
-
-            <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
-              {insight.team_size_band && <span>Team: {insight.team_size_band}</span>}
-              {insight.growth_stage && <span>Stage: {insight.growth_stage}</span>}
-              {insight.snapshot_year && <span>Year: {insight.snapshot_year}</span>}
-            </div>
           </div>
         </div>
 
         <div className="mt-4">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${secondaryButtonCls}`}
+            className="flex items-center gap-2 text-xs font-medium text-[#0d4f4f] hover:text-[#1a6b6b]"
           >
             {isExpanded ? (
               <>
-                <ChevronUp className="h-3.5 w-3.5" />
+                <ChevronUp className="h-3 w-3" />
                 Hide Details
               </>
             ) : (
               <>
-                View Details <ChevronRight className="h-3.5 w-3.5" />
+                <ChevronRight className="h-3 w-3" />
+                View Details
               </>
             )}
           </button>
@@ -873,132 +386,43 @@ function InsightMobileCard({ insight }) {
       </div>
 
       {isExpanded && (
-        <div className="space-y-4 border-t border-gray-200 bg-gray-50 p-4">
-          <div>
-            <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Business Information</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="border-t border-gray-200 bg-gray-50 p-4">
+          <div className="space-y-3 text-sm">
+            {insight.year_started && (
               <div>
-                <span className="text-gray-500">Country:</span>
-                <p className="font-medium">{getCountryDisplayName(insight.business_country) || "Not specified"}</p>
+                <span className="font-medium text-gray-700">Year Started:</span>
+                <span className="ml-2 text-gray-600">{insight.year_started}</span>
               </div>
+            )}
+            {insight.team_size_band && (
               <div>
-                <span className="text-gray-500">Industry:</span>
-                <p className="font-medium">{getIndustryDisplayName(insight.business_industry) || "Not specified"}</p>
+                <span className="font-medium text-gray-700">Team Size:</span>
+                <span className="ml-2 text-gray-600">{insight.team_size_band}</span>
               </div>
+            )}
+            {insight.business_model && (
               <div>
-                <span className="text-gray-500">Subscription Tier:</span>
-                <p className="font-medium">
-                  {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
-                </p>
+                <span className="font-medium text-gray-700">Business Model:</span>
+                <span className="ml-2 text-gray-600">{insight.business_model}</span>
               </div>
+            )}
+            {insight.growth_stage && (
               <div>
-                <span className="text-gray-500">Verified:</span>
-                <p className="font-medium">{insight.verified ? "Yes" : "No"}</p>
+                <span className="font-medium text-gray-700">Growth Stage:</span>
+                <span className="ml-2 text-gray-600">{insight.growth_stage}</span>
               </div>
-            </div>
+            )}
+            {insight.top_challenges && (
+              <div>
+                <span className="font-medium text-gray-700">Top Challenges:</span>
+                <p className="mt-1 text-gray-600">{insight.top_challenges}</p>
+              </div>
+            )}
           </div>
-
-          {insight.problem_solved && (
-            <div>
-              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Problem Solved</h4>
-              <p className="rounded-lg bg-white p-3 text-sm text-gray-700">{insight.problem_solved}</p>
-            </div>
-          )}
-
-          {insight.founder_story && (
-            <div>
-              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Founder Story</h4>
-              <p className="rounded-lg bg-white p-3 text-sm text-gray-700 whitespace-pre-wrap">
-                {insight.founder_story}
-              </p>
-            </div>
-          )}
-
-          <div>
-            <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Business Details</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              {insight.team_size_band && (
-                <div>
-                  <span className="text-gray-500">Team Size:</span>
-                  <p className="font-medium">{insight.team_size_band}</p>
-                </div>
-              )}
-              {insight.growth_stage && (
-                <div>
-                  <span className="text-gray-500">Business Stage:</span>
-                  <p className="font-medium">{insight.growth_stage}</p>
-                </div>
-              )}
-              {insight.snapshot_year && (
-                <div>
-                  <span className="text-gray-500">Snapshot Year:</span>
-                  <p className="font-medium">{insight.snapshot_year}</p>
-                </div>
-              )}
-              {insight.year_started && (
-                <div>
-                  <span className="text-gray-500">Year Started:</span>
-                  <p className="font-medium">{insight.year_started}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {insight.top_challenges && insight.top_challenges.length > 0 && (
-            <div>
-              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Top Challenges</h4>
-              <div className="flex flex-wrap gap-2">
-                {insight.top_challenges.map((challenge, index) => (
-                  <span
-                    key={index}
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
-                  >
-                    {challenge}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {insight.founder_motivation_array && insight.founder_motivation_array.length > 0 && (
-            <div>
-              <h4 className="mb-2 text-sm font-semibold text-[#0a1628]">Founder Motivations</h4>
-              <div className="flex flex-wrap gap-2">
-                {insight.founder_motivation_array.map((motivation, index) => (
-                  <span
-                    key={index}
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
-                  >
-                    {motivation}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
   );
-}
-
-async function checkIsAdmin(user) {
-  if (!user) return false;
-
-  try {
-    const { getSupabase } = await import("@/lib/supabase/client");
-    const supabase = getSupabase();
-    const { data, error } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-
-    if (error || !data) {
-      console.error("Error checking admin role:", error);
-      return false;
-    }
-
-    return data.role === "admin";
-  } catch (error) {
-    console.error("Error checking admin role:", error);
-    return false;
-  }
 }
 
 export default function AdminDashboard() {
@@ -1017,21 +441,7 @@ export default function AdminDashboard() {
   const [showFilters, setShowFilters] = useState(false);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [createForm, setCreateForm] = useState({
-    name: "",
-    business_handle: "",
-    description: "",
-    industry: "",
-    country: "",
-    city: "",
-    status: BUSINESS_STATUS.ACTIVE,
-    verified: true,
-    claimed: false,
-    contact_email: "",
-    contact_website: "",
-    logo_url: "",
-    subscription_tier: "vaka",
-  });
+  const [createForm, setCreateForm] = useState(emptyBusinessForm);
   const [savingCreate, setSavingCreate] = useState(false);
 
   const [editingBusinessId, setEditingBusinessId] = useState(null);
@@ -1140,7 +550,13 @@ export default function AdminDashboard() {
 
   const startEditingBusiness = (business) => {
     setEditingBusinessId(business.id);
-    setDraftBusiness({ ...business });
+    setDraftBusiness({
+      ...emptyBusinessForm,
+      ...business,
+      languages_spoken: Array.isArray(business.languages_spoken)
+        ? business.languages_spoken
+        : [],
+    });
   };
 
   const cancelEditingBusiness = () => {
@@ -1150,21 +566,7 @@ export default function AdminDashboard() {
 
   const resetCreateForm = () => {
     setShowCreateForm(false);
-    setCreateForm({
-      name: "",
-      business_handle: "",
-      description: "",
-      industry: "",
-      country: "",
-      city: "",
-      status: BUSINESS_STATUS.ACTIVE,
-      verified: true,
-      claimed: false,
-      contact_email: "",
-      contact_website: "",
-      logo_url: "",
-      subscription_tier: "vaka",
-    });
+    setCreateForm(emptyBusinessForm);
   };
 
   const updateStatus = async (business, newStatus) => {
@@ -1274,13 +676,12 @@ export default function AdminDashboard() {
           
           if (uploadError) throw uploadError;
           
-          const { data } = supabase.storage
+          const { data: logoPublicUrlData } = supabase.storage
             .from('admin-listings')
             .getPublicUrl(filePath);
           
-          const publicUrl = data?.publicUrl || data?.['publicUrl'];
-          if (publicUrl) {
-            updatedData.logo_url = publicUrl;
+          if (logoPublicUrlData?.publicUrl) {
+            updatedData.logo_url = logoPublicUrlData.publicUrl;
           }
         } catch (uploadError) {
           console.error('Error uploading logo:', uploadError);
@@ -1299,13 +700,12 @@ export default function AdminDashboard() {
           
           if (uploadError) throw uploadError;
           
-          const { data } = supabase.storage
+          const { data: bannerPublicUrlData } = supabase.storage
             .from('admin-listings')
             .getPublicUrl(filePath);
           
-          const publicUrl = data?.publicUrl || data?.['publicUrl'];
-          if (publicUrl) {
-            updatedData.banner_url = publicUrl;
+          if (bannerPublicUrlData?.publicUrl) {
+            updatedData.banner_url = bannerPublicUrlData.publicUrl;
           }
         } catch (uploadError) {
           console.error('Error uploading banner:', uploadError);
@@ -1708,13 +1108,13 @@ export default function AdminDashboard() {
           {showCreateForm && (
             <div className="mb-6">
               <InlineBusinessForm
-                title="Create Verified Business Listing"
+                title="Create New Business"
                 formData={createForm}
                 setFormData={setCreateForm}
                 onSave={() => createVerifiedBusiness(createForm)}
                 onCancel={resetCreateForm}
                 saving={savingCreate}
-                saveLabel="Create Listing"
+                mode="create"
               />
             </div>
           )}
