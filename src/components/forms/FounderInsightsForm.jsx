@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp, Globe, Target, Lightbulb, Rocket, ChevronDown, ChevronUp } from "lucide-react";
 import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES } from "@/constants/unifiedConstants";
-import { getSupabase } from "@/lib/supabase/client";
 
 const STEPS = [
   { key: "founder", label: "Founder Background", icon: Users },
@@ -113,6 +112,8 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
     setSubmitting(true);
     setAutoSaveStatus("saving");
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const {
         data: { user },
@@ -432,11 +433,11 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
               <label className={labelCls}>Current Team Size *</label>
               <select value={form.team_size_band || ""} onChange={e => setForm({ ...form, team_size_band: e.target.value })} className={inputCls}>
                 <option value="">Select team size</option>
-                <option value={TEAM_SIZE_BAND.SOLO}>Just me (solo)</option>
-                <option value={TEAM_SIZE_BAND.SMALL}>2-5 people</option>
-                <option value={TEAM_SIZE_BAND.MEDIUM}>6-10 people</option>
-                <option value={TEAM_SIZE_BAND.LARGE}>11-50 people</option>
-                <option value={TEAM_SIZE_BAND.ENTERPRISE}>50+ people</option>
+                <option value={TEAM_SIZE_BAND[0].value}>{TEAM_SIZE_BAND[0].label}</option>
+                <option value={TEAM_SIZE_BAND[1].value}>{TEAM_SIZE_BAND[1].label}</option>
+                <option value={TEAM_SIZE_BAND[2].value}>{TEAM_SIZE_BAND[2].label}</option>
+                <option value={TEAM_SIZE_BAND[3].value}>{TEAM_SIZE_BAND[3].label}</option>
+                <option value={TEAM_SIZE_BAND[4].value}>{TEAM_SIZE_BAND[4].label}</option>
               </select>
             </div>
           </div>
@@ -875,10 +876,10 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
             <label className={labelCls}>What stage best describes your business today? *</label>
             <select value={form.business_stage || ""} onChange={e => setForm({ ...form, business_stage: e.target.value })} className={inputCls}>
               <option value="">Select stage</option>
-              <option value={BUSINESS_STAGE.IDEA}>Idea/Planning</option>
-              <option value={BUSINESS_STAGE.STARTUP}>Startup (0-2 years)</option>
-              <option value={BUSINESS_STAGE.GROWTH}>Growth (2-5 years)</option>
-              <option value={BUSINESS_STAGE.MATURE}>Mature (5+ years)</option>
+              <option value={BUSINESS_STAGE[0].value}>{BUSINESS_STAGE[0].label}</option>
+              <option value={BUSINESS_STAGE[1].value}>{BUSINESS_STAGE[1].label}</option>
+              <option value={BUSINESS_STAGE[2].value}>{BUSINESS_STAGE[2].label}</option>
+              <option value={BUSINESS_STAGE[3].value}>{BUSINESS_STAGE[3].label}</option>
             </select>
           </div>
 

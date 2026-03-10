@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { Mail, Lock, Eye, EyeOff, User, Save, ArrowLeft, Users, Shield, AlertCircle, CheckCircle, X, Plus, Trash2 } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import HeroRegistry from "@/components/shared/HeroRegistry";
@@ -39,6 +38,8 @@ export default function ProfileSettings() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
+        // Import getSupabase dynamically
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         
         // Get current user
@@ -85,6 +86,8 @@ export default function ProfileSettings() {
 
   const loadAdminUsers = async () => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from('profiles')
@@ -101,6 +104,8 @@ export default function ProfileSettings() {
   const updateProfile = async () => {
     setSaving(true);
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // Update profile display name
@@ -160,6 +165,8 @@ export default function ProfileSettings() {
 
     setSaving(true);
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // First verify current password
@@ -218,6 +225,8 @@ export default function ProfileSettings() {
 
     setAddingAdmin(true);
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // Create auth user
@@ -282,6 +291,8 @@ export default function ProfileSettings() {
     }
 
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // Update role to owner instead of deleting the user

@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getSupabase } from '@/lib/supabase/client';
 
 const AuthContext = createContext(null);
 
@@ -14,8 +13,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const client = getSupabase();
-      setSupabase(client);
+      // Import getSupabase dynamically
+      import('@/lib/supabase/client').then(({ getSupabase }) => {
+        const client = getSupabase();
+        setSupabase(client);
+      }).catch(() => {
+        setAuthError({ type: "config", message: "Missing Supabase environment variables." });
+        setIsLoadingAuth(false);
+      });
     } catch (error) {
       setAuthError({ type: "config", message: "Missing Supabase environment variables." });
       setIsLoadingAuth(false);

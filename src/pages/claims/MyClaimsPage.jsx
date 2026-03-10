@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getSupabase } from "../../lib/supabase/client";
 import CancelClaimButton from "../../components/claims/CancelClaimButton";
 import { userClaimActions } from "../../utils/userClaimActions";
 
@@ -17,6 +16,8 @@ export default function MyClaimsPage() {
 
   const loadMyClaims = async () => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("../../lib/supabase/client");
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUserId(user.id);

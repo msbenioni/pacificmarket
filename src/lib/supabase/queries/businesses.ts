@@ -3,7 +3,6 @@
  * Centralized query logic to eliminate duplication and ensure consistency
  */
 
-import { getSupabase } from '../client';
 import type { Business, BusinessUpdate, BusinessCreate } from '../../../types/business';
 
 // Explicit field selection for performance and consistency
@@ -59,6 +58,8 @@ export async function getPublicBusinesses(options: {
   orderBy?: 'created_at' | 'updated_at' | 'name';
   orderDirection?: 'asc' | 'desc';
 } = {}) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
   const { limit = 100, orderBy = 'created_at', orderDirection = 'desc' } = options;
 
@@ -77,6 +78,8 @@ export async function getHomepageBusinesses(options: {
   limit?: number;
   orderBy?: 'updated_at' | 'created_at';
 } = {}) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
   const { limit = 12, orderBy = 'updated_at' } = options;
 
@@ -93,6 +96,8 @@ export async function getHomepageBusinesses(options: {
  * Get single business by ID
  */
 export async function getBusinessById(id: string) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
 
   return supabase
@@ -108,6 +113,8 @@ export async function getBusinessById(id: string) {
 export async function getUserBusinesses(userId: string, options: {
   includeStatus?: ('active' | 'pending' | 'rejected')[];
 } = {}) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
   const { includeStatus = ['active', 'pending'] } = options;
 
@@ -131,6 +138,8 @@ export async function getAdminBusinesses(options: {
   limit?: number;
   status?: ('active' | 'pending' | 'rejected')[];
 } = {}) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
   const { limit = 500, status } = options;
 
@@ -151,6 +160,8 @@ export async function getAdminBusinesses(options: {
  * Update a business
  */
 export async function updateBusiness(id: string, updates: BusinessUpdate) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
 
   return supabase
@@ -168,6 +179,8 @@ export async function updateBusiness(id: string, updates: BusinessUpdate) {
  * Create a new business
  */
 export async function createBusiness(business: BusinessCreate) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
 
   return supabase
@@ -186,6 +199,8 @@ export async function createBusiness(business: BusinessCreate) {
  * Delete a business (admin only)
  */
 export async function deleteBusiness(id: string) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
 
   return supabase
@@ -199,10 +214,12 @@ export async function deleteBusiness(id: string) {
  */
 export async function searchBusinesses(query: string, options: {
   limit?: number;
-  status?: 'active' | 'pending' | 'rejected';
+  status?: ('active' | 'pending' | 'rejected')[];
 } = {}) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
-  const { limit = 50, status = 'active' } = options;
+  const { limit = 50, status } = options;
 
   return supabase
     .from('businesses')
@@ -218,6 +235,8 @@ export async function searchBusinesses(query: string, options: {
 export async function getBusinessesByIndustry(industry: string, options: {
   limit?: number;
 } = {}) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
   const { limit = 100 } = options;
 
@@ -236,6 +255,8 @@ export async function getBusinessesByIndustry(industry: string, options: {
 export async function getBusinessesByCountry(country: string, options: {
   limit?: number;
 } = {}) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
   const supabase = getSupabase();
   const { limit = 100 } = options;
 

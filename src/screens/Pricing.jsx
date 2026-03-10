@@ -4,7 +4,6 @@ import { CheckCircle, X, Shield, ArrowRight, Waves, Compass, Sparkles, ChevronDo
 import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_TIER, getTierDisplayName } from "@/constants/unifiedConstants";
 import { TIER_BENEFITS } from "@/constants/tierBenefits";
 import HeroRegistry from "../components/shared/HeroRegistry";
@@ -85,6 +84,8 @@ export default function Pricing() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Import getSupabase dynamically
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         const {
           data: { user: currentUser },

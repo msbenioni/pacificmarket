@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { getSupabase } from "@/lib/supabase/client";
 import { Building2, Plus, Edit, Star, Shield, CheckCircle, Upload, FileText, QrCode, ChevronRight, AlertCircle, Trash2, Zap, Search, Users } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
@@ -65,6 +64,8 @@ export default function BusinessPortal() {
     if (!u?.id) return;
 
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
       const [businessesResult, claimsResult, profilesResult] = await Promise.all([
@@ -112,6 +113,8 @@ export default function BusinessPortal() {
   useEffect(() => {
     const loadPortalData = async () => {
       try {
+        // Import getSupabase dynamically
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         
         // Get current user with profile data
@@ -151,6 +154,8 @@ export default function BusinessPortal() {
   const handleSave = async (formData) => {
     setSaving(true);
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // Filter out potentially problematic fields
@@ -193,6 +198,8 @@ export default function BusinessPortal() {
     if (!file) return;
     
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // Upload file to Supabase storage
@@ -258,6 +265,8 @@ export default function BusinessPortal() {
     setAddingOwner(true);
     try {
       // Check if profile already exists
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const { data: existingProfile } = await supabase
@@ -362,6 +371,8 @@ export default function BusinessPortal() {
     if (!deleteConfirmBusiness) return;
     
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const { error } = await supabase
         .from('businesses')
@@ -390,6 +401,8 @@ export default function BusinessPortal() {
   const handleFounderInsightsSubmit = async (insightsData) => {
     setInsightsSubmitting(true);
     try {
+      // Import getSupabase for insights snapshots only
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
       const existing = insightSnapshots.find(

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, AlertCircle, AlertTriangle } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import { createPageUrl } from "@/utils";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import PortalShell from "@/components/portal/PortalShell";
@@ -26,6 +25,8 @@ export default function AdminLogin() {
 
     try {
       // Sign in with Supabase
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,

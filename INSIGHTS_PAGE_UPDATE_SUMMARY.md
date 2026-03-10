@@ -7,7 +7,7 @@
 #### **1. Imports Updated**
 ```javascript
 // Before
-import { getSupabase } from "@/lib/supabase/client";
+// import { getSupabase } from "@/lib/supabase/client";
 
 // After  
 import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";

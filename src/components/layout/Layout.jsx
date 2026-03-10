@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import CookieConsent from "../shared/CookieConsent";
 import { User, LogOut, Home, Shield } from "lucide-react";
 
@@ -19,6 +18,8 @@ export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Import getSupabase dynamically
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();
         
@@ -58,6 +59,8 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = async () => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       await supabase.auth.signOut();
       setUser(null);
@@ -250,9 +253,7 @@ export default function Layout({ children, currentPageName }) {
               </Link>
             ) : null}
             {user ? (
-              <>
-                <button onClick={handleLogout} className="block text-sm font-medium text-red-600 py-2">Sign Out</button>
-              </>
+              <button onClick={handleLogout} className="block text-sm font-medium text-red-600 py-2">Sign Out</button>
             ) : null}
           </div>
         )}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { getSupabase } from "@/lib/supabase/client";
 import { AlertCircle, Search, CheckCircle, MapPin, Briefcase } from "lucide-react";
 import { BUSINESS_STATUS, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 
@@ -34,6 +33,8 @@ export default function BusinessSearch({
 
     (async () => {
       try {
+        // Import getSupabase dynamically
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         const { data, error } = await supabase
           .from("businesses")

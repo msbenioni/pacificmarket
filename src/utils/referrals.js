@@ -3,8 +3,6 @@
  * Handles referral tracking and creation during business signup
  */
 
-import { getSupabase } from "@/lib/supabase/client";
-
 /**
  * Creates a referral record if a valid referral code is present
  * @param {string} referralCode - The referral code from user metadata or URL
@@ -17,6 +15,8 @@ export async function createReferralIfPresent(referralCode, businessId) {
   }
 
   try {
+    // Import getSupabase dynamically
+    const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
     
     // Call the database function to create the referral
@@ -53,6 +53,8 @@ export async function getReferralStats(businessId) {
   }
 
   try {
+    // Import getSupabase dynamically
+    const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
     
     const { data, error } = await supabase.rpc('get_referral_stats', {
@@ -106,6 +108,8 @@ export function getReferralLink(businessHandle) {
  */
 export async function selectMonthlyWinner() {
   try {
+    // Import getSupabase dynamically
+    const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
     
     const { data, error } = await supabase.rpc('select_monthly_referral_winner');
@@ -128,6 +132,8 @@ export async function selectMonthlyWinner() {
  */
 export async function getUserReferralCode() {
   try {
+    // Import getSupabase dynamically
+    const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
     const { data: { user } } = await supabase.auth.getUser();
     

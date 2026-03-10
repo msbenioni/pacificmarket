@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from '@/components/shared/ModalWrapper';
-import { getSupabase } from '../../lib/supabase/client';
 import { ONBOARDING_STEPS, ONBOARDING_VALIDATION_RULES } from '../../constants/profileOnboarding';
 import { onboardingUI, colors } from './onboardingUI';
 
@@ -45,6 +44,8 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
 
   const loadProfileData = async () => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("../../lib/supabase/client");
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -135,6 +136,8 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
   const handleComplete = async () => {
     setSaving(true);
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("../../lib/supabase/client");
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');

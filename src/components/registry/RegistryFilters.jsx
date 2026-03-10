@@ -1,6 +1,5 @@
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { getSupabase } from "@/lib/supabase/client";
 import { BUSINESS_STATUS, INDUSTRIES, COUNTRIES } from "@/constants/unifiedConstants";
 
 export default function RegistryFilters({ filters, onChange }) {
@@ -9,6 +8,8 @@ export default function RegistryFilters({ filters, onChange }) {
   useEffect(() => {
     const loadBusinesses = async () => {
       try {
+        // Import getSupabase dynamically
+        const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         const { data } = await supabase
           .from("businesses")

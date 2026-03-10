@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { getSupabase } from '@/lib/supabase/client';
 
 export function useStripeCheckout() {
   const [loading, setLoading] = useState(false);
@@ -10,7 +9,8 @@ export function useStripeCheckout() {
     setError(null);
 
     try {
-      // Get current user
+      // Import getSupabase dynamically
+      const { getSupabase } = await import('@/lib/supabase/client');
       const supabase = getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {

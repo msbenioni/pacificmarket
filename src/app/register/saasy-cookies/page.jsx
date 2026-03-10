@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2, Gift } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/AuthContext";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import Layout from "@/components/layout/Layout";
@@ -29,6 +28,8 @@ export default function SaasyCookiesRegister() {
   const loadReferrerBusiness = async (handle) => {
     try {
       console.log('Loading referrer business for handle:', handle);
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from('businesses')
@@ -70,6 +71,8 @@ export default function SaasyCookiesRegister() {
     }
 
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const result = await supabase.auth.signUp({

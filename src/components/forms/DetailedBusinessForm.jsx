@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { IDENTITIES } from "@/constants/businessProfile";
 import { COUNTRIES, INDUSTRIES, BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName, TEAM_SIZE_BAND, BUSINESS_STAGE, IMPORT_EXPORT_STATUS, BUSINESS_OPERATING_STATUS, SALES_CHANNELS, REVENUE_BAND } from "@/constants/unifiedConstants";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import PremiumStepper from "@/components/shared/PremiumStepper";
 
 const FORM_MODES = {
@@ -266,6 +265,8 @@ export default function DetailedBusinessForm({
       const folder = type === "logo" ? "logos" : "banners";
       const filePath = `${folder}/${Date.now()}-${file.name}`;
       
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const { error: uploadError } = await supabase.storage
         .from(bucket)

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
-import { getSupabase } from "@/lib/supabase/client";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
 import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
 import toast from "react-hot-toast";
@@ -419,6 +418,8 @@ async function checkIsAdmin(user) {
   if (!user) return false;
   
   try {
+    // Import getSupabase dynamically
+    const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from('profiles')
@@ -520,6 +521,8 @@ export default function AdminDashboard() {
   const loadAdminData = async () => {
     setLoading(true);
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       if (!supabase) {
@@ -612,6 +615,8 @@ export default function AdminDashboard() {
 
   const updateStatus = async (business, newStatus) => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const { error } = await supabase
@@ -637,6 +642,8 @@ export default function AdminDashboard() {
 
   const updateClaim = async (claim, newStatus) => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const { error } = await supabase
@@ -675,6 +682,8 @@ export default function AdminDashboard() {
     }
 
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const { error } = await supabase
@@ -706,6 +715,8 @@ export default function AdminDashboard() {
   const saveBusiness = async (formData) => {
     setSavingEdit(true);
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
       const { id, ...updateData } = formData;
@@ -743,6 +754,8 @@ export default function AdminDashboard() {
 
   const createVerifiedBusiness = async (formData) => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const businessData = {

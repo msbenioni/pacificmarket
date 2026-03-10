@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 
 export default function EmailMarketingDashboard() {
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -48,6 +47,8 @@ export default function EmailMarketingDashboard() {
 
   const getAuthToken = async () => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const { data: { session } } = await supabase.auth.getSession();
       return session?.access_token;

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Copy, Gift, Users, TrendingUp, ExternalLink } from "lucide-react";
 import { getReferralStats, getReferralLink } from "@/utils/referrals";
-import { getSupabase } from "@/lib/supabase/client";
 
 export default function ReferralDashboard({ businessId, businessHandle }) {
   const [stats, setStats] = useState({

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2, Gift } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/AuthContext";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import Layout from "@/components/layout/Layout";
@@ -42,6 +41,8 @@ export default function ReferralRegister() {
 
   const loadReferrerBusiness = async (handle) => {
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from('businesses')
@@ -79,6 +80,8 @@ export default function ReferralRegister() {
     }
 
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       const result = await supabase.auth.signUp({

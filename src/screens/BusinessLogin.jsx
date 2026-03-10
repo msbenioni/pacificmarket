@@ -3,7 +3,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/AuthContext";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 
@@ -77,6 +76,8 @@ export default function BusinessLogin() {
     if (!user?.id) return;
     
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
       // Check if profile already exists
@@ -125,6 +126,8 @@ export default function BusinessLogin() {
     }
 
     try {
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       let result;
       

@@ -2,10 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
-import { getSupabase } from '@/lib/supabase/client';
 
 
-export default function PageNotFound({}) {
+export default function PageNotFound() {
     const pathname = usePathname();
     const pageName = pathname?.substring(1);
 
@@ -13,6 +12,8 @@ export default function PageNotFound({}) {
         queryKey: ['user'],
         queryFn: async () => {
             try {
+                // Import getSupabase dynamically
+                const { getSupabase } = await import('@/lib/supabase/client');
                 const supabase = getSupabase();
                 const { data: { user } } = await supabase.auth.getUser();
                 return { user, isAuthenticated: true };
