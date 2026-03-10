@@ -1,11 +1,23 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { notifyPlanUpgraded } from "@/lib/notifications";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Helper function to find business by stripe_customer_id
+async function getBusinessByStripeCustomerId(customerId) {
+  const { data, error } = await supabase
+    .from('businesses')
+    .select('id, name, owner_user_id')
+    .eq('stripe_customer_id', customerId)
+    .single();
+  
+  return { data, error };
+}
 
 export async function POST(request) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -25,12 +37,13 @@ export async function POST(request) {
       case "checkout.session.completed": {
         const session = event.data.object;
         
-        // Get business and user info
-        const { data: business } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('stripe_customer_id', session.customer)
-          .single();
+        // Get business and user info using helper function
+        const { data: business, error: businessError } = await getBusinessByStripeCustomerId(session.customer);
+        
+        if (businessError || !business) {
+          console.error('Business not found for customer:', session.customer);
+          break;
+        }
           
         const { data: user } = await supabase
           .from('profiles')

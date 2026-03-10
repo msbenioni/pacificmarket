@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { notifyClaimSubmitted } from "@/lib/notifications";
 
 const supabase = createClient(
@@ -10,13 +11,14 @@ export async function POST(request) {
   try {
     const { businessId, claimantId, claimType } = await request.json();
     
-    // Get business and claimant details
-    const { data: business } = await supabase
-      .from('businesses')
-      .select('*')
-      .eq('id', businessId)
-      .single();
+    // Get business details using shared query
+    const { data: business, error: businessError } = await getBusinessById(businessId);
+    
+    if (businessError || !business) {
+      return Response.json({ error: businessError?.message || 'Business not found' }, { status: 404 });
+    }
       
+    // Get claimant details (user table - keep direct query for now)
     const { data: claimant } = await supabase
       .from('users')
       .select('*')

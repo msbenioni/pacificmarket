@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getBusinessById } from "@/lib/supabase/queries/businesses";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -131,15 +132,11 @@ export async function POST(request) {
       return Response.json({ error: 'Business ID and User ID are required' }, { status: 400 });
     }
 
-    // Get business data
-    const { data: business } = await supabase
-      .from('businesses')
-      .select('*')
-      .eq('id', businessId)
-      .single();
+    // Get business data using shared query
+    const { data: business, error: businessError } = await getBusinessById(businessId);
 
-    if (!business) {
-      return Response.json({ error: 'Business not found' }, { status: 404 });
+    if (businessError || !business) {
+      return Response.json({ error: businessError?.message || 'Business not found' }, { status: 404 });
     }
 
     // Verify user has access to this business

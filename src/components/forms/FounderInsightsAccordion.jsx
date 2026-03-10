@@ -23,8 +23,9 @@ import {
   FUNDING_SOURCES,
   INVESTMENT_STAGES,
   REVENUE_STREAMS,
+  ANGEL_INVESTOR_INTEREST,
+  INVESTOR_CAPACITY,
 } from "@/constants/unifiedConstants";
-import { getSupabase } from "@/lib/supabase/client";
 
 const SECTIONS = [
   {
@@ -156,8 +157,6 @@ export default function FounderInsightsAccordion({
   const [submitting, setSubmitting] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
 
-  const supabase = getSupabase();
-
   const setFormState = (updater) => {
     setForm((prev) => {
       const nextForm = typeof updater === "function" ? updater(prev) : updater;
@@ -207,6 +206,10 @@ export default function FounderInsightsAccordion({
   const handleSaveSection = async (sectionKey) => {
     setSubmitting(true);
     try {
+      // Import getSupabase for auth only
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+      
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -226,6 +229,10 @@ export default function FounderInsightsAccordion({
   const handleSubmitAll = async () => {
     setSubmitting(true);
     try {
+      // Import getSupabase for auth only
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+      
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -788,6 +795,54 @@ export default function FounderInsightsAccordion({
                       className={inputCls}
                     />
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className={getLabelClass("financial", "angel_investor_interest")}>
+                        Looking to invest in businesses?
+                      </label>
+                      <select
+                        value={form.angel_investor_interest || ""}
+                        onChange={(e) =>
+                          setFormState((prev) => ({
+                            ...prev,
+                            angel_investor_interest: e.target.value,
+                          }))
+                        }
+                        className={selectCls}
+                      >
+                        <option value="">Select option</option>
+                        {ANGEL_INVESTOR_INTEREST.map((interest) => (
+                          <option key={interest.value} value={interest.value}>
+                            {interest.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className={getLabelClass("financial", "investor_capacity")}>
+                        Investment capacity
+                      </label>
+                      <select
+                        value={form.investor_capacity || ""}
+                        onChange={(e) =>
+                          setFormState((prev) => ({
+                            ...prev,
+                            investor_capacity: e.target.value,
+                          }))
+                        }
+                        className={selectCls}
+                      >
+                        <option value="">Select capacity</option>
+                        {INVESTOR_CAPACITY.map((capacity) => (
+                          <option key={capacity.value} value={capacity.value}>
+                            {capacity.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -866,10 +921,10 @@ export default function FounderInsightsAccordion({
                       className={selectCls}
                     >
                       <option value="">Select stage</option>
-                      <option value={BUSINESS_STAGE.IDEA}>Idea / Planning</option>
-                      <option value={BUSINESS_STAGE.STARTUP}>Startup</option>
-                      <option value={BUSINESS_STAGE.GROWTH}>Growth</option>
-                      <option value={BUSINESS_STAGE.MATURE}>Mature</option>
+                      <option value={BUSINESS_STAGE[0].value}>Idea / Planning</option>
+                      <option value={BUSINESS_STAGE[1].value}>Startup</option>
+                      <option value={BUSINESS_STAGE[2].value}>Growth</option>
+                      <option value={BUSINESS_STAGE[3].value}>Mature</option>
                     </select>
                   </div>
 
