@@ -46,7 +46,7 @@ const plans = [
     highlights: TIER_BENEFITS.mana.features.slice(0, 3), // First 3 features as highlights
     features: [
       ...TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
-      ...TIER_BENEFITS.mana.features.slice(4).map(feature => ({ label: feature, included: true })),
+      ...TIER_BENEFITS.mana.features.map(feature => ({ label: feature, included: true })),
     ],
   },
   {
@@ -68,7 +68,7 @@ const plans = [
     features: [
       ...TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
       ...TIER_BENEFITS.mana.features.map(feature => ({ label: feature, included: true })),
-      ...TIER_BENEFITS.moana.features.slice(4).map(feature => ({ label: feature, included: true })),
+      ...TIER_BENEFITS.moana.features.map(feature => ({ label: feature, included: true })),
     ],
   },
 ];
@@ -405,6 +405,7 @@ export default function Pricing() {
                     label === "Banner image" ||
                     label === "Invoice generator" ||
                     label === "QR code generator" ||
+                    label === "Email signature generator" ||
                     label === "Homepage spotlight";
 
                   return (

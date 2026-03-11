@@ -12,7 +12,8 @@ export const TIER_BENEFITS = {
       "Public registry listing",
       "Business name, country and industry", 
       "Public discoverability",
-      "Registry record number"
+      "Business handle for sharing",
+      "Verified badge (upon claim/verification)"
     ]
   },
   mana: {
@@ -24,9 +25,7 @@ export const TIER_BENEFITS = {
     features: [
       "Everything in Vaka",
       "Logo and banner image",
-      "Full business profile", 
-      "Trust badge",
-      "Priority placement in search"
+      "Full business profile"
     ]
   },
   moana: {
@@ -39,6 +38,7 @@ export const TIER_BENEFITS = {
       "Everything in Mana",
       "Invoice generator",
       "QR code generator", 
+      "Email signature generator",
       "Homepage spotlight",
       "Premium visibility across platform"
     ]
