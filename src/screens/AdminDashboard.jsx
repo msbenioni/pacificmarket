@@ -322,6 +322,7 @@ function AdminBusinessMobileCard({
             onSave={onSave}
             onCancel={onCancel}
             saving={savingEdit}
+            showAdminFields={true}
           />
         </div>
       )}
@@ -1164,6 +1165,7 @@ export default function AdminDashboard() {
                 onCancel={resetCreateForm}
                 saving={savingCreate}
                 mode="create"
+                showAdminFields={true}
               />
             </div>
           )}
@@ -1255,7 +1257,11 @@ export default function AdminDashboard() {
                                       }}
                                     />
                                   ) : (
-                                    <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
+                                    <img
+                                      src="/pm_logo.png"
+                                      alt="Pacific Market"
+                                      className="h-full w-full object-cover"
+                                    />
                                   )}
                                 </div>
 
@@ -1590,6 +1596,7 @@ export default function AdminDashboard() {
                                         onCancel={cancelEditingBusiness}
                                         saving={savingEdit}
                                         mode="edit"
+                                        showAdminFields={true}
                                       />
                                     </td>
                                   </tr>

@@ -12,6 +12,7 @@ const InlineBusinessForm = ({
   onCancel,
   saving = false,
   mode = "create",
+  showAdminFields = false,
 }) => {
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -462,33 +463,6 @@ const InlineBusinessForm = ({
             </select>
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Subscription Tier
-            </label>
-            <select
-              value={formData?.subscription_tier || "vaka"}
-              onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            >
-              <option value="vaka">Vaka (Free)</option>
-              <option value="mana">Mana (Premium)</option>
-              <option value="moana">Moana (Featured+)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
-            <select
-              value={formData?.status || BUSINESS_STATUS.PENDING}
-              onChange={(e) => handleInputChange("status", e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-            >
-              <option value={BUSINESS_STATUS.PENDING}>Pending</option>
-              <option value={BUSINESS_STATUS.ACTIVE}>Active</option>
-              <option value={BUSINESS_STATUS.REJECTED}>Rejected</option>
-            </select>
-          </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -545,43 +519,78 @@ const InlineBusinessForm = ({
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                checked={!!formData?.verified}
-                onChange={(e) => handleInputChange("verified", e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              Verified
-            </label>
-          </div>
+        {/* Admin-only fields */}
+        {showAdminFields && (
+          <>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Subscription Tier
+                </label>
+                <select
+                  value={formData?.subscription_tier || "vaka"}
+                  onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+                >
+                  <option value="vaka">Vaka (Free)</option>
+                  <option value="mana">Mana (Premium)</option>
+                  <option value="moana">Moana (Featured+)</option>
+                </select>
+              </div>
 
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                checked={!!formData?.claimed}
-                onChange={(e) => handleInputChange("claimed", e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              Claimed
-            </label>
-          </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
+                <select
+                  value={formData?.status || BUSINESS_STATUS.PENDING}
+                  onChange={(e) => handleInputChange("status", e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
+                >
+                  <option value={BUSINESS_STATUS.PENDING}>Pending</option>
+                  <option value={BUSINESS_STATUS.ACTIVE}>Active</option>
+                  <option value={BUSINESS_STATUS.REJECTED}>Rejected</option>
+                </select>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                checked={!!formData?.homepage_featured}
-                onChange={(e) => handleInputChange("homepage_featured", e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              Homepage Featured
-            </label>
-          </div>
-        </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={!!formData?.verified}
+                    onChange={(e) => handleInputChange("verified", e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  Verified
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={!!formData?.claimed}
+                    onChange={(e) => handleInputChange("claimed", e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  Claimed
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={!!formData?.homepage_featured}
+                    onChange={(e) => handleInputChange("homepage_featured", e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  Homepage Featured
+                </label>
+              </div>
+            </div>
+          </>
+        )}
       </form>
     </div>
   );
