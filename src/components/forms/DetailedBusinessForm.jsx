@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { IDENTITIES } from "@/constants/businessProfile";
-import { COUNTRIES, INDUSTRIES, BUSINESS_STATUS, BUSINESS_TIER, BUSINESS_SOURCE, getTierDisplayName, TEAM_SIZE_BAND, BUSINESS_STAGE, IMPORT_EXPORT_STATUS, BUSINESS_OPERATING_STATUS, SALES_CHANNELS, REVENUE_BAND } from "@/constants/unifiedConstants";
+import { COUNTRIES, INDUSTRIES, BUSINESS_STATUS, SUBSCRIPTION_TIER, BUSINESS_SOURCE, getTierDisplayName, TEAM_SIZE_BAND, BUSINESS_STAGE, IMPORT_EXPORT_STATUS, BUSINESS_OPERATING_STATUS, SALES_CHANNELS, REVENUE_BAND } from "@/constants/unifiedConstants";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Upload } from "lucide-react";
 import PremiumStepper from "@/components/shared/PremiumStepper";
 
@@ -189,7 +189,7 @@ export default function DetailedBusinessForm({
         ...prev,
         // User-created businesses are auto-claimed and start as vaka
         claimed: mode === FORM_MODES.BUSINESS_CREATE ? true : prev.claimed,
-        subscription_tier: mode === FORM_MODES.BUSINESS_CREATE ? BUSINESS_TIER.VAKA : prev.subscription_tier,
+        subscription_tier: mode === FORM_MODES.BUSINESS_CREATE ? SUBSCRIPTION_TIER.VAKA : prev.subscription_tier,
         source: mode === FORM_MODES.ADMIN_CREATE ? BUSINESS_SOURCE.ADMIN : BUSINESS_SOURCE.USER,
         // Admin-created businesses start as pending
         status: mode === FORM_MODES.ADMIN_CREATE ? BUSINESS_STATUS.PENDING : prev.status
@@ -663,9 +663,9 @@ export default function DetailedBusinessForm({
                   <div>
                     <label className={labelCls}>Subscription Tier</label>
                     <select value={form.subscription_tier || ""} onChange={e => set("subscription_tier", e.target.value)} className={inputCls}>
-                      <option value={BUSINESS_TIER.VAKA}>Vaka</option>
-                      <option value={BUSINESS_TIER.MANA}>Mana</option>
-                      <option value={BUSINESS_TIER.MOANA}>Moana</option>
+                      <option value={SUBSCRIPTION_TIER.VAKA}>Vaka</option>
+                      <option value={SUBSCRIPTION_TIER.MANA}>Mana</option>
+                      <option value={SUBSCRIPTION_TIER.MOANA}>Moana</option>
                     </select>
                   </div>
                 )}

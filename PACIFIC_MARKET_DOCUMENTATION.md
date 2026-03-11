@@ -242,8 +242,8 @@ src/
 
 ### Subscription Tiers
 - **Vaka** (Free): Basic listing, public discoverability
-- **Mana** ($9/month): Enhanced features, branding options
-- **Moana** ($19/month): Premium features, advanced analytics
+- **Mana** ($4.99/month): Enhanced features, branding options
+- **Moana** ($29/month): Premium features, advanced analytics
 
 ### Industry Categories (Standardized)
 1. Agriculture

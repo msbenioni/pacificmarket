@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { notifyPlanUpgraded } from "@/lib/notifications";
+import { SUBSCRIPTION_TIER, STRIPE_PRICE_LOOKUP_KEYS } from "@/constants/unifiedConstants";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -52,13 +53,13 @@ export async function POST(request) {
           .single();
         
         if (business && user) {
-          // Determine plan from session metadata
-          const newPlan = session.metadata?.plan || 'premium';
-          const previousPlan = 'basic'; // Will be replaced with subscription lookup
+          // Determine tier from session metadata
+          const newTier = session.metadata?.tier || SUBSCRIPTION_TIER.MANA;
+          const previousTier = SUBSCRIPTION_TIER.VAKA; // Free tier
           
-          // Send notification if plan changed
-          if (newPlan !== previousPlan) {
-            await notifyPlanUpgraded(business, user, previousPlan, newPlan);
+          // Send notification if tier changed
+          if (newTier !== previousTier) {
+            await notifyPlanUpgraded(business, user, previousTier, newTier);
           }
         }
         break;
@@ -86,7 +87,7 @@ export async function POST(request) {
                 user_id: business.owner_user_id,
                 stripe_subscription_id: subscriptionId,
                 stripe_customer_id: subscription.customer,
-                plan_type: 'premium', // Will be mapped from price lookup key
+                subscription_tier: SUBSCRIPTION_TIER.MANA, // Will be mapped from price lookup key
                 status: 'active',
                 current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
                 current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
@@ -115,19 +116,23 @@ export async function POST(request) {
           .single();
         
         if (business && user) {
-          // Map price to plan
-          const planMap = {
-            'price_basic': 'basic',
-            'price_premium': 'premium',
-            'price_enterprise': 'enterprise'
-          };
+          // Map Stripe price lookup keys to business tiers using shared constants
+          const priceLookupKey = subscription.items.data[0]?.price?.lookup_key;
+          let newTier;
           
-          const newPlan = planMap[subscription.items.data[0]?.price?.lookup_key] || 'basic';
-          const previousPlan = 'basic'; // Will be replaced with subscription lookup
+          if (priceLookupKey === STRIPE_PRICE_LOOKUP_KEYS.MANA) {
+            newTier = SUBSCRIPTION_TIER.MANA;
+          } else if (priceLookupKey === STRIPE_PRICE_LOOKUP_KEYS.MOANA) {
+            newTier = SUBSCRIPTION_TIER.MOANA;
+          } else {
+            newTier = SUBSCRIPTION_TIER.MANA; // Default fallback
+          }
           
-          // Send notification if plan changed
-          if (newPlan !== previousPlan) {
-            await notifyPlanUpgraded(business, user, previousPlan, newPlan);
+          const previousTier = SUBSCRIPTION_TIER.VAKA; // Free tier
+          
+          // Send notification if tier changed
+          if (newTier !== previousTier) {
+            await notifyPlanUpgraded(business, user, previousTier, newTier);
             
             // Create or update subscription record
             await supabase
@@ -137,7 +142,7 @@ export async function POST(request) {
                 user_id: business.owner_user_id,
                 stripe_subscription_id: subscription.id,
                 stripe_customer_id: subscription.customer,
-                plan_type: newPlan,
+                subscription_tier: newTier,
                 status: subscription.status,
                 current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
                 current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),

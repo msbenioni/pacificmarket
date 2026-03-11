@@ -9,7 +9,7 @@
  */
 
 import { Business } from '../../types/business';
-import { BUSINESS_TIER, BUSINESS_STATUS } from '../../constants/unifiedConstants';
+import { SUBSCRIPTION_TIER, BUSINESS_STATUS } from '../../constants/unifiedConstants';
 
 /**
  * Check if a business should be publicly visible
@@ -38,8 +38,8 @@ export function canAppearOnHomepage(business: Business | null): boolean {
 export function canUsePremiumTools(business: Business | null): boolean {
   if (!business) return false;
   
-  return business.subscription_tier === BUSINESS_TIER.MOANA || 
-         business.subscription_tier === BUSINESS_TIER.MANA;
+  return business.subscription_tier === SUBSCRIPTION_TIER.MOANA || 
+         business.subscription_tier === SUBSCRIPTION_TIER.MANA;
 }
 
 /**
@@ -127,11 +127,11 @@ export function getBusinessTierDisplay(business: Business | null): string {
   if (!business) return 'Unknown';
   
   switch (business.subscription_tier) {
-    case BUSINESS_TIER.VAKA:
+    case SUBSCRIPTION_TIER.VAKA:
       return 'Vaka (Free)';
-    case BUSINESS_TIER.MANA:
+    case SUBSCRIPTION_TIER.MANA:
       return 'Mana (Premium)';
-    case BUSINESS_TIER.MOANA:
+    case SUBSCRIPTION_TIER.MOANA:
       return 'Moana (Enterprise)';
     default:
       return 'Unknown';

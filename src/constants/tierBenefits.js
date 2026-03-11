@@ -18,7 +18,7 @@ export const TIER_BENEFITS = {
   },
   mana: {
     label: "Mana",
-    price: "$9/month",
+    price: "$4.99/month",
     color: "teal",
     description: "Build trust and presence",
     subtitle: "Strengthen your presence with branding and trust signals",

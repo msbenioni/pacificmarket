@@ -24,7 +24,7 @@ import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { TIER_BENEFITS } from "@/constants/businessProfile";
 import {
-  BUSINESS_TIER,
+  SUBSCRIPTION_TIER,
   BUSINESS_STATUS,
   getTierDisplayName,
   COUNTRIES,
@@ -687,16 +687,16 @@ export default function BusinessPortal() {
   }
 
   const tierInfo = {
-    [BUSINESS_TIER.VAKA]: {
-      label: getTierDisplayName(BUSINESS_TIER.VAKA),
+    [SUBSCRIPTION_TIER.VAKA]: {
+      label: getTierDisplayName(SUBSCRIPTION_TIER.VAKA),
       color: "text-gray-500 bg-gray-100",
     },
-    [BUSINESS_TIER.MANA]: {
-      label: getTierDisplayName(BUSINESS_TIER.MANA),
+    [SUBSCRIPTION_TIER.MANA]: {
+      label: getTierDisplayName(SUBSCRIPTION_TIER.MANA),
       color: "text-[#0d4f4f] bg-[#0d4f4f]/10",
     },
-    [BUSINESS_TIER.MOANA]: {
-      label: getTierDisplayName(BUSINESS_TIER.MOANA),
+    [SUBSCRIPTION_TIER.MOANA]: {
+      label: getTierDisplayName(SUBSCRIPTION_TIER.MOANA),
       color: "text-[#c9a84c] bg-[#c9a84c]/10",
     },
   };
@@ -842,7 +842,7 @@ export default function BusinessPortal() {
               </div>
 
               {businesses.length > 0 &&
-                !businesses.some((b) => b.subscription_tier !== BUSINESS_TIER.VAKA) && (
+                !businesses.some((b) => b.subscription_tier !== SUBSCRIPTION_TIER.VAKA) && (
                   <div className="rounded-[28px] border border-[#00c4cc]/20 bg-gradient-to-r from-[#00c4cc]/10 via-white to-[#c9a84c]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                       <div className="flex items-start gap-4">
@@ -865,7 +865,7 @@ export default function BusinessPortal() {
                     </div>
 
                     <button
-                      onClick={() => handleUpgradeClick(BUSINESS_TIER.MANA)}
+                      onClick={() => handleUpgradeClick(SUBSCRIPTION_TIER.MANA)}
                       disabled={checkoutLoading}
                       className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] px-5 py-3 text-sm font-bold text-[#0a1628] hover:bg-[#d8b865] transition disabled:opacity-50 min-h-[44px] w-full sm:w-auto"
                     >
@@ -888,7 +888,7 @@ export default function BusinessPortal() {
                           Mana
                         </p>
                         <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                          ${TIER_BENEFITS[BUSINESS_TIER.MANA].price.split("/")[0].slice(1)}/mo
+                          ${TIER_BENEFITS[SUBSCRIPTION_TIER.MANA].price.split("/")[0].slice(1)}/mo
                         </p>
                         <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                           <li>• Verified badge</li>
@@ -902,7 +902,7 @@ export default function BusinessPortal() {
                           Moana
                         </p>
                         <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                          ${TIER_BENEFITS[BUSINESS_TIER.MOANA].price.split("/")[0].slice(1)}/mo
+                          ${TIER_BENEFITS[SUBSCRIPTION_TIER.MOANA].price.split("/")[0].slice(1)}/mo
                         </p>
                         <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                           <li>• Everything in Verified</li>
@@ -996,9 +996,9 @@ export default function BusinessPortal() {
                 <div className="space-y-5">
                   {businesses.map((b) => {
                     const tierStyles =
-                      b.subscription_tier === BUSINESS_TIER.MOANA
+                      b.subscription_tier === SUBSCRIPTION_TIER.MOANA
                         ? "bg-[#c9a84c]/14 text-[#0a1628] border border-[#c9a84c]/20"
-                        : b.subscription_tier === BUSINESS_TIER.MANA
+                        : b.subscription_tier === SUBSCRIPTION_TIER.MANA
                         ? "bg-[#00c4cc]/12 text-[#0d4f4f] border border-[#00c4cc]/20"
                         : "bg-gray-100/80 text-gray-600 border border-gray-200";
 
@@ -1261,7 +1261,7 @@ export default function BusinessPortal() {
               <h2 className="font-bold text-[#0a1628] mb-2">Business Tools</h2>
               <p className="text-slate-600 text-sm mb-6">Available to Moana subscribers.</p>
 
-              {businesses.some((b) => b.subscription_tier === BUSINESS_TIER.MOANA) ? (
+              {businesses.some((b) => b.subscription_tier === SUBSCRIPTION_TIER.MOANA) ? (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   <Link
                     href={createPageUrl("InvoiceGenerator")}

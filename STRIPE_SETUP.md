@@ -1,7 +1,7 @@
 # Stripe Integration Setup Guide
 
 ## Overview
-Pacific Market now has full Stripe checkout integration for subscription upgrades. Users can upgrade to "Mana" ($9/month) or "Moana" ($29/month) tiers directly from the pricing page or business portal.
+Pacific Market now has full Stripe checkout integration for subscription upgrades. Users can upgrade to "Mana" ($4.99/month) or "Moana" ($29/month) tiers directly from the pricing page or business portal.
 
 ## Environment Variables
 
@@ -13,7 +13,7 @@ STRIPE_SECRET_KEY=sk_test_...  # Your Stripe secret key
 STRIPE_PUBLISHABLE_KEY=pk_test_...  # Your Stripe publishable key
 
 # Stripe Price IDs (create these in Stripe Dashboard)
-STRIPE_PRICE_MANA=price_...  # $9/month Mana tier
+STRIPE_PRICE_MANA=price_...  # $4.99/month Mana tier
 STRIPE_PRICE_MOANA=price_...  # $29/month Moana tier
 
 # Existing URLs

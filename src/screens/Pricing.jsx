@@ -4,13 +4,13 @@ import { CheckCircle, X, Shield, ArrowRight, Waves, Compass, Sparkles, ChevronDo
 import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { BUSINESS_TIER, getTierDisplayName } from "@/constants/unifiedConstants";
+import { SUBSCRIPTION_TIER, getTierDisplayName } from "@/constants/unifiedConstants";
 import { TIER_BENEFITS } from "@/constants/tierBenefits";
 import HeroRegistry from "../components/shared/HeroRegistry";
 
 const plans = [
   {
-    id: BUSINESS_TIER.VAKA,
+    id: SUBSCRIPTION_TIER.VAKA,
     name: TIER_BENEFITS.vaka.label,
     subtitle: TIER_BENEFITS.vaka.subtitle,
     price: TIER_BENEFITS.vaka.price,
@@ -29,7 +29,7 @@ const plans = [
     features: TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
   },
   {
-    id: BUSINESS_TIER.MANA,
+    id: SUBSCRIPTION_TIER.MANA,
     name: TIER_BENEFITS.mana.label,
     subtitle: TIER_BENEFITS.mana.subtitle,
     price: TIER_BENEFITS.mana.price,
@@ -50,7 +50,7 @@ const plans = [
     ],
   },
   {
-    id: BUSINESS_TIER.MOANA,
+    id: SUBSCRIPTION_TIER.MOANA,
     name: TIER_BENEFITS.moana.label,
     subtitle: TIER_BENEFITS.moana.subtitle,
     price: TIER_BENEFITS.moana.price,
@@ -78,7 +78,7 @@ export default function Pricing() {
   const [user, setUser] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [processingPlan, setProcessingPlan] = useState(null);
-  const [mobileComparePlan, setMobileComparePlan] = useState(BUSINESS_TIER.MOANA);
+  const [mobileComparePlan, setMobileComparePlan] = useState(SUBSCRIPTION_TIER.MOANA);
   const { createCheckoutSession, error } = useStripeCheckout();
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function Pricing() {
 
   const handleUpgrade = async (planId) => {
     if (!user) {
-      if (planId === BUSINESS_TIER.VAKA) {
+      if (planId === SUBSCRIPTION_TIER.VAKA) {
         // Route to signup for Vaka tier
         window.location.href = createPageUrl("BusinessLogin");
         return;
@@ -115,7 +115,7 @@ export default function Pricing() {
     setProcessingPlan(planId);
 
     try {
-      if (planId === BUSINESS_TIER.VAKA) {
+      if (planId === SUBSCRIPTION_TIER.VAKA) {
         // Vaka is free, just show modal or handle differently
         setShowModal(true);
       } else {
@@ -161,7 +161,7 @@ export default function Pricing() {
               A Pacific business journey
             </p>
             <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-[#0a1628]">
-              {getTierDisplayName(BUSINESS_TIER.VAKA)} → {getTierDisplayName(BUSINESS_TIER.MANA)} → {getTierDisplayName(BUSINESS_TIER.MOANA)}
+              {getTierDisplayName(SUBSCRIPTION_TIER.VAKA)} → {getTierDisplayName(SUBSCRIPTION_TIER.MANA)} → {getTierDisplayName(SUBSCRIPTION_TIER.MOANA)}
             </h2>
             <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base leading-6 text-slate-600">
               Begin the journey, strengthen your presence, then expand your reach.
@@ -171,7 +171,7 @@ export default function Pricing() {
           <div className="grid gap-6 lg:grid-cols-3 items-stretch">
             {plans.map((plan) => {
               const Icon = plan.icon;
-              const isMoana = plan.id === BUSINESS_TIER.MOANA;
+              const isMoana = plan.id === SUBSCRIPTION_TIER.MOANA;
 
               return (
                 <div key={plan.id} className={`relative ${isMoana ? "lg:-mt-3" : ""}`}>
@@ -192,18 +192,18 @@ export default function Pricing() {
                       <div className="flex items-center gap-3">
                         <div
                           className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
-                            plan.id === BUSINESS_TIER.VAKA
+                            plan.id === SUBSCRIPTION_TIER.VAKA
                               ? "bg-[#0a1628]/5"
-                              : plan.id === BUSINESS_TIER.MANA
+                              : plan.id === SUBSCRIPTION_TIER.MANA
                               ? "bg-white/10"
                               : "bg-white/40"
                           }`}
                         >
                           <Icon
                             className={`w-5 h-5 ${
-                              plan.id === BUSINESS_TIER.MANA
+                              plan.id === SUBSCRIPTION_TIER.MANA
                                 ? "text-white"
-                                : plan.id === BUSINESS_TIER.MOANA
+                                : plan.id === SUBSCRIPTION_TIER.MOANA
                                 ? "text-[#0a1628]"
                                 : "text-[#0a1628]"
                             }`}
@@ -213,9 +213,9 @@ export default function Pricing() {
                           <p className={`text-base sm:text-lg font-bold ${plan.accent}`}>{plan.name}</p>
                           <p
                             className={`text-[11px] sm:text-xs ${
-                              plan.id === BUSINESS_TIER.MANA
+                              plan.id === SUBSCRIPTION_TIER.MANA
                                 ? "text-white/80"
-                                : plan.id === BUSINESS_TIER.MOANA
+                                : plan.id === SUBSCRIPTION_TIER.MOANA
                                 ? "text-[#0a1628]/70"
                                 : "text-slate-500"
                             }`}
@@ -230,9 +230,9 @@ export default function Pricing() {
                         {plan.period && (
                           <span
                             className={`pb-1 text-sm ${
-                              plan.id === BUSINESS_TIER.MANA
+                              plan.id === SUBSCRIPTION_TIER.MANA
                                 ? "text-white/80"
-                                : plan.id === BUSINESS_TIER.MOANA
+                                : plan.id === SUBSCRIPTION_TIER.MOANA
                                 ? "text-[#0a1628]/70"
                                 : "text-slate-500"
                             }`}
@@ -262,7 +262,7 @@ export default function Pricing() {
                             <li key={item} className="flex items-start gap-2.5">
                               <CheckCircle
                                 className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                                  plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                                  plan.id === SUBSCRIPTION_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
                                 }`}
                               />
                               <span className="text-[13px] sm:text-sm text-slate-700">{item}</span>
@@ -274,9 +274,9 @@ export default function Pricing() {
                       <div className="mt-auto border-t border-slate-200 pt-5 sm:pt-6">
                         <button
                           onClick={() => handleUpgrade(plan.id)}
-                          disabled={processingPlan !== null || (plan.id === BUSINESS_TIER.VAKA && user)}
+                          disabled={processingPlan !== null || (plan.id === SUBSCRIPTION_TIER.VAKA && user)}
                           className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition min-h-[44px] ${
-                            processingPlan !== null || (plan.id === BUSINESS_TIER.VAKA && user)
+                            processingPlan !== null || (plan.id === SUBSCRIPTION_TIER.VAKA && user)
                               ? "opacity-60 cursor-not-allowed bg-gray-100 text-gray-500 border border-gray-200"
                               : plan.ctaClass
                           }`}
@@ -286,7 +286,7 @@ export default function Pricing() {
                               <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                               Processing...
                             </>
-                          ) : plan.id === BUSINESS_TIER.VAKA && user ? (
+                          ) : plan.id === SUBSCRIPTION_TIER.VAKA && user ? (
                             <>
                               Current Plan
                               <CheckCircle className="w-4 h-4" />
@@ -326,9 +326,9 @@ export default function Pricing() {
             {plans.map((plan) => {
               const isOpen = mobileComparePlan === plan.id;
               const accent =
-                plan.id === BUSINESS_TIER.MOANA
+                plan.id === SUBSCRIPTION_TIER.MOANA
                   ? "text-[#c9a84c]"
-                  : plan.id === BUSINESS_TIER.MANA
+                  : plan.id === SUBSCRIPTION_TIER.MANA
                   ? "text-[#0d4f4f]"
                   : "text-[#0a1628]";
 
@@ -359,7 +359,7 @@ export default function Pricing() {
                           <li key={feature.label} className="flex items-start gap-2 text-xs text-slate-700">
                             <CheckCircle
                               className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                                plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                                plan.id === SUBSCRIPTION_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
                               }`}
                             />
                             <span>{feature.label}</span>
@@ -427,7 +427,7 @@ export default function Pricing() {
                           {plan.features[i]?.included ? (
                             <CheckCircle
                               className={`mx-auto h-4 w-4 ${
-                                plan.id === BUSINESS_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                                plan.id === SUBSCRIPTION_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
                               }`}
                             />
                           ) : (

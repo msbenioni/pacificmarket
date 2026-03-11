@@ -5,7 +5,7 @@ import { createPageUrl } from "@/utils";
 import { getUserBusinesses } from "@/lib/supabase/queries/businesses";
 import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
-import { BUSINESS_TIER } from "@/constants/unifiedConstants";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import QRCode from 'qrcode';
 
 export default function QRCodeGenerator() {

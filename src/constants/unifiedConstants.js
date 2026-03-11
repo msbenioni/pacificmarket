@@ -118,10 +118,16 @@ export const BUSINESS_STATUS = {
   REJECTED: 'rejected',
 };
 
-export const BUSINESS_TIER = {
+export const SUBSCRIPTION_TIER = {
   VAKA: 'vaka',
   MANA: 'mana', 
   MOANA: 'moana',
+};
+
+// Stripe price lookup keys (must match Stripe Dashboard)
+export const STRIPE_PRICE_LOOKUP_KEYS = {
+  MANA: 'price_mana',
+  MOANA: 'price_moana',
 };
 
 export const getTierDisplayName = (tier) => {
