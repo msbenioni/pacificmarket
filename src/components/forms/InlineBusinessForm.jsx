@@ -11,7 +11,7 @@ const InlineBusinessForm = ({
   onSave,
   onCancel,
   saving = false,
-  mode = "create", // "create" or "edit"
+  mode = "create",
 }) => {
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -20,7 +20,7 @@ const InlineBusinessForm = ({
     }));
   };
 
-  const handleFileUpload = async (event, type) => {
+  const handleFileUpload = (event, type) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -33,7 +33,9 @@ const InlineBusinessForm = ({
           logo_url: tempUrl,
           logo_file: file,
         }));
-      } else if (type === "banner") {
+      }
+
+      if (type === "banner") {
         setFormData((prev) => ({
           ...prev,
           banner_url: tempUrl,
@@ -52,7 +54,9 @@ const InlineBusinessForm = ({
         logo_url: "",
         logo_file: null,
       }));
-    } else if (type === "banner") {
+    }
+
+    if (type === "banner") {
       setFormData((prev) => ({
         ...prev,
         banner_url: "",
@@ -65,7 +69,7 @@ const InlineBusinessForm = ({
   const bannerInputId = `${mode}-banner-upload-${formData?.id || "new"}`;
 
   const handleSubmit = (e) => {
-    e?.preventDefault?.();
+    e.preventDefault();
     onSave();
   };
 
@@ -75,7 +79,9 @@ const InlineBusinessForm = ({
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-base font-semibold text-[#0a1628]">{title}</h3>
-            <p className="text-sm text-gray-500">Review and update the business details inline.</p>
+            <p className="text-sm text-gray-500">
+              Review and update the business details inline.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -98,10 +104,11 @@ const InlineBusinessForm = ({
           </div>
         </div>
 
-        {/* Basic Information */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Name *</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Business Name *
+            </label>
             <input
               type="text"
               value={formData?.name || ""}
@@ -112,7 +119,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Handle</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Business Handle
+            </label>
             <input
               type="text"
               value={formData?.business_handle || ""}
@@ -122,9 +131,10 @@ const InlineBusinessForm = ({
             />
           </div>
 
-          
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Name</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Contact Name
+            </label>
             <input
               type="text"
               value={formData?.contact_name || ""}
@@ -134,10 +144,11 @@ const InlineBusinessForm = ({
           </div>
         </div>
 
-        {/* Descriptions */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Short Description</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Short Description
+            </label>
             <textarea
               rows={3}
               value={formData?.short_description || ""}
@@ -149,7 +160,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Full Description</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Full Description
+            </label>
             <textarea
               rows={4}
               value={formData?.description || ""}
@@ -160,18 +173,17 @@ const InlineBusinessForm = ({
           </div>
         </div>
 
-        {/* Logo and Banner Upload */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Logo</label>
             <div className="flex items-start space-x-4">
               {formData?.logo_url ? (
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-2xl border-2 border-white shadow-md overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                  <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-white bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] shadow-md">
                     <img
                       src={formData.logo_url}
                       alt="Logo preview"
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <button
@@ -183,10 +195,11 @@ const InlineBusinessForm = ({
                   </button>
                 </div>
               ) : (
-                <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                  <span className="text-xs text-gray-400 text-center">No logo</span>
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50">
+                  <span className="text-center text-xs text-gray-400">No logo</span>
                 </div>
               )}
+
               <div>
                 <input
                   type="file"
@@ -203,21 +216,25 @@ const InlineBusinessForm = ({
                   Upload Logo
                 </label>
                 <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</p>
-                <p className="mt-1 text-xs text-gray-400">Logo will be displayed as 64x64px square on profile</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  Logo will be displayed as 64x64px square on profile
+                </p>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Banner Image</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Banner Image
+            </label>
             <div className="flex items-start space-x-4">
               {formData?.banner_url ? (
                 <div className="relative">
-                  <div className="w-48 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                  <div className="h-20 w-48 overflow-hidden rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
                     <img
                       src={formData.banner_url}
                       alt="Banner preview"
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <button
@@ -229,10 +246,11 @@ const InlineBusinessForm = ({
                   </button>
                 </div>
               ) : (
-                <div className="w-48 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                  <span className="text-xs text-gray-400 text-center">No banner</span>
+                <div className="flex h-20 w-48 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
+                  <span className="text-center text-xs text-gray-400">No banner</span>
                 </div>
               )}
+
               <div>
                 <input
                   type="file"
@@ -249,16 +267,19 @@ const InlineBusinessForm = ({
                   Upload Banner
                 </label>
                 <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 5MB</p>
-                <p className="mt-1 text-xs text-gray-400">Banner will be displayed as full-width header on profile</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  Banner will be displayed as full-width header on profile
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Contact Information */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Email</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Contact Email
+            </label>
             <input
               type="email"
               value={formData?.contact_email || ""}
@@ -268,7 +289,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Contact Phone</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Contact Phone
+            </label>
             <input
               type="tel"
               value={formData?.contact_phone || ""}
@@ -289,7 +312,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Hours</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Business Hours
+            </label>
             <input
               type="text"
               value={formData?.business_hours || ""}
@@ -300,10 +325,11 @@ const InlineBusinessForm = ({
           </div>
         </div>
 
-        {/* Location Information */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Country *</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Country *
+            </label>
             <select
               value={formData?.country || ""}
               onChange={(e) => handleInputChange("country", e.target.value)}
@@ -320,7 +346,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Industry *</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Industry *
+            </label>
             <select
               value={formData?.industry || ""}
               onChange={(e) => handleInputChange("industry", e.target.value)}
@@ -347,7 +375,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Suburb</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Suburb
+            </label>
             <input
               type="text"
               value={formData?.suburb || ""}
@@ -357,7 +387,6 @@ const InlineBusinessForm = ({
           </div>
         </div>
 
-        {/* Address */}
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Address</label>
           <input
@@ -371,7 +400,9 @@ const InlineBusinessForm = ({
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">State/Region</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              State/Region
+            </label>
             <input
               type="text"
               value={formData?.state_region || ""}
@@ -381,7 +412,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Postal Code</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Postal Code
+            </label>
             <input
               type="text"
               value={formData?.postal_code || ""}
@@ -391,7 +424,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Year Started</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Year Started
+            </label>
             <input
               type="number"
               value={formData?.year_started ?? ""}
@@ -407,10 +442,11 @@ const InlineBusinessForm = ({
           </div>
         </div>
 
-        {/* Business Details */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Business Structure</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Business Structure
+            </label>
             <select
               value={formData?.business_structure || ""}
               onChange={(e) => handleInputChange("business_structure", e.target.value)}
@@ -427,7 +463,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Subscription Tier</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Subscription Tier
+            </label>
             <select
               value={formData?.subscription_tier || "vaka"}
               onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
@@ -453,7 +491,9 @@ const InlineBusinessForm = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Team Size</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Team Size
+            </label>
             <select
               value={formData?.team_size_band || ""}
               onChange={(e) => handleInputChange("team_size_band", e.target.value)}
@@ -471,9 +511,10 @@ const InlineBusinessForm = ({
           </div>
         </div>
 
-        {/* Cultural Identity */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Cultural Identity</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Cultural Identity
+          </label>
           <textarea
             rows={3}
             value={formData?.cultural_identity || ""}
@@ -483,9 +524,10 @@ const InlineBusinessForm = ({
           />
         </div>
 
-        {/* Languages Spoken */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Languages Spoken</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Languages Spoken
+          </label>
           <input
             type="text"
             value={Array.isArray(formData?.languages_spoken) ? formData.languages_spoken.join(", ") : ""}
@@ -503,7 +545,6 @@ const InlineBusinessForm = ({
           />
         </div>
 
-        {/* Admin Toggles */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
             <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
