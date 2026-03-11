@@ -91,7 +91,7 @@ async function updateBusinessSubscription(subscription) {
       .from('businesses')
       .update({ 
         subscription_tier: tier,
-        updated_date: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
       .eq('id', businessId);
 
@@ -122,7 +122,7 @@ async function downgradeBusinessToVaka(subscription) {
       .from('businesses')
       .update({ 
         subscription_tier: 'vaka',
-        updated_date: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
       .eq('id', businessId);
 

@@ -48,7 +48,7 @@
 - ✅ Fixed field mismatches:
   - `website` → `contact_website`
   - `tier` → `subscription_tier`
-  - `updated_date` → `updated_at`
+  - `updated_at` → `updated_at`
 - ✅ Replaced manual query with `getBusinessById()`
 - ✅ Added business helper imports
 - ✅ Fixed social links handling
@@ -81,7 +81,7 @@
    - Fixed in BusinessProfile.jsx
    - Helper function: `getBusinessTier()`
 
-3. **`updated_date` → `updated_at`** ✅
+3. **`updated_at` → `updated_at`** ✅
    - Fixed in fetchExtras function
    - Consistent timestamp usage
 
@@ -90,7 +90,7 @@
 // Before (inconsistent)
 business.website
 business.tier
-business.updated_date
+business.updated_at
 
 // After (consistent)
 getBusinessWebsite(business)

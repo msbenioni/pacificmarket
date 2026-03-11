@@ -837,10 +837,10 @@ export default function DetailedBusinessForm({
                       <span className="font-medium text-amber-900 break-words">{new Date(form.created_date).toLocaleDateString()}</span>
                     </div>
                   )}
-                  {form.updated_date && (
+                  {form.updated_at && (
                     <div className="flex flex-col gap-1 text-sm">
                       <span className="text-amber-700">Last Updated</span>
-                      <span className="font-medium text-amber-900 break-words">{new Date(form.updated_date).toLocaleDateString()}</span>
+                      <span className="font-medium text-amber-900 break-words">{new Date(form.updated_at).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>

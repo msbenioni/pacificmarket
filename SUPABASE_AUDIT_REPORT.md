@@ -140,9 +140,9 @@ id, email, full_name, role, display_name, created_at, updated_at
    - **Code:** Some places check `visibility_tier === 'homepage'` (Home.jsx)
    - **Code:** Other places use `subscription_tier` for visibility logic
 
-4. **updated_date vs updated_at**
+4. **updated_at vs updated_at**
    - **Database:** `updated_at`
-   - **Code:** Some places reference `updated_date`
+   - **Code:** Some places reference `updated_at`
    - **Impact:** Update failures
 
 ### **Medium Mismatches:**
@@ -153,7 +153,7 @@ id, email, full_name, role, display_name, created_at, updated_at
 
 6. **Inconsistent timestamp usage**
    - **Database:** `created_at`, `updated_at`
-   - **Code:** Mixed use of `created_date`, `updated_date`
+   - **Code:** Mixed use of `created_date`, `updated_at`
 
 ---
 

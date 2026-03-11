@@ -620,7 +620,7 @@ export default function AdminDashboard() {
         .from("businesses")
         .update({ 
           status: newStatus,
-          updated_date: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq("id", business.id);
 
@@ -719,7 +719,7 @@ export default function AdminDashboard() {
       const { id, ...updateData } = formData;
       const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
         if (
-          !["updated_date", "created_date", "verification_source", "contact_website"].includes(key) &&
+          !["updated_at", "created_date", "verification_source", "contact_website"].includes(key) &&
           updateData[key] !== ""
         ) {
           acc[key] = updateData[key];
@@ -729,7 +729,7 @@ export default function AdminDashboard() {
 
       const { error } = await supabase
         .from("businesses")
-        .update({ ...safeUpdateData, updated_date: new Date().toISOString() })
+        .update({ ...safeUpdateData, updated_at: new Date().toISOString() })
         .eq("id", id);
 
       if (error) throw error;
@@ -760,7 +760,7 @@ export default function AdminDashboard() {
         status: BUSINESS_STATUS.ACTIVE,
         verified: true,
         created_date: new Date().toISOString(),
-        updated_date: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       const { data, error } = await supabase
@@ -769,7 +769,7 @@ export default function AdminDashboard() {
         .select(`
           id, name, business_handle, description, industry, country, city, 
           status, visibility_tier, verified, claimed, contact_email, contact_website,
-          logo_url, owner_user_id, created_date, updated_date, subscription_tier
+          logo_url, owner_user_id, created_date, updated_at, subscription_tier
         `)
         .single();
 

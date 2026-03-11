@@ -18,6 +18,6 @@ SELECT
     created_at,
     created_date,
     updated_at,
-    updated_date
+    updated_at
 FROM claim_requests 
 LIMIT 5;

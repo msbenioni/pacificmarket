@@ -187,7 +187,7 @@ export default function BusinessPortal() {
       console.log("Update data before filtering:", updateData);
       
       const safeUpdateData = Object.keys(updateData).reduce((acc, key) => {
-        if (!['updated_date', 'created_date', 'verification_source', 'contact_website'].includes(key)) {
+        if (!['updated_at', 'created_date', 'verification_source', 'contact_website'].includes(key)) {
           acc[key] = updateData[key];
         }
         return acc;
@@ -320,7 +320,7 @@ export default function BusinessPortal() {
             industry, social_links, business_hours, business_structure,
             year_started, status, verified, claimed, claimed_at, claimed_by,
             visibility_tier, homepage_featured, source, profile_completeness,
-            referral_code, owner_user_id, created_at, updated_date
+            referral_code, owner_user_id, created_at, updated_at
           `)
           .eq('id', businessId)
           .eq('owner_user_id', existingProfile.id)
@@ -455,7 +455,7 @@ export default function BusinessPortal() {
           .from("business_insights_snapshots")
           .update({
             ...insightsData,
-            updated_date: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           })
           .eq("id", existing.id)
           .eq("user_id", insightsData.user_id)

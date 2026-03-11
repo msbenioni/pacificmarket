@@ -84,7 +84,7 @@ function sanitizeBusinessPayload(formData) {
   const {
     id,
     created_date,
-    updated_date,
+    updated_at,
     verification_source,
     logo_file,
     banner_file,
@@ -709,6 +709,18 @@ export default function AdminDashboard() {
           }
         } catch (uploadError) {
           console.error("Error uploading banner:", uploadError);
+          toast.error("Failed to upload banner. Using existing banner URL.");
+        }
+      }
+
+      const payload = {
+        ...updatedData,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase.from("businesses").update(payload).eq("id", id);
+
+      if (error) throw error;
 
       setBusinesses((prev) => prev.map((b) => (b.id === id ? { ...b, ...payload } : b)));
       cancelEditingBusiness();
@@ -738,7 +750,7 @@ export default function AdminDashboard() {
         verified: formData.verified ?? true,
         claimed: formData.claimed ?? false,
         created_date: new Date().toISOString(),
-        updated_date: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       if (formData.logo_file) {
@@ -795,7 +807,7 @@ export default function AdminDashboard() {
         .select(`
           id, name, business_handle, description, industry, country, city,
           status, visibility_tier, verified, claimed, contact_email, contact_website,
-          logo_url, banner_url, owner_user_id, created_date, updated_date, subscription_tier
+          logo_url, banner_url, owner_user_id, created_date, updated_at, subscription_tier
         `)
         .single();
 
@@ -1577,6 +1589,7 @@ export default function AdminDashboard() {
                                         onSave={() => saveBusiness(draftBusiness)}
                                         onCancel={cancelEditingBusiness}
                                         saving={savingEdit}
+                                        mode="edit"
                                       />
                                     </td>
                                   </tr>

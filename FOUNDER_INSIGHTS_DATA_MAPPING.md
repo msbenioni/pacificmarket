@@ -108,7 +108,7 @@ result = await supabase
   .from("business_insights_snapshots")
   .update({
     ...insightsData,
-    updated_date: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   })
 ```
 
