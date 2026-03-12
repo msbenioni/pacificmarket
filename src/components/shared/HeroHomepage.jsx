@@ -6,15 +6,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function HeroHomepage({
-  badge = "Global Pacific Registry",
-  title = "Our Ancestors Built Economies. We're Continuing That Legacy.",
+  badge = "Global Pacific Discovery Network",
+  title = "Connect. Discover. Grow Together.",
   mobileTitle = title,
   subtitle = "",
-  description = "Pacific enterprise has always existed — in trade, craftsmanship, service, agriculture, leadership, and exchange. Pacific Market brings that legacy into a modern global registry designed to strengthen representation, visibility, and opportunity for Pacific-owned businesses worldwide.",
+  description = "Pacific Market connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities.",
   mobileDescription = description,
-  primaryCtaText = "List My Business",
+  primaryCtaText = "Join the Network",
   primaryCtaHref = createPageUrl("BusinessLogin") + "?mode=signup",
-  secondaryCtaText = "Explore the Registry",
+  secondaryCtaText = "Discover Businesses",
   secondaryCtaHref = createPageUrl("Registry")
 }) {
   const router = useRouter();

@@ -32,30 +32,30 @@ export default function Home() {
   const values = [
     {
       icon: Shield,
-      title: "Structured Representation",
+      title: "Connected Discovery",
       description:
-        "More than a basic listing — Pacific businesses are presented in a way that feels credible, discoverable, and worthy of the value they bring.",
+        "More than search — Pacific businesses are part of an interconnected network that makes meaningful discovery and collaboration possible.",
       color: "text-[#00c4cc]"
     },
     {
       icon: Globe,
-      title: "Global Pacific Visibility",
+      title: "Global Pacific Reach",
       description:
-        "From Aotearoa to the wider world, Pacific-owned businesses can be seen as part of a connected global ecosystem of enterprise, service, and innovation.",
+        "From local communities to global markets, Pacific-owned businesses can reach customers and partners who value authentic Pacific enterprise.",
       color: "text-[#c9a84c]"
     },
     {
       icon: CheckCircle,
-      title: "Trust Through Verification",
+      title: "Trust Through Connection",
       description:
-        "Verified listings help strengthen confidence in ownership, legitimacy, and professionalism — for customers, communities, and future partners.",
+        "Verified businesses build stronger relationships through transparent profiles, real connections, and community trust.",
       color: "text-[#00c4cc]"
     },
     {
       icon: BookOpen,
-      title: "A Living Record of Pacific Enterprise",
+      title: "Living Pacific Network",
       description:
-        "Pacific identity, language, and origin are captured with care — creating a richer record of who we are, what we build, and how we contribute.",
+        "Pacific identity, innovation, and enterprise flow through a dynamic network that grows stronger with every business that joins.",
       color: "text-[#c9a84c]"
     },
   ];
@@ -64,15 +64,15 @@ export default function Home() {
     <div className="bg-[#f8f9fc]">
       {/* Hero */}
       <HeroHomepage
-        badge="Global Pacific Registry"
-        title="Our Ancestors Built Economies. We’re Continuing That Legacy."
-        mobileTitle="A global registry for Pacific-owned businesses."
+        badge="Global Pacific Discovery Network"
+        title="Connect. Discover. Grow Together."
+        mobileTitle="Discover Pacific businesses worldwide."
         subtitle=""
-        description="Pacific enterprise has always existed — in trade, craftsmanship, service, agriculture, leadership, and exchange. Pacific Market brings that legacy into a modern global registry designed to strengthen representation, visibility, and opportunity for Pacific-owned businesses worldwide."
-        mobileDescription="Showcase your business with trust, visibility, and pride. Pacific Market is built to represent Pacific enterprise worldwide."
-        primaryCtaText="List My Business"
+        description="Pacific Market connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities."
+        mobileDescription="Showcase your business with trust, visibility, and pride. Pacific Market is built to connect Pacific enterprise worldwide."
+        primaryCtaText="Join the Network"
         primaryCtaHref={createPageUrl("BusinessLogin") + "?mode=signup"}
-        secondaryCtaText="Explore the Registry"
+        secondaryCtaText="Discover Businesses"
         secondaryCtaHref={createPageUrl("Registry")}
       />
 
@@ -83,13 +83,13 @@ export default function Home() {
       <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-8 sm:mb-14">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628] mb-3 sm:mb-4">
-            Built to Represent Pacific Enterprise Properly
+            Built to Connect Pacific Enterprise Globally
           </h2>
           <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-6">
-            Pacific Market is more than a place to drop a business name. It is a structured registry designed to show the depth, legitimacy, and reach of Pacific-owned businesses across industries, countries, and communities.
+            Pacific Market is more than a directory — it's a living network that connects Pacific businesses with customers, partners, and opportunities across the globe. We make discovery meaningful and connections lasting.
           </p>
           <p className="text-xs font-semibold text-[#0a1628]/60 mt-3">
-            Built Pacific-led. Designed for visibility. Shaped for long-term impact.
+            Built Pacific-led. Designed for connection. Shaped for global impact.
           </p>
         </div>
 
@@ -168,10 +168,10 @@ export default function Home() {
             <div className="relative">
               <Award className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-                Represent Your Business with Pride
+                Connect Your Business to the Pacific Network
               </h2>
               <p className="text-sm sm:text-base text-slate-300 mb-7 sm:mb-8 max-w-2xl mx-auto leading-6">
-                Every business added to Pacific Market strengthens how Pacific enterprise is seen by the world. Join the registry, build your visibility, and help show that Pacific people are not only rich in culture — we are rich in capability, enterprise, and ambition too.
+                Every business added to Pacific Market strengthens our global network. Join the discovery platform, build your connections, and help show that Pacific people are not only rich in culture — we are rich in capability, enterprise, and ambition too.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -179,14 +179,14 @@ export default function Home() {
                   href={createPageUrl("BusinessLogin") + "?mode=signup"}
                   className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-8 py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
-                  List My Business <ArrowRight className="w-4 h-4" />
+                  Join the Network <ArrowRight className="w-4 h-4" />
                 </Link>
 
                 <Link
                   href={createPageUrl("Registry")}
                   className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
-                  Explore the Registry
+                  Discover Businesses
                 </Link>
               </div>
             </div>

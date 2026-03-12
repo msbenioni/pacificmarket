@@ -38,6 +38,7 @@ const fetchInsightsData = async () => {
     
     return combinedData;
   } catch (error) {
+    console.error('Error fetching insights data:', error);
     return [];
   }
 };
@@ -292,8 +293,10 @@ export default function Insights() {
   const totalTierCount = byTier.reduce((sum, tier) => sum + tier.value, 0);
   const byTierPercentage = totalTierCount > 0
     ? byTier.map(tier => ({
-    }))
-  : [];
+        label: tier.label,
+        value: Math.round((tier.value / totalTierCount) * 100)
+      }))
+    : [];
 
 // Business stage analysis (from business_insights)
 const byBusinessStage = BUSINESS_STAGE
@@ -302,20 +305,27 @@ const byBusinessStage = BUSINESS_STAGE
     value: insights.filter(i => i.business_stage === stage.value).length
   }));
 
-// Founder demographics (from founder_insights)
-const genderData = insights.reduce((acc, insight) => {
-  if (insight.gender && insight.source === 'founder') {
-    acc[insight.gender] = (acc[insight.gender] || 0) + 1;
-  }
-  return acc;
-}, {});
+// Check if we have any founder insights data
+const hasFounderData = insights.some(i => i.source === 'founder');
 
-const ageData = insights.reduce((acc, insight) => {
-  if (insight.age_range && insight.source === 'founder') {
-    acc[insight.age_range] = (acc[insight.age_range] || 0) + 1;
-  }
-  return acc;
-}, {});
+// Founder demographics (from founder_insights)
+const genderData = hasFounderData
+  ? insights.reduce((acc, insight) => {
+      if (insight.gender && insight.source === 'founder') {
+        acc[insight.gender] = (acc[insight.gender] || 0) + 1;
+      }
+      return acc;
+    }, {})
+  : {};
+
+const ageData = hasFounderData
+  ? insights.reduce((acc, insight) => {
+      if (insight.age_range && insight.source === 'founder') {
+        acc[insight.age_range] = (acc[insight.age_range] || 0) + 1;
+      }
+      return acc;
+    }, {})
+  : {};
 
 // Calculate founder experience (years as entrepreneur) - only from founder_insights
 const yearsEntrepreneurial = insights
@@ -812,7 +822,7 @@ const familyResponsibilityRate = insights.length > 0
               >
                 <div>
                   <p className={UI.sectionTitle}>Subscription Tiers</p>
-                  <p className={UI.sectionDesc}>Registry participation levels</p>
+                  <p className={UI.sectionDesc}>Network participation levels</p>
                 </div>
                 {openSections.tiers ? (
                   <ChevronUp className="w-4 h-4 text-[#0a1628]/60" />
@@ -821,10 +831,10 @@ const familyResponsibilityRate = insights.length > 0
                 )}
               </button>
               {openSections.tiers && (
-                <div className={`${UI.card} ${UI.cardInner}`}>
+                <div className={`${UI.card} ${UI.cardInner} overflow-hidden`}>
                   <h3 className={UI.sectionTitle}>Subscription Tiers</h3>
-                  <p className={UI.sectionDesc}>Business registry participation levels</p>
-                  <div className="mt-4">
+                  <p className={UI.sectionDesc}>Business network participation levels</p>
+                  <div className="mt-4 overflow-x-auto">
                     <HorizontalBar
                       title="Subscription Tiers"
                       data={byTierPercentage}
@@ -839,10 +849,10 @@ const familyResponsibilityRate = insights.length > 0
 
             {/* Subscription Tiers (desktop) */}
             <div className="hidden lg:block">
-              <div className={`${UI.card} ${UI.cardInner}`}>
+              <div className={`${UI.card} ${UI.cardInner} overflow-hidden`}>
                 <h3 className={UI.sectionTitle}>Subscription Tiers</h3>
-                <p className={UI.sectionDesc}>Business registry participation levels</p>
-                <div className="mt-4">
+                <p className={UI.sectionDesc}>Business network participation levels</p>
+                <div className="mt-4 overflow-x-auto">
                   <HorizontalBar
                     title="Subscription Tiers"
                     data={byTierPercentage}

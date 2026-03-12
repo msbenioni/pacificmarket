@@ -23,26 +23,26 @@ export default function About() {
   const principles = [
     {
       icon: Shield,
-      title: "Registry Standards",
-      desc: "A structured system designed for credibility, discoverability, and long-term value — not just a simple list of names.",
+      title: "Network Excellence",
+      desc: "A dynamic ecosystem designed for meaningful connections, not just listings — where discovery leads to real relationships.",
       tone: "text-[#00c4cc]",
     },
     {
       icon: BookOpen,
-      title: "Cultural Integrity",
-      desc: "Identity, language, and cultural context are treated with care so businesses are represented as people, not just data.",
+      title: "Cultural Connection",
+      desc: "Identity and culture flow through every connection, ensuring businesses are represented authentically and discovered meaningfully.",
       tone: "text-[#c9a84c]",
     },
     {
       icon: Globe,
-      title: "Global Visibility",
-      desc: "Pacific-owned businesses become easier to find, support, and recognise across countries, communities, and industries.",
+      title: "Global Reach",
+      desc: "Pacific businesses connect with global opportunities while maintaining their cultural roots and community values.",
       tone: "text-[#00c4cc]",
     },
     {
       icon: Users,
-      title: "Pacific-led leadership",
-      desc: "Built in Aotearoa and guided by Pacific values, with people, trust, and long-term community benefit at the centre.",
+      title: "Pacific-led Innovation",
+      desc: "Built by Pacific people, for Pacific enterprise — combining traditional values with modern network technology.",
       tone: "text-[#c9a84c]",
     },
   ];

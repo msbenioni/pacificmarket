@@ -90,8 +90,8 @@ export default function Registry() {
       {/* Hero — scrolls away with the page */}
       <HeroRegistry
         badge="Pacific Market"
-        title="Business Registry"
-        subtitle={loading ? "Loading..." : `${businesses.length} business${businesses.length !== 1 ? "es" : ""} registered`}
+        title="Business Network"
+        subtitle={loading ? "Loading..." : `${businesses.length} business${businesses.length !== 1 ? "es" : ""} in network`}
         description=""
         compact
       />
