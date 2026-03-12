@@ -197,15 +197,27 @@ export default function FounderInsightsAccordion({
     const fields = SECTION_FIELDS[sectionKey] || [];
     const payload = {
       user_id: user.id,
-      business_id: businessId ?? null,
       snapshot_year: new Date().getFullYear(),
       submitted_date: new Date().toISOString(),
-      submission_type: "section",
-      completion_status: "in_progress",
     };
 
+    // Only include founder-specific fields
+    const founderFields = [
+      'gender', 'age_range', 'years_entrepreneurial', 'entrepreneurial_background',
+      'businesses_founded', 'family_entrepreneurial_background', 'founder_role',
+      'founder_story', 'founder_motivation_array', 'pacific_identity', 'based_in_country',
+      'based_in_city', 'serves_pacific_communities', 'culture_influences_business',
+      'culture_influence_details', 'family_community_responsibilities_affect_business',
+      'responsibilities_impact_details', 'mentorship_access', 'mentorship_offering',
+      'barriers_to_mentorship', 'angel_investor_interest', 'investor_capacity',
+      'collaboration_interest', 'open_to_future_contact', 'goals_details',
+      'goals_next_12_months_array'
+    ];
+
     for (const field of fields) {
-      payload[field] = form[field];
+      if (founderFields.includes(field)) {
+        payload[field] = form[field];
+      }
     }
 
     return payload;
@@ -249,47 +261,42 @@ export default function FounderInsightsAccordion({
 
       const payload = {
         user_id: user.id,
-        business_id: businessId ?? null,
         snapshot_year: new Date().getFullYear(),
         submitted_date: new Date().toISOString(),
-        submission_type: "full",
-        completion_status: "completed",
-
+        
+        // Founder-specific fields only
         gender: form.gender,
         age_range: form.age_range,
         years_entrepreneurial: form.years_entrepreneurial,
+        entrepreneurial_background: form.entrepreneurial_background,
         businesses_founded: form.businesses_founded,
+        family_entrepreneurial_background: form.family_entrepreneurial_background,
         founder_role: form.founder_role,
-        founder_motivation_array: form.founder_motivation_array ?? [],
         founder_story: form.founder_story,
+        founder_motivation_array: form.founder_motivation_array ?? [],
 
+        // Pacific identity and culture
+        pacific_identity: form.pacific_identity ?? [],
+        based_in_country: form.based_in_country,
+        based_in_city: form.based_in_city,
         serves_pacific_communities: form.serves_pacific_communities,
         culture_influences_business: form.culture_influences_business,
         culture_influence_details: form.culture_influence_details,
-        family_community_responsibilities_affect_business:
-          form.family_community_responsibilities_affect_business,
+        family_community_responsibilities_affect_business: form.family_community_responsibilities_affect_business,
         responsibilities_impact_details: form.responsibilities_impact_details,
 
-        current_funding_source: form.current_funding_source,
-        investment_stage: form.investment_stage,
-        revenue_streams: form.revenue_streams ?? [],
-        financial_challenges: form.financial_challenges,
-        funding_amount_needed: form.funding_amount_needed,
-        funding_purpose: form.funding_purpose,
+        // Support and mentorship
+        mentorship_access: form.mentorship_access,
+        mentorship_offering: form.mentorship_offering,
+        barriers_to_mentorship: form.barriers_to_mentorship,
         angel_investor_interest: form.angel_investor_interest,
         investor_capacity: form.investor_capacity,
-
-        top_challenges: form.top_challenges ?? [],
-        support_needed_next: form.support_needed_next ?? [],
-
-        growth_stage: form.growth_stage,
-        goals_next_12_months_array: form.goals_next_12_months_array ?? [],
-        goals_details: form.goals_details,
-
-        community_impact_areas: form.community_impact_areas ?? [],
         collaboration_interest: form.collaboration_interest,
-        mentorship_offering: form.mentorship_offering,
         open_to_future_contact: form.open_to_future_contact,
+
+        // Goals (founder's personal goals)
+        goals_details: form.goals_details,
+        goals_next_12_months_array: form.goals_next_12_months_array ?? [],
       };
 
       await onSubmit(payload);

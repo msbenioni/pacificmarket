@@ -33,6 +33,7 @@ import {
 } from "@/constants/unifiedConstants";
 import InlineBusinessForm from "@/components/forms/InlineBusinessForm";
 import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
+import BusinessInsightsAccordion from "@/components/forms/BusinessInsightsAccordion";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import CancelClaimButton from "@/components/claims/CancelClaimButton";
@@ -129,7 +130,7 @@ export default function BusinessPortal() {
       setProfiles(profilesResult.data || []);
 
       const { data: snapshotData, error: snapshotError } = await supabase
-        .from("business_insights_snapshots")
+        .from("founder_insights")
         .select("*")
         .eq("user_id", u.id)
         .order("submitted_date", { ascending: false });
@@ -592,6 +593,63 @@ export default function BusinessPortal() {
     }
   };
 
+  const handleBusinessInsightsSubmit = async (insightsData) => {
+    setInsightsSubmitting(true);
+
+    try {
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+
+      const { data: existingData } = await supabase
+        .from("business_insights")
+        .select("*")
+        .eq("business_id", insightsData.business_id)
+        .eq("user_id", insightsData.user_id)
+        .single();
+
+      let result;
+
+      if (existingData?.id) {
+        result = await supabase
+          .from("business_insights")
+          .update({
+            ...insightsData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingData.id)
+          .select();
+      } else {
+        result = await supabase
+          .from("business_insights")
+          .insert({
+            ...insightsData,
+            submitted_date: new Date().toISOString(),
+          })
+          .select();
+      }
+
+      const { error } = result;
+      if (error) throw error;
+
+      await refetchPortalData();
+
+      toast({
+        title: "Saved",
+        description: "Your business insights were saved successfully.",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Error submitting business insights:", error);
+      toast({
+        title: "Save Failed",
+        description: `Failed to save insights: ${error.message || "Unknown error"}`,
+        variant: "error",
+      });
+    } finally {
+      setInsightsSubmitting(false);
+    }
+  };
+
   const handleFounderInsightsSubmit = async (insightsData) => {
     setInsightsSubmitting(true);
 
@@ -609,7 +667,7 @@ export default function BusinessPortal() {
 
       if (existing?.id) {
         result = await supabase
-          .from("business_insights_snapshots")
+          .from("founder_insights")
           .update({
             ...insightsData,
             updated_at: new Date().toISOString(),
@@ -619,7 +677,7 @@ export default function BusinessPortal() {
           .select();
       } else {
         result = await supabase
-          .from("business_insights_snapshots")
+          .from("founder_insights")
           .insert({
             ...insightsData,
             submitted_date: new Date().toISOString(),
@@ -1182,81 +1240,69 @@ export default function BusinessPortal() {
           )}
 
           {activeTab === "insights" && (
-            <div className="space-y-6">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <p className={portalUI.sectionKicker}>Founder Journey</p>
-                  <h2 className={portalUI.sectionTitle}>Share Your Founder Journey</h2>
-                  <p className={portalUI.sectionDesc}>
-                    Your responses help Pacific Market build a clearer understanding of founder experiences
-                    across Pacific communities. By identifying common challenges, growth patterns, and
-                    opportunities, we can highlight where founders need more visibility, tools, and practical support.
-                  </p>
-                </div>
-              </div>
+  <div className="space-y-6">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <p className={portalUI.sectionKicker}>Business Insights</p>
+        <h2 className={portalUI.sectionTitle}>Business Performance & Analytics</h2>
+        <p className={portalUI.sectionDesc}>
+          Capture founder and business insights to help build a stronger profile,
+          improve visibility, and unlock better support over time.
+        </p>
+      </div>
+    </div>
 
-              <div className="space-y-4">
-                <div className={`${portalUI.card} p-4 sm:p-8 mt-4`}>
-                  <FounderInsightsAccordion
-                    businessId={null}
-                    onSubmit={handleFounderInsightsSubmit}
-                    isLoading={insightsSubmitting}
-                    initialData={insightSnapshots[0]}
-                    onStart={() => setInsightsStarted(true)}
-                  />
-                </div>
-              </div>
+    <div className={`${portalUI.card} p-4 sm:p-8`}>
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-[#0a1628] mb-1">
+          Founder Insights
+        </h3>
+        <p className="text-sm text-gray-600">
+          Share your founder journey, goals, and business context.
+        </p>
+      </div>
 
-              <div className="rounded-[28px] border border-[#0d4f4f]/20 bg-gradient-to-r from-[#0d4f4f]/10 via-white to-[#00c4cc]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/12">
-                      <Users className="w-6 h-6 text-[#0d4f4f]" />
-                    </div>
+      <FounderInsightsAccordion
+        businessId={businesses[0]?.id ?? null}
+        onSubmit={handleFounderInsightsSubmit}
+        isLoading={insightsSubmitting}
+        initialData={insightSnapshots[0] || null}
+        onStart={() => setInsightsStarted(true)}
+      />
+    </div>
 
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
-                        Why We Collect This
-                      </p>
-                      <h3 className="mt-1 text-lg font-bold text-[#0a1628]">
-                        Turning founder insight into practical support
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        The more we understand founder experiences, the better we can spotlight patterns,
-                        gaps, and opportunities across Pacific business communities.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#0d4f4f]">Research</p>
-                    <p className="mt-1 text-sm font-semibold text-[#0a1628]">Shared founder insight</p>
-                    <p className="mt-2 text-xs text-slate-600">
-                      Build a clearer view of founder experiences across Pacific communities.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#00c4cc]">Support</p>
-                    <p className="mt-1 text-sm font-semibold text-[#0a1628]">Better support</p>
-                    <p className="mt-2 text-xs text-slate-600">
-                      Highlight where founders need more visibility, tools, and practical help.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#c9a84c]">Visibility</p>
-                    <p className="mt-1 text-sm font-semibold text-[#0a1628]">Stronger founder voice</p>
-                    <p className="mt-2 text-xs text-slate-600">
-                      Help strengthen the visibility of Pacific founders across the registry.
-                    </p>
-                  </div>
-                </div>
-              </div>
+    <div className="space-y-6">
+      {businesses.length === 0 ? (
+        <div className="bg-white/70 border border-dashed border-gray-200 rounded-2xl p-12 text-center">
+          <Users className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h3 className="font-semibold text-gray-600 mb-2">No businesses yet</h3>
+          <p className="text-slate-500 text-sm">
+            Add or claim a business first to complete business insights.
+          </p>
+        </div>
+      ) : (
+        businesses.map((business) => (
+          <div key={business.id} className={`${portalUI.card} p-4 sm:p-8`}>
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-[#0a1628] mb-1">
+                {business.name}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {getIndustryLabel(business.industry)} • {getCountryLabel(business.country)}
+              </p>
             </div>
-          )}
+
+            <BusinessInsightsAccordion
+              businessId={business.id}
+              onSubmit={handleBusinessInsightsSubmit}
+              isLoading={insightsSubmitting}
+            />
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+)}
 
           {activeTab === "tools" && (
             <div>
@@ -1474,6 +1520,7 @@ export default function BusinessPortal() {
           await refetchOnboardingStatus();
           await refetchPortalData();
         }}
+
       />
     </PortalShell>
   );

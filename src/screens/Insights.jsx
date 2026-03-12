@@ -7,22 +7,37 @@ import { getBusinessTier, getBusinessCountryDisplay, getBusinessIndustryDisplay 
 import { tally } from "@/lib/utils";
 import { BUSINESS_STATUS, BUSINESS_STAGE, BUSINESS_CHALLENGES, FOUNDER_MOTIVATIONS, COUNTRIES } from "@/constants/unifiedConstants";
 
-// Fetch insights data from the single source of truth
+// Fetch insights data from both founder and business insights tables
 const fetchInsightsData = async () => {
   try {
     const { getSupabase } = await import('../lib/supabase/client');
     const supabase = getSupabase();
     
-    const { data, error } = await supabase
-      .from('business_insights_snapshots')  // Use single source of truth
-      .select('*')
-      .order('submitted_date', { ascending: false })
-      .limit(100);  // Limit to recent insights for public view
+    // Fetch from both tables in parallel
+    const [founderResult, businessResult] = await Promise.all([
+      supabase
+        .from('founder_insights')
+        .select('*')
+        .order('submitted_date', { ascending: false})
+        .limit(100),
+      supabase
+        .from('business_insights')
+        .select('*')
+        .order('submitted_date', { ascending: false})
+        .limit(100)
+    ]);
     
-    if (error) throw error;
-    return data;
+    if (founderResult.error) throw founderResult.error;
+    if (businessResult.error) throw businessResult.error;
+    
+    // Combine both datasets for complete analytics
+    const combinedData = [
+      ...(founderResult.data || []).map(item => ({ ...item, source: 'founder' })),
+      ...(businessResult.data || []).map(item => ({ ...item, source: 'business' }))
+    ];
+    
+    return combinedData;
   } catch (error) {
-    console.error('Error fetching insights:', error);
     return [];
   }
 };
@@ -277,89 +292,101 @@ export default function Insights() {
   const totalTierCount = byTier.reduce((sum, tier) => sum + tier.value, 0);
   const byTierPercentage = totalTierCount > 0
     ? byTier.map(tier => ({
-        label: tier.label,
-        value: Math.round((tier.value / totalTierCount) * 100),
-      }))
-    : [];
-  
-  // Founder insights metrics
-  const byBusinessStage = BUSINESS_STAGE
-    .map(stage => ({
-      label: stage.label, 
-      value: insights.filter(i => i.growth_stage === stage.value).length
-    }));
-  
-  // Calculate founder experience (years as entrepreneur)
-  const yearsEntrepreneurial = insights
-    .map(i => i.years_entrepreneurial)
-    .filter(years => years && years !== "");
-  
-  const avgYearsInBusiness = yearsEntrepreneurial.length > 0 
-    ? Math.round(yearsEntrepreneurial.reduce((sum, years) => sum + parseInt(years), 0) / yearsEntrepreneurial.length)
-    : 0;
-
-  // Motivation analysis
-  const motivationKeywords = insights.reduce((acc, insight) => {
-    if (insight.founder_motivation_array && Array.isArray(insight.founder_motivation_array)) {
-      insight.founder_motivation_array.forEach(motivation => {
-        acc[motivation] = (acc[motivation] || 0) + 1;
-      });
-    }
-    return acc;
-  }, {});
-
-  // Challenges analysis
-  const allChallenges = insights.reduce((acc, insight) => {
-    if (insight.top_challenges && Array.isArray(insight.top_challenges)) {
-      insight.top_challenges.forEach(challenge => {
-        acc[challenge] = (acc[challenge] || 0) + 1;
-      });
-    }
-    return acc;
-  }, {});
-
-  const topChallenges = Object.entries(allChallenges)
-    .map(([challenge, count]) => ({ 
-      label: getChallengeLabel(challenge), 
-      value: count 
     }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
+  : [];
 
-  // Hiring intentions - using expansion_plans as proxy since hiring_intentions was removed
-  const hiringIntentionRate = insights.length > 0 
-    ? Math.round((insights.filter(i => i.expansion_plans).length / insights.length) * 100)
-    : 0;
+// Business stage analysis (from business_insights)
+const byBusinessStage = BUSINESS_STAGE
+  .map(stage => ({
+    label: stage.label, 
+    value: insights.filter(i => i.business_stage === stage.value).length
+  }));
 
-  // Gender and age demographics analysis
-  const genderData = insights.reduce((acc, insight) => {
-    if (insight.gender) {
-      acc[insight.gender] = (acc[insight.gender] || 0) + 1;
-    }
-    return acc;
-  }, {});
+// Founder demographics (from founder_insights)
+const genderData = insights.reduce((acc, insight) => {
+  if (insight.gender && insight.source === 'founder') {
+    acc[insight.gender] = (acc[insight.gender] || 0) + 1;
+  }
+  return acc;
+}, {});
 
-  const ageData = insights.reduce((acc, insight) => {
-    if (insight.age_range) {
-      acc[insight.age_range] = (acc[insight.age_range] || 0) + 1;
-    }
-    return acc;
-  }, {});
+const ageData = insights.reduce((acc, insight) => {
+  if (insight.age_range && insight.source === 'founder') {
+    acc[insight.age_range] = (acc[insight.age_range] || 0) + 1;
+  }
+  return acc;
+}, {});
 
-  // Family responsibilities analysis - using array data for specific breakdown
-  const familyResponsibilityData = insights.reduce((acc, insight) => {
-    if (insight.family_community_responsibilities_affect_business && Array.isArray(insight.family_community_responsibilities_affect_business)) {
-      insight.family_community_responsibilities_affect_business.forEach(responsibility => {
-        acc[responsibility] = (acc[responsibility] || 0) + 1;
-      });
-    }
-    return acc;
-  }, {});
+// Calculate founder experience (years as entrepreneur) - only from founder_insights
+const yearsEntrepreneurial = insights
+  .filter(i => i.source === 'founder')
+  .map(i => i.years_entrepreneurial)
+  .filter(years => years && years !== "");
 
-  const familyResponsibilityRate = insights.length > 0
-    ? Math.round((insights.filter(i => i.family_community_responsibilities_affect_business && i.family_community_responsibilities_affect_business.length > 0).length / insights.length) * 100)
-    : 0;
+const avgYearsInBusiness = yearsEntrepreneurial.length > 0 
+  ? Math.round(yearsEntrepreneurial.reduce((sum, years) => sum + parseInt(years), 0) / yearsEntrepreneurial.length)
+  : 0;
 
+// Motivation analysis - only from founder_insights
+const motivationKeywords = insights.reduce((acc, insight) => {
+  if (insight.founder_motivation_array && Array.isArray(insight.founder_motivation_array) && insight.source === 'founder') {
+    insight.founder_motivation_array.forEach(motivation => {
+      acc[motivation] = (acc[motivation] || 0) + 1;
+    });
+  }
+  return acc;
+}, {});
+
+// Challenges analysis - separate by source
+const founderChallenges = insights.reduce((acc, insight) => {
+  if (insight.top_challenges && Array.isArray(insight.top_challenges) && insight.source === 'founder') {
+    insight.top_challenges.forEach(challenge => {
+      acc[challenge] = (acc[challenge] || 0) + 1;
+    });
+  }
+  return acc;
+}, {});
+
+const businessChallenges = insights.reduce((acc, insight) => {
+  if (insight.top_challenges && Array.isArray(insight.top_challenges) && insight.source === 'business') {
+    insight.top_challenges.forEach(challenge => {
+      acc[challenge] = (acc[challenge] || 0) + 1;
+    });
+  }
+  return acc;
+}, {});
+
+// Combined challenges for overall view
+const allChallenges = insights.reduce((acc, insight) => {
+  if (insight.top_challenges && Array.isArray(insight.top_challenges)) {
+    insight.top_challenges.forEach(challenge => {
+      acc[challenge] = (acc[challenge] || 0) + 1;
+    });
+  }
+  return acc;
+}, {});
+
+const topChallenges = Object.entries(allChallenges)
+  .map(([challenge, count]) => ({ 
+    label: getChallengeLabel(challenge), 
+    value: count 
+  }))
+  .sort((a, b) => b.value - a.value)
+  .slice(0, 5);
+
+// Family responsibilities data
+const familyResponsibilityData = insights.reduce((acc, insight) => {
+  if (insight.family_community_responsibilities_affect_business && Array.isArray(insight.family_community_responsibilities_affect_business) && insight.source === 'founder') {
+    insight.family_community_responsibilities_affect_business.forEach(responsibility => {
+      acc[responsibility] = (acc[responsibility] || 0) + 1;
+    });
+  }
+  return acc;
+}, {});
+
+const familyResponsibilityRate = insights.length > 0
+  ? Math.round((insights.filter(i => i.family_community_responsibilities_affect_business && i.family_community_responsibilities_affect_business.length > 0).length / insights.length) * 100)
+  : 0;
   // Collaboration interest
   const collaborationRate = insights.length > 0
     ? Math.round((insights.filter(i => i.collaboration_interest).length / insights.length) * 100)

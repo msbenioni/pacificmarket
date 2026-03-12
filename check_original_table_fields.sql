@@ -1,0 +1,2 @@
+-- Check the second part of the query results
+-- This shows the original table has the founder fields we need
