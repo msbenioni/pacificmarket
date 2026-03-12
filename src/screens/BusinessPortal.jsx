@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { getUserBusinesses, deleteBusiness } from "@/lib/supabase/queries/businesses";
 import {
@@ -50,6 +51,7 @@ import { useToast } from "@/components/ui/toast/ToastProvider";
 import ReferralDashboard from "@/components/referrals/ReferralDashboard";
 
 export default function BusinessPortal() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
@@ -651,7 +653,7 @@ export default function BusinessPortal() {
     if (loading) return;
 
     if (!user) {
-      window.location.href = createPageUrl("Login");
+      router.push(createPageUrl("Login"));
       return;
     }
 

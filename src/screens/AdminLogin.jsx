@@ -8,6 +8,7 @@ import PortalShell from "@/components/portal/PortalShell";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function AdminLogin() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,7 +59,7 @@ export default function AdminLogin() {
       
       // Redirect to admin dashboard after successful login
       setTimeout(() => {
-        window.location.href = createPageUrl("AdminDashboard");
+        router.push(createPageUrl("AdminDashboard"));
       }, 1500);
 
     } catch (err) {

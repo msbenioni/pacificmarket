@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { 
@@ -32,6 +33,7 @@ import BusinessGallery from "@/components/profile/BusinessGallery";
 import ProductsServices from "@/components/profile/ProductsServices";
 
 export default function BusinessProfile() {
+  const router = useRouter();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -106,7 +108,7 @@ export default function BusinessProfile() {
   };
 
   const handleClaim = () => {
-    window.location.href = `${createPageUrl("BusinessLogin")}?business=${business.id}&name=${encodeURIComponent(business.name)}`;
+    router.push(`${createPageUrl("BusinessLogin")}?business=${business.id}&name=${encodeURIComponent(business.name)}`);
   };
 
   if (loading) {

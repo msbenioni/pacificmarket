@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
 import toast from "react-hot-toast";
@@ -428,6 +429,7 @@ function InsightMobileCard({ insight }) {
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
   const [dashboardLoading, setDashboardLoading] = useState(true);
@@ -884,7 +886,7 @@ export default function AdminDashboard() {
           <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Authentication Required</h2>
           <p className="mb-6 text-sm text-gray-500">Please sign in to access this page.</p>
           <button
-            onClick={() => (window.location.href = "/BusinessLogin")}
+            onClick={() => router.push("/BusinessLogin")}
             className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1a6b6b]"
           >
             Sign In
@@ -904,7 +906,7 @@ export default function AdminDashboard() {
             Admin access required to view this page. Your account does not have admin privileges.
           </p>
           <button
-            onClick={() => (window.location.href = "/")}
+            onClick={() => router.push("/")}
             className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1a6b6b]"
           >
             Return Home

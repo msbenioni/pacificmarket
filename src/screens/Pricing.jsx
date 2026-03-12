@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { CheckCircle, X, Shield, ArrowRight, Waves, Compass, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -74,6 +75,7 @@ const plans = [
 ];
 
 export default function Pricing() {
+  const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [user, setUser] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
@@ -105,10 +107,10 @@ export default function Pricing() {
     if (!user) {
       if (planId === SUBSCRIPTION_TIER.VAKA) {
         // Route to signup for Vaka tier
-        window.location.href = createPageUrl("BusinessLogin");
+        router.push(createPageUrl("BusinessLogin"));
         return;
       }
-      window.location.href = createPageUrl("BusinessLogin");
+      router.push(createPageUrl("BusinessLogin"));
       return;
     }
 

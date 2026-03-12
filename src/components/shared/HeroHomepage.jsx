@@ -3,6 +3,7 @@ import { createPageUrl } from "@/utils";
 import { Search, CheckCircle } from "lucide-react";
 import BusinessSearch from "@/components/BusinessSearch";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HeroHomepage({
   badge = "Global Pacific Registry",
@@ -16,12 +17,13 @@ export default function HeroHomepage({
   secondaryCtaText = "Explore the Registry",
   secondaryCtaHref = createPageUrl("Registry")
 }) {
+  const router = useRouter();
   const [selectedBusiness, setSelectedBusiness] = useState(null);
 
   const handleBusinessSelect = (business) => {
     setSelectedBusiness(business);
     // Redirect to business profile page
-    window.location.href = createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`;
+    router.push(createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`);
   };
 
   const handleSearchChange = (searchTerm) => {
