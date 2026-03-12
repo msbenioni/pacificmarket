@@ -17,7 +17,6 @@ STRIPE_PRICE_MANA=price_...  # $4.99/month Mana tier
 STRIPE_PRICE_MOANA=price_...  # $29/month Moana tier
 
 # Existing URLs
-NEXT_PUBLIC_APP_DEV_URL=http://localhost:3000
 NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
 ```
 

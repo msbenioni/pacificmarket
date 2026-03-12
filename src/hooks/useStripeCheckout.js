@@ -17,10 +17,8 @@ export function useStripeCheckout() {
         throw new Error('You must be logged in to upgrade');
       }
 
-      // Determine URLs based on environment
-      const baseUrl = process.env.NODE_ENV === 'production' 
-        ? process.env.NEXT_PUBLIC_APP_PROD_URL 
-        : process.env.NEXT_PUBLIC_APP_DEV_URL;
+      // Always use production URL for redirects
+      const baseUrl = process.env.NEXT_PUBLIC_APP_PROD_URL;
 
       const successUrl = `${baseUrl}/business-portal?success=true&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${baseUrl}/Pricing?cancelled=true`;

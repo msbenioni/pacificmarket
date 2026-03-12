@@ -91,10 +91,8 @@ export async function POST(request) {
     
     console.log('Using price ID:', priceId);
 
-    // Use correct base URL for environment
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.NEXT_PUBLIC_APP_PROD_URL 
-      : process.env.NEXT_PUBLIC_APP_DEV_URL;
+    // Always use production URL for redirects
+    const baseUrl = process.env.NEXT_PUBLIC_APP_PROD_URL;
 
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,

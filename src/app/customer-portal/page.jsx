@@ -85,10 +85,8 @@ function CustomerPortalContent() {
 
   const signInExistingUser = async (profile) => {
     try {
-      // Use appropriate URL based on environment
-      const appUrl = process.env.NODE_ENV === 'production' 
-        ? process.env.NEXT_PUBLIC_APP_PROD_URL 
-        : process.env.NEXT_PUBLIC_APP_DEV_URL;
+      // Always use production URL for email redirects
+      const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL;
 
       // Generate magic link for existing user
       const { error } = await supabase.auth.signInWithOtp({

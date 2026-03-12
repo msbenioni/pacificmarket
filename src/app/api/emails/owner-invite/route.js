@@ -4,10 +4,8 @@ export async function POST(request) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const { ownerEmail, ownerName, businessName, businessId } = await request.json();
 
-  // Use appropriate URL based on environment
-  const appUrl = process.env.NODE_ENV === 'production' 
-    ? process.env.NEXT_PUBLIC_APP_PROD_URL 
-    : process.env.NEXT_PUBLIC_APP_DEV_URL;
+  // Always use production URL for email links
+  const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL;
 
   try {
     const invitationUrl = `${appUrl}/customer-portal?business=${businessId}`;

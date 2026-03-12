@@ -276,7 +276,6 @@ src/
 ### Environment Variables
 ```env
 # App URLs
-NEXT_PUBLIC_APP_DEV_URL=http://localhost:3000
 NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
 
 # Supabase Configuration
