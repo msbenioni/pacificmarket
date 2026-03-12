@@ -150,9 +150,7 @@ export default function BusinessLogin() {
               gdpr_consent_date: new Date().toISOString(),
               referral_code: referralCode // Store referral code for later use
             },
-            emailRedirectTo: process.env.NODE_ENV === 'production' 
-              ? `${window.location.origin}/BusinessLogin`
-              : `${process.env.NEXT_PUBLIC_APP_PROD_URL}/BusinessLogin`
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_PROD_URL}/BusinessLogin`
           }
         });
       }
