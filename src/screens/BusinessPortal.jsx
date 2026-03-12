@@ -1296,6 +1296,7 @@ export default function BusinessPortal() {
               businessId={business.id}
               onSubmit={handleBusinessInsightsSubmit}
               isLoading={insightsSubmitting}
+              onStart={() => setInsightsStarted(true)}
             />
           </div>
         ))
