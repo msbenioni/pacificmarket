@@ -149,7 +149,8 @@ export default function BusinessLogin() {
               gdpr_consent: gdprConsent,
               gdpr_consent_date: new Date().toISOString(),
               referral_code: referralCode // Store referral code for later use
-            }
+            },
+            emailRedirectTo: `${window.location.origin}/BusinessLogin`
           }
         });
       }
