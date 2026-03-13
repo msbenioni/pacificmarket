@@ -974,25 +974,8 @@ export default function BusinessPortal() {
                   </div>
                 )}
 
-              {businesses.length === 0 ? (
-                <div className="space-y-6">
-                  {onboardingStatus.needsProfile && (
-                    <div className="rounded-2xl border border-[#c9a84c]/25 bg-[#c9a84c]/8 p-4">
-                      <div className="flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-[#c9a84c] mt-0.5" />
-                        <div>
-                          <h4 className="text-sm font-semibold text-[#0a1628]">
-                            Complete your profile to get started
-                          </h4>
-                          <p className="mt-1 text-sm text-slate-600">
-                            Once your profile is ready, you'll be able to claim a business or add a new one.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="rounded-2xl border border-dashed border-gray-200 bg-white/80 p-6 sm:p-12 text-center">
+              {businesses.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-white/80 p-6 sm:p-12 text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white">
                       <Building2 className="w-7 h-7 text-gray-400" />
                     </div>
@@ -1051,7 +1034,7 @@ export default function BusinessPortal() {
                       )}
                     </div>
                   </div>
-                </div>
+                )}
               ) : (
                 <div className="space-y-5">
                   {businesses.map((b) => {
@@ -1181,7 +1164,7 @@ export default function BusinessPortal() {
                     );
                   })}
                 </div>
-              )}
+              
 
               {businesses.length > 0 && (
                 <ReferralDashboard
