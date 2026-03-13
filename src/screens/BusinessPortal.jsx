@@ -832,22 +832,6 @@ export default function BusinessPortal() {
                     {tab.count}
                   </span>
                 )}
-
-                {tab.status === "completed" && (
-                  <CheckCircle className="w-4 h-4 ml-2 text-green-600 hidden md:inline-flex" />
-                )}
-
-                {tab.status === "started" && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-blue-300 bg-blue-50 text-blue-600 hidden md:inline-flex">
-                    started
-                  </span>
-                )}
-
-                {tab.status === "not-started" && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border border-gray-300 text-gray-500 hidden md:inline-flex">
-                    not started
-                  </span>
-                )}
               </button>
             ))}
           </div>
