@@ -168,6 +168,13 @@ export default function BusinessInsightsAccordion({
   });
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState(null);
+
+  useEffect(() => {
+    if (!autoSaveStatus) return;
+    const timer = setTimeout(() => setAutoSaveStatus(null), 2000);
+    return () => clearTimeout(timer);
+  }, [autoSaveStatus]);
 
   const getInitialForm = () => ({
     business_stage: "",
@@ -204,11 +211,13 @@ export default function BusinessInsightsAccordion({
 
   const handleSubmitAll = async () => {
     setSubmitting(true);
+    setAutoSaveStatus("saving");
     try {
       await onSubmit(form);
+      setAutoSaveStatus("saved");
     } catch (error) {
       console.error("Failed to submit business insights:", error);
-      alert("Failed to submit insights. Please try again.");
+      setAutoSaveStatus("error");
     } finally {
       setSubmitting(false);
     }
@@ -560,7 +569,34 @@ export default function BusinessInsightsAccordion({
         {SECTIONS.map((section, index) => renderSection(section, index))}
       </div>
 
-      <div className="mt-8 flex flex-col sm:flex-row sm:justify-end">
+      <div className="mt-8 flex flex-col sm:flex-row sm:justify-end gap-3">
+        {autoSaveStatus && (
+          <div className="flex items-center gap-2 text-sm">
+            {autoSaveStatus === "saving" && (
+              <>
+                <div className="w-4 h-4 animate-spin rounded-full border-2 border-[#0d4f4f]/30 border-t-[#0d4f4f]" />
+                <span className="text-gray-600">Saving...</span>
+              </>
+            )}
+            {autoSaveStatus === "saved" && (
+              <>
+                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                </div>
+                <span className="text-green-600">Saved successfully</span>
+              </>
+            )}
+            {autoSaveStatus === "error" && (
+              <>
+                <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                </div>
+                <span className="text-red-600">Failed to save</span>
+              </>
+            )}
+          </div>
+        )}
+        
         <button
           onClick={handleSubmitAll}
           disabled={submitting || isLoading}
@@ -569,11 +605,11 @@ export default function BusinessInsightsAccordion({
           {submitting || isLoading ? (
             <>
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Submitting...
+              Saving...
             </>
           ) : (
             <>
-              Submit Business Insights
+              Save All Changes
               <ChevronRight className="h-4 w-4" />
             </>
           )}
