@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { getBusinessOwnerName } from "@/utils/businessHelpers";
+import BusinessInsightsAccordion from "@/components/forms/BusinessInsightsAccordion";
 
 export default function BusinessCard({
   business,
@@ -302,6 +303,38 @@ export default function BusinessCard({
                 accept="image/*"
                 className="sr-only"
                 onChange={(e) => onBannerUpload?.(e, business.id)}
+              />
+            </div>
+          </div>
+
+          {/* Business Insights */}
+          <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white p-4 shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Business Insights
+                </p>
+                <h4 className="mt-1 text-base font-semibold text-[#0a1628]">
+                  Share your business story and growth insights
+                </h4>
+                <p className="mt-1 text-sm text-slate-600">
+                  Help us understand your journey so we can better support your business growth.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#0d4f4f]/10 bg-white px-3 py-1 text-xs font-medium text-[#0d4f4f]">
+                <Sparkles className="h-3.5 w-3.5" />
+                  Better support
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <BusinessInsightsAccordion
+                businessId={business.id}
+                onSubmit={onInsightsSubmit}
+                isLoading={insightsSubmitting}
+                initialData={null}
+                onStart={() => {}}
               />
             </div>
           </div>
