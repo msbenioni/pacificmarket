@@ -218,8 +218,7 @@ export const PROFILE_SCHEMA = {
   country: 'text',
   
   // Cultural identity fields
-  primary_cultural: 'text',
-  cultural_tags: 'text[]',
+  primary_cultural: 'text[]',
   languages: 'text[]',
   
   // Business experience fields (individual only)

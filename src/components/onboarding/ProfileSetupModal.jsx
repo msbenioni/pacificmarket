@@ -145,13 +145,35 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
       // Apply transformation rules before saving
       const transformedData = { ...formData };
       
-      // Transform languages field from comma-separated string to array
-      if (transformedData['languages'] && typeof transformedData['languages'] === 'string') {
-        transformedData['languages'] = transformedData['languages']
-          .split(',')
-          .map(lang => lang.trim())
-          .filter(lang => lang.length > 0);
-      }
+      // Handle array fields properly for PostgreSQL
+      const arrayFields = ['primary_cultural', 'professional_background', 'skills_expertise', 'languages'];
+      
+      arrayFields.forEach(field => {
+        if (transformedData[field]) {
+          // Handle languages field (comma-separated string to array)
+          if (field === 'languages' && typeof transformedData[field] === 'string') {
+            const languagesArray = transformedData[field]
+              .split(',')
+              .map(lang => lang.trim())
+              .filter(lang => lang.length > 0);
+            
+            // Only set languages if we have valid values, otherwise remove the field
+            if (languagesArray.length > 0) {
+              transformedData[field] = languagesArray;
+            } else {
+              delete transformedData[field];
+            }
+          }
+          // Handle multiselect array fields
+          else if (Array.isArray(transformedData[field])) {
+            // Only set the field if array has values, otherwise remove it
+            if (transformedData[field].length === 0) {
+              delete transformedData[field];
+            }
+            // If array has values, keep it as is (no assignment needed)
+          }
+        }
+      });
       
       // Use direct Supabase client for profile update
       const { error } = await supabase
@@ -176,9 +198,21 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
 
     } catch (error) {
       console.error('Error saving profile:', error);
+      
+      // Provide more detailed error information
+      let errorMessage = 'Failed to save profile. Please try again.';
+      
+      if (error?.message) {
+        errorMessage = `Profile save failed: ${error.message}`;
+      } else if (typeof error === 'string') {
+        errorMessage = `Profile save failed: ${error}`;
+      } else if (error && Object.keys(error).length > 0) {
+        errorMessage = `Profile save failed: ${JSON.stringify(error)}`;
+      }
+      
       setErrors((prev) => ({
         ...prev,
-        submit: 'Failed to save profile. Please try again.',
+        submit: errorMessage,
       }));
     } finally {
       setSaving(false);

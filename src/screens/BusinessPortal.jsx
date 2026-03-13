@@ -7,18 +7,21 @@ import { createPageUrl } from "@/utils";
 import { getUserBusinesses, deleteBusiness } from "@/lib/supabase/queries/businesses";
 import {
   Building2,
-  Plus,
-  Star,
-  CheckCircle,
-  Upload,
-  FileText,
-  QrCode,
-  ChevronRight,
-  AlertCircle,
-  Trash2,
-  Zap,
-  Search,
   Users,
+  FileText,
+  CheckCircle,
+  User,
+  Plus,
+  Search,
+  AlertCircle,
+  Zap,
+  ArrowRight,
+  Star,
+  TrendingUp,
+  ChevronRight,
+  Trash2,
+  Upload,
+  QrCode,
   Mail,
 } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
@@ -1208,6 +1211,31 @@ export default function BusinessPortal() {
         <p className={portalUI.sectionDesc}>
           Capture founder and business insights to help build a stronger profile,
           improve visibility, and unlock better support over time.
+        </p>
+      </div>
+    </div>
+
+    <div className={`${portalUI.card} p-4 sm:p-8`}>
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-[#0a1628] mb-1">
+          Your Profile
+        </h3>
+        <p className="text-sm text-gray-600">
+          Edit your personal profile information, cultural identity, and professional background.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <button
+          onClick={() => setShowProfileModal(true)}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-5 py-3 text-sm font-semibold text-white hover:bg-[#0a3d3d] transition-colors"
+        >
+          <User className="w-4 h-4" />
+          Edit Profile
+        </button>
+        
+        <p className="text-xs text-gray-500">
+          Update your location, cultural identity, languages, and professional experience.
         </p>
       </div>
     </div>
