@@ -891,13 +891,6 @@ export default function BusinessPortal() {
                     <Plus className="w-4 h-4" />
                     Add Business
                   </button>
-
-                  {!onboardingLoading && onboardingStatus.needsProfile && (
-                    <button onClick={() => setShowProfileModal(true)} className={secondaryActionCls}>
-                      <Users className="w-4 h-4" />
-                      Complete Profile
-                    </button>
-                  )}
                 </div>
               </div>
 
