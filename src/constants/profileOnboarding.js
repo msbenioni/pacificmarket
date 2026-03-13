@@ -1,7 +1,7 @@
 // Profile Onboarding Configuration
 // Business Owner Profile Onboarding Flow
 
-import { COUNTRIES, INDUSTRIES } from './unifiedConstants';
+import { COUNTRIES, INDUSTRIES, LANGUAGES } from './unifiedConstants';
 
 export const ONBOARDING_STEPS = [
   {
@@ -64,11 +64,11 @@ export const ONBOARDING_STEPS = [
       {
         id: 'languages',
         label: 'Languages spoken',
-        type: 'text',
+        type: 'multiselect',
         required: false,
-        placeholder: 'English, Cook Island, French',
-        description: 'Enter languages separated by commas',
-        helper: 'Example: English, Cook Island, French'
+        placeholder: 'Select languages spoken',
+        description: 'Select all languages that you speak',
+        options: LANGUAGES
       }
     ]
   },
@@ -287,14 +287,6 @@ export const ONBOARDING_VALIDATION_RULES = {
   primary_cultural: {
     required: true,
     minItems: 1
-  },
-  languages: {
-    maxLength: 500,
-    transform: (value) => {
-      // Convert comma-separated string to array
-      if (!value) return [];
-      return value.split(',').map(lang => lang.trim()).filter(lang => lang.length > 0);
-    }
   },
   
   // Step 4 validation (individual business experience only)

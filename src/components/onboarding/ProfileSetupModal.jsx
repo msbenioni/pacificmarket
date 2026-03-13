@@ -61,8 +61,8 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
             display_name: profileData.display_name || user?.user_metadata?.full_name || user?.user_metadata?.display_name || '',
             city: profileData.city || '',
             country: profileData.country || '',
-            primary_cultural: profileData.primary_cultural || [],
-            languages: Array.isArray(profileData.languages) ? profileData.languages.join(', ') : (profileData.languages || ''),
+            primary_cultural: Array.isArray(profileData.primary_cultural) ? profileData.primary_cultural : [],
+            languages: Array.isArray(profileData.languages) ? profileData.languages : [],
             years_operating: profileData.years_operating || '',
             market_region: profileData.market_region || ''
           });
@@ -73,7 +73,7 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
             city: '',
             country: '',
             primary_cultural: [],
-            languages: '',
+            languages: [],
             years_operating: '',
             market_region: ''
           });
@@ -150,22 +150,8 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
       
       arrayFields.forEach(field => {
         if (transformedData[field]) {
-          // Handle languages field (comma-separated string to array)
-          if (field === 'languages' && typeof transformedData[field] === 'string') {
-            const languagesArray = transformedData[field]
-              .split(',')
-              .map(lang => lang.trim())
-              .filter(lang => lang.length > 0);
-            
-            // Only set languages if we have valid values, otherwise remove the field
-            if (languagesArray.length > 0) {
-              transformedData[field] = languagesArray;
-            } else {
-              delete transformedData[field];
-            }
-          }
           // Handle multiselect array fields
-          else if (Array.isArray(transformedData[field])) {
+          if (Array.isArray(transformedData[field])) {
             // Only set the field if array has values, otherwise remove it
             if (transformedData[field].length === 0) {
               delete transformedData[field];
