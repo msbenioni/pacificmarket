@@ -66,8 +66,8 @@ export default function ProfileInsightsTab({
   onFounderInsightsSubmit,
   setInsightsProgress,
 }) {
-  // Accordion state - multiple sections can be open
-  const [openSections, setOpenSections] = useState(["profile", "insights"]);
+  // Accordion state - start with all sections closed
+  const [openSections, setOpenSections] = useState([]);
 
   const toggleSection = (section) => {
     setOpenSections((prev) =>
