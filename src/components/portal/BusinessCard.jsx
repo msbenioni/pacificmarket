@@ -65,7 +65,7 @@ export default function BusinessCard({
     }
   };
 
-  const renderActionButton = (action) => {
+  const renderActionButton = (action, index) => {
     const style = BUTTON_STYLES[action.style] || BUTTON_STYLES.icon;
     const Icon = action.icon || Edit;
 
@@ -73,7 +73,7 @@ export default function BusinessCard({
     if (action.handler === "handleDeleteBusiness") {
       if (showDeleteConfirm) {
         return (
-          <div className="flex gap-2">
+          <div key={index} className="flex gap-2">
             <button
               onClick={() => setShowDeleteConfirm(false)}
               className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-800 transition"
@@ -94,7 +94,7 @@ export default function BusinessCard({
 
     if (action.isLabel) {
       return (
-        <label className={style}>
+        <label key={index} className={style}>
           <Icon className="h-3 w-3" />
           {action.label}
           <input
@@ -109,6 +109,7 @@ export default function BusinessCard({
 
     return (
       <button
+        key={index}
         onClick={() => handleActionClick(action)}
         className={style}
       >
@@ -162,7 +163,7 @@ export default function BusinessCard({
               </p>
 
               <div className="flex flex-wrap gap-2">
-                {actions.map(renderActionButton)}
+                {actions.map((action, index) => renderActionButton(action, index))}
               </div>
 
               {business.owner_user_id && (

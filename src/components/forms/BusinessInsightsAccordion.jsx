@@ -311,7 +311,7 @@ export default function BusinessInsightsAccordion({
   const selectCls =
     "w-full min-h-[44px] border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-[#0a1628] focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xIDFMNiA2TDExIDEiIHN0cm9rZT0iIzZiNzI4MCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K')] bg-no-repeat bg-[center_right_1rem] bg-[length:0.75rem]";
 
-  const renderSection = (section) => {
+  const renderSection = (section, index) => {
     const isExpanded = expandedSections.has(section.key);
     const hasErrors = hasSectionErrors(section.key);
 
@@ -388,9 +388,9 @@ export default function BusinessInsightsAccordion({
                       className={selectCls}
                     >
                       <option value="">Select stage</option>
-                      {Object.entries(BUSINESS_STAGE).map(([key, value]) => (
-                        <option key={value} value={value}>
-                          {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      {BUSINESS_STAGE.map((stage) => (
+                        <option key={stage.value} value={stage.value}>
+                          {stage.label}
                         </option>
                       ))}
                     </select>
@@ -555,7 +555,7 @@ export default function BusinessInsightsAccordion({
         </div>
 
         <div className="space-y-4">
-          {SECTIONS.map(renderSection)}
+          {SECTIONS.map((section, index) => renderSection(section, index))}
         </div>
       </div>
 

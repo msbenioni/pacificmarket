@@ -1,7 +1,60 @@
-import { Sparkles, ShieldCheck, LineChart, UserCircle2 } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, ShieldCheck, LineChart, UserCircle2, ChevronDown } from "lucide-react";
 import { CARD_STYLES } from "@/constants/portalUI";
 import ProfileSettingsAccordion from "@/components/onboarding/ProfileSettingsAccordion";
 import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
+
+// Premium accordion component (matching InvoiceGenerator style)
+function InsightsAccordionSection({
+  id,
+  title,
+  subtitle,
+  summary,
+  icon: Icon,
+  isOpen,
+  onToggle,
+  children,
+}) {
+  return (
+    <div className="border-b border-gray-100 last:border-b-0 bg-gradient-to-r from-[#0a1628] to-[#0d4f4f] text-white">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-4 px-4 sm:px-5 py-4 text-left hover:bg-white/10 transition"
+      >
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <Icon className="w-4 h-4 text-white" />
+          </div>
+
+          <div className="min-w-0">
+            <div className="font-semibold text-white text-sm">{title}</div>
+            {subtitle && (
+              <div className="text-xs text-gray-300 mt-0.5">{subtitle}</div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          {summary && (
+            <div className="hidden md:block text-xs text-gray-300 text-right max-w-[140px] truncate">
+              {summary}
+            </div>
+          )}
+          <div className="text-gray-300 text-sm">
+            {isOpen ? <ChevronDown className="w-4 h-4 rotate-180" /> : <ChevronDown className="w-4 h-4" />}
+          </div>
+        </div>
+      </button>
+
+      {isOpen && (
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 bg-white">
+          <div className="pt-1">{children}</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ProfileInsightsTab({
   user,
@@ -13,6 +66,16 @@ export default function ProfileInsightsTab({
   onFounderInsightsSubmit,
   setInsightsProgress,
 }) {
+  // Accordion state - multiple sections can be open
+  const [openSections, setOpenSections] = useState(["profile", "insights"]);
+
+  const toggleSection = (section) => {
+    setOpenSections((prev) =>
+      prev.includes(section)
+        ? prev.filter((s) => s !== section)
+        : [...prev, section]
+    );
+  };
 
   return (
     <div className="space-y-5 sm:space-y-6">
@@ -40,46 +103,32 @@ export default function ProfileInsightsTab({
           </div>
       </section>
 
-      {/* Profile section */}
-      <section className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
-        <div className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white px-4 py-4 sm:px-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Step 1
-          </p>
-          <h3 className="mt-1 text-lg font-semibold text-[#0a1628]">
-            Profile foundation
-          </h3>
-          <p className="mt-1 text-sm text-slate-600">
-            Keep your personal and account information complete so your business profile
-            is ready for trust, visibility, and support features.
-          </p>
-        </div>
-
-        <div className="bg-white p-0">
+      {/* Accordion Sections */}
+      <div className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
+        
+        {/* Profile Section */}
+        <InsightsAccordionSection
+          id="profile"
+          title="Profile foundation"
+          subtitle="Step 1"
+          summary="Complete your personal and account information"
+          icon={UserCircle2}
+          isOpen={openSections.includes("profile")}
+          onToggle={() => toggleSection("profile")}
+        >
           <ProfileSettingsAccordion onComplete={onProfileComplete} />
-        </div>
-      </section>
+        </InsightsAccordionSection>
 
-      {/* Founder insights section */}
-      <section className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
-        <div className="border-b border-slate-200 bg-gradient-to-r from-[#f8fbfb] via-white to-[#fcfaf4] px-4 py-4 sm:px-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
-                Step 2
-              </p>
-              <h3 className="mt-1 text-lg font-semibold text-[#0a1628]">
-                Founder story & growth insights
-              </h3>
-              <p className="mt-1 max-w-2xl text-sm text-slate-600">
-                Share the story behind your business, what drives you, what challenges
-                you are navigating, and where you want to grow next.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-5">
+        {/* Founder Insights Section */}
+        <InsightsAccordionSection
+          id="insights"
+          title="Founder story & growth insights"
+          subtitle="Step 2"
+          summary="Share your business story and growth insights"
+          icon={LineChart}
+          isOpen={openSections.includes("insights")}
+          onToggle={() => toggleSection("insights")}
+        >
           <FounderInsightsAccordion
             businessId={businesses?.[0]?.id ?? null}
             onSubmit={onFounderInsightsSubmit}
@@ -87,8 +136,8 @@ export default function ProfileInsightsTab({
             initialData={insightSnapshots?.[0] || null}
             onStart={() => setInsightsProgress(true)}
           />
-        </div>
-      </section>
+        </InsightsAccordionSection>
+      </div>
     </div>
   );
 }

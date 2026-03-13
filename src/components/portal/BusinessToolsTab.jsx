@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Star, ChevronRight, FileText, QrCode, Mail } from "lucide-react";
 import { BUTTON_STYLES, CARD_STYLES } from "@/constants/portalUI";
+import { COMPONENT_STYLES, DESIGN_TOKENS } from "@/constants/designSystem";
 import { BUSINESS_TOOLS_CONFIG } from "@/constants/businessCardConfig";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { createPageUrl } from "@/utils";
@@ -35,35 +36,41 @@ export default function BusinessToolsTab({ businesses }) {
 
   if (hasMoanaAccess) {
     return (
-      <div>
-        <h2 className="font-bold text-[#0a1628] mb-2">Business Tools</h2>
-        <p className="text-slate-600 text-sm mb-6">Available to Moana subscribers.</p>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {BUSINESS_TOOLS_CONFIG.map(renderToolCard)}
+      <section className={COMPONENT_STYLES.section.container}>
+        <div className={COMPONENT_STYLES.section.header}>
+          <h2 className="font-bold text-[#0a1628] mb-2">Business Tools</h2>
+          <p className="text-slate-600 text-sm">Available to Moana subscribers.</p>
         </div>
-      </div>
+        <div className={COMPONENT_STYLES.section.content}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {BUSINESS_TOOLS_CONFIG.map(renderToolCard)}
+          </div>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div>
-      <h2 className="font-bold text-[#0a1628] mb-2">Business Tools</h2>
-      <p className="text-slate-600 text-sm mb-6">Available to Moana subscribers.</p>
-
-      <div className="bg-gradient-to-br from-[#c9a84c]/10 to-[#c9a84c]/5 border border-[#c9a84c]/30 rounded-2xl p-8 text-center">
-        <Star className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
-        <h3 className="font-bold text-[#0a1628] mb-2">Featured+ Required</h3>
-        <p className="text-slate-600 text-sm mb-5">
-          Upgrade at least one business to Featured+ to unlock the Invoice and QR Code generators.
-        </p>
-        <Link
-          href={createPageUrl("Pricing")}
-          className={BUTTON_STYLES.upgrade}
-        >
-          View Plans <ChevronRight className="w-4 h-4" />
-        </Link>
-      </div>
-    </div>
-  );
+      <section className={COMPONENT_STYLES.section.container}>
+        <div className={COMPONENT_STYLES.section.header}>
+          <h2 className="font-bold text-[#0a1628] mb-2">Business Tools</h2>
+          <p className="text-slate-600 text-sm">Available to Moana subscribers.</p>
+        </div>
+        <div className={COMPONENT_STYLES.section.content}>
+          <div className="bg-gradient-to-br from-[#c9a84c]/10 to-[#c9a84c]/5 border border-[#c9a84c]/30 rounded-2xl p-8 text-center">
+            <Star className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
+            <h3 className="font-bold text-[#0a1628] mb-2">Featured+ Required</h3>
+            <p className="text-slate-600 text-sm mb-5">
+              Upgrade at least one business to Featured+ to unlock the Invoice and QR Code generators.
+            </p>
+            <Link
+              href={createPageUrl("Pricing")}
+              className={BUTTON_STYLES.upgrade}
+            >
+              View Plans <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
 }
