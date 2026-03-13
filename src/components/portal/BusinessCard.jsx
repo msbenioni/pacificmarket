@@ -34,6 +34,7 @@ export default function BusinessCard({
   onLogoUpload,
   onInsightsSubmit,
 }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const displayInfo = getBusinessDisplayInfo(business);
   const actions = getBusinessActions(business, user, isEditing);
 
@@ -46,7 +47,12 @@ export default function BusinessCard({
         onCancel();
         break;
       case "handleDeleteBusiness":
-        onDelete(business.id);
+        if (showDeleteConfirm) {
+          onDelete(business.id);
+          setShowDeleteConfirm(false);
+        } else {
+          setShowDeleteConfirm(true);
+        }
         break;
       case "handleAddOwner":
         onAddOwner(business.id);
@@ -62,6 +68,29 @@ export default function BusinessCard({
   const renderActionButton = (action) => {
     const style = BUTTON_STYLES[action.style] || BUTTON_STYLES.icon;
     const Icon = action.icon || Edit;
+
+    // Handle delete confirmation
+    if (action.handler === "handleDeleteBusiness") {
+      if (showDeleteConfirm) {
+        return (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-800 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => handleActionClick(action)}
+              className={BUTTON_STYLES.danger}
+            >
+              <Icon className="h-3 w-3" />
+              Confirm Delete
+            </button>
+          </div>
+        );
+      }
+    }
 
     if (action.isLabel) {
       return (

@@ -1,58 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
-import { getUserBusinesses, deleteBusiness } from "@/lib/supabase/queries/businesses";
 import {
-  Building2,
   Users,
-  FileText,
   CheckCircle,
-  User,
-  Plus,
-  Search,
   AlertCircle,
-  Zap,
-  ArrowRight,
-  Star,
-  TrendingUp,
   ChevronRight,
   Trash2,
-  Upload,
-  QrCode,
-  Mail,
 } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroRegistry from "../components/shared/HeroRegistry";
-import { TIER_BENEFITS } from "@/constants/businessProfile";
 import {
   SUBSCRIPTION_TIER,
-  BUSINESS_STATUS,
   getTierDisplayName,
-  COUNTRIES,
-  INDUSTRIES,
 } from "@/constants/unifiedConstants";
-import InlineBusinessForm from "@/components/forms/InlineBusinessForm";
-import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
-import BusinessInsightsAccordion from "@/components/forms/BusinessInsightsAccordion";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
-import CancelClaimButton from "@/components/claims/CancelClaimButton";
-import ProfileSettingsAccordion from "@/components/onboarding/ProfileSettingsAccordion";
 import {
   ModalWrapper,
   ModalHeader,
   ModalContent,
   ModalFooter,
 } from "@/components/shared/ModalWrapper";
-import { getBusinessOwnerName, getCountryLabel, getIndustryLabel } from "@/utils/businessHelpers";
+import { getBusinessOwnerName } from "@/utils/businessHelpers";
 import PortalShell from "@/components/portal/PortalShell";
 import { portalUI } from "@/components/portal/portalUI";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { useToast } from "@/components/ui/toast/ToastProvider";
-import ReferralDashboard from "@/components/referrals/ReferralDashboard";
 
 // New tab components
 import BusinessesTab from "@/components/portal/BusinessesTab";
@@ -62,7 +38,6 @@ import BusinessToolsTab from "@/components/portal/BusinessToolsTab";
 
 // New constants
 import { PORTAL_TABS, getTabStatus } from "@/constants/portalTabs";
-import { BUTTON_STYLES } from "@/constants/portalUI";
 
 // Custom hooks
 import { useBusinessPortalData } from "@/hooks/useBusinessPortalData";
@@ -88,8 +63,6 @@ export default function BusinessPortal() {
     editingBusinessId,
     draftBusiness,
     savingEdit,
-    deleteConfirmBusiness,
-    setDeleteConfirmBusiness,
     startEditingBusiness,
     cancelEditingBusiness,
     saveBusiness,
@@ -174,15 +147,6 @@ export default function BusinessPortal() {
     },
   };
 
-  const disabledActionCls =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed min-h-[44px] w-full sm:w-auto";
-
-  const secondaryActionCls =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-gray-200 bg-white text-[#0d4f4f] hover:border-[#0d4f4f] transition min-h-[44px] w-full sm:w-auto";
-
-  const primaryActionCls =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-[#0d4f4f] text-white hover:bg-[#1a6b6b] transition shadow-[0_12px_30px_rgba(13,79,79,0.35)] min-h-[44px] w-full sm:w-auto";
-
   return (
     <PortalShell>
       <HeroRegistry
@@ -246,7 +210,7 @@ export default function BusinessPortal() {
                     saveBusiness(data);
                     break;
                   case "delete":
-                    setDeleteConfirmBusiness(businessId);
+                    handleDeleteBusiness(businessId);
                     break;
                   case "addOwner":
                     setAddOwnerModal(businessId);
@@ -386,41 +350,6 @@ export default function BusinessPortal() {
             refetchPortalData();
           }}
         />
-      )}
-
-      {deleteConfirmBusiness && (
-        <ModalWrapper
-          isOpen={!!deleteConfirmBusiness}
-          onClose={() => setDeleteConfirmBusiness(null)}
-          className="max-w-md"
-        >
-          <ModalHeader
-            title="Delete Business"
-            onClose={() => setDeleteConfirmBusiness(null)}
-          />
-          <ModalContent>
-            <p className="text-slate-600 text-sm">
-              Are you sure you want to delete this business? This action cannot be undone.
-            </p>
-          </ModalContent>
-          <ModalFooter>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => setDeleteConfirmBusiness(null)}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#0d4f4f] hover:border-[#0d4f4f] transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDeleteBusiness(deleteConfirmBusiness)}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete Business
-              </button>
-            </div>
-          </ModalFooter>
-        </ModalWrapper>
       )}
 
     </PortalShell>

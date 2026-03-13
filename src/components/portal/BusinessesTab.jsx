@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { BUTTON_STYLES } from "@/constants/portalUI";
 import { shouldShowUpgradePrompt } from "@/utils/businessHelpers";
 import BusinessCard from "./BusinessCard";
@@ -82,7 +82,6 @@ export default function BusinessesTab({
             disabled={onboardingStatus.needsProfile}
             className={BUTTON_STYLES.primary}
           >
-            <Plus className="w-4 h-4" />
             Claim Business
           </button>
 
@@ -91,7 +90,6 @@ export default function BusinessesTab({
             disabled={onboardingStatus.needsProfile}
             className={BUTTON_STYLES.secondary}
           >
-            <Plus className="w-4 h-4" />
             Add Business
           </button>
         </div>

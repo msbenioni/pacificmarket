@@ -11,7 +11,7 @@ import {
 import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
 import BusinessSearch from "@/components/BusinessSearch";
 import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
-import { Search, Plus, ChevronLeft } from "lucide-react";
+import { Search, ChevronLeft } from "lucide-react";
 
 // Whitelist of allowed fields that match the exact database schema
 const ALLOWED_BUSINESS_FIELDS = [
@@ -361,14 +361,9 @@ export function ClaimAddBusinessModal({
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 flex-shrink-0">
-                      <Plus className="h-5 w-5 text-white" />
-                    </div>
-                    <h4 className="text-base font-bold text-white">
-                      Add a new business
-                    </h4>
-                  </div>
+                  <h4 className="text-base font-bold text-white">
+                    Add a new business
+                  </h4>
 
                   <p className="mt-3 text-sm leading-6 text-white/80">
                     Create a new listing and represent your people, your country, and your work.

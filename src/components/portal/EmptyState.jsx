@@ -4,7 +4,6 @@ import {
   Users, 
   CheckCircle,
   Search,
-  Plus,
 } from "lucide-react";
 import { getEmptyStateConfig } from "@/utils/dataTransformers";
 
@@ -26,7 +25,7 @@ export default function EmptyState({
   const Icon = ICON_MAP[config.icon] || Building2;
 
   const renderActionButton = (action, index) => {
-    const ActionIcon = action.icon === "Search" ? Search : Plus;
+    const ActionIcon = action.icon === "Search" ? Search : null;
     const isDisabled = action.variant === "disabled";
     const buttonStyle = action.variant === "primary" 
       ? BUTTON_STYLES.primary 
@@ -35,7 +34,6 @@ export default function EmptyState({
       : BUTTON_STYLES.disabled;
 
     const buttonProps = {
-      key: action.key || index,
       className: buttonStyle,
       onClick: isDisabled ? undefined : () => onAction(action.key),
       disabled: isDisabled,
@@ -43,16 +41,16 @@ export default function EmptyState({
 
     if (isDisabled) {
       return (
-        <button {...buttonProps}>
-          <ActionIcon className="w-4 h-4" />
+        <button key={action.key || index} {...buttonProps}>
+          {ActionIcon && <ActionIcon className="w-4 h-4" />}
           {action.label}
         </button>
       );
     }
 
     return (
-      <button {...buttonProps}>
-        <ActionIcon className="w-4 h-4" />
+      <button key={action.key || index} {...buttonProps}>
+        {ActionIcon && <ActionIcon className="w-4 h-4" />}
         {action.label}
       </button>
     );
