@@ -47,12 +47,22 @@ import {
   ModalContent,
   ModalFooter,
 } from "@/components/shared/ModalWrapper";
-import { getBusinessOwnerName } from "@/utils/businessHelpers";
+import { getBusinessOwnerName, getCountryLabel, getIndustryLabel } from "@/utils/businessHelpers";
 import PortalShell from "@/components/portal/PortalShell";
 import { portalUI } from "@/components/portal/portalUI";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import ReferralDashboard from "@/components/referrals/ReferralDashboard";
+
+// New tab components
+import BusinessesTab from "@/components/portal/BusinessesTab";
+import ClaimsTab from "@/components/portal/ClaimsTab";
+import ProfileInsightsTab from "@/components/portal/ProfileInsightsTab";
+import BusinessToolsTab from "@/components/portal/BusinessToolsTab";
+
+// New constants
+import { PORTAL_TABS, getTabStatus } from "@/constants/portalTabs";
+import { BUTTON_STYLES } from "@/constants/portalUI";
 
 export default function BusinessPortal() {
   const router = useRouter();
@@ -84,16 +94,6 @@ export default function BusinessPortal() {
     loading: onboardingLoading,
     refetch: refetchOnboardingStatus,
   } = useOnboardingStatus();
-
-  const getCountryLabel = (countryValue) => {
-    const country = COUNTRIES.find((c) => c.value === countryValue);
-    return country ? country.label : countryValue;
-  };
-
-  const getIndustryLabel = (industryValue) => {
-    const industry = INDUSTRIES.find((i) => i.value === industryValue);
-    return industry ? industry.label : industryValue;
-  };
 
   const refetchPortalData = async (u = user) => {
     if (!u?.id) return;
@@ -786,40 +786,12 @@ export default function BusinessPortal() {
       <div className={portalUI.wrap}>
         <div className={portalUI.shell}>
           <div className={portalUI.tabsWrap}>
-            {[
-              {
-                id: "my-businesses",
-                label: "My Businesses",
-                mobileLabel: "Businesses",
-                icon: Building2,
-                count: businesses.length,
-              },
-              {
-                id: "claims",
-                label: "Claim Requests",
-                mobileLabel: "Claims",
-                icon: CheckCircle,
-                count: claims.length,
-              },
-              {
-                id: "insights",
-                label: "Profile & Insights",
-                mobileLabel: "Profile",
-                icon: Users,
-                status:
-                  insightSnapshots.length > 0
-                    ? "completed"
-                    : insightsStarted
-                    ? "started"
-                    : "not-started",
-              },
-              {
-                id: "tools",
-                label: "Business Tools",
-                mobileLabel: "Tools",
-                icon: FileText,
-              },
-            ].map((tab) => (
+            {PORTAL_TABS.map((tab) => ({
+              ...tab,
+              count: tab.id === "my-businesses" ? businesses.length : 
+                     tab.id === "claims" ? claims.length : undefined,
+              status: getTabStatus(tab.id, { insightSnapshots, insightsStarted }),
+            })).map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -839,482 +811,75 @@ export default function BusinessPortal() {
           </div>
 
           {activeTab === "my-businesses" && (
-  <div className="space-y-6">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <p className={portalUI.sectionKicker}>Business Management</p>
-        <h2 className={portalUI.sectionTitle}>My Registry Records</h2>
-        <p className={portalUI.sectionDesc}>
-          Claim an existing business or add your own listing once your profile is set up.
-        </p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 w-full sm:w-auto">
-        <button
-          onClick={() => {
-            if (!onboardingStatus.needsProfile) {
-              setClaimAddDefaultView("claim");
-              setShowClaimAddModal(true);
-            }
-          }}
-          className={primaryActionCls}
-        >
-          <Plus className="w-4 h-4" />
-          Claim Business
-        </button>
-
-        <button
-          onClick={() => {
-            if (!onboardingStatus.needsProfile) {
-              setClaimAddDefaultView("add");
-              setShowClaimAddModal(true);
-            }
-          }}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#0d4f4f] px-5 py-3 text-sm font-semibold text-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Business
-        </button>
-      </div>
-    </div>
-
-    {businesses.length > 0 &&
-      !businesses.some((b) => b.subscription_tier !== SUBSCRIPTION_TIER.VAKA) && (
-        <div className="rounded-[28px] border border-[#00c4cc]/20 bg-gradient-to-r from-[#00c4cc]/10 via-white to-[#c9a84c]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl border border-[#c9a84c]/20 bg-[#c9a84c]/12">
-                <Zap className="w-6 h-6 text-[#f2d98b]" />
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#c9a84c]">
-                  Growth Opportunity
-                </p>
-                <h3 className="mt-1 text-lg font-bold text-[#0a1628]">
-                  Unlock more with Mana or Moana
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Increase trust, showcase your visual identity, and unlock practical business
-                  tools designed to help Pacific businesses stand out.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => handleUpgradeClick(SUBSCRIPTION_TIER.MANA)}
-            disabled={checkoutLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] px-5 py-3 text-sm font-bold text-[#0a1628] hover:bg-[#d8b865] transition disabled:opacity-50 min-h-[44px] w-full sm:w-auto"
-          >
-            {checkoutLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-[#0a1628]/30 border-t-[#0a1628] rounded-full animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                {user ? "Upgrade Now" : "Sign Up to Upgrade"}
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#00c4cc]">
-                Mana
-              </p>
-              <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                ${TIER_BENEFITS[SUBSCRIPTION_TIER.MANA].price.split("/")[0].slice(1)}/mo
-              </p>
-              <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
-                <li>• Verified badge</li>
-                <li>• Logo and banner support</li>
-                <li>• Stronger profile presentation</li>
-              </ul>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white/90 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#00c4cc]">
-                Moana
-              </p>
-              <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                ${TIER_BENEFITS[SUBSCRIPTION_TIER.MOANA].price.split("/")[0].slice(1)}/mo
-              </p>
-              <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
-                <li>• Everything in Verified</li>
-                <li>• Featured placement in registry</li>
-                <li>• Invoice and QR tools</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
-    {businesses.length === 0 ? (
-      <div className="rounded-2xl border border-dashed border-gray-200 bg-white/80 p-6 sm:p-12 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white">
-          <Building2 className="w-7 h-7 text-gray-400" />
-        </div>
-
-        <h3 className="text-lg font-bold text-[#0a1628]">
-          {onboardingStatus.needsProfile ? "Start with your profile" : "No businesses yet"}
-        </h3>
-
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
-          {onboardingStatus.needsProfile
-            ? "Your profile helps confirm ownership details before you manage business listings."
-            : "Claim an existing business or add your own listing to begin managing your presence in Pacific Market."}
-        </p>
-
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          {onboardingStatus.needsProfile ? (
-            <>
-              <button disabled className={disabledActionCls}>
-                <Search className="w-4 h-4" />
-                Claim Business
-              </button>
-
-              <button disabled className={disabledActionCls}>
-                <Plus className="w-4 h-4" />
-                Add Business
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => {
-                  setClaimAddDefaultView("claim");
-                  setShowClaimAddModal(true);
-                }}
-                className={secondaryActionCls}
-              >
-                <Search className="w-4 h-4" />
-                Claim Business
-              </button>
-
-              <button
-                onClick={() => {
-                  setClaimAddDefaultView("add");
-                  setShowClaimAddModal(true);
-                }}
-                className={primaryActionCls}
-              >
-                <Plus className="w-4 h-4" />
-                Add Business
-              </button>
-            </>
+            <BusinessesTab
+              businesses={businesses}
+              user={user}
+              profiles={profiles}
+              onboardingStatus={onboardingStatus}
+              editingBusinessId={editingBusinessId}
+              draftBusiness={draftBusiness}
+              savingEdit={savingEdit}
+              insightsSubmitting={insightsSubmitting}
+              insightsStarted={insightsStarted}
+              tierInfo={tierInfo}
+              checkoutLoading={checkoutLoading}
+              onBusinessAction={(action, businessId, data) => {
+                switch (action) {
+                  case "edit":
+                    startEditingBusiness(businesses.find(b => b.id === businessId));
+                    break;
+                  case "cancel":
+                    cancelEditingBusiness();
+                    break;
+                  case "save":
+                    saveBusiness(data);
+                    break;
+                  case "delete":
+                    setDeleteConfirmBusiness(businessId);
+                    break;
+                  case "addOwner":
+                    setShowAddOwnerModal(businessId);
+                    break;
+                  case "logoUpload":
+                    // Handle logo upload
+                    break;
+                  case "insightsSubmit":
+                    handleBusinessInsightsSubmit(data);
+                    break;
+                }
+              }}
+              onClaimAddAction={(action) => {
+                setClaimAddDefaultView(action);
+                setShowClaimAddModal(true);
+              }}
+              onUpgradeClick={createCheckoutSession}
+            />
           )}
-        </div>
-      </div>
-    ) : (
-      <div className="space-y-5">
-        {businesses.map((b) => {
-          const tierStyles =
-            b.subscription_tier === SUBSCRIPTION_TIER.MOANA
-              ? "bg-[#c9a84c]/14 text-[#0a1628] border border-[#c9a84c]/20"
-              : b.subscription_tier === SUBSCRIPTION_TIER.MANA
-              ? "bg-[#00c4cc]/12 text-[#0d4f4f] border border-[#00c4cc]/20"
-              : "bg-gray-100/80 text-gray-600 border border-gray-200";
-
-          const metaParts = [
-            b.city ? `${b.city}, ${getCountryLabel(b.country)}` : getCountryLabel(b.country),
-            getIndustryLabel(b.industry),
-          ].filter(Boolean);
-
-          const isEditing = editingBusinessId === b.id;
-
-          return (
-            <div key={b.id} className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-              <div className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                      {b.logo_url ? (
-                        <img
-                          src={b.logo_url}
-                          alt=""
-                          className="h-full w-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = "/pm_logo.png";
-                          }}
-                        />
-                      ) : (
-                        <img
-                          src="/pm_logo.png"
-                          alt="Pacific Market"
-                          className="h-full w-full object-cover"
-                        />
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <h3 className="text-lg font-semibold text-[#0a1628]">{b.name}</h3>
-                        <span
-                          className={`rounded-full border px-2 py-1 text-xs font-medium ${tierStyles}`}
-                        >
-                          {tierInfo[b.subscription_tier]?.label || "vaka"}
-                        </span>
-                        {b.verified && (
-                          <span className="rounded-full px-2 py-1 text-xs font-medium bg-emerald-100/80 text-emerald-700 border border-emerald-200">
-                            Verified
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="text-sm text-gray-600 mb-3">{metaParts.join(" · ")}</p>
-
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => {
-                            if (isEditing) {
-                              cancelEditingBusiness();
-                            } else {
-                              startEditingBusiness(b);
-                            }
-                          }}
-                          className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                            isEditing
-                              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                              : "bg-[#0d4f4f] text-white hover:bg-[#1a6b6b]"
-                          }`}
-                        >
-                          {isEditing ? "Cancel" : "Edit"}
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteBusiness(b.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Delete
-                        </button>
-
-                        <button
-                          onClick={() => setShowAddOwnerModal(b.id)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition"
-                        >
-                          <Users className="h-3 w-3" />
-                          Add Owner
-                        </button>
-
-                        <label className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer">
-                          <Upload className="h-3 w-3" />
-                          Logo
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleLogoUpload(e, b.id)}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-
-                      {b.owner_user_id && (
-                        <p className="mt-3 text-xs text-slate-500">
-                          Owner: {getBusinessOwnerName(b.owner_user_id, profiles)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {isEditing && draftBusiness && (
-                <div className="border-t border-gray-200 bg-gray-50 p-6">
-                  <InlineBusinessForm
-                    title={`Edit ${b.name}`}
-                    formData={draftBusiness}
-                    setFormData={setDraftBusiness}
-                    onSave={() => saveBusiness(draftBusiness)}
-                    onCancel={cancelEditingBusiness}
-                    saving={savingEdit}
-                    mode="edit"
-                  />
-                </div>
-              )}
-
-              <div className="border-t border-gray-200 bg-gray-50 p-6">
-                <h4 className="text-sm font-semibold text-[#0a1628] mb-4">Business Insights</h4>
-                <BusinessInsightsAccordion
-                  businessId={b.id}
-                  onSubmit={handleBusinessInsightsSubmit}
-                  isLoading={insightsSubmitting}
-                  onStart={() => setInsightsStarted(true)}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    )}
-
-    {businesses.length > 0 && (
-      <ReferralDashboard
-        businessId={businesses[0]?.id}
-        businessHandle={businesses[0]?.business_handle}
-      />
-    )}
-  </div>
-)}
 
           {activeTab === "claims" && (
-            <div>
-              <h2 className="font-bold text-[#0a1628] mb-5">Claim Requests</h2>
-
-              {claims.length === 0 ? (
-                <div className="bg-white/70 border border-dashed border-gray-200 rounded-2xl p-12 text-center">
-                  <CheckCircle className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                  <h3 className="font-semibold text-gray-600 mb-2">No claim requests</h3>
-                  <p className="text-slate-500 text-sm">
-                    When you claim a business, it will appear here for tracking.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {claims.map((c) => (
-                    <div
-                      key={c.id}
-                      className={`${portalUI.card} flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}
-                    >
-                      <div className="min-w-0">
-                        <p className="font-semibold text-[#0a1628] truncate">
-                          {c.business_name || c.business_id}
-                        </p>
-                        <p className="text-xs text-slate-500 mt-1">
-                          Submitted {c.created_at ? new Date(c.created_at).toLocaleDateString() : "—"}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <span className="text-xs font-semibold rounded-full px-3 py-1 border border-amber-200 bg-amber-50 text-amber-700">
-                          {c.status}
-                        </span>
-
-                        {c.status === "pending" && (
-                          <CancelClaimButton
-                            claimId={c.id}
-                            onCancelSuccess={() => refetchPortalData()}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ClaimsTab
+              claims={claims}
+              onCancelSuccess={() => refetchPortalData()}
+            />
           )}
 
           {activeTab === "insights" && (
-  <div className="space-y-6">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <p className={portalUI.sectionKicker}>Business Insights</p>
-        <h2 className={portalUI.sectionTitle}>Business Performance & Analytics</h2>
-        <p className={portalUI.sectionDesc}>
-          Capture founder and business insights to help build a stronger profile,
-          improve visibility, and unlock better support over time.
-        </p>
-      </div>
-    </div>
-
-    <div className={`${portalUI.card} p-0 sm:p-0`}>
-      <ProfileSettingsAccordion
-        onComplete={async () => {
-          await refetchOnboardingStatus();
-          await refetchPortalData();
-        }}
-      />
-    </div>
-
-    <div className={`${portalUI.card} p-4 sm:p-8`}>
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-[#0a1628] mb-1">
-          Founder Insights
-        </h3>
-        <p className="text-sm text-gray-600">
-          Share your founder journey, goals, and business context.
-        </p>
-      </div>
-
-      <FounderInsightsAccordion
-        businessId={businesses[0]?.id ?? null}
-        onSubmit={handleFounderInsightsSubmit}
-        isLoading={insightsSubmitting}
-        initialData={insightSnapshots[0] || null}
-        onStart={() => setInsightsStarted(true)}
-      />
-    </div>
-  </div>
-)}
+            <ProfileInsightsTab
+              user={user}
+              businesses={businesses}
+              insightsSubmitting={insightsSubmitting}
+              insightsStarted={insightsStarted}
+              insightSnapshots={insightSnapshots}
+              onProfileComplete={async () => {
+                await refetchOnboardingStatus();
+                await refetchPortalData();
+              }}
+              onFounderInsightsSubmit={handleFounderInsightsSubmit}
+            />
+          )}
 
           {activeTab === "tools" && (
-            <div>
-              <h2 className="font-bold text-[#0a1628] mb-2">Business Tools</h2>
-              <p className="text-slate-600 text-sm mb-6">Available to Moana subscribers.</p>
-
-              {businesses.some((b) => b.subscription_tier === SUBSCRIPTION_TIER.MOANA) ? (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  <Link
-                    href={createPageUrl("InvoiceGenerator")}
-                    className={`${portalUI.card} hover:shadow-[0_18px_45px_rgba(10,22,40,0.12)] hover:border-[#0d4f4f]/30 transition-all group`}
-                  >
-                    <FileText className="w-8 h-8 text-[#0d4f4f] mb-4" />
-                    <h3 className="font-bold text-[#0a1628] mb-2">Invoice Generator</h3>
-                    <p className="text-slate-600 text-sm mb-4">
-                      Create professional invoices with your Pacific business branding.
-                    </p>
-                    <span className="text-sm font-semibold text-[#0d4f4f] group-hover:gap-2 flex items-center gap-1">
-                      Open Tool <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </Link>
-
-                  <Link
-                    href={createPageUrl("QRCodeGenerator")}
-                    className={`${portalUI.card} hover:shadow-[0_18px_45px_rgba(10,22,40,0.12)] hover:border-[#0d4f4f]/30 transition-all group`}
-                  >
-                    <QrCode className="w-8 h-8 text-[#0d4f4f] mb-4" />
-                    <h3 className="font-bold text-[#0a1628] mb-2">QR Code Generator</h3>
-                    <p className="text-slate-600 text-sm mb-4">
-                      Generate QR codes linking to your registry profile or custom URL.
-                    </p>
-                    <span className="text-sm font-semibold text-[#0d4f4f] group-hover:gap-2 flex items-center gap-1">
-                      Open Tool <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </Link>
-
-                  <Link
-                    href={createPageUrl("signature-generator")}
-                    className={`${portalUI.card} hover:shadow-[0_18px_45px_rgba(10,22,40,0.12)] hover:border-[#0d4f4f]/30 transition-all group`}
-                  >
-                    <Mail className="w-8 h-8 text-[#0d4f4f] mb-4" />
-                    <h3 className="font-bold text-[#0a1628] mb-2">Email Signature</h3>
-                    <p className="text-slate-600 text-sm mb-4">
-                      Create professional email signatures with your business branding.
-                    </p>
-                    <span className="text-sm font-semibold text-[#0d4f4f] group-hover:gap-2 flex items-center gap-1">
-                      Open Tool <ChevronRight className="w-4 h-4" />
-                    </span>
-                  </Link>
-                </div>
-              ) : (
-                <div className="bg-gradient-to-br from-[#c9a84c]/10 to-[#c9a84c]/5 border border-[#c9a84c]/30 rounded-2xl p-8 text-center">
-                  <Star className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
-                  <h3 className="font-bold text-[#0a1628] mb-2">Featured+ Required</h3>
-                  <p className="text-slate-600 text-sm mb-5">
-                    Upgrade at least one business to Featured+ to unlock the Invoice and QR Code generators.
-                  </p>
-                  <Link
-                    href={createPageUrl("Pricing")}
-                    className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all min-h-[44px] w-full sm:w-auto"
-                  >
-                    View Plans <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              )}
-            </div>
+            <BusinessToolsTab businesses={businesses} />
           )}
         </div>
       </div>
