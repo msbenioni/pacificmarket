@@ -385,7 +385,7 @@ export default function ProfileSettingsAccordion({ onComplete }) {
                     <p className="text-sm text-gray-600 mb-3">
                       Select all cultural identities that apply to you
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
                       {COUNTRIES.map((country) => (
                         <label
                           key={country.value}
