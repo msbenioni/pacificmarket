@@ -3,6 +3,9 @@
  * Utilities for working with business ownership and profiles
  */
 
+import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
+import { TIER_STYLES } from "@/constants/portalUI";
+
 /**
  * Get business owner information from profiles table
  * @param {string} ownerUserId - The owner_user_id from businesses table
@@ -77,4 +80,109 @@ export function formatBusinessOwnerInfo(business, profiles = []) {
     businessId: business.id,
     businessName: business.name
   };
+}
+
+/**
+ * Get country label from country value
+ * @param {string} countryValue - Country value from constants
+ * @returns {string} - Human-readable country name
+ */
+export function getCountryLabel(countryValue) {
+  const country = COUNTRIES.find((c) => c.value === countryValue);
+  return country ? country.label : countryValue;
+}
+
+/**
+ * Get industry label from industry value
+ * @param {string} industryValue - Industry value from constants
+ * @returns {string} - Human-readable industry name
+ */
+export function getIndustryLabel(industryValue) {
+  const industry = INDUSTRIES.find((i) => i.value === industryValue);
+  return industry ? industry.label : industryValue;
+}
+
+/**
+ * Get business display information
+ * @param {Object} business - Business object
+ * @returns {Object} - Formatted business display info
+ */
+export function getBusinessDisplayInfo(business) {
+  if (!business) return null;
+
+  const metaParts = [
+    business.city ? `${business.city}, ${getCountryLabel(business.country)}` : getCountryLabel(business.country),
+    getIndustryLabel(business.industry),
+  ].filter(Boolean);
+
+  return {
+    name: business.name,
+    metaDescription: metaParts.join(" · "),
+    tierStyles: TIER_STYLES.getTierStyles(business.subscription_tier),
+    isVerified: business.verified,
+    logoUrl: business.logo_url,
+    subscriptionTier: business.subscription_tier,
+  };
+}
+
+/**
+ * Check if business needs upgrade prompt
+ * @param {Array} businesses - Array of business objects
+ * @returns {boolean} - True if should show upgrade prompt
+ */
+export function shouldShowUpgradePrompt(businesses = []) {
+  return businesses.length > 0 && 
+         !businesses.some((b) => b.subscription_tier !== "VAKA");
+}
+
+/**
+ * Get available actions for a business based on user permissions
+ * @param {Object} business - Business object
+ * @param {Object} user - User object
+ * @param {boolean} isEditing - Whether business is currently being edited
+ * @returns {Array} - Available actions
+ */
+export function getBusinessActions(business, user, isEditing = false) {
+  const actions = [];
+  
+  if (isEditing) {
+    actions.push({
+      key: "cancel",
+      label: "Cancel",
+      handler: "cancelEditingBusiness",
+      style: "icon",
+    });
+  } else {
+    actions.push({
+      key: "edit",
+      label: "Edit",
+      handler: "startEditingBusiness",
+      style: "iconPrimary",
+    });
+  }
+  
+  // Always available actions
+  actions.push(
+    {
+      key: "delete",
+      label: "Delete",
+      handler: "handleDeleteBusiness",
+      style: "danger",
+    },
+    {
+      key: "addOwner",
+      label: "Add Owner",
+      handler: "handleAddOwner",
+      style: "iconSecondary",
+    },
+    {
+      key: "logo",
+      label: "Logo",
+      handler: "handleLogoUpload",
+      style: "iconSecondary",
+      isLabel: true,
+    }
+  );
+  
+  return actions;
 }

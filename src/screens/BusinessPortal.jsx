@@ -803,8 +803,8 @@ export default function BusinessPortal() {
               },
               {
                 id: "insights",
-                label: "Founder Insights",
-                mobileLabel: "Insights",
+                label: "Profile & Insights",
+                mobileLabel: "Profile",
                 icon: Users,
                 status:
                   insightSnapshots.length > 0
@@ -1135,6 +1135,16 @@ export default function BusinessPortal() {
                   />
                 </div>
               )}
+
+              <div className="border-t border-gray-200 bg-gray-50 p-6">
+                <h4 className="text-sm font-semibold text-[#0a1628] mb-4">Business Insights</h4>
+                <BusinessInsightsAccordion
+                  businessId={b.id}
+                  onSubmit={handleBusinessInsightsSubmit}
+                  isLoading={insightsSubmitting}
+                  onStart={() => setInsightsStarted(true)}
+                />
+              </div>
             </div>
           );
         })}
@@ -1236,38 +1246,6 @@ export default function BusinessPortal() {
         initialData={insightSnapshots[0] || null}
         onStart={() => setInsightsStarted(true)}
       />
-    </div>
-
-    <div className="space-y-6">
-      {businesses.length === 0 ? (
-        <div className="bg-white/70 border border-dashed border-gray-200 rounded-2xl p-12 text-center">
-          <Users className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-          <h3 className="font-semibold text-gray-600 mb-2">No businesses yet</h3>
-          <p className="text-slate-500 text-sm">
-            Add or claim a business first to complete business insights.
-          </p>
-        </div>
-      ) : (
-        businesses.map((business) => (
-          <div key={business.id} className={`${portalUI.card} p-4 sm:p-8`}>
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-[#0a1628] mb-1">
-                {business.name}
-              </h3>
-              <p className="text-sm text-gray-600">
-                {getIndustryLabel(business.industry)} • {getCountryLabel(business.country)}
-              </p>
-            </div>
-
-            <BusinessInsightsAccordion
-              businessId={business.id}
-              onSubmit={handleBusinessInsightsSubmit}
-              isLoading={insightsSubmitting}
-              onStart={() => setInsightsStarted(true)}
-            />
-          </div>
-        ))
-      )}
     </div>
   </div>
 )}
