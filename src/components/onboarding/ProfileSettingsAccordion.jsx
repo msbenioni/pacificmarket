@@ -630,15 +630,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
 
   return (
     <div className="rounded-2xl bg-white">
-      <div className="border-b border-gray-200 px-4 py-5 sm:px-8">
-        <h2 className="text-lg font-semibold text-[#0a1628] sm:text-xl">
-          Profile Settings
-        </h2>
-        <p className="mt-1 text-sm text-gray-600">
-          Update your personal profile information inline.
-        </p>
-      </div>
-
       <div className="p-4 sm:p-8">
         {saveSuccess && (
           <div className="mb-6 rounded-xl border border-green-200 bg-green-50 p-4">

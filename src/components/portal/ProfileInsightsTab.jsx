@@ -13,7 +13,6 @@ export default function ProfileInsightsTab({
   onFounderInsightsSubmit,
   setInsightsProgress,
 }) {
-  const hasInsights = !!insightSnapshots?.[0];
 
   return (
     <div className="space-y-5 sm:space-y-6">
@@ -63,16 +62,7 @@ export default function ProfileInsightsTab({
               <p className="mt-1 text-sm font-semibold text-[#0a1628]">Better matching</p>
             </div>
 
-            <div className="rounded-2xl border border-white/80 bg-white/90 p-3 shadow-sm">
-              <div className="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
-                <Sparkles className="h-4.5 w-4.5" />
-              </div>
-              <p className="text-xs font-medium text-slate-500">Status</p>
-              <p className="mt-1 text-sm font-semibold text-[#0a1628]">
-                {hasInsights ? "Started" : "Ready"}
-              </p>
             </div>
-          </div>
         </div>
       </section>
 
@@ -135,10 +125,6 @@ export default function ProfileInsightsTab({
                 Share the story behind your business, what drives you, what challenges
                 you are navigating, and where you want to grow next.
               </p>
-            </div>
-
-            <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm">
-              {insightsSubmitting ? "Saving..." : hasInsights ? "In progress" : "Not started"}
             </div>
           </div>
         </div>
