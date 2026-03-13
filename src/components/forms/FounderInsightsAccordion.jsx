@@ -1050,40 +1050,15 @@ export default function FounderInsightsAccordion({
         );
       })}
 
-      <div className="pt-2">
-        <div className="rounded-[24px] border border-[#0d4f4f]/10 bg-gradient-to-r from-[#0d4f4f] to-[#136060] p-4 shadow-[0_20px_40px_rgba(13,79,79,0.22)] sm:p-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                Final step
-              </p>
-              <h4 className="mt-1 text-lg font-semibold">
-                Save your full founder insights
-              </h4>
-              <p className="mt-1 text-sm text-white/80">
-                Once you are happy with your responses, submit everything together.
-              </p>
-            </div>
-
-            <button
-              onClick={handleSubmitAll}
-              disabled={submitting || isLoading}
-              className="inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3 text-sm font-bold text-[#0d4f4f] shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
-              {submitting || isLoading ? (
-                <>
-                  <div className="h-4 w-4 rounded-full border-2 border-[#0d4f4f]/30 border-t-[#0d4f4f] animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  Submit founder insights
-                  <ChevronRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+      <div className="flex justify-end border-t border-gray-200 px-4 py-5 sm:px-8">
+        <button
+          type="button"
+          onClick={handleSubmitAll}
+          disabled={submitting || isLoading}
+          className="rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#0a3d3d] focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/20 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {submitting || isLoading ? "Saving..." : "Save All Changes"}
+        </button>
       </div>
     </div>
   );
