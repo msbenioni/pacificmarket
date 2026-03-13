@@ -249,6 +249,7 @@ export default function BusinessPortal() {
                 await refetchPortalData();
               }}
               onFounderInsightsSubmit={handleFounderInsightsSubmit}
+              setInsightsProgress={setInsightsProgress}
             />
           )}
 

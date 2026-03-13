@@ -11,6 +11,7 @@ export default function ProfileInsightsTab({
   insightSnapshots,
   onProfileComplete,
   onFounderInsightsSubmit,
+  setInsightsProgress,
 }) {
   const hasInsights = !!insightSnapshots?.[0];
 
@@ -148,7 +149,7 @@ export default function ProfileInsightsTab({
             onSubmit={onFounderInsightsSubmit}
             isLoading={insightsSubmitting}
             initialData={insightSnapshots?.[0] || null}
-            onStart={() => insightsStarted(true)}
+            onStart={() => setInsightsProgress(true)}
           />
         </div>
       </section>
