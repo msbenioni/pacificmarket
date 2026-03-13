@@ -153,62 +153,41 @@ function SectionShell({
   const Icon = section.icon;
 
   return (
-    <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full bg-gradient-to-r from-white via-white to-slate-50 px-4 py-4 text-left sm:px-5"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0d4f4f]/10 text-[#0d4f4f]">
-              <Icon className="h-5 w-5" />
-            </div>
-
-            <div className="min-w-0">
-              <h4 className="text-base font-semibold text-[#0a1628] sm:text-[17px]">
+    <div className="rounded-xl border border-slate-300 bg-white shadow-sm transition-all hover:shadow-md">
+      <div className="w-full px-4 py-4 sm:px-6">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex w-full items-start justify-between gap-3 text-left transition-colors"
+        >
+          <div className="flex items-start gap-3">
+            <Icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0d4f4f]" />
+            <div>
+              <h4 className="break-words text-sm font-semibold text-[#0a1628]">
                 {section.label}
               </h4>
-              <p className="mt-1 text-sm leading-6 text-slate-600">
+              <p className="mt-1 text-sm leading-5 text-slate-600">
                 {section.description}
               </p>
             </div>
           </div>
 
-          <div className="shrink-0 text-slate-400">
-            {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          <div className="mt-0.5 flex-shrink-0 text-slate-400">
+            {expanded ? (
+              <ChevronUp className="h-5 w-5" />
+            ) : (
+              <ChevronDown className="h-5 w-5" />
+            )}
           </div>
-        </div>
-      </button>
+        </button>
+      </div>
 
       {expanded && (
-        <>
-          <div className="border-t border-slate-200 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5">
-            {children}
-          </div>
-
-          <div className="border-t border-slate-200 bg-white px-4 py-4 sm:px-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={onSave}
-                disabled={submitting || isLoading}
-                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-[#0d4f4f] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(13,79,79,0.25)] transition hover:bg-[#136060] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-              >
-                {submitting || isLoading ? (
-                  <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-4 w-4" />
-                    Save this section
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </>
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-slate-50 border-t border-slate-200">
+          {children}
+        </div>
       )}
-    </section>
+    </div>
   );
 }
 

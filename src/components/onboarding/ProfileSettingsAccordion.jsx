@@ -584,9 +584,9 @@ export default function ProfileSettingsAccordion({ onComplete }) {
             onClick={() => toggleSection(section.key)}
             className="flex w-full items-start justify-between gap-3 text-left transition-colors"
           >
-            <div className="flex min-w-0 items-start gap-3">
+            <div className="flex items-start gap-3">
               <section.icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0d4f4f]" />
-              <div className="min-w-0">
+              <div>
                 <h4 className="break-words text-sm font-semibold text-[#0a1628]">
                   {section.label}
                 </h4>

@@ -37,7 +37,7 @@ function InsightsAccordionSection({
 
         <div className="flex items-center gap-3 shrink-0">
           {summary && (
-            <div className="hidden md:block text-xs text-gray-300 text-right max-w-[140px] truncate">
+            <div className="hidden md:block text-xs text-gray-300 text-right">
               {summary}
             </div>
           )}
