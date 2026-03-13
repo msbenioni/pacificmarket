@@ -184,7 +184,7 @@ export default function BusinessProfile() {
       {/* Banner */}
       <div className="relative h-[220px] sm:h-[280px] lg:h-[400px] overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
         {business.banner_url && (
-          <img src={business.banner_url} alt="" className="w-full h-full object-cover" />
+          <img src={business.banner_url} alt="" className="w-full h-full object-contain" />
         )}
 
         {!business.banner_url && (
