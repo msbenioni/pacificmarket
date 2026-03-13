@@ -10,19 +10,23 @@ export const BUTTON_STYLES = {
 };
 
 export const INPUT_STYLES = {
-  default: "w-full min-h-[44px] border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white",
-  select: "w-full min-h-[44px] border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-[#0a1628] focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white appearance-none",
-  textarea: "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white resize-none",
-  modal: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm",
+  default:
+    "w-full min-h-[50px] rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-[#0a1628] placeholder:text-slate-400 shadow-[0_1px_2px_rgba(15,23,42,0.04)] focus:outline-none focus:border-[#0d4f4f] focus:ring-4 focus:ring-[#0d4f4f]/10",
+  select:
+    "w-full min-h-[50px] rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-10 text-sm text-[#0a1628] shadow-[0_1px_2px_rgba(15,23,42,0.04)] focus:outline-none focus:border-[#0d4f4f] focus:ring-4 focus:ring-[#0d4f4f]/10 appearance-none",
+  textarea:
+    "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-[#0a1628] placeholder:text-slate-400 shadow-[0_1px_2px_rgba(15,23,42,0.04)] focus:outline-none focus:border-[#0d4f4f] focus:ring-4 focus:ring-[#0d4f4f]/10 resize-none",
+  modal:
+    "w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-[#0a1628] focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500",
 };
 
 export const CARD_STYLES = {
-  business: "rounded-2xl border border-gray-200 bg-white shadow-sm",
+  business: "rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)]",
   businessHeader: "p-6",
-  businessContent: "border-t border-gray-200 bg-gray-50 p-6",
+  businessContent: "border-t border-slate-200 bg-slate-50 p-6",
   upgrade: "rounded-[28px] border border-[#00c4cc]/20 bg-gradient-to-r from-[#00c4cc]/10 via-white to-[#c9a84c]/10 p-6 shadow-[0_18px_50px_rgba(10,22,40,0.08)]",
-  empty: "rounded-2xl border border-dashed border-gray-200 bg-white/80 p-6 sm:p-12 text-center",
-  portal: "rounded-2xl border border-gray-200 bg-white/90 p-4",
+  empty: "rounded-[26px] border border-dashed border-slate-300 bg-white/90 p-6 sm:p-12 text-center",
+  portal: "rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-4 sm:p-5",
 };
 
 export const TIER_STYLES = {
