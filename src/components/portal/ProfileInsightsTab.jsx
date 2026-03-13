@@ -40,30 +40,6 @@ export default function ProfileInsightsTab({
           </div>
       </section>
 
-      {/* Guided intro strip */}
-      <section className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h3 className="text-base font-semibold text-[#0a1628]">
-              Complete this in two parts
-            </h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              Start with your profile details, then continue with founder insights.
-              You can save section by section and come back anytime.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
-              Save as you go
-            </span>
-            <span className="inline-flex items-center rounded-full border border-[#0d4f4f]/10 bg-[#0d4f4f]/5 px-3 py-1 text-xs font-medium text-[#0d4f4f]">
-              Mobile friendly
-            </span>
-          </div>
-        </div>
-      </section>
-
       {/* Profile section */}
       <section className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
         <div className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white px-4 py-4 sm:px-6">
