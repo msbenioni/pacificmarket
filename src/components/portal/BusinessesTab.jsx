@@ -4,7 +4,6 @@ import { shouldShowUpgradePrompt } from "@/utils/businessHelpers";
 import BusinessCard from "./BusinessCard";
 import EmptyState from "./EmptyState";
 import UpgradePrompt from "./UpgradePrompt";
-import ReferralDashboard from "@/components/referrals/ReferralDashboard";
 
 export default function BusinessesTab({
   businesses,
@@ -158,13 +157,6 @@ export default function BusinessesTab({
             </div>
           ))}
         </div>
-      )}
-
-      {businesses.length > 0 && (
-        <ReferralDashboard
-          businessId={businesses[0]?.id}
-          businessHandle={businesses[0]?.business_handle}
-        />
       )}
     </div>
   );
