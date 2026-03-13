@@ -142,9 +142,56 @@ export default function BusinessInsightsAccordion({
   onStart,
   embedded = false,
 }) {
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({
+    business_stage: "",
+    team_size_band: "",
+    business_model: "",
+    family_involvement: "",
+    customer_region: "",
+    sales_channels: [],
+    revenue_band: "",
+    business_operating_status: "",
+    current_funding_source: "",
+    funding_amount_needed: "",
+    investment_stage: "",
+    financial_challenges: "",
+    top_challenges: [],
+    support_needed_next: [],
+    growth_stage: "",
+    goals_next_12_months_array: [],
+    goals_details: "",
+    community_impact_areas: [],
+    collaboration_interest: null,
+    mentorship_offering: false,
+    open_to_future_contact: false,
+    business_description: "",
+  });
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
+
+  const getInitialForm = () => ({
+    business_stage: "",
+    team_size_band: "",
+    business_model: "",
+    family_involvement: "",
+    customer_region: "",
+    sales_channels: [],
+    revenue_band: "",
+    business_operating_status: "",
+    current_funding_source: "",
+    funding_amount_needed: "",
+    investment_stage: "",
+    financial_challenges: "",
+    top_challenges: [],
+    support_needed_next: [],
+    growth_stage: "",
+    goals_next_12_months_array: [],
+    goals_details: "",
+    community_impact_areas: [],
+    collaboration_interest: null,
+    mentorship_offering: false,
+    open_to_future_contact: false,
+  });
 
   const toggleSection = (sectionKey) => {
     setExpandedSections((prev) => {
@@ -167,6 +214,21 @@ export default function BusinessInsightsAccordion({
     }
   };
 
+  const toggleArrayItem = (field, item) => {
+    setForm((prev) => {
+      const currentArray = prev[field] || [];
+      const limit = field === "top_challenges" ? 5 : field === "support_needed_next" || field === "goals_next_12_months_array" ? 3 : undefined;
+
+      if (limit && currentArray.length >= limit) return prev;
+
+      if (currentArray.includes(item)) {
+        return { ...prev, [field]: currentArray.filter((i) => i !== item) };
+      }
+
+      return { ...prev, [field]: [...currentArray, item] };
+    });
+  };
+
   const renderSection = (section, index) => {
     const isExpanded = expandedSections.has(section.key);
 
@@ -177,9 +239,306 @@ export default function BusinessInsightsAccordion({
         expanded={isExpanded}
         onToggle={() => toggleSection(section.key)}
       >
-        <div className="text-sm text-slate-600">
-          {section.label} content will be implemented here
-        </div>
+        {section.key === "business" && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className={labelCls}>Business Stage</label>
+                <select
+                  value={form.business_stage || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, business_stage: e.target.value }))}
+                  className={selectCls}
+                >
+                  <option value="">Select stage</option>
+                  {BUSINESS_STAGE.map((stage) => (
+                    <option key={stage.value} value={stage.value}>
+                      {stage.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelCls}>Team Size</label>
+                <select
+                  value={form.team_size_band || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, team_size_band: e.target.value }))}
+                  className={selectCls}
+                >
+                  <option value="">Select team size</option>
+                  <option value="1">Just me</option>
+                  <option value="2-5">2-5 people</option>
+                  <option value="6-10">6-10 people</option>
+                  <option value="11-20">11-20 people</option>
+                  <option value="21-50">21-50 people</option>
+                  <option value="51+">51+ people</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={labelCls}>Annual Revenue</label>
+                <select
+                  value={form.revenue_band || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, revenue_band: e.target.value }))}
+                  className={selectCls}
+                >
+                  <option value="">Select revenue range</option>
+                  <option value="0-50k">Under $50,000</option>
+                  <option value="50k-100k">$50,000 - $100,000</option>
+                  <option value="100k-250k">$100,000 - $250,000</option>
+                  <option value="250k-500k">$250,000 - $500,000</option>
+                  <option value="500k-1m">$500,000 - $1,000,000</option>
+                  <option value="1m+">Over $1,000,000</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={labelCls}>Operating Status</label>
+                <select
+                  value={form.business_operating_status || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, business_operating_status: e.target.value }))}
+                  className={selectCls}
+                >
+                  <option value="">Select status</option>
+                  <option value="operating">Operating</option>
+                  <option value="paused">Paused</option>
+                  <option value="planning">Planning</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className={labelCls}>Business Description</label>
+              <textarea
+                value={form.business_description || ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, business_description: e.target.value }))}
+                placeholder="Describe your business, what you do, and who you serve..."
+                rows={4}
+                className={textareaCls}
+              />
+            </div>
+          </div>
+        )}
+
+        {section.key === "financial" && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className={labelCls}>Current Funding Source</label>
+                <select
+                  value={form.current_funding_source || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, current_funding_source: e.target.value }))}
+                  className={selectCls}
+                >
+                  <option value="">Select funding source</option>
+                  {FUNDING_SOURCES.map((source) => (
+                    <option key={source.value} value={source.value}>
+                      {source.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelCls}>Funding Amount Needed</label>
+                <select
+                  value={form.funding_amount_needed || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, funding_amount_needed: e.target.value }))}
+                  className={selectCls}
+                >
+                  <option value="">Select amount</option>
+                  <option value="0-5k">Under $5,000</option>
+                  <option value="5k-10k">$5,000 - $10,000</option>
+                  <option value="10k-25k">$10,000 - $25,000</option>
+                  <option value="25k-50k">$25,000 - $50,000</option>
+                  <option value="50k-100k">$50,000 - $100,000</option>
+                  <option value="100k+">Over $100,000</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className={labelCls}>Investment Stage</label>
+              <select
+                value={form.investment_stage || ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, investment_stage: e.target.value }))}
+                className={selectCls}
+              >
+                <option value="">Select stage</option>
+                {INVESTMENT_STAGES.map((stage) => (
+                  <option key={stage.value} value={stage.value}>
+                    {stage.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className={labelCls}>Financial Challenges</label>
+              <textarea
+                value={form.financial_challenges || ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, financial_challenges: e.target.value }))}
+                placeholder="Describe any financial challenges or constraints you're facing..."
+                rows={4}
+                className={textareaCls}
+              />
+            </div>
+          </div>
+        )}
+
+        {section.key === "challenges" && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <label className={labelCls}>Top Challenges</label>
+                  <p className={helperCls}>Choose up to 5.</p>
+                </div>
+                <span className="text-xs font-medium text-slate-500">
+                  {form.top_challenges?.length || 0}/5 selected
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {BUSINESS_CHALLENGES.map((challenge) => (
+                  <OptionCard
+                    key={challenge.value}
+                    checked={form.top_challenges?.includes(challenge.value) || false}
+                    onChange={() => toggleArrayItem("top_challenges", challenge.value)}
+                    label={challenge.label}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <label className={labelCls}>Support Needed</label>
+                  <p className={helperCls}>Choose up to 3.</p>
+                </div>
+                <span className="text-xs font-medium text-slate-500">
+                  {form.support_needed_next?.length || 0}/3 selected
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {SUPPORT_NEEDS.map((support) => (
+                  <OptionCard
+                    key={support.value}
+                    checked={form.support_needed_next?.includes(support.value) || false}
+                    onChange={() => toggleArrayItem("support_needed_next", support.value)}
+                    label={support.label}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {section.key === "growth" && (
+          <div className="space-y-5">
+            <div>
+              <label className={labelCls}>Current Business Stage</label>
+              <select
+                value={form.growth_stage || ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, growth_stage: e.target.value }))}
+                className={selectCls}
+              >
+                <option value="">Select stage</option>
+                <option value={BUSINESS_STAGE[0].value}>Idea / Planning</option>
+                <option value={BUSINESS_STAGE[1].value}>Startup</option>
+                <option value={BUSINESS_STAGE[2].value}>Growth</option>
+                <option value={BUSINESS_STAGE[3].value}>Mature</option>
+              </select>
+            </div>
+
+            <div>
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <label className={labelCls}>Growth Priorities</label>
+                  <p className={helperCls}>Choose up to 3.</p>
+                </div>
+                <span className="text-xs font-medium text-slate-500">
+                  {form.goals_next_12_months_array?.length || 0}/3 selected
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {GOALS_NEXT_12_MONTHS.map((goal) => (
+                  <OptionCard
+                    key={goal.value}
+                    checked={form.goals_next_12_months_array?.includes(goal.value) || false}
+                    onChange={() => toggleArrayItem("goals_next_12_months_array", goal.value)}
+                    label={goal.label}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className={labelCls}>Additional Growth Goals</label>
+              <textarea
+                value={form.goals_details || ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, goals_details: e.target.value }))}
+                placeholder="Add any specific targets, milestones, or priorities you are working toward."
+                rows={4}
+                className={textareaCls}
+              />
+            </div>
+          </div>
+        )}
+
+        {section.key === "community" && (
+          <div className="space-y-5">
+            <div>
+              <label className={labelCls}>Community Impact Areas</label>
+              <p className={helperCls}>Select all that apply.</p>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {COMMUNITY_IMPACT_AREAS.map((area) => (
+                  <OptionCard
+                    key={area.value}
+                    checked={form.community_impact_areas?.includes(area.value) || false}
+                    onChange={() => toggleArrayItem("community_impact_areas", area.value)}
+                    label={area.label}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className={labelCls}>Collaboration Interest</label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <OptionCard
+                  type="radio"
+                  checked={form.collaboration_interest === true}
+                  onChange={() => setForm((prev) => ({ ...prev, collaboration_interest: true }))}
+                  label="Yes, I am open to collaboration opportunities"
+                />
+                <OptionCard
+                  type="radio"
+                  checked={form.collaboration_interest === false}
+                  onChange={() => setForm((prev) => ({ ...prev, collaboration_interest: false }))}
+                  label="No, not at the moment"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <OptionCard
+                checked={form.mentorship_offering || false}
+                onChange={(e) => setForm((prev) => ({ ...prev, mentorship_offering: !prev.mentorship_offering }))}
+                label="I would be open to mentoring other founders"
+              />
+              <OptionCard
+                checked={form.open_to_future_contact || false}
+                onChange={(e) => setForm((prev) => ({ ...prev, open_to_future_contact: !prev.open_to_future_contact }))}
+                label="I am open to future contact from Pacific Market"
+              />
+            </div>
+          </div>
+        )}
       </SectionShell>
     );
   };
@@ -209,13 +568,13 @@ export default function BusinessInsightsAccordion({
         >
           {submitting || isLoading ? (
             <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               Submitting...
             </>
           ) : (
             <>
               Submit Business Insights
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
             </>
           )}
         </button>
@@ -228,7 +587,7 @@ export default function BusinessInsightsAccordion({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6">
       {content}
     </div>
   );

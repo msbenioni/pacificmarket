@@ -14,7 +14,6 @@ import {
   Trash2,
   FileText,
   LayoutPanelTop,
-  Sparkles,
   AlertTriangle,
   BarChart3,
 } from "lucide-react";
@@ -53,9 +52,7 @@ function InnerAccordionSection({
             <div className={`text-sm font-semibold ${danger ? "text-red-700" : "text-[#0a1628]"}`}>
               {title}
             </div>
-            {subtitle && (
-              <div className="mt-0.5 text-sm text-slate-500">{subtitle}</div>
-            )}
+            {subtitle && <div className="mt-0.5 text-sm text-slate-500">{subtitle}</div>}
           </div>
         </div>
 
@@ -84,6 +81,7 @@ export default function BusinessCard({
   tierInfo,
   onEdit,
   onCancel,
+  onDraftChange,
   onSave,
   onDelete,
   onAddOwner,
@@ -130,9 +128,13 @@ export default function BusinessCard({
     setOpenSection((prev) => (prev === key ? null : key));
   };
 
+  const handleOpenDetails = () => {
+    toggleInnerSection("details");
+    if (!isEditing) onEdit();
+  };
+
   return (
     <div className="bg-white">
-      {/* Outer business header */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -182,7 +184,7 @@ export default function BusinessCard({
 
             <div className="hidden text-right md:block">
               <div className="text-xs text-slate-300">Open to manage</div>
-              <div className="text-xs font-medium text-white/90">Grouped sections, one at a time</div>
+              <div className="text-xs font-medium text-white/90">One section at a time</div>
             </div>
 
             <div className="rounded-xl bg-white/10 p-2">
@@ -192,7 +194,6 @@ export default function BusinessCard({
         </div>
       </button>
 
-      {/* Outer business body */}
       {isOpen && (
         <div className="bg-white">
           <InnerAccordionSection
@@ -273,16 +274,13 @@ export default function BusinessCard({
             icon={FileText}
             value="Editable"
             isOpen={openSection === "details"}
-            onToggle={() => {
-              toggleInnerSection("details");
-              if (!isEditing) onEdit();
-            }}
+            onToggle={handleOpenDetails}
           >
             {isEditing && draftBusiness ? (
               <InlineBusinessForm
                 title={`Edit ${business.name}`}
                 formData={draftBusiness}
-                setFormData={onSave}
+                setFormData={onDraftChange}
                 onSave={() => onSave(draftBusiness)}
                 onCancel={onCancel}
                 saving={savingEdit}

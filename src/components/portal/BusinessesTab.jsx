@@ -1,5 +1,4 @@
-import { Plus, Search, Sparkles, Building2 } from "lucide-react";
-import { BUTTON_STYLES } from "@/constants/portalUI";
+import { Plus, Building2 } from "lucide-react";
 import { shouldShowUpgradePrompt } from "@/utils/businessHelpers";
 import BusinessCard from "./BusinessCard";
 import EmptyState from "./EmptyState";
@@ -31,6 +30,9 @@ export default function BusinessesTab({
         break;
       case "save":
         onBusinessAction("save", businessId, data);
+        break;
+      case "draftChange":
+        onBusinessAction("draftChange", businessId, data);
         break;
       case "delete":
         onBusinessAction("delete", businessId);
@@ -67,8 +69,7 @@ export default function BusinessesTab({
 
   return (
     <div className="space-y-6">
-      {/* Premium Header */}
-      <section className="relative overflow-hidden rounded-[28px] border border-[#0d4f4f]/10 bg-gradient-to-br from-white via-[#f7fbfb] to-[#eef6f6] p-5 sm:p-7 shadow-[0_18px_50px_rgba(10,22,40,0.08)]">
+      <section className="relative overflow-hidden rounded-[28px] border border-[#0d4f4f]/10 bg-gradient-to-br from-white via-[#f7fbfb] to-[#eef6f6] p-5 shadow-[0_18px_50px_rgba(10,22,40,0.08)] sm:p-7">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(13,79,79,0.07),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(201,168,76,0.10),transparent_24%)]" />
 
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -83,8 +84,8 @@ export default function BusinessesTab({
             </h2>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-              View, update, and manage your business listings in one place. Open any
-              record below to edit details, update media, or manage ownership.
+              Open each business to manage grouped sections like listing details, media,
+              owners, and insights in a cleaner workflow.
             </p>
           </div>
 
@@ -102,13 +103,13 @@ export default function BusinessesTab({
               disabled={onboardingStatus.needsProfile}
               className="inline-flex items-center justify-center rounded-xl bg-[#0d4f4f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a3d3d] disabled:cursor-not-allowed disabled:opacity-50"
             >
+              <Plus className="mr-2 h-4 w-4" />
               Add Business
             </button>
           </div>
         </div>
       </section>
 
-      {/* Upgrade Prompt */}
       {shouldShowUpgradePrompt(businesses) && (
         <UpgradePrompt
           onUpgradeClick={onUpgradeClick}
@@ -117,7 +118,6 @@ export default function BusinessesTab({
         />
       )}
 
-      {/* List / Empty */}
       {businesses.length === 0 ? (
         <EmptyState
           type="noBusinesses"
@@ -125,7 +125,7 @@ export default function BusinessesTab({
           onAction={handleEmptyStateAction}
         />
       ) : (
-        <div className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
+        <div className="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
           {businesses.map((business, index) => (
             <div
               key={business.id}
@@ -143,6 +143,9 @@ export default function BusinessesTab({
                 tierInfo={tierInfo}
                 onEdit={() => handleBusinessCardAction("edit", business.id)}
                 onCancel={() => handleBusinessCardAction("cancel", business.id)}
+                onDraftChange={(updater) =>
+                  handleBusinessCardAction("draftChange", business.id, updater)
+                }
                 onSave={(data) => handleBusinessCardAction("save", business.id, data)}
                 onDelete={() => handleBusinessCardAction("delete", business.id)}
                 onAddOwner={() => handleBusinessCardAction("addOwner", business.id)}
