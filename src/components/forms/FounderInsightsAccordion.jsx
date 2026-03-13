@@ -460,31 +460,6 @@ export default function FounderInsightsAccordion({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-[24px] border border-slate-200 bg-gradient-to-r from-white to-slate-50 px-4 py-4 shadow-sm sm:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
-              Founder Insights
-            </p>
-            <h3 className="mt-1 text-base font-semibold text-[#0a1628] sm:text-lg">
-              Complete one section at a time
-            </h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              Save progress section by section. You do not need to complete everything in one sitting.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-              {expandedSections.size} open
-            </span>
-            <span className="inline-flex rounded-full border border-[#0d4f4f]/10 bg-[#0d4f4f]/5 px-3 py-1 text-xs font-medium text-[#0d4f4f]">
-              Premium mobile layout
-            </span>
-          </div>
-        </div>
-      </div>
-
       {SECTIONS.map((section) => {
         const isExpanded = expandedSections.has(section.key);
 
