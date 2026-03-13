@@ -262,7 +262,7 @@ export default function FounderInsightsAccordion({
   };
 
   const [form, setForm] = useState(() => getInitialForm());
-  const [expandedSections, setExpandedSections] = useState(new Set(["founder"]));
+  const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
 

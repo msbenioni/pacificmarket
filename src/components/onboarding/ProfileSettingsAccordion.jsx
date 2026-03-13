@@ -126,7 +126,7 @@ export default function ProfileSettingsAccordion({ onComplete }) {
   });
 
   const [form, setForm] = useState(() => getInitialForm());
-  const [expandedSections, setExpandedSections] = useState(new Set(["basic"]));
+  const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errors, setErrors] = useState({ submit: undefined });
