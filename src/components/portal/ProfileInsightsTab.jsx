@@ -37,33 +37,7 @@ export default function ProfileInsightsTab({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[420px]">
-            <div className="rounded-2xl border border-white/80 bg-white/90 p-3 shadow-sm">
-              <div className="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#0d4f4f]/10 text-[#0d4f4f]">
-                <UserCircle2 className="h-4.5 w-4.5" />
-              </div>
-              <p className="text-xs font-medium text-slate-500">Profile</p>
-              <p className="mt-1 text-sm font-semibold text-[#0a1628]">Foundation</p>
-            </div>
-
-            <div className="rounded-2xl border border-white/80 bg-white/90 p-3 shadow-sm">
-              <div className="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#00c4cc]/10 text-[#0d4f4f]">
-                <LineChart className="h-4.5 w-4.5" />
-              </div>
-              <p className="text-xs font-medium text-slate-500">Insights</p>
-              <p className="mt-1 text-sm font-semibold text-[#0a1628]">Growth context</p>
-            </div>
-
-            <div className="rounded-2xl border border-white/80 bg-white/90 p-3 shadow-sm">
-              <div className="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#c9a84c]/10 text-[#8a6b18]">
-                <ShieldCheck className="h-4.5 w-4.5" />
-              </div>
-              <p className="text-xs font-medium text-slate-500">Visibility</p>
-              <p className="mt-1 text-sm font-semibold text-[#0a1628]">Better matching</p>
-            </div>
-
-            </div>
-        </div>
+          </div>
       </section>
 
       {/* Guided intro strip */}
