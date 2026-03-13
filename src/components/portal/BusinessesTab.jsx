@@ -92,18 +92,16 @@ export default function BusinessesTab({
             <button
               onClick={() => handleEmptyStateAction("claim")}
               disabled={onboardingStatus.needsProfile}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#0d4f4f]/15 bg-white px-4 py-3 text-sm font-semibold text-[#0d4f4f] shadow-sm transition hover:border-[#0d4f4f]/30 hover:bg-[#f8fbfb] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-xl border border-[#0d4f4f]/15 bg-white px-4 py-3 text-sm font-semibold text-[#0d4f4f] shadow-sm transition hover:border-[#0d4f4f]/30 hover:bg-[#f8fbfb] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Search className="h-4 w-4" />
               Claim Business
             </button>
 
             <button
               onClick={() => handleEmptyStateAction("add")}
               disabled={onboardingStatus.needsProfile}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a3d3d] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-xl bg-[#0d4f4f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a3d3d] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Plus className="h-4 w-4" />
               Add Business
             </button>
           </div>

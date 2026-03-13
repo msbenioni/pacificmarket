@@ -64,13 +64,13 @@ export default function BusinessCard({
     tierInfo?.[business.subscription_tier]?.label || business.subscription_tier || "Standard";
 
   const tierStyles = business.verified
-    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-    : "bg-slate-100 text-slate-700 border border-slate-200";
+    ? "bg-emerald-500/20 text-emerald-200 border border-emerald-400/30"
+    : "bg-white/20 text-white border border-white/30";
 
   const statusStyles =
     business.status === "active"
-      ? "bg-[#0d4f4f]/10 text-[#0d4f4f] border border-[#0d4f4f]/15"
-      : "bg-slate-100 text-slate-600 border border-slate-200";
+      ? "bg-white/20 text-white border border-white/30"
+      : "bg-white/15 text-slate-200 border border-white/25";
 
   return (
     <div className="bg-white">
@@ -110,30 +110,25 @@ export default function BusinessCard({
               </div>
 
               <p className="mt-1 line-clamp-2 text-sm text-slate-200">{summaryText}</p>
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tierStyles}`}
-                >
-                  {tierLabel}
-                </span>
-
-                <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}
-                >
-                  {business.status || "draft"}
-                </span>
-
-                {business.industry && (
-                  <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-slate-100">
-                    {business.industry}
-                  </span>
-                )}
-              </div>
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-3">
+            {/* Badges positioned before "Open to manage" */}
+            <div className="hidden lg:flex flex-wrap items-center gap-2">
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tierStyles}`}
+              >
+                {tierLabel}
+              </span>
+
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}
+              >
+                {business.status || "draft"}
+              </span>
+            </div>
+
             <div className="hidden text-right md:block">
               <div className="text-xs text-slate-300">Open to manage</div>
               <div className="text-xs font-medium text-white/90">
