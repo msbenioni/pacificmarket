@@ -439,12 +439,12 @@ export default function BusinessProfileForm({
     setErrors({ submit: undefined });
 
     try {
-      const { publicData, privateData } = transformBusinessFormData(form);
+      const { businessesData, businessInsightsData } = transformBusinessFormData(form);
       
       await onSave({
         businessId,
-        publicData,
-        privateData,
+        businessesData,
+        businessInsightsData,
         files: {
           logo_file: form.logo_file,
           banner_file: form.banner_file,
