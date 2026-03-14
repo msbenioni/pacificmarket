@@ -225,8 +225,10 @@ export default function BusinessProfileForm({
     // Brand Media (from InlineBusinessForm)
     logo_url: "",
     banner_url: "",
+    mobile_banner_url: "",
     logo_file: null,
     banner_file: null,
+    mobile_banner_file: null,
     
     // Ownership & Contact (from InlineBusinessForm)
     business_owner: "",
@@ -377,6 +379,14 @@ export default function BusinessProfileForm({
           banner_file: file,
         }));
       }
+
+      if (type === "mobile_banner") {
+        setForm((prev) => ({
+          ...prev,
+          mobile_banner_url: tempUrl,
+          mobile_banner_file: file,
+        }));
+      }
     } catch (error) {
       console.error("Error handling file upload:", error);
     }
@@ -396,6 +406,14 @@ export default function BusinessProfileForm({
         ...prev,
         banner_url: "",
         banner_file: null,
+      }));
+    }
+
+    if (type === "mobile_banner") {
+      setForm((prev) => ({
+        ...prev,
+        mobile_banner_url: "",
+        mobile_banner_file: null,
       }));
     }
   };
@@ -486,6 +504,7 @@ export default function BusinessProfileForm({
 
   const logoInputId = `${mode}-logo-upload-${businessId || "new"}`;
   const bannerInputId = `${mode}-banner-upload-${businessId || "new"}`;
+  const mobileBannerInputId = `${mode}-mobile-banner-upload-${businessId || "new"}`;
 
   // Render Section Content
   const renderSectionContent = (sectionKey) => {
@@ -511,6 +530,7 @@ export default function BusinessProfileForm({
             removeImage={removeImage}
             logoInputId={logoInputId}
             bannerInputId={bannerInputId}
+            mobileBannerInputId={mobileBannerInputId}
             inputCls={inputCls}
             labelCls={labelCls}
           />

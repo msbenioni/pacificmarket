@@ -7,6 +7,7 @@ export default function BrandMediaSection({
   removeImage, 
   logoInputId, 
   bannerInputId,
+  mobileBannerInputId,
   inputCls, 
   labelCls 
 }) {
@@ -28,52 +29,52 @@ export default function BrandMediaSection({
         </div>
       </div>
 
-      {/* Logo and Banner - Side by side on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Logo Upload */}
-        <div>
-          <label className={labelCls}>Business Logo</label>
-          <div className="mt-2 space-y-3">
-            {form.logo_url ? (
-              <div className="relative inline-block">
-                <img
-                  src={form.logo_url}
-                  alt="Business logo"
-                  className="h-20 w-20 rounded-xl object-cover border border-slate-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImage("logo")}
-                  className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ) : (
-              <div>
-                <input
-                  id={logoInputId}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, "logo")}
-                  className="hidden"
-                />
-                <label
-                  htmlFor={logoInputId}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload Logo
-                </label>
-                <p className="mt-2 text-xs text-slate-500">200×200px recommended, PNG/JPG up to 5MB</p>
-              </div>
-            )}
-          </div>
+      {/* Logo Upload */}
+      <div>
+        <label className={labelCls}>Business Logo</label>
+        <div className="mt-2 space-y-3">
+          {form.logo_url ? (
+            <div className="relative inline-block">
+              <img
+                src={form.logo_url}
+                alt="Business logo"
+                className="h-20 w-20 rounded-xl object-cover border border-slate-200"
+              />
+              <button
+                type="button"
+                onClick={() => removeImage("logo")}
+                className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ) : (
+            <div>
+              <input
+                id={logoInputId}
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, "logo")}
+                className="hidden"
+              />
+              <label
+                htmlFor={logoInputId}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                <Upload className="h-4 w-4" />
+                Upload Logo
+              </label>
+              <p className="mt-2 text-xs text-slate-500">200×200px recommended, PNG/JPG up to 5MB</p>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Banner Upload */}
+      {/* Banner Uploads - Side by side on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Desktop Banner Upload */}
         <div>
-          <label className={labelCls}>Business Banner</label>
+          <label className={labelCls}>Desktop Banner (Business Registry)</label>
           <div className="mt-2 space-y-3">
             {form.banner_url ? (
               <div className="relative inline-block">
@@ -104,9 +105,50 @@ export default function BrandMediaSection({
                   className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
                   <Upload className="h-4 w-4" />
-                  Upload Banner
+                  Upload Desktop Banner
                 </label>
                 <p className="mt-2 text-xs text-slate-500">1200×300px recommended, PNG/JPG up to 5MB</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Banner Upload */}
+        <div>
+          <label className={labelCls}>Mobile Banner (Business Cards)</label>
+          <div className="mt-2 space-y-3">
+            {form.mobile_banner_url ? (
+              <div className="relative inline-block">
+                <img
+                  src={form.mobile_banner_url}
+                  alt="Mobile business banner"
+                  className="h-24 w-48 rounded-xl object-cover border border-slate-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage("mobile_banner")}
+                  className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <input
+                  id={mobileBannerInputId}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, "mobile_banner")}
+                  className="hidden"
+                />
+                <label
+                  htmlFor={mobileBannerInputId}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Mobile Banner
+                </label>
+                <p className="mt-2 text-xs text-slate-500">400×200px recommended, PNG/JPG up to 5MB</p>
               </div>
             )}
           </div>
@@ -114,7 +156,7 @@ export default function BrandMediaSection({
       </div>
 
       {/* Banner Preview Section */}
-      {(form.logo_url || form.banner_url) && (
+      {(form.logo_url || form.banner_url || form.mobile_banner_url) && (
         <div className="space-y-4">
           <h4 className="font-medium text-slate-900">Preview: How Your Images Will Appear</h4>
           
@@ -132,12 +174,12 @@ export default function BrandMediaSection({
                     />
                   ) : (
                     <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
-                      Banner will appear here
+                      Desktop banner will appear here
                     </div>
                   )}
                 </div>
               </div>
-              <p className="text-xs text-slate-500 mt-1">Actual size: 220px-400px height, object-contain</p>
+              <p className="text-xs text-slate-500 mt-1">Uses desktop banner, shows full image</p>
             </div>
 
             {/* Business Card Preview */}
@@ -145,15 +187,21 @@ export default function BrandMediaSection({
               <h5 className="text-sm font-medium text-slate-700 mb-2">Business Card (Portal/Homepage)</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
                 <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
-                  {form.banner_url ? (
+                  {form.mobile_banner_url ? (
+                    <img
+                      src={form.mobile_banner_url}
+                      alt="Business card banner preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : form.banner_url ? (
                     <img
                       src={form.banner_url}
-                      alt="Business card banner preview"
+                      alt="Business card banner preview (fallback)"
                       className="h-full w-full object-cover"
                     />
                   ) : (
                     <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
-                      Banner will appear here
+                      Mobile banner will appear here
                     </div>
                   )}
                 </div>
@@ -162,21 +210,24 @@ export default function BrandMediaSection({
                   <div className="text-xs text-slate-600 mt-1">Brief business description...</div>
                 </div>
               </div>
-              <p className="text-xs text-slate-500 mt-1">Actual size: 160px height, object-cover</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {form.mobile_banner_url ? "Uses mobile banner, fills space" : "Uses desktop banner as fallback, may crop"}
+              </p>
             </div>
           </div>
           
-          <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+          <div className="rounded-xl bg-blue-50 border border-blue-200 p-3">
             <div className="flex items-start gap-2">
-              <div className="text-amber-600 text-sm">⚠️</div>
-              <div className="text-sm text-amber-800">
-                <p className="font-medium mb-1">Important: Banner Display</p>
+              <div className="text-blue-600 text-sm">ℹ️</div>
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">Banner Options</p>
                 <p className="text-xs">
-                  <strong>Registry:</strong> Shows your full banner image, may have empty space on sides<br/>
-                  <strong>Business Card:</strong> Fills the entire space, may crop the edges of your image
+                  <strong>Desktop Banner:</strong> Optimized for business registry pages<br/>
+                  <strong>Mobile Banner:</strong> Optimized for business cards and mobile views<br/>
+                  <strong>Fallback:</strong> If no mobile banner, desktop banner will be used
                 </p>
                 <p className="text-xs mt-1 italic">
-                  💡 Tip: Test your banner to ensure it looks good with both display modes!
+                  💡 Tip: Upload both for best results, or desktop banner works for both!
                 </p>
               </div>
             </div>
