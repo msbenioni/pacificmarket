@@ -112,6 +112,87 @@ export default function BrandMediaSection({
           </div>
         </div>
       </div>
+
+      {/* Banner Preview Section */}
+      {(form.logo_url || form.banner_url) && (
+        <div className="space-y-4">
+          <h4 className="font-medium text-slate-900">Preview: How Your Images Will Appear</h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Business Registry Preview */}
+            <div>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Business Registry (Full Width)</h5>
+              <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
+                <div className="relative">
+                  {form.banner_url ? (
+                    <img
+                      src={form.banner_url}
+                      alt="Business registry banner preview"
+                      className="w-full h-32 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-32 bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
+                      Banner will appear here
+                    </div>
+                  )}
+                  <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                    {form.logo_url ? (
+                      <img
+                        src={form.logo_url}
+                        alt="Business logo preview"
+                        className="h-6 w-6 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="h-6 w-6 rounded bg-slate-200"></div>
+                    )}
+                    <span className="text-xs font-medium text-slate-700">Business Name</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Business Card Preview */}
+            <div>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Business Card (Mobile/Homepage)</h5>
+              <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
+                <div className="relative">
+                  {form.banner_url ? (
+                    <img
+                      src={form.banner_url}
+                      alt="Business card banner preview"
+                      className="w-full h-24 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-24 bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
+                      Banner will appear here
+                    </div>
+                  )}
+                  <div className="absolute bottom-1 left-1 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded px-1 py-0.5">
+                    {form.logo_url ? (
+                      <img
+                        src={form.logo_url}
+                        alt="Business logo preview"
+                        className="h-4 w-4 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="h-4 w-4 rounded bg-slate-200"></div>
+                    )}
+                    <span className="text-xs font-medium text-slate-700">Business Name</span>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <div className="text-xs text-slate-500">Industry • Location</div>
+                  <div className="text-xs text-slate-600 mt-1">Brief business description...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-xs text-slate-500 italic">
+            💡 Tip: If your banner doesn't look good in both views, consider uploading a new image that works well in both wide and narrow formats.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
