@@ -216,17 +216,6 @@ export default function BusinessCard({
                 View Listing
               </Link>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleMainStep("listing");
-                }}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a3e3e]"
-              >
-                <Settings2 className="h-4 w-4" />
-                Edit Business
-              </button>
-
               <div className="hidden text-right md:block">
                 <div className="text-xs text-slate-500">Open to manage</div>
                 <div className="text-xs font-medium text-slate-700">Step-based sections</div>
