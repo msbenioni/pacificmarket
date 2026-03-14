@@ -75,6 +75,7 @@ export function sanitizeBusinessPayload(formData) {
     "referral_code",
     "logo_url",
     "banner_url",
+    "mobile_banner_url",
     "social_links",
     "business_age",
     "business_operating_status",
