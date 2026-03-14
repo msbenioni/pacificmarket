@@ -135,18 +135,6 @@ export default function BrandMediaSection({
                       Banner will appear here
                     </div>
                   )}
-                  <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-                    {form.logo_url ? (
-                      <img
-                        src={form.logo_url}
-                        alt="Business logo preview"
-                        className="h-6 w-6 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="h-6 w-6 rounded bg-slate-200"></div>
-                    )}
-                    <span className="text-xs font-medium text-slate-700">Business Name</span>
-                  </div>
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-1">Actual size: 220px-400px height, object-contain</p>
@@ -168,18 +156,6 @@ export default function BrandMediaSection({
                       Banner will appear here
                     </div>
                   )}
-                  <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-                    {form.logo_url ? (
-                      <img
-                        src={form.logo_url}
-                        alt="Business logo preview"
-                        className="h-6 w-6 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="h-6 w-6 rounded bg-slate-200"></div>
-                    )}
-                    <span className="text-xs font-medium text-slate-700">Business Name</span>
-                  </div>
                 </div>
                 <div className="p-3">
                   <div className="text-xs text-slate-500">Industry • Location</div>
