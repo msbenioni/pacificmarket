@@ -616,28 +616,7 @@ export default function BusinessProfileForm({
     <div className="rounded-2xl bg-white overflow-hidden max-w-full">
       <form onSubmit={handleSubmit} className="p-4 sm:p-8">
         <div className="space-y-4 overflow-x-hidden">
-          {/* Brand and Location sections - horizontal on desktop */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {SECTIONS.filter(section => section.key === 'brand' || section.key === 'location').map((section) => (
-              <FormSection
-                key={section.key}
-                title={section.label}
-                subtitle={section.description}
-                icon={section.icon}
-                isOpen={expandedSections.has(section.key)}
-                onToggle={() => toggleSection(section.key)}
-                onSaveSection={() => saveSection(form)}
-                saving={submitting}
-                formData={form}
-                errors={errors}
-              >
-                {renderSectionContent(section.key)}
-              </FormSection>
-            ))}
-          </div>
-          
-          {/* All other sections - vertical layout */}
-          {SECTIONS.filter(section => section.key !== 'brand' && section.key !== 'location').map((section) => (
+          {SECTIONS.map((section) => (
             <FormSection
               key={section.key}
               title={section.label}
