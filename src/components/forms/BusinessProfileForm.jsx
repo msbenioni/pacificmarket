@@ -179,7 +179,7 @@ const SECTIONS = [
 // Section Fields Mapping
 const SECTION_FIELDS = {
   core: ["name", "business_handle", "tagline", "description"],
-  brand: ["logo_url", "banner_url"],
+  brand: ["logo_url", "banner_url", "mobile_banner_url"],
   location: ["country", "industry", "city"],
   details: ["year_started", "business_structure", "team_size_band"],
   overview: [
