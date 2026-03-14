@@ -67,6 +67,22 @@ export function sanitizeBusinessPayload(formData) {
     "description",
     "logo_url",
     "banner_url",
+    "business_owner",
+    "business_owner_email",
+    "additional_owner_emails",
+    "public_phone",
+    "private_business_phone",
+    "private_business_email",
+    "business_structure",
+    "team_size_band",
+    "cultural_identity",
+    "languages_spoken",
+    "year_started",
+    "subscription_tier",
+    "status",
+    "verified",
+    "claimed",
+    "homepage_featured",
   ];
 
   const payload = {};

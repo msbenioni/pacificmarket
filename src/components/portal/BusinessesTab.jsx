@@ -125,37 +125,33 @@ export default function BusinessesTab({
           onAction={handleEmptyStateAction}
         />
       ) : (
-        <div className="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
-          {businesses.map((business, index) => (
-            <div
+        <div className="space-y-6">
+          {businesses.map((business) => (
+            <BusinessCard
               key={business.id}
-              className={index !== businesses.length - 1 ? "border-b border-slate-100" : ""}
-            >
-              <BusinessCard
-                business={business}
-                user={user}
-                profiles={profiles}
-                isEditing={editingBusinessId === business.id}
-                draftBusiness={draftBusiness}
-                savingEdit={savingEdit}
-                insightsSubmitting={insightsSubmitting}
-                insightsStarted={insightsStarted}
-                tierInfo={tierInfo}
-                onEdit={() => handleBusinessCardAction("edit", business.id)}
-                onCancel={() => handleBusinessCardAction("cancel", business.id)}
-                onDraftChange={(updater) =>
-                  handleBusinessCardAction("draftChange", business.id, updater)
-                }
-                onSave={(data) => handleBusinessCardAction("save", business.id, data)}
-                onDelete={() => handleBusinessCardAction("delete", business.id)}
-                onAddOwner={() => handleBusinessCardAction("addOwner", business.id)}
-                onLogoUpload={(e, id) => handleBusinessCardAction("logoUpload", id, e)}
-                onBannerUpload={(e, id) => handleBusinessCardAction("bannerUpload", id, e)}
-                onInsightsSubmit={(data) =>
-                  handleBusinessCardAction("insightsSubmit", business.id, data)
-                }
-              />
-            </div>
+              business={business}
+              user={user}
+              profiles={profiles}
+              isEditing={editingBusinessId === business.id}
+              draftBusiness={draftBusiness}
+              savingEdit={savingEdit}
+              insightsSubmitting={insightsSubmitting}
+              insightsStarted={insightsStarted}
+              tierInfo={tierInfo}
+              onEdit={() => handleBusinessCardAction("edit", business.id)}
+              onCancel={() => handleBusinessCardAction("cancel", business.id)}
+              onDraftChange={(updater) =>
+                handleBusinessCardAction("draftChange", business.id, updater)
+              }
+              onSave={(data) => handleBusinessCardAction("save", business.id, data)}
+              onDelete={() => handleBusinessCardAction("delete", business.id)}
+              onAddOwner={() => handleBusinessCardAction("addOwner", business.id)}
+              onLogoUpload={(e, id) => handleBusinessCardAction("logoUpload", id, e)}
+              onBannerUpload={(e, id) => handleBusinessCardAction("bannerUpload", id, e)}
+              onInsightsSubmit={(data) =>
+                handleBusinessCardAction("insightsSubmit", business.id, data)
+              }
+            />
           ))}
         </div>
       )}
