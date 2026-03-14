@@ -13,6 +13,7 @@ import {
   Settings2,
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { getLogoUrl } from '@/utils/bannerUtils';
 import BusinessProfileForm from "../forms/BusinessProfileForm";
 
 function MainStepSection({
@@ -106,7 +107,6 @@ export default function BusinessCard({
   const [openMainStep, setOpenMainStep] = useState(null);
 
   // Pacific Market default assets
-  const defaultLogoUrl = "/pm_logo.png";
   const defaultBannerUrl = "/pm_logo_longbanner.png";
 
   const viewListingHref =
@@ -153,19 +153,11 @@ export default function BusinessCard({
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex min-w-0 items-start gap-4">
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                {business.logo_url ? (
-                  <img
-                    src={business.logo_url}
-                    alt={`${business.name} logo`}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src={defaultLogoUrl}
-                    alt="Pacific Market logo"
-                    className="h-full w-full object-cover"
-                  />
-                )}
+                <img
+                  src={getLogoUrl(business)}
+                  alt={`${business.name} logo`}
+                  className="h-full w-full object-cover"
+                />
               </div>
 
               <div className="min-w-0">
