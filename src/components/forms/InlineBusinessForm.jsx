@@ -151,11 +151,6 @@ const InlineBusinessForm = ({
       industry: '',
       city: '',
       
-      // Business details
-      business_structure: '',
-      team_size_band: '',
-      year_started: '',
-      
       // Status & verification (admin only)
       status: BUSINESS_STATUS.ACTIVE,
       is_verified: false,
@@ -733,59 +728,6 @@ const InlineBusinessForm = ({
                   onChange={(e) => form.handleFieldChange("postal_code", e.target.value)}
                   className={inputCls}
                 />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Year Started</label>
-                <input
-                  type="number"
-                  value={formData?.year_started ?? ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    form.handleFieldChange("year_started", value === "" ? null : Number(value));
-                  }}
-                  className={inputCls}
-                  min="1900"
-                  max={new Date().getFullYear()}
-                  placeholder="2020"
-                />
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Business Structure</label>
-                <select
-                  value={formData?.business_structure || ""}
-                  onChange={(e) => form.handleFieldChange("business_structure", e.target.value)}
-                  className={selectCls}
-                >
-                  <option value="">Select Structure</option>
-                  <option value="sole-proprietorship">Sole Proprietorship</option>
-                  <option value="partnership">Partnership</option>
-                  <option value="llc">LLC</option>
-                  <option value="corporation">Corporation</option>
-                  <option value="non-profit">Non-Profit</option>
-                  <option value="cooperative">Cooperative</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Team Size</label>
-                <select
-                  value={formData?.team_size_band || ""}
-                  onChange={(e) => form.handleFieldChange("team_size_band", e.target.value)}
-                  className={selectCls}
-                >
-                  <option value="">Select Team Size</option>
-                  <option value="1">1 person</option>
-                  <option value="2-5">2-5 people</option>
-                  <option value="6-10">6-10 people</option>
-                  <option value="11-20">11-20 people</option>
-                  <option value="21-50">21-50 people</option>
-                  <option value="51-100">51-100 people</option>
-                  <option value="100+">100+ people</option>
-                </select>
               </div>
             </div>
           </FormSection>

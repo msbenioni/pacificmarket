@@ -74,7 +74,6 @@ const SECTION_FIELDS = {
     "team_size_band",
     "revenue_band",
     "business_operating_status",
-    "business_description",
   ],
   financial: [
     "current_funding_source",
@@ -125,20 +124,46 @@ export default function BusinessInsightsAccordion({
     team_size_band: "",
     revenue_band: "",
     business_operating_status: "",
-    business_description: "",
+    business_age: "",
+    business_registered: false,
+    employs_anyone: false,
+    employs_family_community: false,
     current_funding_source: "",
     funding_amount_needed: "",
+    funding_purpose: "",
     investment_stage: "",
-    financial_challenges: "",
-    top_challenges: [],
+    investment_exploration: "",
+    community_impact_areas: [],
     support_needed_next: [],
+    current_support_sources: [],
+    expansion_plans: "",
+    import_export_status: "",
+    import_countries: [],
+    export_countries: [],
     growth_stage: "",
+    top_challenges: "",
+    hiring_intentions: "",
+    founder_role: "",
+    founder_story: "",
+    founder_motivation: [],
+    gender: "",
+    age_range: "",
+    based_in_country: "",
+    based_in_city: "",
+    based_in_suburb: "",
+    cultural_background: "",
+    family_responsibilities: "",
+    goals_next_12_months: [],
+    // Additional fields that exist in database
+    financial_challenges: "",
     goals_next_12_months_array: [],
     goals_details: "",
-    community_impact_areas: [],
-    collaboration_interest: null,
+    collaboration_interest: false,
     mentorship_offering: false,
     open_to_future_contact: false,
+    // Fields moved from InlineBusinessForm
+    year_started: null,
+    business_structure: "",
   });
 
   const [expandedSections, setExpandedSections] = useState(new Set(["overview"]));
@@ -276,6 +301,39 @@ export default function BusinessInsightsAccordion({
               </div>
 
               <div>
+                <label className={labelCls}>Year Started</label>
+                <input
+                  type="number"
+                  value={form.year_started ?? ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    handleInputChange("year_started", value === "" ? null : Number(value));
+                  }}
+                  className={inputCls}
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  placeholder="2020"
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Business Structure</label>
+                <select
+                  value={form.business_structure || ""}
+                  onChange={(e) => handleInputChange("business_structure", e.target.value)}
+                  className={selectCls}
+                >
+                  <option value="">Select Structure</option>
+                  <option value="sole-proprietorship">Sole Proprietorship</option>
+                  <option value="partnership">Partnership</option>
+                  <option value="llc">LLC</option>
+                  <option value="corporation">Corporation</option>
+                  <option value="non-profit">Non-Profit</option>
+                  <option value="cooperative">Cooperative</option>
+                </select>
+              </div>
+
+              <div>
                 <label className={labelCls}>Team Size</label>
                 <select
                   value={form.team_size_band || ""}
@@ -328,17 +386,7 @@ export default function BusinessInsightsAccordion({
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className={labelCls}>Business Description</label>
-            <textarea
-              value={form.business_description || ""}
-              onChange={(e) => handleInputChange("business_description", e.target.value)}
-              placeholder="Describe your business, what you do, and who you serve..."
-              rows={4}
-              className={textareaCls}
-            />
-          </div>
-        </div>
+                  </div>
       );
     }
 

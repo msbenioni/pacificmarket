@@ -10,12 +10,29 @@ export function useInsightsHandlers(refetchPortalData, setInsightsLoading) {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const { data: existingData } = await supabase
+      // Get authenticated user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error("User not authenticated. Please log in again.");
+      }
+
+      // Add user_id and snapshot_year to the data
+      const currentYear = new Date().getFullYear();
+      const dataToSave = {
+        ...insightsData,
+        user_id: user.id,
+        snapshot_year: currentYear,
+      };
+
+      // Check if record exists for this business and year
+      const { data: existingData, error: checkError } = await supabase
         .from("business_insights")
         .select("*")
         .eq("business_id", insightsData.business_id)
-        .eq("user_id", insightsData.user_id)
-        .single();
+        .eq("snapshot_year", currentYear)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
 
       let result;
 
@@ -23,7 +40,7 @@ export function useInsightsHandlers(refetchPortalData, setInsightsLoading) {
         result = await supabase
           .from("business_insights")
           .update({
-            ...insightsData,
+            ...dataToSave,
             updated_at: new Date().toISOString(),
           })
           .eq("id", existingData.id)
@@ -32,7 +49,7 @@ export function useInsightsHandlers(refetchPortalData, setInsightsLoading) {
         result = await supabase
           .from("business_insights")
           .insert({
-            ...insightsData,
+            ...dataToSave,
             submitted_date: new Date().toISOString(),
           })
           .select();
