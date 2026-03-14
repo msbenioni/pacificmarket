@@ -220,7 +220,7 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       icon: Target,
       color: "text-orange-600",
       fields: [
-        { label: "Top Challenges", key: "top_challenges", value: snapshot.top_challenges },
+        { label: "Top Challenges", key: "top_challenges_array", value: snapshot.top_challenges_array },
         { label: "Support Needed", key: "support_needed_next", value: snapshot.support_needed_next },
         { label: "Financial Challenges", key: "financial_challenges", value: snapshot.financial_challenges },
       ],

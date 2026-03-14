@@ -43,7 +43,7 @@ const DEFAULT_FORM_STATE = {
   responsibilities_impact_details: "",
 
   // Challenges & Support
-  top_challenges: [],
+  top_challenges_array: [],
   support_needed_next: [],
   current_support_sources: [],
   mentorship_access: false,
@@ -751,17 +751,17 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 <label key={challenge.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.top_challenges?.includes(challenge.value)}
+                    checked={form.top_challenges_array?.includes(challenge.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          top_challenges: [...(prev.top_challenges || []), challenge.value].slice(0, 5)
+                          top_challenges_array: [...(prev.top_challenges_array || []), challenge.value].slice(0, 5)
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          top_challenges: prev.top_challenges?.filter(c => c !== challenge.value) || []
+                          top_challenges_array: prev.top_challenges_array?.filter(c => c !== challenge.value) || []
                         }));
                       }
                     }}
@@ -771,8 +771,8 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </label>
               ))}
             </div>
-            {form.top_challenges?.length > 0 && (
-              <p className="text-xs text-gray-500 mt-1">Selected: {form.top_challenges.length}/5</p>
+            {form.top_challenges_array?.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">Selected: {form.top_challenges_array.length}/5</p>
             )}
           </div>
 

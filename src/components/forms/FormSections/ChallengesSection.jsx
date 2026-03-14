@@ -39,8 +39,8 @@ export default function ChallengesSection({
           {BUSINESS_CHALLENGES.map((challenge) => (
             <OptionCard
               key={challenge.value}
-              checked={form.top_challenges?.includes(challenge.value) || false}
-              onChange={() => toggleArrayItem("top_challenges", challenge.value)}
+              checked={form.top_challenges_array?.includes(challenge.value) || false}
+              onChange={() => toggleArrayItem("top_challenges_array", challenge.value)}
               label={challenge.label}
             />
           ))}
@@ -49,8 +49,8 @@ export default function ChallengesSection({
         <div className="mt-4">
           <label className={labelCls}>Additional Challenge Details</label>
           <textarea
-            value={form.top_challenges || ""}
-            onChange={(e) => handleInputChange("top_challenges", e.target.value)}
+            value={form.top_challenges_array || ""}
+            onChange={(e) => handleInputChange("top_challenges_array", e.target.value)}
             className={textareaCls}
             placeholder="Describe your biggest business challenges..."
             rows={4}

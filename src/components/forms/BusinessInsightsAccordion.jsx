@@ -81,7 +81,7 @@ const SECTION_FIELDS = {
     "investment_stage",
     "financial_challenges",
   ],
-  challenges: ["top_challenges", "support_needed_next"],
+  challenges: ["top_challenges_array", "support_needed_next_array"],
   growth: ["growth_stage", "goals_next_12_months_array", "goals_details"],
   community: [
     "community_impact_areas",
@@ -141,7 +141,7 @@ export default function BusinessInsightsAccordion({
     import_countries: [],
     export_countries: [],
     growth_stage: "",
-    top_challenges: "",
+    top_challenges_array: "",
     hiring_intentions: "",
     founder_role: "",
     founder_story: "",
@@ -205,7 +205,7 @@ export default function BusinessInsightsAccordion({
     setForm((prev) => {
       const currentArray = prev[field] || [];
       const limit =
-        field === "top_challenges"
+        field === "top_challenges_array"
           ? 5
           : field === "support_needed_next" ||
             field === "goals_next_12_months_array"
@@ -476,7 +476,7 @@ export default function BusinessInsightsAccordion({
                 <p className={helperCls}>Choose up to 5.</p>
               </div>
               <span className="text-xs font-medium text-slate-500">
-                {form.top_challenges?.length || 0}/5 selected
+                {form.top_challenges_array?.length || 0}/5 selected
               </span>
             </div>
 
@@ -484,8 +484,8 @@ export default function BusinessInsightsAccordion({
               {BUSINESS_CHALLENGES.map((challenge) => (
                 <OptionCard
                   key={challenge.value}
-                  checked={form.top_challenges?.includes(challenge.value) || false}
-                  onChange={() => toggleArrayItem("top_challenges", challenge.value)}
+                  checked={form.top_challenges_array?.includes(challenge.value) || false}
+                  onChange={() => toggleArrayItem("top_challenges_array", challenge.value)}
                   label={challenge.label}
                 />
               ))}
