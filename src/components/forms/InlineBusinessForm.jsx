@@ -81,6 +81,10 @@ const InlineBusinessForm = ({
 }) => {
   const [expandedSections, setExpandedSections] = useState(new Set(["core"]));
 
+  // Pacific Market default assets
+  const defaultLogoUrl = "/pm_logo.png";
+  const defaultBannerUrl = "/pm_logo_longbanner.png";
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -276,15 +280,24 @@ const InlineBusinessForm = ({
                       </button>
                     </div>
                   ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50">
-                      <span className="text-center text-xs text-slate-400">No logo</span>
+                    <div className="relative">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-slate-200 bg-white shadow-sm">
+                        <img
+                          src={defaultLogoUrl}
+                          alt="Pacific Market logo"
+                          className="h-full w-full object-cover rounded-2xl"
+                        />
+                      </div>
+                      <div className="absolute bottom-0 right-0 rounded-full bg-black/50 px-1.5 py-0.5">
+                        <span className="text-[10px] text-white">Default</span>
+                      </div>
                     </div>
                   )}
 
                   <div>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                       onChange={(e) => handleFileUpload(e, "logo")}
                       className="hidden"
                       id={logoInputId}
@@ -322,15 +335,24 @@ const InlineBusinessForm = ({
                       </button>
                     </div>
                   ) : (
-                    <div className="flex h-20 w-48 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50">
-                      <span className="text-center text-xs text-slate-400">No banner</span>
+                    <div className="relative">
+                      <div className="h-20 w-48 overflow-hidden rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                        <img
+                          src={defaultBannerUrl}
+                          alt="Pacific Market banner"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute bottom-1 right-1 rounded-full bg-black/50 px-2 py-1">
+                        <span className="text-xs text-white">Default</span>
+                      </div>
                     </div>
                   )}
 
                   <div>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                       onChange={(e) => handleFileUpload(e, "banner")}
                       className="hidden"
                       id={bannerInputId}
@@ -759,7 +781,7 @@ const InlineBusinessForm = ({
         <div className="border-t border-gray-200 px-0 pt-5 mt-6 flex justify-end">
           <button
             type="button"
-            onClick={onSave}
+            onClick={() => onSave(formData)}
             disabled={saving}
             className="rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white hover:bg-[#0a3d3d] disabled:cursor-not-allowed disabled:opacity-50"
           >

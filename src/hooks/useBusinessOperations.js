@@ -41,7 +41,78 @@ export function useBusinessOperations(refetchPortalData) {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const sanitizedPayload = sanitizeBusinessPayload(businessData);
+      // Handle file uploads first
+      let updatedData = { ...businessData };
+      
+      // Upload logo if there's a new logo file
+      if (businessData.logo_file) {
+        const file = businessData.logo_file;
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+        }
+        
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
+        }
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${businessData.id}-logo-${Date.now()}.${fileExt}`;
+        const filePath = `logos/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('admin-listings')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('admin-listings')
+          .getPublicUrl(filePath);
+
+        updatedData.logo_url = publicUrl;
+        delete updatedData.logo_file; // Remove file object from data
+      }
+
+      // Upload banner if there's a new banner file
+      if (businessData.banner_file) {
+        const file = businessData.banner_file;
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+        }
+        
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
+        }
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${businessData.id}-banner-${Date.now()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('admin-listings')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('admin-listings')
+          .getPublicUrl(filePath);
+
+        updatedData.banner_url = publicUrl;
+        delete updatedData.banner_file; // Remove file object from data
+      }
+
+      const sanitizedPayload = sanitizeBusinessPayload(updatedData);
       console.log("Sanitized payload:", sanitizedPayload);
       
       const validation = validateBusinessData(sanitizedPayload);

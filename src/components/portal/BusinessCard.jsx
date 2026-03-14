@@ -106,6 +106,10 @@ export default function BusinessCard({
   const [isBusinessOpen, setIsBusinessOpen] = useState(false);
   const [openMainStep, setOpenMainStep] = useState(null);
 
+  // Pacific Market default assets
+  const defaultLogoUrl = "/pm_logo.png";
+  const defaultBannerUrl = "/pm_logo_longbanner.png";
+
   const viewListingHref =
     createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`;
 
@@ -159,9 +163,11 @@ export default function BusinessCard({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="grid h-full w-full place-items-center bg-slate-50">
-                    <Building2 className="h-5 w-5 text-slate-400" />
-                  </div>
+                  <img
+                    src={defaultLogoUrl}
+                    alt="Pacific Market logo"
+                    className="h-full w-full object-cover"
+                  />
                 )}
               </div>
 
@@ -245,7 +251,7 @@ export default function BusinessCard({
               title={`Edit ${business.name}`}
               formData={draftBusiness || business}
               setFormData={onDraftChange}
-              onSave={() => onSave(draftBusiness || business)}
+              onSave={onSave}
               onCancel={onCancel}
               saving={savingEdit}
               mode="edit"
