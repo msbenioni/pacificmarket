@@ -27,9 +27,9 @@ function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, 
           onClick={onToggle}
           className="flex w-full items-start justify-between gap-3 text-left transition-colors"
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
             <Icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0d4f4f]" />
-            <div>
+            <div className="min-w-0 flex-1">
               <h4 className="break-words text-sm font-semibold text-[#0a1628]">
                 {title}
               </h4>
@@ -47,8 +47,10 @@ function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, 
 
       {isOpen && (
         <>
-          <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:py-5">
-            {children}
+          <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:py-5 overflow-x-auto">
+            <div className="min-w-0">
+              {children}
+            </div>
           </div>
 
           <div className="flex justify-end border-t border-slate-200 bg-gray-50 px-4 py-4 sm:px-6">
@@ -56,7 +58,7 @@ function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, 
               type="button"
               onClick={onSaveSection}
               disabled={saving}
-              className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 flex-shrink-0"
             >
               {saving ? "Saving..." : "Save Section"}
             </button>
@@ -183,9 +185,9 @@ const InlineBusinessForm = ({
     "w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-[#0d4f4f] focus:outline-none";
 
   return (
-    <div className="rounded-2xl bg-white">
+    <div className="rounded-2xl bg-white overflow-hidden max-w-full">
       <form onSubmit={handleSubmit} className="p-4 sm:p-8">
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-x-hidden">
           <FormSection
             title="Core listing details"
             subtitle="Public-facing name, handle, and descriptions"
