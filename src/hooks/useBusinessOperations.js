@@ -31,8 +31,8 @@ export function useBusinessOperations(refetchPortalData) {
   const saveBusiness = async (businessData) => {
     console.log("saveBusiness called with:", businessData);
     
-    if (!businessData || !businessData.id) {
-      console.log("Early return: missing businessData or businessData.id");
+    if (!businessData || !businessData.businessId) {
+      console.log("Early return: missing businessData or businessData.businessId");
       return;
     }
 
@@ -61,7 +61,7 @@ export function useBusinessOperations(refetchPortalData) {
         }
         
         const fileExt = file.name.split('.').pop();
-        const fileName = `${businessData.id}-logo-${Date.now()}.${fileExt}`;
+        const fileName = `${businessData.businessId}-logo-${Date.now()}.${fileExt}`;
         const filePath = `logos/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -95,7 +95,7 @@ export function useBusinessOperations(refetchPortalData) {
         }
         
         const fileExt = file.name.split('.').pop();
-        const fileName = `${businessData.id}-banner-${Date.now()}.${fileExt}`;
+        const fileName = `${businessData.businessId}-banner-${Date.now()}.${fileExt}`;
         const filePath = `banners/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -190,7 +190,7 @@ export function useBusinessOperations(refetchPortalData) {
         const result = await supabase
           .from("businesses")
           .update(sanitizedPayload)
-          .eq("id", businessData.id);
+          .eq("id", businessData.businessId);
         
         updateResult = result;
         businessError = result.error;
@@ -217,7 +217,7 @@ export function useBusinessOperations(refetchPortalData) {
           errorKeys: businessError ? Object.keys(businessError) : [],
           hasData: !!updateResult?.data,
           status: updateResult?.status,
-          businessId: businessData.id,
+          businessId: businessData.businessId,
           sanitizedPayload: sanitizedPayload,
           updateResult: updateResult
         };
@@ -256,7 +256,7 @@ export function useBusinessOperations(refetchPortalData) {
         const { data: existingInsights, error: checkError } = await supabase
           .from("business_insights")
           .select("*")
-          .eq("business_id", businessData.id)
+          .eq("business_id", businessData.businessId)
           .eq("snapshot_year", currentYear)
           .maybeSingle();
 
@@ -285,7 +285,7 @@ export function useBusinessOperations(refetchPortalData) {
           const { error: insightsError } = await supabase
             .from("business_insights")
             .insert({
-              business_id: businessData.id,
+              business_id: businessData.businessId,
               user_id: user.id,
               snapshot_year: currentYear,
               ...businessInsightsData,
@@ -294,7 +294,7 @@ export function useBusinessOperations(refetchPortalData) {
           if (insightsError) {
             console.error("Business insights insert error:", {
               error: insightsError,
-              businessId: businessData.id,
+              businessId: businessData.businessId,
               userId: user.id,
               snapshotYear: currentYear,
               privateData: businessInsightsData
@@ -318,7 +318,7 @@ export function useBusinessOperations(refetchPortalData) {
         message: error?.message || error?.toString() || 'Unknown error',
         details: error?.details || null,
         stack: error?.stack || null,
-        businessId: businessData?.id || 'No ID',
+        businessId: businessData?.businessId || 'No ID',
         businessName: businessData?.name || 'No name',
         timestamp: new Date().toISOString()
       };
