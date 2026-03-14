@@ -123,15 +123,15 @@ export default function BrandMediaSection({
             <div>
               <h5 className="text-sm font-medium text-slate-700 mb-2">Business Registry (Full Width)</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
-                <div className="relative">
+                <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
                   {form.banner_url ? (
                     <img
                       src={form.banner_url}
                       alt="Business registry banner preview"
-                      className="w-full h-32 object-cover"
+                      className="h-full w-full object-contain"
                     />
                   ) : (
-                    <div className="w-full h-32 bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
+                    <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
                       Banner will appear here
                     </div>
                   )}
@@ -149,33 +149,34 @@ export default function BrandMediaSection({
                   </div>
                 </div>
               </div>
+              <p className="text-xs text-slate-500 mt-1">Actual size: 220px-400px height, object-contain</p>
             </div>
 
             {/* Business Card Preview */}
             <div>
-              <h5 className="text-sm font-medium text-slate-700 mb-2">Business Card (Mobile/Homepage)</h5>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Business Card (Portal/Homepage)</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
-                <div className="relative">
+                <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
                   {form.banner_url ? (
                     <img
                       src={form.banner_url}
                       alt="Business card banner preview"
-                      className="w-full h-24 object-cover"
+                      className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-24 bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
+                    <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
                       Banner will appear here
                     </div>
                   )}
-                  <div className="absolute bottom-1 left-1 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded px-1 py-0.5">
+                  <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
                     {form.logo_url ? (
                       <img
                         src={form.logo_url}
                         alt="Business logo preview"
-                        className="h-4 w-4 rounded object-cover"
+                        className="h-6 w-6 rounded object-cover"
                       />
                     ) : (
-                      <div className="h-4 w-4 rounded bg-slate-200"></div>
+                      <div className="h-6 w-6 rounded bg-slate-200"></div>
                     )}
                     <span className="text-xs font-medium text-slate-700">Business Name</span>
                   </div>
@@ -185,12 +186,25 @@ export default function BrandMediaSection({
                   <div className="text-xs text-slate-600 mt-1">Brief business description...</div>
                 </div>
               </div>
+              <p className="text-xs text-slate-500 mt-1">Actual size: 160px height, object-cover</p>
             </div>
           </div>
           
-          <p className="text-xs text-slate-500 italic">
-            💡 Tip: If your banner doesn't look good in both views, consider uploading a new image that works well in both wide and narrow formats.
-          </p>
+          <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+            <div className="flex items-start gap-2">
+              <div className="text-amber-600 text-sm">⚠️</div>
+              <div className="text-sm text-amber-800">
+                <p className="font-medium mb-1">Important: Banner Cropping</p>
+                <p className="text-xs">
+                  <strong>Registry:</strong> Uses <code>object-contain</code> - shows full image, may have empty space<br/>
+                  <strong>Business Card:</strong> Uses <code>object-cover</code> - crops to fill, may cut off edges
+                </p>
+                <p className="text-xs mt-1 italic">
+                  💡 Tip: Test your banner to ensure it looks good with both display modes!
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
