@@ -1,4 +1,5 @@
-import { X, Upload, Info } from "lucide-react";
+import { Upload, X, Info } from "lucide-react";
+import { getBannerUrl, hasMobileBanner, hasBanner } from '@/utils/bannerUtils';
 
 export default function BrandMediaSection({ 
   form, 
@@ -166,22 +167,12 @@ export default function BrandMediaSection({
               <h5 className="text-sm font-medium text-slate-700 mb-2">Business Card (Portal)</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
                 <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
-                  {form.mobile_banner_url ? (
+                  {getBannerUrl(form) && (
                     <img
-                      src={form.mobile_banner_url}
+                      src={getBannerUrl(form)}
                       alt="Business card preview"
                       className="h-full w-full object-cover"
                     />
-                  ) : form.banner_url ? (
-                    <img
-                      src={form.banner_url}
-                      alt="Business card preview (fallback)"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
-                      Banner will appear here
-                    </div>
                   )}
                 </div>
                 <div className="p-3">
@@ -190,7 +181,7 @@ export default function BrandMediaSection({
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                {form.mobile_banner_url ? "Uses mobile banner" : "Uses desktop banner as fallback"}
+                {hasMobileBanner(form) ? "Uses mobile banner" : "Uses desktop banner as fallback"}
               </p>
             </div>
 
@@ -199,24 +190,13 @@ export default function BrandMediaSection({
               <h5 className="text-sm font-medium text-slate-700 mb-2">Homepage Featured</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
                 <div className="relative h-40 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] rounded-t-2xl">
-                  {form.mobile_banner_url ? (
+                  {getBannerUrl(form) && (
                     <img
-                      src={form.mobile_banner_url}
+                      src={getBannerUrl(form)}
                       alt="Homepage featured preview"
                       className="absolute inset-0 w-full h-full object-cover"
                       style={{ objectPosition: "center top" }}
                     />
-                  ) : form.banner_url ? (
-                    <img
-                      src={form.banner_url}
-                      alt="Homepage featured preview"
-                      className="absolute inset-0 w-full h-full object-cover"
-                      style={{ objectPosition: "center top" }}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs">
-                      Featured banner will appear here
-                    </div>
                   )}
                 </div>
                 <div className="p-4 bg-white">

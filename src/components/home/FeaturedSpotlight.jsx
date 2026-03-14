@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { getHomepageBusinesses } from "@/lib/supabase/queries/businesses";
+import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
+import { getBannerUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
 import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Phone, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
@@ -99,18 +102,9 @@ function BusinessMiniCard({ b, active, onSelect }) {
       <div className="relative h-[133px] rounded-t-2xl overflow-hidden bg-[#0d4f4f] flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
 
-        {b.mobile_banner_url && (
+        {getBannerUrl(b) && (
           <img
-            src={b.mobile_banner_url}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: "center top" }}
-          />
-        )}
-        {!b.mobile_banner_url && b.banner_url && (
-          <img
-            src={b.banner_url}
+            src={getBannerUrl(b)}
             alt=""
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover"
@@ -195,29 +189,22 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         <div className="relative h-[233px] overflow-hidden bg-[#0a1628]">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
-          {b?.mobile_banner_url && (
+          {getBannerUrl(b) && (
             <img
-              src={b.mobile_banner_url}
+              src={getBannerUrl(b)}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
               style={{ objectPosition: "center top" }}
             />
           )}
-          {!b?.mobile_banner_url && b?.banner_url && (
-            <img
-              src={b.banner_url}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: "center top" }}
-            />
-          )}
+        </div>
 
-          {/* Spotlight chevrons */}
-          <button
-            type="button"
-            onClick={onPrev}
-            aria-label="Previous featured business"
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20
+        {/* Spotlight chevrons */}
+        <button
+          type="button"
+          onClick={onPrev}
+          aria-label="Previous featured business"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20
                      w-11 h-11 rounded-full
                      bg-white/10 hover:bg-white/15
                      border border-white/15

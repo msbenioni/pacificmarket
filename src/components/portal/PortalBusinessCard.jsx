@@ -16,6 +16,7 @@ import {
   Eye,
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { getBannerUrl } from '@/utils/bannerUtils';
 
 export default function PortalBusinessCard({
   business,
@@ -40,7 +41,7 @@ export default function PortalBusinessCard({
   const viewListingHref =
     createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`;
 
-  const bannerUrl = business.mobile_banner_url || business.banner_url || business.cover_image_url || null;
+  const bannerUrl = getBannerUrl(business);
 
   const summaryText = useMemo(() => {
     if (metaLine) return metaLine;
