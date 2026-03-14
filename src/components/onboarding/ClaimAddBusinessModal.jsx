@@ -20,6 +20,7 @@ const ALLOWED_BUSINESS_FIELDS = [
   "tagline",
   "logo_url",
   "banner_url",
+  "mobile_banner_url",
   "contact_website",
   "contact_email",
   "contact_phone",
