@@ -31,6 +31,7 @@ import {
 
 import { getUserBusinesses, getBusinessById, updateBusiness } from "@/lib/supabase/queries/businesses";
 import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
+import { getLogoUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
 import HeroRegistry from "../components/shared/HeroRegistry";
 import { useToast } from "@/components/ui/toast/ToastProvider";
@@ -576,7 +577,7 @@ export default function EmailSignatureGeneratorPage() {
           setBusinessSignature((prev) => ({
             ...prev,
             business_name: business?.name || "",
-            logo_url: business?.logo_url || "",
+            logo_url: getLogoUrl(business) || "",
             email: prev.email || business?.contact_email || "",
             phone: prev.phone || business?.contact_phone || "",
             website: prev.website || businessWebsite,
@@ -593,7 +594,7 @@ export default function EmailSignatureGeneratorPage() {
             pronouns: settings.default_pronouns || prev.pronouns,
 
             business_name: business?.name || prev.business_name,
-            logo_url: business?.logo_url || prev.logo_url,
+            logo_url: getLogoUrl(business) || prev.logo_url,
 
             email: settings.default_email || prev.email,
             phone: settings.default_phone || prev.phone,
