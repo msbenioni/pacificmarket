@@ -151,7 +151,14 @@ export function useBusinessOperations(refetchPortalData) {
         .update(sanitizedPayload)
         .eq("id", businessData.id);
 
-      if (businessError) throw businessError;
+      if (businessError) {
+        console.error("Business update error:", {
+          error: businessError,
+          businessId: businessData.id,
+          sanitizedPayload: sanitizedPayload
+        });
+        throw new Error(`Failed to update business: ${businessError.message || JSON.stringify(businessError)}`);
+      }
 
       // Save private data to business_insights table if any exists
       if (Object.keys(privateBusinessData).length > 0) {
@@ -175,7 +182,14 @@ export function useBusinessOperations(refetchPortalData) {
             .update(privateBusinessData)
             .eq("id", existingInsights.id);
 
-          if (insightsError) throw insightsError;
+          if (insightsError) {
+            console.error("Business insights update error:", {
+              error: insightsError,
+              existingInsightsId: existingInsights.id,
+              privateData: privateBusinessData
+            });
+            throw new Error(`Failed to update business insights: ${insightsError.message || JSON.stringify(insightsError)}`);
+          }
         } else {
           // Create new record
           const { error: insightsError } = await supabase
@@ -187,7 +201,16 @@ export function useBusinessOperations(refetchPortalData) {
               ...privateBusinessData,
             });
 
-          if (insightsError) throw insightsError;
+          if (insightsError) {
+            console.error("Business insights insert error:", {
+              error: insightsError,
+              businessId: businessData.id,
+              userId: user.id,
+              snapshotYear: currentYear,
+              privateData: privateBusinessData
+            });
+            throw new Error(`Failed to save business insights: ${insightsError.message || JSON.stringify(insightsError)}`);
+          }
         }
       }
 
@@ -200,10 +223,20 @@ export function useBusinessOperations(refetchPortalData) {
         variant: "success",
       });
     } catch (error) {
-      console.error("Error updating business:", error);
+      // Enhanced error logging for debugging
+      const errorDetails = {
+        message: error?.message || error?.toString() || 'Unknown error',
+        details: error?.details || null,
+        stack: error?.stack || null,
+        businessId: businessData?.id || 'No ID',
+        businessName: businessData?.name || 'No name',
+        timestamp: new Date().toISOString()
+      };
+      
+      console.error("Error updating business:", errorDetails);
       toast({
         title: "Save Failed",
-        description: `Failed to save business: ${error.message || "Unknown error"}`,
+        description: `Failed to save business: ${errorDetails.message}`,
         variant: "error",
       });
     } finally {

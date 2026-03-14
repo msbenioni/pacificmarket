@@ -17,7 +17,7 @@ import { Search, ChevronLeft } from "lucide-react";
 const ALLOWED_BUSINESS_FIELDS = [
   "name",
   "description",
-  "short_description",
+  "tagline",
   "logo_url",
   "banner_url",
   "contact_website",
@@ -50,7 +50,7 @@ function pickAllowedBusinessFields(input) {
 
   // Map form field names to database column names
   if (input?.tagline) {
-    out.short_description = input.tagline;
+    out.tagline = input.tagline;
   }
   if (input?.website) {
     out.contact_website = input.website;

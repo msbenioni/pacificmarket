@@ -52,7 +52,7 @@ const emptyBusinessForm = {
   name: "",
   business_handle: "",
   description: "",
-  short_description: "",
+  tagline: "",
   contact_name: "",
   contact_email: "",
   contact_phone: "",
@@ -72,7 +72,7 @@ const emptyBusinessForm = {
   team_size_band: "",
   cultural_identity: "",
   languages_spoken: [],
-  verified: false,
+  is_verified: false,
   claimed: false,
   homepage_featured: false,
   logo_url: "",
@@ -262,7 +262,7 @@ function AdminBusinessMobileCard({
             <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
               {getTierDisplayName(business.subscription_tier) || business.subscription_tier || "vaka"}
             </span>
-            {business.verified && (
+            {business.is_verified && (
               <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
                 Verified
               </span>
@@ -352,7 +352,7 @@ function InsightMobileCard({ insight }) {
               <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
                 {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
               </span>
-              {insight.verified && (
+              {insight.is_verified && (
                 <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
                   Verified
                 </span>
@@ -456,7 +456,7 @@ export default function AdminDashboard() {
     country: "",
     industry: "",
     tier: "",
-    verified: "",
+    is_verified: "",
     claimStatus: "",
   });
 
@@ -730,10 +730,11 @@ export default function AdminDashboard() {
 
       toast.success("The business has been successfully updated.");
     } catch (error) {
+      // Enhanced error logging for debugging
       const errorDetails = {
-        message: error?.message || 'Unknown error',
-        details: error?.details || error,
-        stack: error?.stack,
+        message: error?.message || error?.toString() || 'Unknown error',
+        details: error?.details || null,
+        stack: error?.stack || null,
         formData: formData ? {
           id: formData.id,
           name: formData.name,
@@ -745,7 +746,7 @@ export default function AdminDashboard() {
       };
       
       console.error("Error updating business:", errorDetails);
-      toast.error(error?.message || "Unable to update the business.");
+      toast.error(errorDetails.message || "Unable to update the business.");
     } finally {
       setSavingEdit(false);
     }
@@ -764,8 +765,8 @@ export default function AdminDashboard() {
       let businessData = {
         ...safeUpdateData,
         status: formData.status || BUSINESS_STATUS.ACTIVE,
-        verified: formData.verified ?? true,
-        claimed: formData.claimed ?? false,
+        is_verified: formData.is_verified ?? true,
+        is_claimed: formData.is_claimed ?? false,
         created_date: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -823,7 +824,7 @@ export default function AdminDashboard() {
         .insert(businessData)
         .select(`
           id, name, business_handle, description, industry, country, city,
-          status, visibility_tier, verified, claimed, contact_email, contact_website,
+          status, visibility_tier, is_verified, claimed, contact_email, contact_website,
           logo_url, banner_url, owner_user_id, created_date, updated_at, subscription_tier
         `)
         .single();
@@ -833,7 +834,7 @@ export default function AdminDashboard() {
       setBusinesses((prev) => [data, ...prev]);
       resetCreateForm();
 
-      toast.success("The listing was created and automatically verified.");
+      toast.success("The listing was created and automatically is_verified.");
     } catch (error) {
       console.error("Error creating business:", error);
       toast.error(error?.message || "Unable to create the listing.");
@@ -852,7 +853,7 @@ export default function AdminDashboard() {
       "city",
       "status",
       "subscription_tier",
-      "verified",
+      "is_verified",
       "claimed",
       "contact_email",
       "contact_website",
@@ -954,9 +955,9 @@ export default function AdminDashboard() {
     if (filters.tier) {
       data = data.filter((business) => business.subscription_tier === filters.tier);
     }
-    if (filters.verified !== "") {
-      const isVerified = filters.verified === "true";
-      data = data.filter((business) => business.verified === isVerified);
+    if (filters.is_verified !== "") {
+      const isVerified = filters.is_verified === "true";
+      data = data.filter((business) => business.is_verified === isVerified);
     }
 
     return data;
@@ -995,7 +996,7 @@ export default function AdminDashboard() {
       business_country: business?.country,
       business_industry: business?.industry,
       subscription_tier: business?.subscription_tier,
-      verified: business?.verified,
+      is_verified: business?.is_verified,
     };
   });
 
@@ -1010,7 +1011,7 @@ export default function AdminDashboard() {
     },
     {
       label: "Verified",
-      value: businesses.filter((b) => b.verified).length,
+      value: businesses.filter((b) => b.is_verified).length,
       color: "text-green-600",
     },
     {
@@ -1127,8 +1128,8 @@ export default function AdminDashboard() {
                     </select>
 
                     <select
-                      value={filters.verified}
-                      onChange={(e) => setFilters((prev) => ({ ...prev, verified: e.target.value }))}
+                      value={filters.is_verified}
+                      onChange={(e) => setFilters((prev) => ({ ...prev, is_verified: e.target.value }))}
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Verification</option>
@@ -1157,7 +1158,7 @@ export default function AdminDashboard() {
                           country: "",
                           industry: "",
                           tier: "",
-                          verified: "",
+                          is_verified: "",
                           claimStatus: "",
                         })
                       }
@@ -1380,7 +1381,7 @@ export default function AdminDashboard() {
                                       insight.subscription_tier ||
                                       "vaka"}
                                   </span>
-                                  {insight.verified && (
+                                  {insight.is_verified && (
                                     <span
                                       className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("premium")}`}
                                     >
@@ -1540,12 +1541,12 @@ export default function AdminDashboard() {
                                     <div className="flex items-center gap-2">
                                       <span
                                         className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(
-                                          b.verified ? "premium" : "neutral"
+                                          b.is_verified ? "premium" : "neutral"
                                         )}`}
                                       >
                                         {getTierDisplayName(b.subscription_tier) || b.subscription_tier || "vaka"}
                                       </span>
-                                      {b.verified && (
+                                      {b.is_verified && (
                                         <span
                                           className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("success")}`}
                                         >

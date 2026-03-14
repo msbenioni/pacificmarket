@@ -119,7 +119,7 @@ export function getBusinessDisplayInfo(business) {
     name: business.name,
     metaDescription: metaParts.join(" · "),
     tierStyles: TIER_STYLES.getTierStyles(business.subscription_tier),
-    isVerified: business.verified,
+    isVerified: business.is_verified,
     logoUrl: business.logo_url,
     subscriptionTier: business.subscription_tier,
   };

@@ -55,7 +55,7 @@ export function getBusinessVisibilityTier(business: Business | null): string {
  */
 export function isVerifiedBusiness(business: Business | null): boolean {
   if (!business) return false;
-  return Boolean(business.verified);
+  return Boolean(business.is_verified);
 }
 
 /**
@@ -63,7 +63,7 @@ export function isVerifiedBusiness(business: Business | null): boolean {
  */
 export function isClaimedBusiness(business: Business | null): boolean {
   if (!business) return false;
-  return Boolean(business.claimed);
+  return Boolean(business.is_claimed);
 }
 
 /**

@@ -8,7 +8,7 @@ export type Business = {
   id: string;
   name: string;
   description: string | null;
-  short_description: string | null;
+  tagline: string | null;
   business_handle: string | null;
 
   // Visual assets
@@ -39,15 +39,15 @@ export type Business = {
   cultural_identity: string | null;
 
   // Status and verification
-  status: 'active' | 'pending' | 'rejected';
-  verified: boolean;
-  claimed: boolean;
+  status: string;
+  is_verified: boolean;
+  is_claimed: boolean;
+  is_homepage_featured: boolean;
   claimed_at: string | null;
   claimed_by: string | null;
 
   // Visibility and tiers
   visibility_tier: 'homepage' | 'registry' | 'none';
-  homepage_featured: boolean;
   subscription_tier: 'vaka' | 'mana' | 'moana';
 
   // Ownership

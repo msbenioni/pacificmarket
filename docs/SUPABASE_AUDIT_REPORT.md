@@ -57,7 +57,7 @@
 
 **Columns referenced:**
 ```sql
-id, name, description, short_description, logo_url, banner_url,
+id, name, description, tagline, logo_url, banner_url,
 contact_email, contact_phone, contact_website, address, suburb, city,
 state_region, postal_code, country, industry, social_links,
 business_hours, business_structure, year_started, status, verified,

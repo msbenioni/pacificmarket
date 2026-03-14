@@ -24,23 +24,23 @@ const fetchInsightsData = async () => {
         business_id,
         user_id,
         business_stage,
-        top_challenges,
+        top_challenges_array,
         hiring_intentions,
         business_operating_status,
         business_age,
-        business_registered,
+        is_business_registered,
         employs_anyone,
         employs_family_community,
-        team_size,
+        team_size_band,
         revenue_band,
         current_funding_source,
         funding_amount_needed,
         funding_purpose,
         investment_stage,
         investment_exploration,
-        community_impact_areas,
-        support_needed_next,
-        current_support_sources,
+        community_impact_areas_array,
+        support_needed_next_array,
+        current_support_sources_array,
         expansion_plans,
         industry,
         snapshot_year,
@@ -79,14 +79,14 @@ const fetchInsightsData = async () => {
           based_in_city,
           serves_pacific_communities,
           culture_influences_business,
-          family_community_responsibilities_affect_business,
-          mentorship_access,
-          mentorship_offering,
+          family_community_responsibilities_impact,
+          has_mentorship_access,
+          offers_mentorship,
           barriers_to_mentorship,
           angel_investor_interest,
           investor_capacity,
-          collaboration_interest,
-          open_to_future_contact,
+          has_collaboration_interest,
+          is_open_to_future_contact,
           goals_next_12_months_array
         `);
 
@@ -374,15 +374,15 @@ export default function Insights() {
     : [];
 
 // Process actual insights data from business_insights and founder_insights tables
-// Check if data comes from founder_insights (has collaboration_interest) or business_insights
-const isFounderInsights = insights.length > 0 && insights[0].collaboration_interest !== undefined;
+// Check if data comes from founder_insights (has has_collaboration_interest) or business_insights
+const isFounderInsights = insights.length > 0 && insights[0].has_collaboration_interest !== undefined;
 
 const collaborationRate = insights.length > 0
-  ? Math.round((insights.filter(i => i.collaboration_interest).length / insights.length) * 100)
+  ? Math.round((insights.filter(i => i.has_collaboration_interest).length / insights.length) * 100)
   : 0;
 
 const mentorshipOfferingRate = insights.length > 0
-  ? Math.round((insights.filter(i => i.mentorship_offering).length / insights.length) * 100)
+  ? Math.round((insights.filter(i => i.offers_mentorship).length / insights.length) * 100)
   : 0;
 
 const investmentInterestRate = insights.length > 0
@@ -458,8 +458,8 @@ const motivationKeywords = insights.reduce((acc, insight) => {
 
 // Family responsibilities data
 const familyResponsibilityData = insights.reduce((acc, insight) => {
-  if (insight.family_community_responsibilities_affect_business && Array.isArray(insight.family_community_responsibilities_affect_business)) {
-    insight.family_community_responsibilities_affect_business.forEach(responsibility => {
+  if (insight.family_community_responsibilities_impact && Array.isArray(insight.family_community_responsibilities_impact)) {
+    insight.family_community_responsibilities_impact.forEach(responsibility => {
       acc[responsibility] = (acc[responsibility] || 0) + 1;
     });
   }

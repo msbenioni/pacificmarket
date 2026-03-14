@@ -26,7 +26,7 @@ export function getBusinessWebsite(business: Business | null): string | null {
  * Check if business is verified
  */
 export function isVerifiedBusiness(business: Business | null): boolean {
-  return Boolean(business?.verified);
+  return Boolean(business?.is_verified);
 }
 
 /**
@@ -95,10 +95,10 @@ export function isActiveBusiness(business: Business | null): boolean {
 }
 
 /**
- * Check if business is claimed
+ * Check if business is is_claimed
  */
 export function isClaimedBusiness(business: Business | null): boolean {
-  return Boolean(business?.claimed);
+  return Boolean(business?.is_claimed);
 }
 
 /**
@@ -199,11 +199,11 @@ export function hasBusinessContactInfo(business: Business | null): boolean {
 // === Business Logic Helpers ===
 
 /**
- * Check if business can be claimed by current user
+ * Check if business can be is_claimed by current user
  */
 export function canClaimBusiness(business: Business | null, userId: string | null): boolean {
   if (!business || !userId) return false;
-  return !business.claimed && business.owner_user_id !== userId;
+  return !business.is_claimed && business.owner_user_id !== userId;
 }
 
 /**

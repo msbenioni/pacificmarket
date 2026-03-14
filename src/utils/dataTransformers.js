@@ -44,7 +44,7 @@ export function sanitizeBusinessPayload(formData) {
   const allowedFields = [
     "name",
     "business_handle",
-    "short_description",
+    "tagline",
     "description",
     "contact_name",
     "contact_email",

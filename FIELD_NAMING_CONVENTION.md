@@ -32,7 +32,7 @@ This document establishes a standardized naming convention for all form fields a
 |-----------|----------------|-------|-------|
 | `name` | `name` | `businesses` | ✅ Already standard |
 | `businessHandle` | `business_handle` | `businesses` | ✅ Already standard |
-| `shortDescription` | `short_description` | `businesses` | ✅ Already standard |
+| `shortDescription` | `tagline` | `businesses` | ✅ Already standard |
 | `tagline` | `tagline` | `businesses` | ✅ Already standard |
 | `description` | `description` | `businesses` | ✅ Already standard |
 | `industry` | `industry` | `businesses` | ✅ Already standard |
@@ -303,7 +303,7 @@ const transformBooleanField = (formData, fieldName) => {
 3. **Array naming convention** - Use `Array` suffix for clarity
 4. **Boolean prefix** - Use `is_` prefix for all boolean fields
 5. **Employee count fields** - Remove completely from forms and database
-6. **Description field strategy** - Use `tagline` consistently, migrate data from `short_description`
+6. **Description field strategy** - Use `tagline` consistently, migrate data from `tagline`
 
 ---
 
@@ -318,9 +318,9 @@ ALTER TABLE businesses RENAME COLUMN claimed TO is_claimed;
 ALTER TABLE businesses RENAME COLUMN homepage_featured TO is_homepage_featured;
 ALTER TABLE businesses RENAME COLUMN business_registered TO is_business_registered;
 
--- Migrate data from short_description to tagline
-UPDATE businesses SET tagline = short_description WHERE short_description IS NOT NULL AND tagline IS NULL;
-ALTER TABLE businesses DROP COLUMN short_description;
+-- Migrate data from tagline to tagline
+UPDATE businesses SET tagline = tagline WHERE tagline IS NOT NULL AND tagline IS NULL;
+ALTER TABLE businesses DROP COLUMN tagline;
 
 -- Remove employee count fields (if they exist)
 -- ALTER TABLE businesses DROP COLUMN full_time_employee_count;
@@ -361,7 +361,7 @@ ALTER TABLE founder_insights RENAME COLUMN family_community_responsibilities_aff
 |-----------|----------------|-------|--------|
 | `name` | `name` | `businesses` | ✅ Keep |
 | `businessHandle` | `business_handle` | `businesses` | ✅ Keep |
-| `tagline` | `tagline` | `businesses` | ✅ Keep (migrate data from short_description) |
+| `tagline` | `tagline` | `businesses` | ✅ Keep (migrate data from tagline) |
 | `description` | `description` | `businesses` | ✅ Keep |
 | `industry` | `industry` | `businesses` | ✅ Keep |
 | `country` | `country` | `businesses` | ✅ Keep |
@@ -482,8 +482,8 @@ ALTER TABLE founder_insights RENAME COLUMN family_community_responsibilities_aff
 ### **Phase 1: Database Schema Updates**
 ```sql
 -- Execute all column renames in sequence
--- Migrate data from short_description to tagline
--- Remove short_description column
+-- Migrate data from tagline to tagline
+-- Remove tagline column
 -- Test data integrity
 ```
 
@@ -509,12 +509,12 @@ ALTER TABLE founder_insights RENAME COLUMN family_community_responsibilities_aff
 
 ## 📝 Data Migration Script
 
-### **🔄 short_description → tagline Migration**
+### **🔄 tagline → tagline Migration**
 ```sql
--- Migrate data from short_description to tagline
+-- Migrate data from tagline to tagline
 UPDATE businesses 
-SET tagline = short_description 
-WHERE short_description IS NOT NULL AND tagline IS NULL;
+SET tagline = tagline 
+WHERE tagline IS NOT NULL AND tagline IS NULL;
 
 -- Verify migration
 SELECT COUNT(*) as records_migrated 
@@ -522,7 +522,7 @@ FROM businesses
 WHERE tagline IS NOT NULL;
 
 -- Remove old column
-ALTER TABLE businesses DROP COLUMN short_description;
+ALTER TABLE businesses DROP COLUMN tagline;
 ```
 
 ---
@@ -532,8 +532,8 @@ ALTER TABLE businesses DROP COLUMN short_description;
 ### **📋 Database Changes**
 - [ ] Rename `website` → `contact_website`
 - [ ] Rename boolean fields with `is_`/`has_` prefixes
-- [ ] Migrate `short_description` → `tagline`
-- [ ] Drop `short_description` column
+- [ ] Migrate `tagline` → `tagline`
+- [ ] Drop `tagline` column
 - [ ] Test data integrity
 
 ### **📝 Form Updates**
@@ -568,7 +568,7 @@ ALTER TABLE businesses DROP COLUMN short_description;
 - ✅ **Array naming** - `Array` suffix for clarity
 - ✅ **Boolean prefixes** - `is_`/`has_` for consistency
 - ✅ **Remove employee counts** - Clean up unused fields
-- ✅ **Use tagline only** - Migrate data from `short_description`
+- ✅ **Use tagline only** - Migrate data from `tagline`
 
 **Ready to proceed with implementation!** 🚀
 

@@ -118,7 +118,7 @@ SELECT
     id,
     name,
     business_handle,
-    short_description,
+    tagline,
     logo_url,
     industry,
     country,

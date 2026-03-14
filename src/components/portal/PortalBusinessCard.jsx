@@ -44,8 +44,8 @@ export default function PortalBusinessCard({
 
   const summaryText = useMemo(() => {
     if (metaLine) return metaLine;
-    return business.short_description || business.tagline || "Business record available to manage";
-  }, [metaLine, business.short_description, business.tagline]);
+    return business.tagline || "Business record available to manage";
+  }, [metaLine, business.tagline]);
 
   return (
     <div className="bg-white">
@@ -77,7 +77,7 @@ export default function PortalBusinessCard({
                   {business.name}
                 </h3>
 
-                {business.verified && (
+                {business.is_verified && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white">
                     <CheckCircle className="h-3.5 w-3.5" />
                     Verified

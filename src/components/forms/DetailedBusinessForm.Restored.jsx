@@ -43,14 +43,14 @@ const DetailedBusinessFormRestored = ({
       const transformedData = {
         ...data,
         // Map form field names back to database field names
-        short_description: data.tagline || data.short_description || "",
+        tagline: data.tagline || "",
         contact_website: data.website || data.contact_website || "",
         // Handle growth_stage -> business_stage mapping
         business_stage: data.growth_stage || "",
         // Remove the form-specific field
         growth_stage: undefined,
-        // Remove form-specific tagline if short_description exists
-        ...(data.short_description ? { tagline: undefined } : {}),
+        // Remove form-specific tagline if tagline exists
+        ...(data.tagline ? { tagline: undefined } : {}),
         // Remove form-specific website if contact_website exists
         ...(data.contact_website ? { website: undefined } : {}),
       };
@@ -109,7 +109,6 @@ const DetailedBusinessFormRestored = ({
       
       // Description fields
       description: "", 
-      short_description: "",
       tagline: "",
       
       // Additional fields

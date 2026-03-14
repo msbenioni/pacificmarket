@@ -115,7 +115,6 @@ export default function BusinessCard({
 
   const summaryText = useMemo(() => {
     return (
-      business.short_description ||
       business.tagline ||
       `${business.city || ""}${business.city && business.country ? ", " : ""}${business.country || ""}${business.industry ? ` · ${business.industry}` : ""}` ||
       "Business record available to manage"
@@ -125,7 +124,7 @@ export default function BusinessCard({
   const tierLabel =
     tierInfo?.[business.subscription_tier]?.label || business.subscription_tier || "Standard";
 
-  const tierStyles = business.verified
+  const tierStyles = business.is_verified
     ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
     : "bg-slate-100 text-slate-700 border border-slate-200";
 
@@ -177,7 +176,7 @@ export default function BusinessCard({
                     {business.name}
                   </h3>
 
-                  {business.verified && (
+                  {business.is_verified && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
                       <CheckCircle className="h-3.5 w-3.5" />
                       Verified

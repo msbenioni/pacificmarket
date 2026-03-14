@@ -24,7 +24,7 @@ export default function BusinessCard({ business, view = "grid" }) {
   const metaLine = [business.city, countryLabel].filter(Boolean).join(", ");
 
   const description =
-    business.short_description ||
+    business.tagline ||
     business.description ||
     "";
 
@@ -65,7 +65,7 @@ export default function BusinessCard({ business, view = "grid" }) {
                 {business.name}
               </h3>
 
-              {business.verified && (
+              {business.is_verified && (
                 <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00c4cc]" />
               )}
             </div>
@@ -130,7 +130,7 @@ export default function BusinessCard({ business, view = "grid" }) {
                 {business.name}
               </h3>
 
-              {business.verified && (
+              {business.is_verified && (
                 <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00c4cc]" />
               )}
             </div>

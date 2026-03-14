@@ -27,13 +27,13 @@ ALTER TABLE businesses RENAME COLUMN verified TO is_verified;
 ALTER TABLE businesses RENAME COLUMN claimed TO is_claimed;
 ALTER TABLE businesses RENAME COLUMN homepage_featured TO is_homepage_featured;
 
--- 2. Migrate data from short_description to tagline
+-- 2. Migrate data from tagline to tagline
 UPDATE businesses 
-SET tagline = short_description 
-WHERE short_description IS NOT NULL AND (tagline IS NULL OR tagline = '');
+SET tagline = tagline 
+WHERE tagline IS NOT NULL AND (tagline IS NULL OR tagline = '');
 
--- 3. Remove the old short_description column
-ALTER TABLE businesses DROP COLUMN short_description;
+-- 3. Remove the old tagline column
+ALTER TABLE businesses DROP COLUMN tagline;
 
 -- ============================================================================
 -- 👤 founder_insights Table Updates
@@ -72,7 +72,7 @@ WHERE table_name = 'founder_insights'
     AND column_name IN ('has_mentorship_access', 'offers_mentorship', 'has_collaboration_interest', 'is_open_to_future_contact', 'family_community_responsibilities_impact')
 ORDER BY table_name, column_name;
 
--- Verify data migration from short_description to tagline
+-- Verify data migration from tagline to tagline
 SELECT 
     COUNT(*) as businesses_with_tagline,
     COUNT(CASE WHEN tagline IS NOT NULL AND tagline != '' THEN 1 END) as businesses_with_non_empty_tagline
@@ -157,8 +157,8 @@ After successful migration, you should see:
 - ✅ `verified` → `is_verified`
 - ✅ `claimed` → `is_claimed`
 - ✅ `homepage_featured` → `is_homepage_featured`
-- ✅ `short_description` data migrated to `tagline`
-- ✅ `short_description` column removed
+- ✅ `tagline` data migrated to `tagline`
+- ✅ `tagline` column removed
 
 ### **Founder Insights Table Changes:**
 - ✅ `mentorship_access` → `has_mentorship_access`

@@ -121,7 +121,7 @@ SELECT
     b.id,
     b.name,
     b.business_handle,
-    b.short_description,
+    b.tagline,
     b.logo_url,
     b.industry,
     b.country,

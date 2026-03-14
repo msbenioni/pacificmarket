@@ -135,7 +135,7 @@ const InlineBusinessFormShared = ({
       // Core listing details
       name: '',
       business_handle: '',
-      short_description: '',
+      tagline: '',
       description: '',
       
       // Brand media
@@ -381,11 +381,11 @@ const InlineBusinessFormShared = ({
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">Short Description</label>
+                <label className="mb-1 block text-sm font-medium text-slate-700">Tagline</label>
                 <textarea
                   rows={3}
-                  value={form.formData?.short_description || ""}
-                  onChange={(e) => form.handleFieldChange("short_description", e.target.value)}
+                  value={form.formData?.tagline || ""}
+                  onChange={(e) => form.handleFieldChange("tagline", e.target.value)}
                   className={textareaCls}
                   placeholder="Brief description for listing cards"
                   maxLength={150}
@@ -599,8 +599,8 @@ const InlineBusinessFormShared = ({
                   <label className="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
                     <input
                       type="checkbox"
-                      checked={!!form.formData?.verified}
-                      onChange={(e) => form.handleFieldChange("verified", e.target.checked)}
+                      checked={!!form.formData?.is_verified}
+                      onChange={(e) => form.handleFieldChange("is_verified", e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300"
                     />
                     Verified

@@ -42,17 +42,18 @@ const DetailedBusinessFormRestored = ({
       // Transform form data back to database format before saving
       const transformedData = {
         ...data,
-        // Map form field names back to database field names
-        short_description: data.tagline || data.short_description || "",
-        contact_website: data.website || data.contact_website || "",
-        // Handle growth_stage -> business_stage mapping
-        business_stage: data.growth_stage || "",
-        // Remove the form-specific field
-        growth_stage: undefined,
-        // Remove form-specific tagline if short_description exists
-        ...(data.short_description ? { tagline: undefined } : {}),
-        // Remove form-specific website if contact_website exists
-        ...(data.contact_website ? { website: undefined } : {}),
+        // Handle business_stage mapping (now standardized)
+        business_stage: data.business_stage || "",
+        // Transform array fields back to database format
+        sales_channels: data.sales_channels_array || [],
+        social_links: data.social_links_array || [],
+        cultural_identity: data.cultural_identity_array || [],
+        languages_spoken: data.languages_spoken_array || [],
+        // Remove form-specific array fields
+        sales_channels_array: undefined,
+        social_links_array: undefined,
+        cultural_identity_array: undefined,
+        languages_spoken_array: undefined,
       };
       
       return await onSubmit(transformedData);
@@ -91,10 +92,10 @@ const DetailedBusinessFormRestored = ({
       business_operating_status: "",
       business_age: "",
       team_size_band: "",
-      business_registered: false,
+      is_business_registered: false,
       employs_anyone: false,
       employs_family_community: false,
-      sales_channels: [],
+      sales_channels_array: [],
       revenue_band: "",
       
       // Media fields
@@ -104,18 +105,17 @@ const DetailedBusinessFormRestored = ({
       // Contact fields
       contact_email: "", 
       contact_phone: "", 
-      website: "", 
-      social_links: [],
+      contact_website: "", 
+      social_links_array: [],
       
       // Description fields
       description: "", 
-      short_description: "",
       tagline: "",
       
       // Additional fields
       business_structure: "",
       primary_market: "",
-      growth_stage: "",
+      business_stage: "",
       funding_source: "",
       competitive_advantage: "",
       future_plans: "",
@@ -124,8 +124,8 @@ const DetailedBusinessFormRestored = ({
       tech_stack: "",
       full_time_employees: null,
       part_time_employees: null,
-      cultural_identity: "",
-      languages_spoken: [],
+      cultural_identity_array: [],
+      languages_spoken_array: [],
     },
     mode: mode,
     autoSave: AUTO_SAVE_CONFIG.ON_BLUR,
@@ -170,21 +170,21 @@ const DetailedBusinessFormRestored = ({
   // 🎯 Social Links Management (using shared form helpers)
   const addSocialLink = (platform, url) => {
     if (!url.trim()) return;
-    const existingLinks = Array.isArray(form.formData.social_links) ? form.formData.social_links : [];
+    const existingLinks = Array.isArray(form.formData.social_links_array) ? form.formData.social_links_array : [];
     const filteredLinks = existingLinks.filter(link => link.platform !== platform);
     form.updateFields({ 
-      social_links: [...filteredLinks, { platform, url: url.trim() }] 
+      social_links_array: [...filteredLinks, { platform, url: url.trim() }] 
     });
   };
 
   const removeSocialLink = (platform) => {
-    const socialLinks = Array.isArray(form.formData.social_links) ? form.formData.social_links : [];
+    const socialLinks = Array.isArray(form.formData.social_links_array) ? form.formData.social_links_array : [];
     const filteredLinks = socialLinks.filter(link => link.platform !== platform);
-    form.updateFields({ social_links: filteredLinks });
+    form.updateFields({ social_links_array: filteredLinks });
   };
 
   const getSocialUrl = (platform) => {
-    const socialLinks = Array.isArray(form.formData.social_links) ? form.formData.social_links : [];
+    const socialLinks = Array.isArray(form.formData.social_links_array) ? form.formData.social_links_array : [];
     const link = socialLinks.find(link => link.platform === platform);
     return link?.url || "";
   };

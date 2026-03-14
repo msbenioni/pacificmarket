@@ -10,7 +10,7 @@ const BUSINESS_PUBLIC_FIELDS = `
   id,
   name,
   description,
-  short_description,
+  tagline,
   business_handle,
   logo_url,
   banner_url,
@@ -44,12 +44,12 @@ const BUSINESS_PUBLIC_FIELDS = `
   cultural_identity,
   competitive_advantage,
   status,
-  verified,
-  claimed,
+  is_verified,
+  is_claimed,
   claimed_at,
   claimed_by,
   visibility_tier,
-  homepage_featured,
+  is_homepage_featured,
   subscription_tier,
   owner_user_id,
   created_by,
@@ -249,7 +249,7 @@ export async function searchBusinesses(query: string, options: {
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
     .eq('status', status)
-    .or(`name.ilike.%${query}%,description.ilike.%${query}%,short_description.ilike.%${query}%`)
+    .or(`name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%`)
     .limit(limit);
 }
 

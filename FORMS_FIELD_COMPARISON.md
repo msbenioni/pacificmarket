@@ -26,8 +26,8 @@ This document provides a comprehensive comparison of all input fields across the
 |-------|-------------------|-------------------|-------------------|---------------|----------------|-------|
 | **name** | ✅ | ✅ | ❌ | `businesses` | `name` | Required field |
 | **business_handle** | ✅ | ✅ | ❌ | `businesses` | `business_handle` | Unique identifier |
-| **short_description** | ✅ | ✅ | ❌ | `businesses` | `short_description` | Brief description |
-| **tagline** | ❌ | ✅ | ❌ | `businesses` | `tagline` | Alternative to short_description |
+| **tagline** | ✅ | ✅ | ❌ | `businesses` | `tagline` | Brief description |
+| **tagline** | ❌ | ✅ | ❌ | `businesses` | `tagline` | Alternative to tagline |
 | **description** | ✅ | ✅ | ❌ | `businesses` | `description` | Full description |
 | **industry** | ✅ | ✅ | ✅ | `businesses` / `business_insights` | `industry` | Business classification |
 | **country** | ✅ | ✅ | ❌ | `businesses` | `country` | Business location |
@@ -166,7 +166,7 @@ This document provides a comprehensive comparison of all input fields across the
 ## 📊 Field Mapping Summary
 
 ### **🏢 businesses Table Fields**
-- **Core:** `name`, `business_handle`, `description`, `tagline`, `short_description`
+- **Core:** `name`, `business_handle`, `description`, `tagline`, `tagline`
 - **Contact:** `contact_email`, `contact_phone`, `public_phone`, `contact_website`, `website`, `business_hours`
 - **Location:** `country`, `city`, `suburb`, `address`, `state_region`, `postal_code`
 - **Classification:** `industry`, `business_type`, `business_structure`
@@ -214,7 +214,7 @@ This document provides a comprehensive comparison of all input fields across the
 ### **🔄 Field Transformations**
 - **social_links**: Form array `{platform, url}` → Database JSONB `{platform: url}`
 - **Arrays**: Form arrays → Database JSONB arrays
-- **Field mapping**: `tagline` ↔ `short_description`, `website` ↔ `contact_website`
+- **Field mapping**: `tagline` ↔ `tagline`, `website` ↔ `contact_website`
 
 ---
 

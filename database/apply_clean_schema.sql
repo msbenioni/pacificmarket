@@ -103,7 +103,7 @@ ON CONFLICT (user_id) DO NOTHING;
 -- Migrate businesses data
 INSERT INTO businesses (
     id, owner_user_id, created_at, updated_at, name, business_handle, 
-    short_description, description, tagline, contact_name, contact_email, 
+    tagline, description, tagline, contact_name, contact_email, 
     contact_phone, contact_website, business_hours, public_phone, country, 
     city, suburb, address, state_region, postal_code, industry, 
     business_type, business_structure, logo_url, banner_url, 
@@ -121,7 +121,7 @@ SELECT
     updated_at,
     name,
     business_handle,
-    short_description,
+    tagline,
     description,
     tagline,
     contact_name,

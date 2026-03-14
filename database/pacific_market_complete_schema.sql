@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     -- Basic business information
     name TEXT NOT NULL,
     business_handle TEXT UNIQUE,
-    short_description TEXT,
+    tagline TEXT,
     description TEXT,
     tagline TEXT,
     
@@ -467,7 +467,7 @@ SELECT
     b.id,
     b.name,
     b.business_handle,
-    b.short_description,
+    b.tagline,
     b.logo_url,
     b.banner_url,
     b.contact_email,
@@ -515,7 +515,7 @@ INSERT INTO profiles (user_id, email, full_name, country, city) VALUES
 ('00000000-0000-0000-0000-000000000000', 'admin@pacificmarket.com', 'Admin User', 'New Zealand', 'Auckland');
 
 -- Sample business
-INSERT INTO businesses (owner_user_id, name, business_handle, short_description, industry, country, city, status, verified) VALUES
+INSERT INTO businesses (owner_user_id, name, business_handle, tagline, industry, country, city, status, verified) VALUES
 ('00000000-0000-0000-0000-000000000000', 'Pacific Market Demo', 'pacific-market-demo', 'A platform connecting Pacific businesses', 'digital_it_technology', 'New Zealand', 'Auckland', 'active', TRUE);
 */
 

@@ -174,7 +174,7 @@ export default function BusinessProfile() {
 
   const allSocials = [...socials, ...socialLinks];
 
-  const shortText = business.short_description || business.tagline || "";
+  const shortText = business.tagline || "";
   const fullText = business.description || "";
 
   return (
@@ -221,7 +221,7 @@ export default function BusinessProfile() {
                     </span>
                   )}
 
-                  {business.verified && (
+                  {business.is_verified && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-[#00c4cc]/10 px-2.5 py-1 text-xs font-semibold text-[#0d4f4f] border border-[#00c4cc]/20">
                       <CheckCircle className="w-3.5 h-3.5" />
                       Verified

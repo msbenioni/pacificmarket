@@ -149,9 +149,9 @@ function BusinessMiniCard({ b, active, onSelect }) {
         )}
 
         {/* Tagline - flex-grow to push footer down */}
-        {b.short_description && (
+        {b.tagline && (
           <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 mb-3 flex-1">
-            {b.short_description}
+            {b.tagline}
           </p>
         )}
 
@@ -278,14 +278,14 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                 )}
               </div>
 
-              {(b?.short_description || b?.description) && (
+              {(b?.tagline || b?.description) && (
               <div className="mt-4 space-y-3 flex-1">
-                {b?.short_description && (
+                {b?.tagline && (
                   <p className="text-sm sm:text-[15px] leading-relaxed text-white/90 font-medium">
-                    {b.short_description}
+                    {b.tagline}
                   </p>
                 )}
-                {b?.description && b?.description !== b?.short_description && (
+                {b?.description && b?.description !== b?.tagline && (
                   <p className="text-sm sm:text-[15px] leading-relaxed text-white/80">
                     {clampText(b.description, 300)}
                   </p>
@@ -293,7 +293,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
               </div>
             )}
 
-            {!b?.short_description && !b?.description && (
+            {!b?.tagline && !b?.description && (
               <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-white/80 flex-1">
                 Featured Pacific-owned business in the Pacific Market.
               </p>

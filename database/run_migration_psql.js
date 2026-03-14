@@ -111,7 +111,7 @@ async function runMigration() {
     console.log('\n📋 Summary of changes:');
     console.log('✅ businesses table: 4 columns renamed, 1 column dropped, data migrated');
     console.log('✅ founder_insights table: 5 columns renamed');
-    console.log('✅ Data migration: short_description → tagline completed');
+    console.log('✅ Data migration: tagline → tagline completed');
     
   } catch (error) {
     console.error('❌ Migration failed:', error.message);

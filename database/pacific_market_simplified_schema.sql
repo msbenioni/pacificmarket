@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     -- Basic business information
     name TEXT NOT NULL,
     business_handle TEXT UNIQUE,
-    short_description TEXT,
+    tagline TEXT,
     description TEXT,
     tagline TEXT,
     
@@ -471,7 +471,7 @@ SELECT
     b.id,
     b.name,
     b.business_handle,
-    b.short_description,
+    b.tagline,
     b.logo_url,
     b.banner_url,
     b.contact_email,
