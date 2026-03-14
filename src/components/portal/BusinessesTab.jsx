@@ -130,27 +130,15 @@ export default function BusinessesTab({
             <BusinessCard
               key={business.id}
               business={business}
-              user={user}
-              profiles={profiles}
-              isEditing={editingBusinessId === business.id}
               draftBusiness={draftBusiness}
               savingEdit={savingEdit}
               insightsSubmitting={insightsSubmitting}
-              insightsStarted={insightsStarted}
               tierInfo={tierInfo}
-              onEdit={() => handleBusinessCardAction("edit", business.id)}
               onCancel={() => handleBusinessCardAction("cancel", business.id)}
-              onDraftChange={(updater) =>
-                handleBusinessCardAction("draftChange", business.id, updater)
-              }
+              onDraftChange={(updater) => handleBusinessCardAction("draftChange", business.id, updater)}
               onSave={(data) => handleBusinessCardAction("save", business.id, data)}
               onDelete={() => handleBusinessCardAction("delete", business.id)}
-              onAddOwner={() => handleBusinessCardAction("addOwner", business.id)}
-              onLogoUpload={(e, id) => handleBusinessCardAction("logoUpload", id, e)}
-              onBannerUpload={(e, id) => handleBusinessCardAction("bannerUpload", id, e)}
-              onInsightsSubmit={(data) =>
-                handleBusinessCardAction("insightsSubmit", business.id, data)
-              }
+              onInsightsSubmit={(data) => handleBusinessCardAction("insightsSubmit", business.id, data)}
             />
           ))}
         </div>
