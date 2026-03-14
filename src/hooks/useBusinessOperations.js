@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteBusiness, updateBusiness } from "@/lib/supabase/queries/businesses";
 import { sanitizeBusinessPayload, validateBusinessData } from "@/utils/dataTransformers";
+import { filterEmptyValues } from "@/utils/businessDataTransformer";
 import { createPageUrl } from "@/utils";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
@@ -301,9 +302,12 @@ export function useBusinessOperations(refetchPortalData) {
 
         if (existingInsights) {
           // Update existing record
+          const filteredInsightsData = filterEmptyValues(businessInsightsData);
+          console.log("Filtered insights data:", filteredInsightsData);
+          
           const { error: insightsError } = await supabase
             .from("business_insights")
-            .update(businessInsightsData)
+            .update(filteredInsightsData)
             .eq("id", existingInsights.id);
 
           if (insightsError) {
@@ -316,13 +320,16 @@ export function useBusinessOperations(refetchPortalData) {
           }
         } else {
           // Create new record
+          const filteredInsightsData = filterEmptyValues(businessInsightsData);
+          console.log("Filtered insights data for insert:", filteredInsightsData);
+          
           const { error: insightsError } = await supabase
             .from("business_insights")
             .insert({
               business_id: businessData.businessId,
               user_id: user.id,
               snapshot_year: currentYear,
-              ...businessInsightsData,
+              ...filteredInsightsData,
             });
 
           if (insightsError) {
