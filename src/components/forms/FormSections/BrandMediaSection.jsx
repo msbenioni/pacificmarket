@@ -21,9 +21,8 @@ export default function BrandMediaSection({
             <h4 className="font-medium text-blue-900 mb-2">Optimal Image Sizes</h4>
             <div className="space-y-1 text-blue-700">
               <p><strong>Logo:</strong> 200×200px (square, for profile cards & listings)</p>
-              <p><strong>Desktop Banner:</strong> 1200×300px (wide, for business registry & homepage)</p>
-              <p><strong>Mobile Banner:</strong> 400×160px (optimal for business cards, no cropping)</p>
-              <p><strong>Homepage Alternative:</strong> 400×133px (if you want perfect fit for homepage)</p>
+              <p><strong>Desktop Banner:</strong> 1200×300px (wide, for business registry)</p>
+              <p><strong>Mobile Banner:</strong> 400×160px (perfect for both business cards & homepage)</p>
               <p className="text-xs mt-2">All images: PNG, JPG up to 5MB. Images will be automatically resized.</p>
             </div>
           </div>
@@ -199,7 +198,7 @@ export default function BrandMediaSection({
             <div>
               <h5 className="text-sm font-medium text-slate-700 mb-2">Homepage Featured</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
-                <div className="relative h-[133px] bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] rounded-t-2xl">
+                <div className="relative h-40 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] rounded-t-2xl">
                   {form.banner_url ? (
                     <img
                       src={form.banner_url}
@@ -244,12 +243,12 @@ export default function BrandMediaSection({
               <div className="text-sm text-blue-800">
                 <p className="font-medium mb-1">Banner Display Contexts</p>
                 <p className="text-xs">
-                  <strong>Business Card:</strong> Uses mobile banner (400×160px optimal) or desktop fallback<br/>
+                  <strong>Business Card:</strong> Uses mobile banner (400×160px) or desktop fallback<br/>
                   <strong>Homepage Featured:</strong> Uses desktop banner only (1200×300px)<br/>
                   <strong>Business Registry:</strong> Uses desktop banner only (1200×300px)
                 </p>
                 <p className="text-xs mt-1 italic">
-                  💡 Tip: Upload 400×160px for perfect business card fit, 400×133px for perfect homepage fit!
+                  💡 Tip: One mobile banner size (400×160px) works perfectly for both cards and homepage!
                 </p>
               </div>
             </div>
