@@ -94,6 +94,19 @@ export default function BusinessOverviewSection({
               <option value="1m+">Over $1,000,000</option>
             </select>
           </div>
+
+          <div>
+            <label className={labelCls}>Business Registered</label>
+            <select
+              value={form.is_business_registered ? "true" : "false"}
+              onChange={(e) => handleInputChange("is_business_registered", e.target.value === "true")}
+              className={selectCls}
+            >
+              <option value="">Select registration status</option>
+              <option value="true">Registered</option>
+              <option value="false">Not registered</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
