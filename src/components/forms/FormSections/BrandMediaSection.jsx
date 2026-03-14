@@ -14,16 +14,17 @@ export default function BrandMediaSection({
   return (
     <div className="space-y-6">
       {/* Image Size Guidelines */}
-      <div className="rounded-xl bg-blue-50 border border-blue-200 p-4">
+      <div className="rounded-xl bg-green-50 border border-green-200 p-4">
         <div className="flex items-start gap-2">
-          <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+          <Info className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
           <div className="text-sm">
-            <h4 className="font-medium text-blue-900 mb-2">Optimal Image Sizes</h4>
-            <div className="space-y-1 text-blue-700">
+            <h4 className="font-medium text-green-900 mb-2">Image Upload Guide</h4>
+            <div className="space-y-1 text-green-700">
               <p><strong>Logo:</strong> 200×200px (square, for profile cards & listings)</p>
               <p><strong>Desktop Banner:</strong> 1200×300px (wide, for business registry)</p>
-              <p><strong>Mobile Banner:</strong> 400×160px (perfect for both business cards & homepage)</p>
-              <p className="text-xs mt-2">All images: PNG, JPG up to 5MB. Images will be automatically resized.</p>
+              <p><strong>Mobile Banner:</strong> 400×160px (perfect for business cards & homepage)</p>
+              <p className="text-xs mt-2">✨ One mobile banner size works perfectly everywhere!</p>
+              <p className="text-xs">All images: PNG, JPG up to 5MB</p>
             </div>
           </div>
         </div>
@@ -115,7 +116,7 @@ export default function BrandMediaSection({
 
         {/* Mobile Banner Upload */}
         <div>
-          <label className={labelCls}>Mobile Banner (Business Cards)</label>
+          <label className={labelCls}>Mobile Banner (Business Cards & Homepage)</label>
           <div className="mt-2 space-y-3">
             {form.mobile_banner_url ? (
               <div className="relative inline-block">
@@ -127,7 +128,7 @@ export default function BrandMediaSection({
                 <button
                   type="button"
                   onClick={() => removeImage("mobile_banner")}
-                  className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -137,7 +138,7 @@ export default function BrandMediaSection({
                 <input
                   id={mobileBannerInputId}
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
                   onChange={(e) => handleFileUpload(e, "mobile_banner")}
                   className="hidden"
                 />
@@ -148,7 +149,7 @@ export default function BrandMediaSection({
                   <Upload className="h-4 w-4" />
                   Upload Mobile Banner
                 </label>
-                <p className="mt-2 text-xs text-slate-500">400×160px optimal, PNG/JPG up to 5MB</p>
+                <p className="mt-2 text-xs text-slate-500">400×160px perfect fit, PNG/JPG up to 5MB</p>
               </div>
             )}
           </div>
@@ -158,7 +159,7 @@ export default function BrandMediaSection({
       {/* Banner Preview Section */}
       {(form.logo_url || form.banner_url || form.mobile_banner_url) && (
         <div className="space-y-4">
-          <h4 className="font-medium text-slate-900">Preview: How Your Banners Will Appear</h4>
+          <h4 className="font-medium text-slate-900">Live Preview: Your Banners in Action</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Business Card Preview */}
@@ -232,7 +233,7 @@ export default function BrandMediaSection({
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                Uses desktop banner only
+                Uses mobile banner first, then desktop fallback
               </p>
             </div>
           </div>
@@ -241,14 +242,14 @@ export default function BrandMediaSection({
             <div className="flex items-start gap-2">
               <div className="text-blue-600 text-sm">ℹ️</div>
               <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Banner Display Contexts</p>
+                <p className="font-medium mb-1">Banner Display System</p>
                 <p className="text-xs">
                   <strong>Business Card:</strong> Uses mobile banner (400×160px) or desktop fallback<br/>
-                  <strong>Homepage Featured:</strong> Uses desktop banner only (1200×300px)<br/>
+                  <strong>Homepage Featured:</strong> Uses mobile banner (400×160px) or desktop fallback<br/>
                   <strong>Business Registry:</strong> Uses desktop banner only (1200×300px)
                 </p>
                 <p className="text-xs mt-1 italic">
-                  💡 Tip: One mobile banner size (400×160px) works perfectly for both cards and homepage!
+                  ✨ One mobile banner size (400×160px) works perfectly for both cards and homepage!
                 </p>
               </div>
             </div>
