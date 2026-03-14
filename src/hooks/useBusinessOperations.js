@@ -51,13 +51,20 @@ export function useBusinessOperations(refetchPortalData) {
       // Handle file uploads first
       let businessesDataForUpdate = {};
       
-      // Extract the actual business data from the new structure
+      // Extract the actual business data from the structure
       if (businessData.businessesData) {
+        // New unified form structure - data is already separated by table
         businessesDataForUpdate = { ...businessData.businessesData };
         delete businessesDataForUpdate.logo_file;
         delete businessesDataForUpdate.banner_file;
+        delete businessesDataForUpdate.mobile_banner_file;
+      } else if (businessData.publicData) {
+        // Legacy structure - use public data
+        businessesDataForUpdate = { ...businessData.publicData };
       } else {
-        businessesDataForUpdate = { ...businessData };
+        // Very old structure - extract business fields, exclude metadata
+        const { businessId, files, saveAll, ...businessFields } = businessData;
+        businessesDataForUpdate = businessFields;
       }
       
       // Upload logo if there's a new logo file
