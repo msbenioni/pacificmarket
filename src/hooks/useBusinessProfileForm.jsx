@@ -1,25 +1,21 @@
 import { useState } from "react";
-import { transformBusinessFormData, sanitizeForBusinessesTable, sanitizeForBusinessInsightsTable } from "@/utils/businessDataTransformer";
+import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 
 export const useBusinessProfileForm = ({ businessId, onSave, initialData = null }) => {
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errors, setErrors] = useState({ submit: undefined });
 
-  const handleSave = async ({ businessId, publicData, privateData, files = {}, saveAll = false }) => {
+  const handleSave = async ({ businessId, businessesData, businessInsightsData, files = {}, saveAll = false }) => {
     setSubmitting(true);
     setErrors({ submit: undefined });
 
     try {
-      // Sanitize data for each table
-      const sanitizedPublicData = sanitizeForBusinessesTable(publicData);
-      const sanitizedPrivateData = sanitizeForBusinessInsightsTable(privateData);
-
-      // Call the parent save handler
+      // Call the parent save handler with table-based structure
       await onSave({
         businessId,
-        publicData: sanitizedPublicData,
-        privateData: sanitizedPrivateData,
+        businessesData,
+        businessInsightsData,
         files,
         saveAll,
       });
@@ -44,27 +40,27 @@ export const useBusinessProfileForm = ({ businessId, onSave, initialData = null 
   };
 
   const handleSaveSection = async (formData, sectionKey) => {
-    // Transform the form data
-    const { publicData, privateData } = transformBusinessFormData(formData);
+    // Transform the form data to table-based structure
+    const { businessesData, businessInsightsData } = transformBusinessFormData(formData);
     
     // For section saves, we might want to only save relevant fields
     // This could be enhanced to only save fields from the specific section
     return await handleSave({
       businessId,
-      publicData,
-      privateData,
+      businessesData,
+      businessInsightsData,
       saveAll: false,
     });
   };
 
   const handleSaveAll = async (formData) => {
-    // Transform the form data
-    const { publicData, privateData } = transformBusinessFormData(formData);
+    // Transform the form data to table-based structure
+    const { businessesData, businessInsightsData } = transformBusinessFormData(formData);
     
     return await handleSave({
       businessId,
-      publicData,
-      privateData,
+      businessesData,
+      businessInsightsData,
       saveAll: true,
     });
   };
