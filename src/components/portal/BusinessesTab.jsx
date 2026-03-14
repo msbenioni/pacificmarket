@@ -134,6 +134,7 @@ export default function BusinessesTab({
               savingEdit={savingEdit}
               insightsSubmitting={insightsSubmitting}
               tierInfo={tierInfo}
+              onEdit={() => handleBusinessCardAction("edit", business.id)}
               onCancel={() => handleBusinessCardAction("cancel", business.id)}
               onDraftChange={(updater) => handleBusinessCardAction("draftChange", business.id, updater)}
               onSave={(data) => handleBusinessCardAction("save", business.id, data)}

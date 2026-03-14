@@ -64,6 +64,7 @@ export default function BusinessPortal() {
     draftBusiness,
     savingEdit,
     startEditingBusiness,
+    updateDraftBusiness,
     cancelEditingBusiness,
     saveBusiness,
     handleDeleteBusiness,
@@ -208,6 +209,9 @@ export default function BusinessPortal() {
                     break;
                   case "save":
                     saveBusiness(data);
+                    break;
+                  case "draftChange":
+                    updateDraftBusiness(data);
                     break;
                   case "delete":
                     handleDeleteBusiness(businessId);

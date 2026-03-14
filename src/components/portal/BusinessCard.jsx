@@ -96,6 +96,7 @@ export default function BusinessCard({
   savingEdit,
   insightsSubmitting,
   tierInfo,
+  onEdit,
   onCancel,
   onDraftChange,
   onSave,
@@ -131,6 +132,10 @@ export default function BusinessCard({
 
   const toggleMainStep = (key) => {
     setOpenMainStep((prev) => (prev === key ? null : key));
+    // Create draft copy when opening the listing section for editing
+    if (key === "listing" && !draftBusiness) {
+      onDraftChange(business);
+    }
   };
 
   return (
