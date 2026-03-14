@@ -42,7 +42,7 @@ export default function CoreInfoSection({ form, handleInputChange, inputCls, tex
           onChange={(e) => handleInputChange("description", e.target.value)}
           className={textareaCls}
           placeholder="Describe what your business does, your products/services, and what makes you unique..."
-          rows={4}
+          rows={15}
           required
         />
       </div>
