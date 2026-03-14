@@ -1,5 +1,9 @@
 # 📊 Forms Field Comparison & Database Mapping
 
+> **📁 ARCHIVED DOCUMENT** - This documentation is for historical reference only.  
+> **📅 Last Updated:** March 2026 - Field removal changes applied  
+> **⚠️ Note:** Some fields referenced in this document have been removed from the current implementation.
+
 ## 🎯 Overview
 
 This document provides a comprehensive comparison of all input fields across the different forms in the Pacific Market application, showing where each field saves to and fetches from in the database.
@@ -67,15 +71,19 @@ This document provides a comprehensive comparison of all input fields across the
 
 | Field | InlineBusinessForm | DetailedBusinessForm | FounderInsightsForm | Database Table | Database Column | Notes |
 |-------|-------------------|-------------------|-------------------|---------------|----------------|-------|
-| **business_operating_status** | ❌ | ✅ | ✅ | `businesses` / `business_insights` | `business_operating_status` | Operating status |
-| **business_age** | ❌ | ✅ | ✅ | `business_insights` | `business_age` | How long business has operated |
 | **team_size_band** | ❌ | ✅ | ✅ | `businesses` / `business_insights` | `team_size_band` | Team size category |
 | **team_size** | ✅ | ❌ | ❌ | **Legacy** | **Not Used** | Legacy field |
 | **business_registered** | ❌ | ✅ | ✅ | `businesses` / `business_insights` | `business_registered` | Legal registration status |
-| **employs_anyone** | ❌ | ✅ | ✅ | `business_insights` | `employs_anyone` | Has employees |
-| **employs_family_community** | ❌ | ✅ | ✅ | `business_insights` | `employs_family_community` | Employs family/community |
 | **sales_channels** | ❌ | ✅ | ❌ | `business_insights` | `sales_channels` | JSONB array of channels |
 | **revenue_band** | ❌ | ✅ | ✅ | `businesses` / `business_insights` | `revenue_band` | Revenue category |
+
+### 🗑️ **Removed Fields (March 2026)**
+| Field | Previous Status | Current Status | Reason |
+|-------|-----------------|----------------|--------|
+| **business_operating_status** | ✅ in DetailedBusinessForm, FounderInsightsForm | ❌ **REMOVED** | Simplified form structure |
+| **business_age** | ✅ in DetailedBusinessForm, FounderInsightsForm | ❌ **REMOVED** | Simplified form structure |
+| **employs_anyone** | ✅ in DetailedBusinessForm, FounderInsightsForm | ❌ **REMOVED** | Simplified form structure |
+| **employs_family_community** | ✅ in DetailedBusinessForm, FounderInsightsForm | ❌ **REMOVED** | Simplified form structure |
 
 ---
 
