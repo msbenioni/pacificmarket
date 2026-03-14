@@ -24,11 +24,11 @@ const fetchInsightsData = async () => {
         business_id,
         user_id,
         business_stage,
-        top_challenges,
+        top_challenges_array,
         hiring_intentions,
         business_operating_status,
         business_age,
-        business_registered,
+        is_business_registered,
         employs_anyone,
         employs_family_community,
         team_size_band,
@@ -38,9 +38,9 @@ const fetchInsightsData = async () => {
         funding_purpose,
         investment_stage,
         investment_exploration,
-        community_impact_areas,
-        support_needed_next,
-        current_support_sources,
+        community_impact_areas_array,
+        support_needed_next_array,
+        current_support_sources_array,
         expansion_plans,
         industry,
         snapshot_year,
@@ -378,17 +378,15 @@ export default function Insights() {
 const isFounderInsights = insights.length > 0 && insights[0].has_collaboration_interest !== undefined;
 
 const collaborationRate = insights.length > 0
-  ? Math.round((insights.filter(i => isFounderInsights ? i.has_collaboration_interest : i.collaboration_interest).length / insights.length) * 100)
+  ? Math.round((insights.filter(i => i.collaboration_interest).length / insights.length) * 100)
   : 0;
 
 const mentorshipOfferingRate = insights.length > 0
-  ? Math.round((insights.filter(i => isFounderInsights ? i.offers_mentorship : i.mentorship_offering).length / insights.length) * 100)
+  ? Math.round((insights.filter(i => i.mentorship_offering).length / insights.length) * 100)
   : 0;
 
 const investmentInterestRate = insights.length > 0
-  ? Math.round((insights.filter(i => isFounderInsights ? 
-    (i.angel_investor_interest === 'actively-investing' || i.angel_investor_interest === 'considering-future' || i.angel_investor_interest === 'exploring-options') : 
-    i.investment_stage).length / insights.length) * 100)
+  ? Math.round((insights.filter(i => i.investment_stage).length / insights.length) * 100)
   : 0;
 
 // Business stage analysis from actual insights data
@@ -400,8 +398,8 @@ const byBusinessStage = BUSINESS_STAGE
 
 // Challenges analysis from actual insights data
 const allChallenges = insights.reduce((acc, insight) => {
-  if (insight.top_challenges && Array.isArray(insight.top_challenges)) {
-    insight.top_challenges.forEach(challenge => {
+  if (insight.top_challenges_array && Array.isArray(insight.top_challenges_array)) {
+    insight.top_challenges_array.forEach(challenge => {
       acc[challenge] = (acc[challenge] || 0) + 1;
     });
   }
