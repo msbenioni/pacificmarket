@@ -37,7 +37,7 @@ export function useBusinessOperations(refetchPortalData) {
     }
 
     // Debug the data structure
-    console.log("Data structure check:");
+    console.log("Table-based data structure check:");
     console.log("- Has businessesData:", !!businessData.businessesData);
     console.log("- Has businessInsightsData:", !!businessData.businessInsightsData);
     console.log("- businessesData keys:", businessData.businessesData ? Object.keys(businessData.businessesData) : 'undefined');
@@ -51,20 +51,14 @@ export function useBusinessOperations(refetchPortalData) {
       // Handle file uploads first
       let businessesDataForUpdate = {};
       
-      // Extract the actual business data from the structure
+      // Extract the business data from the table-based structure
       if (businessData.businessesData) {
-        // New unified form structure - data is already separated by table
         businessesDataForUpdate = { ...businessData.businessesData };
         delete businessesDataForUpdate.logo_file;
         delete businessesDataForUpdate.banner_file;
         delete businessesDataForUpdate.mobile_banner_file;
-      } else if (businessData.publicData) {
-        // Legacy structure - use public data
-        businessesDataForUpdate = { ...businessData.publicData };
       } else {
-        // Very old structure - extract business fields, exclude metadata
-        const { businessId, files, saveAll, ...businessFields } = businessData;
-        businessesDataForUpdate = businessFields;
+        throw new Error("Invalid data structure. Expected businessesData.");
       }
       
       // Upload logo if there's a new logo file
@@ -169,7 +163,7 @@ export function useBusinessOperations(refetchPortalData) {
       // Handle business insights data if provided
       let businessInsightsData = {};
       
-      // Check if this is the new unified form data structure
+      // Use the new unified form data structure
       if (businessData.businessesData && businessData.businessInsightsData) {
         // New unified form structure - data is already separated by table
         console.log('Using table-based data structure');
@@ -178,23 +172,9 @@ export function useBusinessOperations(refetchPortalData) {
         
         // Use the provided data directly
         businessInsightsData = { ...businessData.businessInsightsData };
-      } else if (businessData.publicData && businessData.privateData) {
-        // Legacy structure - data separated by public/private
-        console.log('Using legacy public/private data structure');
-        businessInsightsData = { ...businessData.privateData };
       } else {
-        // Very old structure - separate private fields manually
-        console.log('Using very old data structure');
-        
-        // Fields that should go to business_insights table
-        const privateFields = ['private_business_phone', 'private_business_email'];
-        
-        privateFields.forEach(field => {
-          if (businessesDataForUpdate[field] !== undefined) {
-            businessInsightsData[field] = businessesDataForUpdate[field];
-            delete businessesDataForUpdate[field]; // Remove from public data
-          }
-        });
+        // Error: Unsupported data structure
+        throw new Error("Invalid data structure. Expected businessesData and businessInsightsData.");
       }
 
       console.log('Final businesses data for update:', businessesDataForUpdate);
