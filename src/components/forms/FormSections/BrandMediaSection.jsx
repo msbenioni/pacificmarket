@@ -170,10 +170,10 @@ export default function BrandMediaSection({
             <div className="flex items-start gap-2">
               <div className="text-amber-600 text-sm">⚠️</div>
               <div className="text-sm text-amber-800">
-                <p className="font-medium mb-1">Important: Banner Cropping</p>
+                <p className="font-medium mb-1">Important: Banner Display</p>
                 <p className="text-xs">
-                  <strong>Registry:</strong> Uses <code>object-contain</code> - shows full image, may have empty space<br/>
-                  <strong>Business Card:</strong> Uses <code>object-cover</code> - crops to fill, may cut off edges
+                  <strong>Registry:</strong> Shows your full banner image, may have empty space on sides<br/>
+                  <strong>Business Card:</strong> Fills the entire space, may crop the edges of your image
                 </p>
                 <p className="text-xs mt-1 italic">
                   💡 Tip: Test your banner to ensure it looks good with both display modes!
