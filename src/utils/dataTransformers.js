@@ -77,8 +77,6 @@ export function sanitizeBusinessPayload(formData) {
     "banner_url",
     "mobile_banner_url",
     "social_links",
-    "business_age",
-    "business_operating_status",
     "business_registered",
     "full_time_employees",
     "part_time_employees",

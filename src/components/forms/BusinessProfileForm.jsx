@@ -180,7 +180,6 @@ const SECTION_FIELDS = {
     "team_size_band",
     "business_stage",
     "revenue_band",
-    "business_operating_status",
   ],
   financial: [
     "current_funding_source",
@@ -256,11 +255,6 @@ export default function BusinessProfileForm({
     // Business Insights (from BusinessInsightsAccordion)
     business_stage: "",
     revenue_band: "",
-    business_operating_status: "",
-    business_age: "",
-    is_business_registered: false,
-    employs_anyone: false,
-    employs_family_community: false,
     current_funding_source: "",
     funding_amount_needed: "",
     funding_purpose: "",
