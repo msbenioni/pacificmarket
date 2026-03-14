@@ -3,6 +3,7 @@
 ## 📋 **Documentation Index**
 
 ### **🎯 Core Documentation**
+- [**SHARED_PATTERNS.md**](./SHARED_PATTERNS.md) - Shared utilities and patterns (NEW)
 - [**DOCUMENTATION.md**](./DOCUMENTATION.md) - Complete project overview and architecture
 - [**SETUP.md**](./SETUP.md) - Development and deployment setup guide
 - [**README.md**](../README.md) - Quick start guide
@@ -10,9 +11,11 @@
 ### **💳 Integration Guides**
 - [**STRIPE_SETUP.md**](./STRIPE_SETUP.md) - Stripe payment integration detailed setup
 
-### **📊 Data & Analytics**
-- [**SUPABASE_AUDIT_REPORT.md**](./SUPABASE_AUDIT_REPORT.md) - Database schema and analysis
-- [**FOUNDER_INSIGHTS_DATA_MAPPING.md**](./FOUNDER_INSIGHTS_DATA_MAPPING.md) - Analytics data structure
+### **📊 Database & Architecture**
+- [**database/README.md**](../database/README.md) - Database schema and structure
+
+### **📁 Archive (Completed Work)**
+- [**archive/**](./archive/) - Completed migrations and analyses
 
 ---
 
@@ -21,13 +24,14 @@
 This `docs/` folder contains essential project documentation:
 
 ### **Essential Reading (All Developers)**
-1. **[SETUP.md](./SETUP.md)** - Get the project running locally
-2. **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Understand the architecture
-3. **[STRIPE_SETUP.md](./STRIPE_SETUP.md)** - Configure payments
+1. **[SHARED_PATTERNS.md](./SHARED_PATTERNS.md)** - Shared utilities and patterns ⭐
+2. **[SETUP.md](./SETUP.md)** - Get the project running locally
+3. **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Understand the architecture
+4. **[STRIPE_SETUP.md](./STRIPE_SETUP.md)** - Configure payments
 
 ### **Reference Materials**
-4. **[SUPABASE_AUDIT_REPORT.md](./SUPABASE_AUDIT_REPORT.md)** - Database reference
-5. **[FOUNDER_INSIGHTS_DATA_MAPPING.md](./FOUNDER_INSIGHTS_DATA_MAPPING.md)** - Analytics reference
+5. **[database/README.md](../database/README.md)** - Database reference
+6. **[archive/**](./archive/)** - Completed work and historical analyses
 
 ---
 
@@ -43,14 +47,16 @@ npm run dev
 ```
 
 ### **2. Essential Reading**
+- Read [SHARED_PATTERNS.md](./SHARED_PATTERNS.md) for shared utilities ⭐
 - Read [SETUP.md](./SETUP.md) for complete configuration
 - Review [DOCUMENTATION.md](./DOCUMENTATION.md) for architecture overview
 - Check [STRIPE_SETUP.md](./STRIPE_SETUP.md) for payment setup
 
 ### **3. Key Files to Understand**
+- `src/utils/bannerUtils.js` - Shared banner/logo utilities ⭐
+- `src/utils/businessHelpers.js` - Business display helpers ⭐
 - `src/lib/supabase/queries/businesses.ts` - Database queries
-- `src/lib/business/helpers.ts` - Business logic
-- `src/components/` - Reusable UI components
+- `src/utils/businessDataTransformer.js` - Data transformation utilities ⭐
 
 ---
 
@@ -62,18 +68,22 @@ npm run dev
 - **Stripe Integration** - Subscription tiers (Mana $4.99, Moana $29)
 - **Email System** - Resend transactional emails
 - **Navigation** - Next.js router implementation
+- **Shared Patterns** - Centralized utilities for media assets ⭐
 
 ### **🔧 Recent Updates (March 2026)**
-- Fixed email redirects to production domain
-- Migrated from `window.location.href` to Next.js router
-- Cleaned up environment variables
-- Consolidated documentation
+- **Shared Pattern Implementation** - 27+ components using centralized utilities ⭐
+- **Mobile Banner Support** - Mobile-first banner handling across platform ⭐
+- **Automatic Fallbacks** - No manual error handling needed ⭐
+- **Code Consolidation** - 80%+ reduction in duplicate logic ⭐
+- **Documentation Reorganization** - Consolidated and archived completed work
 
 ### **📊 Current Statistics**
 - 36 Active Businesses
 - 7 Countries represented
 - 22 Industry categories
 - Full payment integration
+- **27+ components** using shared patterns
+- **Complete mobile banner support**
 
 ---
 
@@ -86,11 +96,17 @@ npm run dev
 - **Payments**: Stripe
 - **Email**: Resend
 
+### **🎯 Shared Patterns (NEW)**
+- **Media Assets**: Use `getLogoUrl()` and `getBannerUrl()` from `bannerUtils.js` ⭐
+- **Business Display**: Use helpers from `businessHelpers.js` ⭐
+- **Data Transformation**: Use utilities from `businessDataTransformer.js` ⭐
+- **Database Queries**: Use shared queries from `lib/supabase/queries/businesses.ts` ⭐
+
 ### **Key Patterns**
-- Use shared queries from `src/lib/supabase/queries/`
-- Import business helpers from `src/lib/business/helpers.ts`
-- Follow component naming conventions (PascalCase)
-- Use TypeScript types from `src/types/`
+- **Always use shared utilities** - Don't duplicate fallback logic
+- **Mobile-first design** - Use `getBannerUrl()` for responsive banners
+- **Consistent data handling** - Use shared transformers
+- **TypeScript types** - Use types from `src/types/business.ts`
 
 ---
 
@@ -101,6 +117,7 @@ npm run dev
 2. **Email Redirects** - Verify Supabase dashboard settings
 3. **Stripe Integration** - Check webhook configuration
 4. **Build Issues** - Clear `.next` folder
+5. **Media Assets** - Use shared utilities, not manual fallbacks
 
 ### **Debug Resources**
 - Browser console for JavaScript errors
@@ -122,6 +139,7 @@ npm run dev
 - **Database Dump**: `database/full_dump_20260312_230301.sql`
 - **Environment Variables**: See [SETUP.md](./SETUP.md)
 - **Component Library**: `src/components/`
+- **Shared Utilities**: `src/utils/` ⭐
 
 ---
 
@@ -132,6 +150,7 @@ This documentation is actively maintained. Remove outdated content and update wi
 - Architecture changes
 - Updated environment variables
 - New integration requirements
+- **Shared pattern updates** ⭐
 
 **Last Updated**: March 2026
-**Version**: 2.0 (Consolidated Documentation)
+**Version**: 3.0 (Shared Patterns Integration)
