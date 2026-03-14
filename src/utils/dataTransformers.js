@@ -128,22 +128,22 @@ export function sanitizeBusinessPayload(formData) {
 /**
  * Validate business data with flexible validation for partial updates
  * @param {Object} data - Business data to validate
- * @param {boolean} isMediaOnly - If true, only validate media fields
+ * @param {boolean} isCompleteProfile - If true, validate all required fields for complete profile
  * @returns {Object} - Validation result with errors
  */
-export function validateBusinessData(data, isMediaOnly = false) {
+export function validateBusinessData(data, isCompleteProfile = false) {
   const errors = {};
 
-  // If this is a media-only update, only validate media-related fields
-  if (isMediaOnly) {
-    // For media-only updates, we don't require business profile fields
+  // Only validate required fields if this is a complete business profile creation/update
+  if (!isCompleteProfile) {
+    // For partial updates, allow saving any fields without validation
     return {
       isValid: true,
       errors: {},
     };
   }
 
-  // Full validation for complete business data
+  // Full validation only for complete business profiles
   if (!data.name?.trim()) {
     errors.name = "Business name is required";
   }
