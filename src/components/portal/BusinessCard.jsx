@@ -221,7 +221,13 @@ export default function BusinessCard({
                 <div className="text-xs font-medium text-slate-700">Step-based sections</div>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 shadow-sm">
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMainStep("listing");
+                }}
+                className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
+              >
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
                     isBusinessOpen ? "rotate-180" : ""
