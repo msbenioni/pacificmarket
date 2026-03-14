@@ -82,6 +82,8 @@ export const getPublicBusinessDirectory = async (filters = {}) => {
         business_handle,
         tagline,
         logo_url,
+        banner_url,
+        mobile_banner_url,
         industry,
         country,
         city,
