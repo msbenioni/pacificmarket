@@ -77,8 +77,10 @@ const emptyBusinessForm = {
   homepage_featured: false,
   logo_url: "",
   banner_url: "",
+  mobile_banner_url: "",
   logo_file: null,
   banner_file: null,
+  mobile_banner_file: null,
 };
 
 function sanitizeBusinessPayload(formData) {
@@ -89,6 +91,7 @@ function sanitizeBusinessPayload(formData) {
     verification_source,
     logo_file,
     banner_file,
+    mobile_banner_file,
     ...updateData
   } = formData;
 
