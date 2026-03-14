@@ -27,7 +27,7 @@ export const BUSINESS_PROFILE_STEPS = [
         placeholder: 'Describe what your business does...',
         description: 'A clear description of your products, services, or mission',
         maxLength: 1000,
-        rows: 4
+        rows: 15
       },
       {
         id: 'industry',
