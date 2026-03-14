@@ -1,24 +1,25 @@
 /**
  * Banner utilities - shared logic for banner selection and display
  * Single source of truth for banner hierarchy across all components
+ * Automatic fallbacks: logos → /pm_logo.png, banners → /pm_logo_longbanner.png
  */
 
 /**
- * Get banner URL with proper hierarchy (mobile first, then desktop fallback)
+ * Get banner URL with proper hierarchy (mobile first, then desktop fallback, then automatic fallback)
  * @param {Object} business - Business object containing banner URLs
- * @returns {string|null} Banner URL or null if no banner available
+ * @returns {string} Banner URL (never null - always has fallback)
  */
 export function getBannerUrl(business) {
-  return business?.mobile_banner_url || business?.banner_url || business?.cover_image_url || null;
+  return business?.mobile_banner_url || business?.banner_url || business?.cover_image_url || "/pm_logo_longbanner.png";
 }
 
 /**
- * Get logo URL with fallback
+ * Get logo URL with automatic fallback
  * @param {Object} business - Business object containing logo URL
- * @returns {string|null} Logo URL or null if no logo available
+ * @returns {string} Logo URL (never null - always has fallback)
  */
 export function getLogoUrl(business) {
-  return business?.logo_url || null;
+  return business?.logo_url || "/pm_logo.png";
 }
 
 /**
@@ -69,15 +70,13 @@ export function getBannerType(business) {
 }
 
 /**
- * Render banner image with proper hierarchy
+ * Render banner image with proper hierarchy and automatic fallback
  * @param {Object} business - Business object
  * @param {Object} props - Additional img props (className, alt, etc.)
- * @returns {JSX.Element|null} Image element or null
+ * @returns {JSX.Element} Image element with automatic fallback
  */
 export function renderBanner(business, props = {}) {
   const bannerUrl = getBannerUrl(business);
-  
-  if (!bannerUrl) return null;
   
   return (
     <img
@@ -91,18 +90,17 @@ export function renderBanner(business, props = {}) {
 }
 
 /**
- * Render logo image with fallback
+ * Render logo image with automatic fallback
  * @param {Object} business - Business object
  * @param {Object} props - Additional img props (className, alt, etc.)
- * @returns {JSX.Element} Image element with fallback
+ * @returns {JSX.Element} Image element with automatic fallback
  */
 export function renderLogo(business, props = {}) {
   const logoUrl = getLogoUrl(business);
-  const fallbackSrc = props.fallbackSrc || "/pm_logo.png";
   
   return (
     <img
-      src={logoUrl || fallbackSrc}
+      src={logoUrl}
       alt={props.alt || "Business logo"}
       className={props.className || ""}
       style={props.style || {}}

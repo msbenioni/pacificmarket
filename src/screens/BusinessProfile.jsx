@@ -13,7 +13,7 @@ import {
   getBusinessSocialLinks,
   getBusinessFullAddress
 } from "@/lib/business/helpers";
-import { getBannerUrl } from '@/utils/bannerUtils';
+import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 import {
   CheckCircle,
   Globe,
@@ -184,14 +184,7 @@ export default function BusinessProfile() {
 
       {/* Banner */}
       <div className="relative h-[220px] sm:h-[280px] lg:h-[400px] overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-        {getBannerUrl(business) && (
-          <img src={getBannerUrl(business)} alt="" className="w-full h-full object-contain" />
-        )}
-
-        {!getBannerUrl(business) && (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d4f4f] to-[#0a1628]" />
-        )}
-
+        <img src={getBannerUrl(business)} alt="" className="w-full h-full object-contain" />
         <div className="absolute inset-0 bg-black/10" />
       </div>
 
@@ -202,11 +195,7 @@ export default function BusinessProfile() {
             {/* Header */}
             <div className="flex items-start gap-3 sm:gap-4">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border-2 border-white shadow-md flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
-                {business.logo_url ? (
-                  <img src={business.logo_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />
-                )}
+                <img src={getLogoUrl(business)} alt="" className="w-full h-full object-cover" />
               </div>
 
               <div className="min-w-0 flex-1">
