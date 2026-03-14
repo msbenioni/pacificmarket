@@ -44,8 +44,8 @@ const DEFAULT_FORM_STATE = {
 
   // Challenges & Support
   top_challenges_array: [],
-  support_needed_next: [],
-  current_support_sources: [],
+  support_needed_next_array: [],
+  current_support_sources_array: [],
   mentorship_access: false,
 
   // Growth & Future
@@ -56,7 +56,7 @@ const DEFAULT_FORM_STATE = {
   expansion_plans: false,
 
   // Community & Impact
-  community_impact_areas: [],
+  community_impact_areas_array: [],
   collaboration_interest: false,
   mentorship_offering: false,
   open_to_future_contact: false,
@@ -77,7 +77,7 @@ const buildInitialFormState = (data = null) => {
     }),
     current_support_sources: data.current_support_sources ?? DEFAULT_FORM_STATE.current_support_sources,
     pacific_identity: data.pacific_identity ?? DEFAULT_FORM_STATE.pacific_identity,
-    community_impact_areas: data.community_impact_areas ?? DEFAULT_FORM_STATE.community_impact_areas,
+    community_impact_areas_array: data.community_impact_areas_array ?? DEFAULT_FORM_STATE.community_impact_areas_array,
   };
 
   console.log("buildInitialFormState result:", initialState);
@@ -783,17 +783,17 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 <label key={support.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.support_needed_next?.includes(support.value)}
+                    checked={form.support_needed_next_array?.includes(support.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          support_needed_next: [...(prev.support_needed_next || []), support.value].slice(0, 3)
+                          support_needed_next_array: [...(prev.support_needed_next_array || []), support.value].slice(0, 3)
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          support_needed_next: prev.support_needed_next?.filter(s => s !== support.value) || []
+                          support_needed_next_array: prev.support_needed_next_array?.filter(s => s !== support.value) || []
                         }));
                       }
                     }}
@@ -803,8 +803,8 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 </label>
               ))}
             </div>
-            {form.support_needed_next?.length > 0 && (
-              <p className="text-xs text-gray-500 mt-1">Selected: {form.support_needed_next.length}/3</p>
+            {form.support_needed_next_array?.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">Selected: {form.support_needed_next_array.length}/3</p>
             )}
           </div>
 
@@ -815,17 +815,17 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 <label key={source} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.current_support_sources?.includes(source)}
+                    checked={form.current_support_sources_array?.includes(source)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          current_support_sources: [...(prev.current_support_sources || []), source]
+                          current_support_sources_array: [...(prev.current_support_sources_array || []), source]
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          current_support_sources: prev.current_support_sources?.filter(s => s !== source) || []
+                          current_support_sources_array: prev.current_support_sources_array?.filter(s => s !== source) || []
                         }));
                       }
                     }}
@@ -1004,17 +1004,17 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 <label key={impact.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.community_impact_areas?.includes(impact.value)}
+                    checked={form.community_impact_areas_array?.includes(impact.value)}
                     onChange={e => {
                       if (e.target.checked) {
                         setForm(prev => ({ 
                           ...prev, 
-                          community_impact_areas: [...(prev.community_impact_areas || []), impact.value]
+                          community_impact_areas_array: [...(prev.community_impact_areas_array || []), impact.value]
                         }));
                       } else {
                         setForm(prev => ({ 
                           ...prev, 
-                          community_impact_areas: prev.community_impact_areas?.filter(i => i !== impact.value) || []
+                          community_impact_areas_array: prev.community_impact_areas_array?.filter(i => i !== impact.value) || []
                         }));
                       }
                     }}

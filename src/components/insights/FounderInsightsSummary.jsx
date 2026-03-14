@@ -221,7 +221,7 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       color: "text-orange-600",
       fields: [
         { label: "Top Challenges", key: "top_challenges_array", value: snapshot.top_challenges_array },
-        { label: "Support Needed", key: "support_needed_next", value: snapshot.support_needed_next },
+        { label: "Support Needed", key: "support_needed_next_array", value: snapshot.support_needed_next_array },
         { label: "Financial Challenges", key: "financial_challenges", value: snapshot.financial_challenges },
       ],
     },
@@ -242,7 +242,7 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       icon: Users,
       color: "text-indigo-600",
       fields: [
-        { label: "Community Impact Areas", key: "community_impact_areas", value: snapshot.community_impact_areas },
+        { label: "Community Impact Areas", key: "community_impact_areas_array", value: snapshot.community_impact_areas_array },
         { label: "Collaboration Interest", key: "collaboration_interest", value: snapshot.collaboration_interest },
         { label: "Mentorship Offering", key: "mentorship_offering", value: snapshot.mentorship_offering },
         { label: "Open to Future Contact", key: "open_to_future_contact", value: snapshot.open_to_future_contact },

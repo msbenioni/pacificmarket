@@ -65,7 +65,7 @@ export default function ChallengesSection({
             <p className={helperCls}>Select up to 3 types of support.</p>
           </div>
           <span className="text-xs font-medium text-slate-500">
-            {form.support_needed_next?.length || 0}/3 selected
+            {form.support_needed_next_array?.length || 0}/3 selected
           </span>
         </div>
 
@@ -73,8 +73,8 @@ export default function ChallengesSection({
           {SUPPORT_NEEDS.map((need) => (
             <OptionCard
               key={need.value}
-              checked={form.support_needed_next?.includes(need.value) || false}
-              onChange={() => toggleArrayItem("support_needed_next", need.value)}
+              checked={form.support_needed_next_array?.includes(need.value) || false}
+              onChange={() => toggleArrayItem("support_needed_next_array", need.value)}
               label={need.label}
             />
           ))}
@@ -84,8 +84,8 @@ export default function ChallengesSection({
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <label className={labelCls}>Current Support Sources</label>
         <textarea
-          value={form.current_support_sources || ""}
-          onChange={(e) => handleInputChange("current_support_sources", e.target.value)}
+          value={form.current_support_sources_array || ""}
+          onChange={(e) => handleInputChange("current_support_sources_array", e.target.value)}
           className={textareaCls}
           placeholder="Where do you currently get support from? (mentors, networks, programs, etc.)"
           rows={4}

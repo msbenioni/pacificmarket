@@ -39,7 +39,7 @@ export default function CommunitySection({
             <p className={helperCls}>Select areas where your business makes an impact.</p>
           </div>
           <span className="text-xs font-medium text-slate-500">
-            {form.community_impact_areas?.length || 0} selected
+            {form.community_impact_areas_array?.length || 0} selected
           </span>
         </div>
 
@@ -47,8 +47,8 @@ export default function CommunitySection({
           {COMMUNITY_IMPACT_AREAS.map((area) => (
             <OptionCard
               key={area.value}
-              checked={form.community_impact_areas?.includes(area.value) || false}
-              onChange={() => toggleArrayItem("community_impact_areas", area.value)}
+              checked={form.community_impact_areas_array?.includes(area.value) || false}
+              onChange={() => toggleArrayItem("community_impact_areas_array", area.value)}
               label={area.label}
             />
           ))}

@@ -84,7 +84,7 @@ const SECTION_FIELDS = {
   challenges: ["top_challenges_array", "support_needed_next_array"],
   growth: ["growth_stage", "goals_next_12_months_array", "goals_details"],
   community: [
-    "community_impact_areas",
+    "community_impact_areas_array",
     "collaboration_interest",
     "mentorship_offering",
     "open_to_future_contact",
@@ -133,9 +133,9 @@ export default function BusinessInsightsAccordion({
     funding_purpose: "",
     investment_stage: "",
     investment_exploration: "",
-    community_impact_areas: [],
-    support_needed_next: [],
-    current_support_sources: [],
+    community_impact_areas_array: [],
+    support_needed_next_array: [],
+    current_support_sources_array: [],
     expansion_plans: "",
     import_export_status: "",
     import_countries: [],
@@ -207,7 +207,7 @@ export default function BusinessInsightsAccordion({
       const limit =
         field === "top_challenges_array"
           ? 5
-          : field === "support_needed_next" ||
+          : field === "support_needed_next_array" ||
             field === "goals_next_12_months_array"
           ? 3
           : undefined;
@@ -499,7 +499,7 @@ export default function BusinessInsightsAccordion({
                 <p className={helperCls}>Choose up to 3.</p>
               </div>
               <span className="text-xs font-medium text-slate-500">
-                {form.support_needed_next?.length || 0}/3 selected
+                {form.support_needed_next_array?.length || 0}/3 selected
               </span>
             </div>
 
@@ -507,8 +507,8 @@ export default function BusinessInsightsAccordion({
               {SUPPORT_NEEDS.map((support) => (
                 <OptionCard
                   key={support.value}
-                  checked={form.support_needed_next?.includes(support.value) || false}
-                  onChange={() => toggleArrayItem("support_needed_next", support.value)}
+                  checked={form.support_needed_next_array?.includes(support.value) || false}
+                  onChange={() => toggleArrayItem("support_needed_next_array", support.value)}
                   label={support.label}
                 />
               ))}
@@ -587,9 +587,9 @@ export default function BusinessInsightsAccordion({
               {COMMUNITY_IMPACT_AREAS.map((area) => (
                 <OptionCard
                   key={area.value}
-                  checked={form.community_impact_areas?.includes(area.value) || false}
+                  checked={form.community_impact_areas_array?.includes(area.value) || false}
                   onChange={() =>
-                    toggleArrayItem("community_impact_areas", area.value)
+                    toggleArrayItem("community_impact_areas_array", area.value)
                   }
                   label={area.label}
                 />
