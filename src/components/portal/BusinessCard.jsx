@@ -92,9 +92,6 @@ export default function BusinessCard({
   const [isOpen, setIsOpen] = useState(false);
   const [openSection, setOpenSection] = useState(null);
 
-  const logoInputId = `logo-upload-${business.id}`;
-  const bannerInputId = `banner-upload-${business.id}`;
-
   const viewListingHref =
     createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`;
 
@@ -293,65 +290,6 @@ export default function BusinessCard({
                 </p>
               </div>
             )}
-          </InnerAccordionSection>
-
-          <InnerAccordionSection
-            title="Media"
-            subtitle="Manage logo and banner images"
-            icon={ImagePlus}
-            value="Editable"
-            isOpen={openSection === "media"}
-            onToggle={() => toggleInnerSection("media")}
-          >
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label
-                htmlFor={logoInputId}
-                className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 transition hover:border-[#0d4f4f]/20"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-[#0d4f4f]/10 p-2">
-                    <Upload className="h-4 w-4 text-[#0d4f4f]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#0a1628]">Update logo</p>
-                    <p className="text-xs text-slate-500">Square image recommended</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400" />
-              </label>
-
-              <label
-                htmlFor={bannerInputId}
-                className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 transition hover:border-[#0d4f4f]/20"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-[#0d4f4f]/10 p-2">
-                    <ImagePlus className="h-4 w-4 text-[#0d4f4f]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#0a1628]">Update banner</p>
-                    <p className="text-xs text-slate-500">Wide image recommended</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400" />
-              </label>
-
-              <input
-                id={logoInputId}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(e) => onLogoUpload?.(e, business.id)}
-              />
-
-              <input
-                id={bannerInputId}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(e) => onBannerUpload?.(e, business.id)}
-              />
-            </div>
           </InnerAccordionSection>
 
           <InnerAccordionSection

@@ -22,39 +22,6 @@ import {
   INVESTOR_CAPACITY,
 } from "@/constants/unifiedConstants";
 
-const SECTIONS = [
-  {
-    key: "business",
-    label: "Business Overview",
-    icon: Building2,
-    description: "Basic information about your business operations and scale",
-  },
-  {
-    key: "financial",
-    label: "Financial Overview",
-    icon: TrendingUp,
-    description: "Funding sources, revenue, and investment needs",
-  },
-  {
-    key: "challenges",
-    label: "Challenges & Support",
-    icon: AlertCircle,
-    description: "Help us identify real barriers and support gaps for your business",
-  },
-  {
-    key: "growth",
-    label: "Growth & Future",
-    icon: Rocket,
-    description: "Help us understand your business growth plans and next-stage needs",
-  },
-  {
-    key: "community",
-    label: "Community & Impact",
-    icon: Lightbulb,
-    description: "How your business contributes to and engages with the wider community",
-  },
-];
-
 const inputCls =
   "w-full min-h-[44px] border border-slate-300 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-slate-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white shadow-sm";
 
@@ -87,49 +54,26 @@ function OptionCard({ checked, onChange, label, type = "checkbox" }) {
   );
 }
 
-function SectionShell({
-  section,
-  expanded,
-  onToggle,
-  children,
-}) {
-  const Icon = section.icon;
-
+function StandaloneSection({ title, subtitle, icon: Icon, children }) {
   return (
     <div className="rounded-xl border border-slate-300 bg-white shadow-sm transition-all hover:shadow-md">
       <div className="w-full px-4 py-4 sm:px-6">
-        <button
-          type="button"
-          onClick={onToggle}
-          className="flex w-full items-start justify-between gap-3 text-left transition-colors"
-        >
-          <div className="flex items-start gap-3">
-            <Icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0d4f4f]" />
-            <div>
-              <h4 className="break-words text-sm font-semibold text-[#0a1628]">
-                {section.label}
-              </h4>
-              <p className="mt-1 text-sm leading-5 text-slate-600">
-                {section.description}
-              </p>
-            </div>
+        <div className="flex items-start gap-3">
+          <Icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0d4f4f]" />
+          <div className="min-w-0 flex-1">
+            <h4 className="break-words text-sm font-semibold text-[#0a1628]">
+              {title}
+            </h4>
+            <p className="mt-1 text-sm leading-5 text-slate-600">
+              {subtitle}
+            </p>
           </div>
-
-          <div className="mt-0.5 flex-shrink-0 text-slate-400">
-            {expanded ? (
-              <ChevronUp className="h-5 w-5" />
-            ) : (
-              <ChevronDown className="h-5 w-5" />
-            )}
-          </div>
-        </button>
+        </div>
       </div>
 
-      {expanded && (
-        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-slate-50 border-t border-slate-200">
-          {children}
-        </div>
-      )}
+      <div className="px-4 sm:px-6 py-4 sm:py-5 bg-slate-50 border-t border-slate-200">
+        {children}
+      </div>
     </div>
   );
 }
@@ -166,48 +110,20 @@ export default function BusinessInsightsAccordion({
     open_to_future_contact: false,
     business_description: "",
   });
-  const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState(null);
+
+  useEffect(() => {
+    if (initialData) {
+      setForm(initialData);
+    }
+  }, [initialData]);
 
   useEffect(() => {
     if (!autoSaveStatus) return;
     const timer = setTimeout(() => setAutoSaveStatus(null), 2000);
     return () => clearTimeout(timer);
   }, [autoSaveStatus]);
-
-  const getInitialForm = () => ({
-    business_stage: "",
-    team_size_band: "",
-    business_model: "",
-    family_involvement: "",
-    customer_region: "",
-    sales_channels: [],
-    revenue_band: "",
-    business_operating_status: "",
-    current_funding_source: "",
-    funding_amount_needed: "",
-    investment_stage: "",
-    financial_challenges: "",
-    top_challenges: [],
-    support_needed_next: [],
-    growth_stage: "",
-    goals_next_12_months_array: [],
-    goals_details: "",
-    community_impact_areas: [],
-    collaboration_interest: null,
-    mentorship_offering: false,
-    open_to_future_contact: false,
-  });
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(sectionKey)) next.delete(sectionKey);
-      else next.add(sectionKey);
-      return next;
-    });
-  };
 
   const handleSubmitAll = async () => {
     setSubmitting(true);
@@ -238,17 +154,26 @@ export default function BusinessInsightsAccordion({
     });
   };
 
-  const renderSection = (section, index) => {
-    const isExpanded = expandedSections.has(section.key);
+  const content = (
+    <>
+      {!embedded && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-[#0a1628]">
+            Business Insights
+          </h3>
+          <p className="mt-1 text-sm text-gray-600">
+            Complete each section to provide comprehensive business information.
+          </p>
+        </div>
+      )}
 
-    return (
-      <SectionShell
-        key={section.key}
-        section={section}
-        expanded={isExpanded}
-        onToggle={() => toggleSection(section.key)}
-      >
-        {section.key === "business" && (
+      <div className="space-y-5">
+        {/* Business Overview Section */}
+        <StandaloneSection
+          title="Business Overview"
+          subtitle="Basic information about your business operations and scale"
+          icon={Building2}
+        >
           <div className="space-y-5">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
@@ -328,9 +253,14 @@ export default function BusinessInsightsAccordion({
               />
             </div>
           </div>
-        )}
+        </StandaloneSection>
 
-        {section.key === "financial" && (
+        {/* Financial Overview Section */}
+        <StandaloneSection
+          title="Financial Overview"
+          subtitle="Funding sources, revenue, and investment needs"
+          icon={TrendingUp}
+        >
           <div className="space-y-5">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
@@ -394,9 +324,14 @@ export default function BusinessInsightsAccordion({
               />
             </div>
           </div>
-        )}
+        </StandaloneSection>
 
-        {section.key === "challenges" && (
+        {/* Challenges & Support Section */}
+        <StandaloneSection
+          title="Challenges & Support"
+          subtitle="Help us identify real barriers and support gaps for your business"
+          icon={AlertCircle}
+        >
           <div className="space-y-5">
             <div>
               <div className="flex items-end justify-between gap-3">
@@ -444,9 +379,14 @@ export default function BusinessInsightsAccordion({
               </div>
             </div>
           </div>
-        )}
+        </StandaloneSection>
 
-        {section.key === "growth" && (
+        {/* Growth & Future Section */}
+        <StandaloneSection
+          title="Growth & Future"
+          subtitle="Help us understand your business growth plans and next-stage needs"
+          icon={Rocket}
+        >
           <div className="space-y-5">
             <div>
               <label className={labelCls}>Current Business Stage</label>
@@ -497,9 +437,14 @@ export default function BusinessInsightsAccordion({
               />
             </div>
           </div>
-        )}
+        </StandaloneSection>
 
-        {section.key === "community" && (
+        {/* Community & Impact Section */}
+        <StandaloneSection
+          title="Community & Impact"
+          subtitle="How your business contributes to and engages with the wider community"
+          icon={Lightbulb}
+        >
           <div className="space-y-5">
             <div>
               <label className={labelCls}>Community Impact Areas</label>
@@ -547,26 +492,7 @@ export default function BusinessInsightsAccordion({
               />
             </div>
           </div>
-        )}
-      </SectionShell>
-    );
-  };
-
-  const content = (
-    <>
-      {!embedded && (
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-[#0a1628]">
-            Business Insights
-          </h3>
-          <p className="mt-1 text-sm text-gray-600">
-            Complete one section at a time. You can save progress as you go.
-          </p>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {SECTIONS.map((section, index) => renderSection(section, index))}
+        </StandaloneSection>
       </div>
 
       <div className="mt-8 flex flex-col sm:flex-row sm:justify-end gap-3">
