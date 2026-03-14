@@ -20,7 +20,6 @@ import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import CoreInfoSection from "./FormSections/CoreInfoSection";
 import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
-import BusinessDetailsSection from "./FormSections/BusinessDetailsSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import FinancialOverviewSection from "./FormSections/FinancialOverviewSection";
 import ChallengesSection from "./FormSections/ChallengesSection";
@@ -139,16 +138,10 @@ const SECTIONS = [
     description: "Business location and industry classification",
   },
   {
-    key: "details",
-    label: "Business Details",
-    icon: Building2,
-    description: "Year started, structure, and team size",
-  },
-  {
     key: "overview",
     label: "Business Overview",
     icon: Building2,
-    description: "Basic information about your business operations and scale",
+    description: "Year started, structure, team size, and business operations",
   },
   {
     key: "financial",
@@ -181,10 +174,11 @@ const SECTION_FIELDS = {
   core: ["name", "business_handle", "tagline", "description"],
   brand: ["logo_url", "banner_url", "mobile_banner_url"],
   location: ["country", "industry", "city"],
-  details: ["year_started", "business_structure", "team_size_band"],
   overview: [
-    "business_stage",
+    "year_started",
+    "business_structure",
     "team_size_band",
+    "business_stage",
     "revenue_band",
     "business_operating_status",
   ],
@@ -541,17 +535,6 @@ export default function BusinessProfileForm({
       case "location":
         return (
           <LocationSection
-            form={form}
-            handleInputChange={handleInputChange}
-            inputCls={inputCls}
-            selectCls={selectCls}
-            labelCls={labelCls}
-          />
-        );
-      
-      case "details":
-        return (
-          <BusinessDetailsSection
             form={form}
             handleInputChange={handleInputChange}
             inputCls={inputCls}

@@ -13,6 +13,39 @@ export default function BusinessOverviewSection({
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
+            <label className={labelCls}>Year Started</label>
+            <input
+              type="number"
+              value={form.year_started ?? ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                handleInputChange("year_started", value === "" ? null : Number(value));
+              }}
+              className={inputCls}
+              min="1900"
+              max={new Date().getFullYear()}
+              placeholder="2020"
+            />
+          </div>
+
+          <div>
+            <label className={labelCls}>Business Structure</label>
+            <select
+              value={form.business_structure || ""}
+              onChange={(e) => handleInputChange("business_structure", e.target.value)}
+              className={selectCls}
+            >
+              <option value="">Select Structure</option>
+              <option value="sole-proprietorship">Sole Proprietorship</option>
+              <option value="partnership">Partnership</option>
+              <option value="llc">LLC</option>
+              <option value="corporation">Corporation</option>
+              <option value="non-profit">Non-Profit</option>
+              <option value="cooperative">Cooperative</option>
+            </select>
+          </div>
+
+          <div>
             <label className={labelCls}>Business Stage</label>
             <select
               value={form.business_stage || ""}
