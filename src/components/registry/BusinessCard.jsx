@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { CheckCircle, ArrowUpRight, MapPin } from "lucide-react";
 import { INDUSTRIES, COUNTRIES } from "@/constants/unifiedConstants";
+import { getLogoUrl } from '@/utils/bannerUtils';
 
 function getIndustryLabel(value) {
   const match = INDUSTRIES.find((item) => item.value === value);
@@ -28,11 +29,6 @@ export default function BusinessCard({ business, view = "grid" }) {
     business.description ||
     "";
 
-  const handleImageError = (e) => {
-    console.warn('Failed to load business logo:', business.logo_url);
-    e.currentTarget.src = '/pm_logo.png';
-  };
-
   if (view === "list") {
     return (
       <Link
@@ -42,20 +38,11 @@ export default function BusinessCard({ business, view = "grid" }) {
         <div className="flex items-start gap-3">
           {/* Logo */}
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-            {business.logo_url ? (
-              <img
-                src={business.logo_url}
-                alt=""
-                className="h-full w-full object-cover"
-                onError={handleImageError}
-              />
-            ) : (
-              <img
-                src="/pm_logo.png"
-                alt="Pacific Market"
-                className="h-full w-full object-cover"
-              />
-            )}
+            <img
+              src={getLogoUrl(business)}
+              alt=""
+              className="h-full w-full object-cover"
+            />
           </div>
 
           {/* Content */}
@@ -107,20 +94,11 @@ export default function BusinessCard({ business, view = "grid" }) {
         <div className="mb-4 flex items-start gap-3">
           {/* Logo */}
           <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-            {business.logo_url ? (
-              <img
-                src={business.logo_url}
-                alt=""
-                className="h-full w-full object-cover"
-                onError={handleImageError}
-              />
-            ) : (
-              <img
-                src="/pm_logo.png"
-                alt="Pacific Market"
-                className="h-full w-full object-cover"
-              />
-            )}
+            <img
+              src={getLogoUrl(business)}
+              alt=""
+              className="h-full w-full object-cover"
+            />
           </div>
 
           {/* Text */}
