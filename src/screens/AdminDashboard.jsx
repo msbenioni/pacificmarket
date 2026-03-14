@@ -730,7 +730,21 @@ export default function AdminDashboard() {
 
       toast.success("The business has been successfully updated.");
     } catch (error) {
-      console.error("Error updating business:", error);
+      const errorDetails = {
+        message: error?.message || 'Unknown error',
+        details: error?.details || error,
+        stack: error?.stack,
+        formData: formData ? {
+          id: formData.id,
+          name: formData.name,
+          hasLogoFile: !!formData.logo_file,
+          hasBannerFile: !!formData.banner_file,
+          updateKeys: Object.keys(formData).filter(key => !['id', 'logo_file', 'banner_file'].includes(key))
+        } : 'No formData',
+        timestamp: new Date().toISOString()
+      };
+      
+      console.error("Error updating business:", errorDetails);
       toast.error(error?.message || "Unable to update the business.");
     } finally {
       setSavingEdit(false);

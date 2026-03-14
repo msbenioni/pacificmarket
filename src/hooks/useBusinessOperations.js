@@ -112,7 +112,25 @@ export function useBusinessOperations(refetchPortalData) {
         delete updatedData.banner_file; // Remove file object from data
       }
 
-      const sanitizedPayload = sanitizeBusinessPayload(updatedData);
+      // Separate public and private data
+      const publicBusinessData = { ...updatedData };
+      const privateBusinessData = {};
+
+      // Fields that should go to business_insights table
+      const privateFields = ['private_business_phone', 'private_business_email'];
+      
+      privateFields.forEach(field => {
+        if (publicBusinessData[field] !== undefined) {
+          privateBusinessData[field] = publicBusinessData[field];
+          delete publicBusinessData[field]; // Remove from public data
+        }
+      });
+
+      console.log('Public business data:', publicBusinessData);
+      console.log('Private business data:', privateBusinessData);
+
+      // Save public business data to businesses table
+      const sanitizedPayload = sanitizeBusinessPayload(publicBusinessData);
       console.log("Sanitized payload:", sanitizedPayload);
       
       const validation = validateBusinessData(sanitizedPayload);
@@ -128,12 +146,50 @@ export function useBusinessOperations(refetchPortalData) {
         return;
       }
 
-      const { error } = await supabase
+      const { error: businessError } = await supabase
         .from("businesses")
         .update(sanitizedPayload)
         .eq("id", businessData.id);
 
-      if (error) throw error;
+      if (businessError) throw businessError;
+
+      // Save private data to business_insights table if any exists
+      if (Object.keys(privateBusinessData).length > 0) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        const currentYear = new Date().getFullYear();
+        
+        // Check if insights record exists for this year
+        const { data: existingInsights } = await supabase
+          .from("business_insights")
+          .select("*")
+          .eq("business_id", businessData.id)
+          .eq("snapshot_year", currentYear)
+          .single();
+
+        if (existingInsights) {
+          // Update existing record
+          const { error: insightsError } = await supabase
+            .from("business_insights")
+            .update(privateBusinessData)
+            .eq("id", existingInsights.id);
+
+          if (insightsError) throw insightsError;
+        } else {
+          // Create new record
+          const { error: insightsError } = await supabase
+            .from("business_insights")
+            .insert({
+              business_id: businessData.id,
+              user_id: user.id,
+              snapshot_year: currentYear,
+              ...privateBusinessData,
+            });
+
+          if (insightsError) throw insightsError;
+        }
+      }
 
       await refetchPortalData();
       cancelEditingBusiness();

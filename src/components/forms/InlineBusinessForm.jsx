@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Upload,
   X,
@@ -17,8 +17,15 @@ import {
 } from "lucide-react";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
+import { 
+  useSharedForm, 
+  FORM_MODES, 
+  AUTO_SAVE_CONFIG, 
+  createValidator, 
+  ValidationPatterns 
+} from "@/hooks/useSharedForm";
 
-function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, onSaveSection, saving }) {
+function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, onSaveSection, saving, formData }) {
   return (
     <div className="rounded-xl border border-slate-300 bg-white shadow-sm transition-all hover:shadow-md">
       <div className="w-full px-4 py-4 sm:px-6">
@@ -56,7 +63,7 @@ function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, 
           <div className="flex justify-end border-t border-slate-200 bg-gray-50 px-4 py-4 sm:px-6">
             <button
               type="button"
-              onClick={onSaveSection}
+              onClick={() => onSaveSection(formData)}
               disabled={saving}
               className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 flex-shrink-0"
             >
@@ -79,28 +86,115 @@ const InlineBusinessForm = ({
   mode = "create",
   showAdminFields = false,
 }) => {
+  // 🎯 Shared Form Hook Configuration
+  const form = useSharedForm({
+    initialData: formData,
+    onDataChange: (data, isDirty) => {
+      // Keep parent in sync
+      setFormData(data);
+    },
+    onSave: async (data, options) => {
+      // Call the parent save function
+      return await onSave(data);
+    },
+    onValidate: createValidator({
+      name: [ValidationPatterns.required],
+      industry: [ValidationPatterns.required],
+      country: [ValidationPatterns.required],
+      contact_email: [
+        (value) => {
+          if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            return 'Please enter a valid email address';
+          }
+          return null;
+        }
+      ],
+      contact_website: [
+        (value) => {
+          if (value && !/^https?:\/\/.+/.test(value)) {
+            return 'Please enter a valid URL starting with http:// or https://';
+          }
+          return null;
+        }
+      ],
+    }),
+    defaultState: {
+      // Core listing details
+      name: '',
+      business_handle: '',
+      short_description: '',
+      description: '',
+      
+      // Brand media
+      logo_url: '',
+      banner_url: '',
+      logo_file: null,
+      banner_file: null,
+      
+      // Ownership & portal access
+      business_owner: '',
+      business_owner_email: '',
+      additional_owner_emails: [],
+      
+      // Public contact info
+      contact_email: '',
+      public_phone: '',
+      contact_website: '',
+      business_hours: '',
+      
+      // Private contact details
+      private_business_phone: '',
+      private_business_email: '',
+      
+      // Location & industry
+      country: '',
+      industry: '',
+      city: '',
+      
+      // Business details
+      business_type: '',
+      team_size: '',
+      founded_year: '',
+      
+      // Status & verification (admin only)
+      status: BUSINESS_STATUS.ACTIVE,
+      verified: false,
+      claimed: false,
+      homepage_featured: false,
+    },
+    mode: formData?.id ? FORM_MODES.EDIT : FORM_MODES.CREATE,
+    autoSave: AUTO_SAVE_CONFIG.ON_SECTION_TOGGLE,
+    debug: process.env.NODE_ENV === 'development',
+    autoSaveDelay: 1500,
+    preserveData: true,
+    dependencyFields: ['id'], // Re-initialize when business ID changes
+  });
+
+  // 🔄 Local state for UI concerns only
   const [expandedSections, setExpandedSections] = useState(new Set(["core"]));
 
   // Pacific Market default assets
   const defaultLogoUrl = "/pm_logo.png";
   const defaultBannerUrl = "/pm_logo_longbanner.png";
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
+  // 🎯 Section Management
   const toggleSection = (sectionKey) => {
     setExpandedSections((prev) => {
       const next = new Set(prev);
-      if (next.has(sectionKey)) next.delete(sectionKey);
-      else next.add(sectionKey);
+      if (next.has(sectionKey)) {
+        next.delete(sectionKey);
+        // Trigger auto-save when section closes
+        if (form.autoSave === AUTO_SAVE_CONFIG.ON_SECTION_TOGGLE) {
+          form.triggerAutoSave();
+        }
+      } else {
+        next.add(sectionKey);
+      }
       return next;
     });
   };
 
+  // 🎯 File Upload Handlers
   const handleFileUpload = (event, type) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -109,19 +203,17 @@ const InlineBusinessForm = ({
       const tempUrl = URL.createObjectURL(file);
 
       if (type === "logo") {
-        setFormData((prev) => ({
-          ...prev,
+        form.updateFields({
           logo_url: tempUrl,
           logo_file: file,
-        }));
+        });
       }
 
       if (type === "banner") {
-        setFormData((prev) => ({
-          ...prev,
+        form.updateFields({
           banner_url: tempUrl,
           banner_file: file,
-        }));
+        });
       }
     } catch (error) {
       console.error("Error handling file upload:", error);
@@ -130,56 +222,49 @@ const InlineBusinessForm = ({
 
   const removeImage = (type) => {
     if (type === "logo") {
-      setFormData((prev) => ({
-        ...prev,
+      form.updateFields({
         logo_url: "",
         logo_file: null,
-      }));
+      });
     }
 
     if (type === "banner") {
-      setFormData((prev) => ({
-        ...prev,
+      form.updateFields({
         banner_url: "",
         banner_file: null,
-      }));
+      });
     }
   };
 
+  // 🎯 Owner Email Handlers
   const addOwnerEmail = () => {
-    setFormData((prev) => ({
-      ...prev,
-      additional_owner_emails: [...(prev.additional_owner_emails || []), ""],
-    }));
+    form.addArrayItem("additional_owner_emails", "");
   };
 
   const updateOwnerEmail = (index, value) => {
-    setFormData((prev) => {
-      const next = [...(prev.additional_owner_emails || [])];
-      next[index] = value;
-      return {
-        ...prev,
-        additional_owner_emails: next,
-      };
-    });
+    const currentEmails = form.formData.additional_owner_emails || [];
+    const newEmails = [...currentEmails];
+    newEmails[index] = value;
+    form.updateFields({ additional_owner_emails: newEmails });
   };
 
   const removeOwnerEmail = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      additional_owner_emails: (prev.additional_owner_emails || []).filter(
-        (_, i) => i !== index
-      ),
-    }));
+    form.removeArrayItem("additional_owner_emails", index);
   };
 
-  const logoInputId = `${mode}-logo-upload-${formData?.id || "new"}`;
-  const bannerInputId = `${mode}-banner-upload-${formData?.id || "new"}`;
-
+  // 🎯 Form Submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave();
+    form.handleSave();
   };
+
+  // 🎯 Save Section
+  const saveSection = (sectionData) => {
+    form.triggerAutoSave();
+  };
+
+  const logoInputId = `${mode}-logo-upload-${form.formData?.id || "new"}`;
+  const bannerInputId = `${mode}-banner-upload-${form.formData?.id || "new"}`;
 
   const inputCls =
     "w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-[#0d4f4f] focus:outline-none";
@@ -200,14 +285,15 @@ const InlineBusinessForm = ({
             onToggle={() => toggleSection("core")}
             onSaveSection={onSave}
             saving={saving}
+            formData={formData}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Business Name *</label>
                 <input
                   type="text"
-                  value={formData?.name || ""}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  value={form.formData?.name || ""}
+                  onChange={(e) => form.handleFieldChange("name", e.target.value)}
                   className={inputCls}
                   required
                 />
@@ -217,8 +303,8 @@ const InlineBusinessForm = ({
                 <label className="mb-1 block text-sm font-medium text-slate-700">Business Handle</label>
                 <input
                   type="text"
-                  value={formData?.business_handle || ""}
-                  onChange={(e) => handleInputChange("business_handle", e.target.value)}
+                  value={form.formData?.business_handle || ""}
+                  onChange={(e) => form.handleFieldChange("business_handle", e.target.value)}
                   className={inputCls}
                   placeholder="unique-business-handle"
                 />
@@ -228,8 +314,8 @@ const InlineBusinessForm = ({
                 <label className="mb-1 block text-sm font-medium text-slate-700">Short Description</label>
                 <textarea
                   rows={3}
-                  value={formData?.short_description || ""}
-                  onChange={(e) => handleInputChange("short_description", e.target.value)}
+                  value={form.formData?.short_description || ""}
+                  onChange={(e) => form.handleFieldChange("short_description", e.target.value)}
                   className={textareaCls}
                   placeholder="Brief description for listing cards"
                   maxLength={150}
@@ -240,8 +326,8 @@ const InlineBusinessForm = ({
                 <label className="mb-1 block text-sm font-medium text-slate-700">Full Description</label>
                 <textarea
                   rows={15}
-                  value={formData?.description || ""}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  value={form.formData?.description || ""}
+                  onChange={(e) => form.handleFieldChange("description", e.target.value)}
                   className={textareaCls}
                   placeholder="Detailed business description"
                 />
@@ -257,16 +343,17 @@ const InlineBusinessForm = ({
             onToggle={() => toggleSection("media")}
             onSaveSection={onSave}
             saving={saving}
+            formData={formData}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Logo</label>
                 <div className="flex items-start gap-4">
-                  {formData?.logo_url ? (
+                  {form.formData?.logo_url ? (
                     <div className="relative">
                       <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-white bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] shadow-md">
                         <img
-                          src={formData.logo_url}
+                          src={form.formData.logo_url}
                           alt="Logo preview"
                           className="h-full w-full object-cover"
                         />
@@ -317,11 +404,11 @@ const InlineBusinessForm = ({
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Banner Image</label>
                 <div className="flex items-start gap-4">
-                  {formData?.banner_url ? (
+                  {form.formData?.banner_url ? (
                     <div className="relative">
                       <div className="h-20 w-48 overflow-hidden rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
                         <img
-                          src={formData.banner_url}
+                          src={form.formData.banner_url}
                           alt="Banner preview"
                           className="h-full w-full object-cover"
                         />
@@ -379,6 +466,7 @@ const InlineBusinessForm = ({
             onToggle={() => toggleSection("owners")}
             onSaveSection={onSave}
             saving={saving}
+            formData={formData}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
@@ -386,7 +474,7 @@ const InlineBusinessForm = ({
                 <input
                   type="text"
                   value={formData?.business_owner || ""}
-                  onChange={(e) => handleInputChange("business_owner", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("business_owner", e.target.value)}
                   className={inputCls}
                   placeholder="Primary business owner"
                 />
@@ -397,7 +485,7 @@ const InlineBusinessForm = ({
                 <input
                   type="email"
                   value={formData?.business_owner_email || ""}
-                  onChange={(e) => handleInputChange("business_owner_email", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("business_owner_email", e.target.value)}
                   className={inputCls}
                   placeholder="owner@email.com"
                 />
@@ -465,6 +553,7 @@ const InlineBusinessForm = ({
             onToggle={() => toggleSection("publicContact")}
             onSaveSection={onSave}
             saving={saving}
+            formData={formData}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
@@ -472,7 +561,7 @@ const InlineBusinessForm = ({
                 <input
                   type="email"
                   value={formData?.contact_email || ""}
-                  onChange={(e) => handleInputChange("contact_email", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("contact_email", e.target.value)}
                   className={inputCls}
                   placeholder="public@email.com"
                 />
@@ -483,7 +572,7 @@ const InlineBusinessForm = ({
                 <input
                   type="tel"
                   value={formData?.public_phone || ""}
-                  onChange={(e) => handleInputChange("public_phone", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("public_phone", e.target.value)}
                   className={inputCls}
                   placeholder="Public phone number"
                 />
@@ -494,7 +583,7 @@ const InlineBusinessForm = ({
                 <input
                   type="url"
                   value={formData?.contact_website || ""}
-                  onChange={(e) => handleInputChange("contact_website", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("contact_website", e.target.value)}
                   className={inputCls}
                   placeholder="https://example.com"
                 />
@@ -505,7 +594,7 @@ const InlineBusinessForm = ({
                 <input
                   type="text"
                   value={formData?.business_hours || ""}
-                  onChange={(e) => handleInputChange("business_hours", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("business_hours", e.target.value)}
                   className={inputCls}
                   placeholder="Mon-Fri 9AM-5PM"
                 />
@@ -521,6 +610,7 @@ const InlineBusinessForm = ({
             onToggle={() => toggleSection("privateContact")}
             onSaveSection={onSave}
             saving={saving}
+            formData={formData}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
@@ -528,7 +618,7 @@ const InlineBusinessForm = ({
                 <input
                   type="tel"
                   value={formData?.private_business_phone || ""}
-                  onChange={(e) => handleInputChange("private_business_phone", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("private_business_phone", e.target.value)}
                   className={inputCls}
                   placeholder="Internal business phone number"
                 />
@@ -539,7 +629,7 @@ const InlineBusinessForm = ({
                 <input
                   type="email"
                   value={formData?.private_business_email || ""}
-                  onChange={(e) => handleInputChange("private_business_email", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("private_business_email", e.target.value)}
                   className={inputCls}
                   placeholder="Internal email"
                 />
@@ -555,13 +645,14 @@ const InlineBusinessForm = ({
             onToggle={() => toggleSection("location")}
             onSaveSection={onSave}
             saving={saving}
+            formData={formData}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Country *</label>
                 <select
                   value={formData?.country || ""}
-                  onChange={(e) => handleInputChange("country", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("country", e.target.value)}
                   className={selectCls}
                   required
                 >
@@ -578,7 +669,7 @@ const InlineBusinessForm = ({
                 <label className="mb-1 block text-sm font-medium text-slate-700">Industry *</label>
                 <select
                   value={formData?.industry || ""}
-                  onChange={(e) => handleInputChange("industry", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("industry", e.target.value)}
                   className={selectCls}
                   required
                 >
@@ -596,7 +687,7 @@ const InlineBusinessForm = ({
                 <input
                   type="text"
                   value={formData?.city || ""}
-                  onChange={(e) => handleInputChange("city", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("city", e.target.value)}
                   className={inputCls}
                 />
               </div>
@@ -606,7 +697,7 @@ const InlineBusinessForm = ({
                 <input
                   type="text"
                   value={formData?.suburb || ""}
-                  onChange={(e) => handleInputChange("suburb", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("suburb", e.target.value)}
                   className={inputCls}
                 />
               </div>
@@ -617,7 +708,7 @@ const InlineBusinessForm = ({
               <input
                 type="text"
                 value={formData?.address || ""}
-                onChange={(e) => handleInputChange("address", e.target.value)}
+                onChange={(e) => form.handleFieldChange("address", e.target.value)}
                 className={inputCls}
                 placeholder="Street address"
               />
@@ -629,7 +720,7 @@ const InlineBusinessForm = ({
                 <input
                   type="text"
                   value={formData?.state_region || ""}
-                  onChange={(e) => handleInputChange("state_region", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("state_region", e.target.value)}
                   className={inputCls}
                 />
               </div>
@@ -639,7 +730,7 @@ const InlineBusinessForm = ({
                 <input
                   type="text"
                   value={formData?.postal_code || ""}
-                  onChange={(e) => handleInputChange("postal_code", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("postal_code", e.target.value)}
                   className={inputCls}
                 />
               </div>
@@ -651,7 +742,7 @@ const InlineBusinessForm = ({
                   value={formData?.year_started ?? ""}
                   onChange={(e) => {
                     const value = e.target.value;
-                    handleInputChange("year_started", value === "" ? null : Number(value));
+                    form.handleFieldChange("year_started", value === "" ? null : Number(value));
                   }}
                   className={inputCls}
                   min="1900"
@@ -666,7 +757,7 @@ const InlineBusinessForm = ({
                 <label className="mb-1 block text-sm font-medium text-slate-700">Business Structure</label>
                 <select
                   value={formData?.business_structure || ""}
-                  onChange={(e) => handleInputChange("business_structure", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("business_structure", e.target.value)}
                   className={selectCls}
                 >
                   <option value="">Select Structure</option>
@@ -683,7 +774,7 @@ const InlineBusinessForm = ({
                 <label className="mb-1 block text-sm font-medium text-slate-700">Team Size</label>
                 <select
                   value={formData?.team_size_band || ""}
-                  onChange={(e) => handleInputChange("team_size_band", e.target.value)}
+                  onChange={(e) => form.handleFieldChange("team_size_band", e.target.value)}
                   className={selectCls}
                 >
                   <option value="">Select Team Size</option>
@@ -708,13 +799,14 @@ const InlineBusinessForm = ({
               onToggle={() => toggleSection("admin")}
               onSaveSection={onSave}
               saving={saving}
+              formData={formData}
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">Subscription Tier</label>
                   <select
                     value={formData?.subscription_tier || "vaka"}
-                    onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
+                    onChange={(e) => form.handleFieldChange("subscription_tier", e.target.value)}
                     className={selectCls}
                   >
                     <option value="vaka">Vaka (Free)</option>
@@ -727,7 +819,7 @@ const InlineBusinessForm = ({
                   <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
                   <select
                     value={formData?.status || BUSINESS_STATUS.PENDING}
-                    onChange={(e) => handleInputChange("status", e.target.value)}
+                    onChange={(e) => form.handleFieldChange("status", e.target.value)}
                     className={selectCls}
                   >
                     <option value={BUSINESS_STATUS.PENDING}>Pending</option>
@@ -743,7 +835,7 @@ const InlineBusinessForm = ({
                     <input
                       type="checkbox"
                       checked={!!formData?.verified}
-                      onChange={(e) => handleInputChange("verified", e.target.checked)}
+                      onChange={(e) => form.handleFieldChange("verified", e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300"
                     />
                     Verified
@@ -755,7 +847,7 @@ const InlineBusinessForm = ({
                     <input
                       type="checkbox"
                       checked={!!formData?.claimed}
-                      onChange={(e) => handleInputChange("claimed", e.target.checked)}
+                      onChange={(e) => form.handleFieldChange("claimed", e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300"
                     />
                     Claimed
@@ -767,7 +859,7 @@ const InlineBusinessForm = ({
                     <input
                       type="checkbox"
                       checked={!!formData?.homepage_featured}
-                      onChange={(e) => handleInputChange("homepage_featured", e.target.checked)}
+                      onChange={(e) => form.handleFieldChange("homepage_featured", e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300"
                     />
                     Homepage Featured

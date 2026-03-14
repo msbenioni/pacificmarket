@@ -3,42 +3,114 @@ import { Building2, Users, TrendingUp, Rocket, ChevronDown, ChevronUp, Globe, Ta
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import HorizontalBar from "@/components/insights/HorizontalBar";
 import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
+import { getSupabase } from "@/lib/supabase/client";
 import { getBusinessTier, getBusinessCountryDisplay, getBusinessIndustryDisplay } from "@/lib/business/helpers";
 import { tally } from "@/lib/utils";
 import { BUSINESS_STATUS, BUSINESS_STAGE, BUSINESS_CHALLENGES, FOUNDER_MOTIVATIONS, COUNTRIES } from "@/constants/unifiedConstants";
 
-// Fetch insights data from both founder and business insights tables
+// Fetch insights data from actual business tables
 const fetchInsightsData = async () => {
   try {
-    const { getSupabase } = await import('../lib/supabase/client');
     const supabase = getSupabase();
     
-    // Fetch from both tables in parallel
-    const [founderResult, businessResult] = await Promise.all([
-      supabase
+    // First, let's check if the table exists and we have access
+    console.log('Attempting to fetch from business_insights table...');
+    
+    // Fetch data from business_insights table with correct column names
+    const { data: insightsData, error: insightsError } = await supabase
+      .from('business_insights')
+      .select(`
+        id,
+        business_id,
+        user_id,
+        business_stage,
+        top_challenges,
+        hiring_intentions,
+        business_operating_status,
+        business_age,
+        business_registered,
+        employs_anyone,
+        employs_family_community,
+        team_size,
+        revenue_band,
+        current_funding_source,
+        funding_amount_needed,
+        funding_purpose,
+        investment_stage,
+        investment_exploration,
+        community_impact_areas,
+        support_needed_next,
+        current_support_sources,
+        expansion_plans,
+        industry,
+        snapshot_year,
+        submitted_date,
+        created_at,
+        updated_at
+      `);
+
+    if (insightsError) {
+      console.error('Business insights query error:', {
+        message: insightsError.message,
+        details: insightsError.details,
+        hint: insightsError.hint,
+        code: insightsError.code
+      });
+      
+      // Try to fetch from founder_insights as fallback
+      console.log('Trying fallback to founder_insights table...');
+      const { data: founderData, error: founderError } = await supabase
         .from('founder_insights')
-        .select('*')
-        .order('submitted_date', { ascending: false})
-        .limit(100),
-      supabase
-        .from('business_insights')
-        .select('*')
-        .order('submitted_date', { ascending: false})
-        .limit(100)
-    ]);
-    
-    if (founderResult.error) throw founderResult.error;
-    if (businessResult.error) throw businessResult.error;
-    
-    // Combine both datasets for complete analytics
-    const combinedData = [
-      ...(founderResult.data || []).map(item => ({ ...item, source: 'founder' })),
-      ...(businessResult.data || []).map(item => ({ ...item, source: 'business' }))
-    ];
-    
-    return combinedData;
+        .select(`
+          id,
+          user_id,
+          snapshot_year,
+          submitted_date,
+          created_at,
+          updated_at,
+          gender,
+          age_range,
+          years_entrepreneurial,
+          businesses_founded,
+          founder_role,
+          founder_motivation_array,
+          pacific_identity,
+          based_in_country,
+          based_in_city,
+          serves_pacific_communities,
+          culture_influences_business,
+          family_community_responsibilities_affect_business,
+          mentorship_access,
+          mentorship_offering,
+          barriers_to_mentorship,
+          angel_investor_interest,
+          investor_capacity,
+          collaboration_interest,
+          open_to_future_contact,
+          goals_next_12_months_array
+        `);
+
+      if (founderError) {
+        console.error('Founder insights query error:', {
+          message: founderError.message,
+          details: founderError.details,
+          hint: founderError.hint,
+          code: founderError.code
+        });
+        return [];
+      }
+
+      console.log('Successfully fetched from founder_insights:', founderData?.length || 0, 'records');
+      return founderData || [];
+    }
+
+    console.log('Successfully fetched from business_insights:', insightsData?.length || 0, 'records');
+    return insightsData || [];
   } catch (error) {
-    console.error('Error fetching insights data:', error);
+    console.error('Unexpected error in fetchInsightsData:', {
+      message: error.message,
+      stack: error.stack
+    });
     return [];
   }
 };
@@ -237,7 +309,7 @@ const UI = {
 
 export default function Insights() {
   const [businesses, setBusinesses] = useState([]);
-  const [insights, setInsights] = useState([]);
+  const [insights, setInsights] = useState([]); // Change back to array for actual insights data
   const [loading, setLoading] = useState(false);
   const [openSections, setOpenSections] = useState({
     demographics: true,
@@ -260,8 +332,12 @@ export default function Insights() {
           fetchInsightsData()
         ]);
         
-        setBusinesses(businessesResult.data || []);
-        setInsights(insightsData || []);
+        // Handle the actual data structure from business tables
+        const businessesData = businessesResult?.data || [];
+        const insightsArray = Array.isArray(insightsData) ? insightsData : [];
+        
+        setBusinesses(businessesData);
+        setInsights(insightsArray); // Set as array of insights records
         setLoading(false);
       } catch (error) {
         console.error('Error loading insights data:', error);
@@ -273,8 +349,7 @@ export default function Insights() {
   }, []); // Empty dependency array to run only once
   
   const total = businesses.length;
-  const insightsCount = insights.length;
-  
+  const insightsCount = insights.length; // Update to use length of insights array
   // Business metrics
   // Standardize countries for accurate analytics using helper functions
   const standardizedBusinesses = businesses.map(business => ({
@@ -298,75 +373,30 @@ export default function Insights() {
       }))
     : [];
 
-// Business stage analysis (from business_insights)
+// Process actual insights data from business_insights and founder_insights tables
+// Check if data comes from founder_insights (has collaboration_interest) or business_insights
+const isFounderInsights = insights.length > 0 && insights[0].collaboration_interest !== undefined;
+
+const collaborationRate = insights.length > 0
+  ? Math.round((insights.filter(i => i.collaboration_interest).length / insights.length) * 100)
+  : 0;
+
+const mentorshipOfferingRate = insights.length > 0
+  ? Math.round((insights.filter(i => i.mentorship_offering).length / insights.length) * 100)
+  : 0;
+
+const investmentInterestRate = insights.length > 0
+  ? Math.round((insights.filter(i => i.angel_investor_interest === 'actively-investing' || i.angel_investor_interest === 'considering-future' || i.angel_investor_interest === 'exploring-options').length / insights.length) * 100)
+  : 0;
+
+// Business stage analysis from actual insights data
 const byBusinessStage = BUSINESS_STAGE
   .map(stage => ({
     label: stage.label, 
     value: insights.filter(i => i.business_stage === stage.value).length
   }));
 
-// Check if we have any founder insights data
-const hasFounderData = insights.some(i => i.source === 'founder');
-
-// Founder demographics (from founder_insights)
-const genderData = hasFounderData
-  ? insights.reduce((acc, insight) => {
-      if (insight.gender && insight.source === 'founder') {
-        acc[insight.gender] = (acc[insight.gender] || 0) + 1;
-      }
-      return acc;
-    }, {})
-  : {};
-
-const ageData = hasFounderData
-  ? insights.reduce((acc, insight) => {
-      if (insight.age_range && insight.source === 'founder') {
-        acc[insight.age_range] = (acc[insight.age_range] || 0) + 1;
-      }
-      return acc;
-    }, {})
-  : {};
-
-// Calculate founder experience (years as entrepreneur) - only from founder_insights
-const yearsEntrepreneurial = insights
-  .filter(i => i.source === 'founder')
-  .map(i => i.years_entrepreneurial)
-  .filter(years => years && years !== "");
-
-const avgYearsInBusiness = yearsEntrepreneurial.length > 0 
-  ? Math.round(yearsEntrepreneurial.reduce((sum, years) => sum + parseInt(years), 0) / yearsEntrepreneurial.length)
-  : 0;
-
-// Motivation analysis - only from founder_insights
-const motivationKeywords = insights.reduce((acc, insight) => {
-  if (insight.founder_motivation_array && Array.isArray(insight.founder_motivation_array) && insight.source === 'founder') {
-    insight.founder_motivation_array.forEach(motivation => {
-      acc[motivation] = (acc[motivation] || 0) + 1;
-    });
-  }
-  return acc;
-}, {});
-
-// Challenges analysis - separate by source
-const founderChallenges = insights.reduce((acc, insight) => {
-  if (insight.top_challenges && Array.isArray(insight.top_challenges) && insight.source === 'founder') {
-    insight.top_challenges.forEach(challenge => {
-      acc[challenge] = (acc[challenge] || 0) + 1;
-    });
-  }
-  return acc;
-}, {});
-
-const businessChallenges = insights.reduce((acc, insight) => {
-  if (insight.top_challenges && Array.isArray(insight.top_challenges) && insight.source === 'business') {
-    insight.top_challenges.forEach(challenge => {
-      acc[challenge] = (acc[challenge] || 0) + 1;
-    });
-  }
-  return acc;
-}, {});
-
-// Combined challenges for overall view
+// Challenges analysis from actual insights data
 const allChallenges = insights.reduce((acc, insight) => {
   if (insight.top_challenges && Array.isArray(insight.top_challenges)) {
     insight.top_challenges.forEach(challenge => {
@@ -384,33 +414,57 @@ const topChallenges = Object.entries(allChallenges)
   .sort((a, b) => b.value - a.value)
   .slice(0, 5);
 
+// Check if we have founder insights data (from founder_insights table)
+const hasFounderData = insights.some(i => i.gender || i.age_range || i.years_entrepreneurial);
+
+// Founder demographics (from founder_insights data)
+const genderData = hasFounderData
+  ? insights.reduce((acc, insight) => {
+      if (insight.gender) {
+        acc[insight.gender] = (acc[insight.gender] || 0) + 1;
+      }
+      return acc;
+    }, {})
+  : {};
+
+const ageData = hasFounderData
+  ? insights.reduce((acc, insight) => {
+      if (insight.age_range) {
+        acc[insight.age_range] = (acc[insight.age_range] || 0) + 1;
+      }
+      return acc;
+    }, {})
+  : {};
+
+// Calculate founder experience (years as entrepreneur) - only from founder_insights
+const yearsEntrepreneurial = insights
+  .filter(i => i.years_entrepreneurial)
+  .map(i => i.years_entrepreneurial)
+  .filter(years => years && years !== "");
+
+const avgYearsInBusiness = yearsEntrepreneurial.length > 0 
+  ? Math.round(yearsEntrepreneurial.reduce((sum, years) => sum + parseInt(years), 0) / yearsEntrepreneurial.length)
+  : 0;
+
+// Motivation analysis - only from founder_insights
+const motivationKeywords = insights.reduce((acc, insight) => {
+  if (insight.founder_motivation_array && Array.isArray(insight.founder_motivation_array)) {
+    insight.founder_motivation_array.forEach(motivation => {
+      acc[motivation] = (acc[motivation] || 0) + 1;
+    });
+  }
+  return acc;
+}, {});
+
 // Family responsibilities data
 const familyResponsibilityData = insights.reduce((acc, insight) => {
-  if (insight.family_community_responsibilities_affect_business && Array.isArray(insight.family_community_responsibilities_affect_business) && insight.source === 'founder') {
+  if (insight.family_community_responsibilities_affect_business && Array.isArray(insight.family_community_responsibilities_affect_business)) {
     insight.family_community_responsibilities_affect_business.forEach(responsibility => {
       acc[responsibility] = (acc[responsibility] || 0) + 1;
     });
   }
   return acc;
 }, {});
-
-const familyResponsibilityRate = insights.length > 0
-  ? Math.round((insights.filter(i => i.family_community_responsibilities_affect_business && i.family_community_responsibilities_affect_business.length > 0).length / insights.length) * 100)
-  : 0;
-  // Collaboration interest
-  const collaborationRate = insights.length > 0
-    ? Math.round((insights.filter(i => i.collaboration_interest).length / insights.length) * 100)
-    : 0;
-
-  // Mentorship offering analysis
-  const mentorshipOfferingRate = insights.length > 0
-    ? Math.round((insights.filter(i => i.mentorship_offering).length / insights.length) * 100)
-    : 0;
-
-  // Investment interest analysis - people looking to invest in businesses
-  const investmentInterestRate = insights.length > 0
-    ? Math.round((insights.filter(i => i.angel_investor_interest === 'actively-investing' || i.angel_investor_interest === 'considering-future' || i.angel_investor_interest === 'exploring-options').length / insights.length) * 100)
-    : 0;
 
   return (
     <div className={`min-h-screen ${UI.page}`}>

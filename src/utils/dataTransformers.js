@@ -86,12 +86,26 @@ export function sanitizeBusinessPayload(formData) {
   ];
 
   const payload = {};
+  const filteredFields = [];
+  
   allowedFields.forEach((field) => {
     if (rest[field] !== undefined) {
       payload[field] = rest[field];
     }
   });
 
+  // Check for fields that exist in formData but not in allowedFields
+  Object.keys(rest).forEach(field => {
+    if (!allowedFields.includes(field)) {
+      filteredFields.push(field);
+    }
+  });
+
+  if (filteredFields.length > 0) {
+    console.warn('Fields filtered out during sanitization:', filteredFields);
+  }
+
+  console.log('Sanitized payload:', payload);
   return payload;
 }
 
