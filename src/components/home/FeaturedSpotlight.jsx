@@ -2,11 +2,9 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { getHomepageBusinesses } from "@/lib/supabase/queries/businesses";
-import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
 import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
-import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Phone, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video } from "lucide-react";
+import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
 
@@ -232,7 +230,6 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
               {index + 1} / {total}
             </div>
           </div>
-        </div>
 
         {/* Body */}
         <div className="p-6 sm:p-7 flex-1 flex flex-col">
