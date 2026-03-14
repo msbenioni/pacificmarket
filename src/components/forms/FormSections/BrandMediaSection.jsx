@@ -199,7 +199,14 @@ export default function BrandMediaSection({
               <h5 className="text-sm font-medium text-slate-700 mb-2">Homepage Featured</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
                 <div className="relative h-40 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] rounded-t-2xl">
-                  {form.banner_url ? (
+                  {form.mobile_banner_url ? (
+                    <img
+                      src={form.mobile_banner_url}
+                      alt="Homepage featured preview"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ objectPosition: "center top" }}
+                    />
+                  ) : form.banner_url ? (
                     <img
                       src={form.banner_url}
                       alt="Homepage featured preview"
