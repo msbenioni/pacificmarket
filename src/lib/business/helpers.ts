@@ -5,6 +5,7 @@
 
 import type { Business } from '../../types/business';
 import { getTierDisplayName, getCountryDisplayName, getIndustryDisplayName } from '../../constants/unifiedConstants';
+import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 
 // === Core Field Accessors ===
 
@@ -47,14 +48,14 @@ export function getBusinessInitial(business: Business | null): string {
  * Get business logo URL
  */
 export function getBusinessLogoUrl(business: Business | null): string | null {
-  return business?.logo_url ?? null;
+  return getLogoUrl(business);
 }
 
 /**
  * Get business banner URL
  */
 export function getBusinessBannerUrl(business: Business | null): string | null {
-  return business?.mobile_banner_url ?? business?.banner_url ?? null;
+  return getBannerUrl(business);
 }
 
 /**

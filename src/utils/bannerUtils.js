@@ -13,6 +13,15 @@ export function getBannerUrl(business) {
 }
 
 /**
+ * Get logo URL with fallback
+ * @param {Object} business - Business object containing logo URL
+ * @returns {string|null} Logo URL or null if no logo available
+ */
+export function getLogoUrl(business) {
+  return business?.logo_url || null;
+}
+
+/**
  * Check if business has any banner available
  * @param {Object} business - Business object
  * @returns {boolean} True if business has any banner
@@ -37,6 +46,15 @@ export function hasMobileBanner(business) {
  */
 export function hasDesktopBanner(business) {
   return !!business?.banner_url || !!business?.cover_image_url;
+}
+
+/**
+ * Check if business has logo
+ * @param {Object} business - Business object
+ * @returns {boolean} True if business has logo
+ */
+export function hasLogo(business) {
+  return !!business?.logo_url;
 }
 
 /**
@@ -68,6 +86,28 @@ export function renderBanner(business, props = {}) {
       className={props.className || ""}
       style={props.style || {}}
       loading={props.loading || "lazy"}
+    />
+  );
+}
+
+/**
+ * Render logo image with fallback
+ * @param {Object} business - Business object
+ * @param {Object} props - Additional img props (className, alt, etc.)
+ * @returns {JSX.Element} Image element with fallback
+ */
+export function renderLogo(business, props = {}) {
+  const logoUrl = getLogoUrl(business);
+  const fallbackSrc = props.fallbackSrc || "/pm_logo.png";
+  
+  return (
+    <img
+      src={logoUrl || fallbackSrc}
+      alt={props.alt || "Business logo"}
+      className={props.className || ""}
+      style={props.style || {}}
+      loading={props.loading || "lazy"}
+      onError={props.onError}
     />
   );
 }
