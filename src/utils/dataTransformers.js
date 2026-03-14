@@ -126,46 +126,26 @@ export function sanitizeBusinessPayload(formData) {
 }
 
 /**
- * Validate business data with flexible validation for partial updates
+ * Validate business data - no required fields for any updates
  * @param {Object} data - Business data to validate
- * @param {boolean} isCompleteProfile - If true, validate all required fields for complete profile
  * @returns {Object} - Validation result with errors
  */
-export function validateBusinessData(data, isCompleteProfile = false) {
+export function validateBusinessData(data) {
   const errors = {};
 
-  // Only validate required fields if this is a complete business profile creation/update
-  if (!isCompleteProfile) {
-    // For partial updates, allow saving any fields without validation
-    return {
-      isValid: true,
-      errors: {},
-    };
-  }
-
-  // Full validation only for complete business profiles
-  if (!data.name?.trim()) {
-    errors.name = "Business name is required";
-  }
-
-  if (!data.business_handle?.trim()) {
-    errors.business_handle = "Business handle is required";
-  } else if (!/^[a-z0-9-]+$/.test(data.business_handle)) {
+  // No required fields - allow saving any fields without validation
+  // Only validate format if fields are provided
+  
+  if (data.business_handle && !data.business_handle.trim()) {
+    errors.business_handle = "Business handle can only contain lowercase letters, numbers, and hyphens";
+  } else if (data.business_handle && !/^[a-z0-9-]+$/.test(data.business_handle)) {
     errors.business_handle = "Business handle can only contain lowercase letters, numbers, and hyphens";
   }
 
-  if (!data.contact_email?.trim()) {
-    errors.contact_email = "Contact email is required";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contact_email)) {
+  if (data.contact_email && !data.contact_email.trim()) {
     errors.contact_email = "Please enter a valid email address";
-  }
-
-  if (!data.country) {
-    errors.country = "Country is required";
-  }
-
-  if (!data.industry) {
-    errors.industry = "Industry is required";
+  } else if (data.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contact_email)) {
+    errors.contact_email = "Please enter a valid email address";
   }
 
   return {

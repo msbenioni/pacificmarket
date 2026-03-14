@@ -196,16 +196,11 @@ export function useBusinessOperations(refetchPortalData) {
       // Save public business data to businesses table
       const sanitizedPayload = sanitizeBusinessPayload(businessesDataForUpdate);
       console.log("Sanitized payload:", sanitizedPayload);
-      // Check if this is a complete business profile update (has core business fields)
-      const coreBusinessFields = ['name', 'business_handle', 'contact_email', 'country', 'industry'];
-      const payloadKeys = Object.keys(sanitizedPayload || {});
-      const isCompleteProfile = coreBusinessFields.some(field => payloadKeys.includes(field));
       
-      console.log("Payload keys:", payloadKeys);
+      console.log("Payload keys:", Object.keys(sanitizedPayload || {}));
       console.log("Payload values:", Object.values(sanitizedPayload || {}));
-      console.log("Is complete profile update:", isCompleteProfile);
       
-      const validation = validateBusinessData(sanitizedPayload, isCompleteProfile);
+      const validation = validateBusinessData(sanitizedPayload);
       console.log("Validation result:", validation);
 
       if (!validation.isValid) {
