@@ -161,47 +161,26 @@ export default function BrandMediaSection({
           <h4 className="font-medium text-slate-900">Preview: How Your Banners Will Appear</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Desktop Banner Preview */}
+            {/* Business Card Preview */}
             <div>
-              <h5 className="text-sm font-medium text-slate-700 mb-2">Desktop Banner (Business Registry)</h5>
-              <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
-                <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
-                  {form.banner_url ? (
-                    <img
-                      src={form.banner_url}
-                      alt="Desktop banner preview"
-                      className="h-full w-full object-contain"
-                    />
-                  ) : (
-                    <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
-                      Desktop banner will appear here
-                    </div>
-                  )}
-                </div>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Uses desktop banner, shows full image</p>
-            </div>
-
-            {/* Mobile Banner Preview */}
-            <div>
-              <h5 className="text-sm font-medium text-slate-700 mb-2">Mobile Banner (Business Cards)</h5>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Business Card (Portal)</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
                 <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
                   {form.mobile_banner_url ? (
                     <img
                       src={form.mobile_banner_url}
-                      alt="Mobile banner preview"
+                      alt="Business card preview"
                       className="h-full w-full object-cover"
                     />
                   ) : form.banner_url ? (
                     <img
                       src={form.banner_url}
-                      alt="Desktop banner fallback preview"
+                      alt="Business card preview (fallback)"
                       className="h-full w-full object-cover"
                     />
                   ) : (
                     <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
-                      Mobile banner will appear here
+                      Banner will appear here
                     </div>
                   )}
                 </div>
@@ -211,7 +190,56 @@ export default function BrandMediaSection({
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                {form.mobile_banner_url ? "Uses mobile banner, fills space" : "Uses desktop banner as fallback, may crop"}
+                {form.mobile_banner_url ? "Uses mobile banner" : "Uses desktop banner as fallback"}
+              </p>
+            </div>
+
+            {/* Homepage Featured Preview */}
+            <div>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Homepage Featured</h5>
+              <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
+                <div className="relative h-[133px] bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b] rounded-t-2xl">
+                  {form.mobile_banner_url ? (
+                    <img
+                      src={form.mobile_banner_url}
+                      alt="Homepage featured preview"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ objectPosition: "center top" }}
+                    />
+                  ) : form.banner_url ? (
+                    <img
+                      src={form.banner_url}
+                      alt="Homepage featured preview (fallback)"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ objectPosition: "center top" }}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-xs">
+                      Featured banner will appear here
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 bg-white">
+                  <div className="flex items-center gap-2">
+                    {form.logo_url ? (
+                      <img
+                        src={form.logo_url}
+                        alt="Business logo"
+                        className="h-8 w-8 rounded-lg object-cover border border-slate-200"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-lg bg-slate-200 border border-slate-200"></div>
+                    )}
+                    <div className="flex-1">
+                      <h6 className="text-sm font-semibold text-slate-900">Business Name</h6>
+                      <p className="text-xs text-slate-500">Industry • Location</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-2 line-clamp-2">Brief business description for featured spotlight...</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                {form.mobile_banner_url ? "Uses mobile banner" : "Uses desktop banner as fallback"}
               </p>
             </div>
           </div>
@@ -220,14 +248,14 @@ export default function BrandMediaSection({
             <div className="flex items-start gap-2">
               <div className="text-blue-600 text-sm">ℹ️</div>
               <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Banner Options</p>
+                <p className="font-medium mb-1">Banner Display Contexts</p>
                 <p className="text-xs">
-                  <strong>Desktop Banner:</strong> Optimized for business registry pages<br/>
-                  <strong>Mobile Banner:</strong> Optimized for business cards and mobile views<br/>
-                  <strong>Fallback:</strong> If no mobile banner, desktop banner will be used
+                  <strong>Business Card:</strong> Portal business cards with logo and details<br/>
+                  <strong>Homepage Featured:</strong> Spotlight section on homepage with gradient background<br/>
+                  <strong>Business Registry:</strong> Full-width banner on business profile pages
                 </p>
                 <p className="text-xs mt-1 italic">
-                  💡 Tip: Upload both for best results, or desktop banner works for both!
+                  💡 Tip: Mobile banner works for both cards and homepage, desktop banner for registry!
                 </p>
               </div>
             </div>
