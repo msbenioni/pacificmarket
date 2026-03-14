@@ -40,7 +40,7 @@ export const transformBusinessFormData = (formData) => {
     business_stage: formData.business_stage,
     top_challenges_array: formData.top_challenges_array,
     hiring_intentions: formData.hiring_intentions,
-    is_business_registered: formData.is_business_registered,
+    is_business_registered: formData.is_business_registered === true || formData.is_business_registered === "true" ? true : false,
     team_size_band: formData.team_size_band,
     revenue_band: formData.revenue_band,
     current_funding_source: formData.current_funding_source,
