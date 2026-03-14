@@ -112,25 +112,38 @@ export function useBusinessOperations(refetchPortalData) {
         delete updatedData.banner_file; // Remove file object from data
       }
 
-      // Separate public and private data
-      const publicBusinessData = { ...updatedData };
-      const privateBusinessData = {};
-
-      // Fields that should go to business_insights table
-      const privateFields = ['private_business_phone', 'private_business_email'];
+      // Handle business insights data if provided
+      let businessInsightsData = {};
       
-      privateFields.forEach(field => {
-        if (publicBusinessData[field] !== undefined) {
-          privateBusinessData[field] = publicBusinessData[field];
-          delete publicBusinessData[field]; // Remove from public data
-        }
-      });
+      // Check if this is the new unified form data structure
+      if (businessData.publicData && businessData.privateData) {
+        // New unified form structure - data is already separated
+        console.log('Using unified form data structure');
+        console.log('Public data keys:', Object.keys(businessData.publicData || {}));
+        console.log('Private data keys:', Object.keys(businessData.privateData || {}));
+        
+        // Use the provided data directly
+        updatedData = { ...businessData.publicData };
+        businessInsightsData = { ...businessData.privateData };
+      } else {
+        // Legacy structure - separate private fields manually
+        console.log('Using legacy data structure');
+        
+        // Fields that should go to business_insights table
+        const privateFields = ['private_business_phone', 'private_business_email'];
+        
+        privateFields.forEach(field => {
+          if (updatedData[field] !== undefined) {
+            businessInsightsData[field] = updatedData[field];
+            delete updatedData[field]; // Remove from public data
+          }
+        });
+      }
 
-      console.log('Public business data:', publicBusinessData);
-      console.log('Private business data:', privateBusinessData);
+      console.log('Final business insights data:', businessInsightsData);
 
       // Save public business data to businesses table
-      const sanitizedPayload = sanitizeBusinessPayload(publicBusinessData);
+      const sanitizedPayload = sanitizeBusinessPayload(updatedData);
       console.log("Sanitized payload:", sanitizedPayload);
       console.log("Payload keys:", Object.keys(sanitizedPayload || {}));
       console.log("Payload values:", Object.values(sanitizedPayload || {}));
@@ -228,7 +241,7 @@ export function useBusinessOperations(refetchPortalData) {
       }
 
       // Save private data to business_insights table if any exists
-      if (Object.keys(privateBusinessData).length > 0) {
+      if (Object.keys(businessInsightsData).length > 0) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("User not authenticated");
 
@@ -251,14 +264,14 @@ export function useBusinessOperations(refetchPortalData) {
           // Update existing record
           const { error: insightsError } = await supabase
             .from("business_insights")
-            .update(privateBusinessData)
+            .update(businessInsightsData)
             .eq("id", existingInsights.id);
 
           if (insightsError) {
             console.error("Business insights update error:", {
               error: insightsError,
               existingInsightsId: existingInsights.id,
-              privateData: privateBusinessData
+              privateData: businessInsightsData
             });
             throw new Error(`Failed to update business insights: ${insightsError.message || JSON.stringify(insightsError)}`);
           }
@@ -270,7 +283,7 @@ export function useBusinessOperations(refetchPortalData) {
               business_id: businessData.id,
               user_id: user.id,
               snapshot_year: currentYear,
-              ...privateBusinessData,
+              ...businessInsightsData,
             });
 
           if (insightsError) {
@@ -279,7 +292,7 @@ export function useBusinessOperations(refetchPortalData) {
               businessId: businessData.id,
               userId: user.id,
               snapshotYear: currentYear,
-              privateData: privateBusinessData
+              privateData: businessInsightsData
             });
             throw new Error(`Failed to save business insights: ${insightsError.message || JSON.stringify(insightsError)}`);
           }
