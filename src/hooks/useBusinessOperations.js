@@ -49,11 +49,20 @@ export function useBusinessOperations(refetchPortalData) {
       const supabase = getSupabase();
 
       // Handle file uploads first
-      let updatedData = { ...businessData };
+      let businessesDataForUpdate = {};
+      
+      // Extract the actual business data from the new structure
+      if (businessData.businessesData) {
+        businessesDataForUpdate = { ...businessData.businessesData };
+        delete businessesDataForUpdate.logo_file;
+        delete businessesDataForUpdate.banner_file;
+      } else {
+        businessesDataForUpdate = { ...businessData };
+      }
       
       // Upload logo if there's a new logo file
-      if (businessData.logo_file) {
-        const file = businessData.logo_file;
+      if (businessData.files?.logo_file) {
+        const file = businessData.files.logo_file;
         
         // Validate file type
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -81,13 +90,12 @@ export function useBusinessOperations(refetchPortalData) {
           .from('admin-listings')
           .getPublicUrl(filePath);
 
-        updatedData.logo_url = publicUrl;
-        delete updatedData.logo_file; // Remove file object from data
+        businessesDataForUpdate.logo_url = publicUrl;
       }
 
       // Upload banner if there's a new banner file
-      if (businessData.banner_file) {
-        const file = businessData.banner_file;
+      if (businessData.files?.banner_file) {
+        const file = businessData.files.banner_file;
         
         // Validate file type
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -115,8 +123,7 @@ export function useBusinessOperations(refetchPortalData) {
           .from('admin-listings')
           .getPublicUrl(filePath);
 
-        updatedData.banner_url = publicUrl;
-        delete updatedData.banner_file; // Remove file object from data
+        businessesDataForUpdate.banner_url = publicUrl;
       }
 
       // Handle business insights data if provided
@@ -130,12 +137,10 @@ export function useBusinessOperations(refetchPortalData) {
         console.log('Business insights data keys:', Object.keys(businessData.businessInsightsData || {}));
         
         // Use the provided data directly
-        updatedData = { ...businessData.businessesData };
         businessInsightsData = { ...businessData.businessInsightsData };
       } else if (businessData.publicData && businessData.privateData) {
         // Legacy structure - data separated by public/private
         console.log('Using legacy public/private data structure');
-        updatedData = { ...businessData.publicData };
         businessInsightsData = { ...businessData.privateData };
       } else {
         // Very old structure - separate private fields manually
@@ -145,17 +150,18 @@ export function useBusinessOperations(refetchPortalData) {
         const privateFields = ['private_business_phone', 'private_business_email'];
         
         privateFields.forEach(field => {
-          if (updatedData[field] !== undefined) {
-            businessInsightsData[field] = updatedData[field];
-            delete updatedData[field]; // Remove from public data
+          if (businessesDataForUpdate[field] !== undefined) {
+            businessInsightsData[field] = businessesDataForUpdate[field];
+            delete businessesDataForUpdate[field]; // Remove from public data
           }
         });
       }
 
+      console.log('Final businesses data for update:', businessesDataForUpdate);
       console.log('Final business insights data:', businessInsightsData);
 
       // Save public business data to businesses table
-      const sanitizedPayload = sanitizeBusinessPayload(updatedData);
+      const sanitizedPayload = sanitizeBusinessPayload(businessesDataForUpdate);
       console.log("Sanitized payload:", sanitizedPayload);
       console.log("Payload keys:", Object.keys(sanitizedPayload || {}));
       console.log("Payload values:", Object.values(sanitizedPayload || {}));
