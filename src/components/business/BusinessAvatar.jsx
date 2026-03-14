@@ -2,6 +2,7 @@ import React from 'react';
 import { Building2 } from 'lucide-react';
 import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from '@/lib/business/helpers';
 import { isVerifiedBusiness, canAppearOnHomepage } from '@/lib/business/rules';
+import { hasLogo, getLogoUrl } from '@/utils/bannerUtils';
 
 /**
  * BusinessAvatar - Standardized business avatar component
@@ -38,32 +39,23 @@ export function BusinessAvatar({
     xl: 'w-4 h-4 -bottom-1 -right-1'
   };
 
-  const hasLogo = business.logo_url;
+  const businessHasLogo = hasLogo(business);
   const isVerified = isVerifiedBusiness(business);
   const isHomepage = canAppearOnHomepage(business);
   const isPremium = hasPremiumFeatures(business);
 
-  const avatarContent = hasLogo ? (
+  const avatarContent = (
     <img
-      src={business.logo_url}
+      src={getLogoUrl(business)}
       alt={`${business.name} logo`}
       className={`w-full h-full object-cover ${isPremium ? 'ring-2 ring-[#c9a84c]/20' : ''}`}
-      onError={(e) => {
-        // Simple fallback - hide image and show fallback
-        const element = e.currentTarget;
-        element.style.display = 'none';
-        const parent = element.parentElement;
-        if (parent) {
-          parent.classList.add('fallback-active');
-        }
-      }}
     />
-  ) : null;
+  );
 
   const fallbackContent = (
     <div className={`w-full h-full flex items-center justify-center ${
       isPremium ? 'bg-gradient-to-br from-[#c9a84c]/20 to-[#0d4f4f]/20' : 'bg-gray-100'
-    } ${!hasLogo ? '' : 'hidden'} [&.fallback-active]:flex`}>
+    } ${!businessHasLogo ? '' : 'hidden'} [&.fallback-active]:flex`}>
       <Building2 className={`w-1/2 h-1/2 ${
         isPremium ? 'text-[#c9a84c]' : 'text-gray-400'
       }`} />
