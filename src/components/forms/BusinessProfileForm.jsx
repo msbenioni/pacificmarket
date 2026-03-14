@@ -21,6 +21,11 @@ import CoreInfoSection from "./FormSections/CoreInfoSection";
 import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
 import BusinessDetailsSection from "./FormSections/BusinessDetailsSection";
+import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
+import FinancialOverviewSection from "./FormSections/FinancialOverviewSection";
+import ChallengesSection from "./FormSections/ChallengesSection";
+import GrowthSection from "./FormSections/GrowthSection";
+import CommunitySection from "./FormSections/CommunitySection";
 
 // Form Section Component
 function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, onSaveSection, saving, formData, errors }) {
@@ -530,6 +535,71 @@ export default function BusinessProfileForm({
             inputCls={inputCls}
             selectCls={selectCls}
             labelCls={labelCls}
+          />
+        );
+      
+      case "overview":
+        return (
+          <BusinessOverviewSection
+            form={form}
+            handleInputChange={handleInputChange}
+            inputCls={inputCls}
+            selectCls={selectCls}
+            labelCls={labelCls}
+            textareaCls={textareaCls}
+          />
+        );
+      
+      case "financial":
+        return (
+          <FinancialOverviewSection
+            form={form}
+            handleInputChange={handleInputChange}
+            inputCls={inputCls}
+            selectCls={selectCls}
+            labelCls={labelCls}
+            textareaCls={textareaCls}
+          />
+        );
+      
+      case "challenges":
+        return (
+          <ChallengesSection
+            form={form}
+            handleInputChange={handleInputChange}
+            toggleArrayItem={toggleArrayItem}
+            inputCls={inputCls}
+            labelCls={labelCls}
+            textareaCls={textareaCls}
+            helperCls={helperCls}
+          />
+        );
+      
+      case "growth":
+        return (
+          <GrowthSection
+            form={form}
+            handleInputChange={handleInputChange}
+            toggleArrayItem={toggleArrayItem}
+            inputCls={inputCls}
+            labelCls={labelCls}
+            textareaCls={textareaCls}
+            selectCls={selectCls}
+            helperCls={helperCls}
+          />
+        );
+      
+      case "community":
+        return (
+          <CommunitySection
+            form={form}
+            handleInputChange={handleInputChange}
+            toggleArrayItem={toggleArrayItem}
+            inputCls={inputCls}
+            labelCls={labelCls}
+            textareaCls={textareaCls}
+            selectCls={selectCls}
+            helperCls={helperCls}
           />
         );
       
