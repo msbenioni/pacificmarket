@@ -24,7 +24,7 @@ import {
 
 import PortalShell from "@/components/portal/PortalShell";
 import HeroRegistry from "@/components/shared/HeroRegistry";
-import InlineBusinessForm from "@/components/forms/InlineBusinessForm";
+import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import {
   COUNTRIES,
@@ -316,13 +316,14 @@ function AdminBusinessMobileCard({
 
       {isEditing && draftBusiness && (
         <div className="mt-4 border-t border-gray-200 pt-4">
-          <InlineBusinessForm
+          <BusinessProfileForm
             title={`Edit ${business.name}`}
-            formData={draftBusiness}
-            setFormData={setDraftBusiness}
+            businessId={business.id}
+            initialData={draftBusiness}
             onSave={onSave}
             onCancel={onCancel}
             saving={savingEdit}
+            mode="edit"
             showAdminFields={true}
           />
         </div>
@@ -1174,10 +1175,10 @@ export default function AdminDashboard() {
 
           {showCreateForm && (
             <div className="mb-6">
-              <InlineBusinessForm
+              <BusinessProfileForm
                 title="Create New Business"
-                formData={createForm}
-                setFormData={setCreateForm}
+                businessId={null}
+                initialData={createForm}
                 onSave={() => createVerifiedBusiness(createForm)}
                 onCancel={resetCreateForm}
                 saving={savingCreate}
@@ -1605,10 +1606,10 @@ export default function AdminDashboard() {
                                 {editingBusinessId === b.id && draftBusiness && (
                                   <tr>
                                     <td colSpan={4} className="bg-gray-50 px-4 py-5">
-                                      <InlineBusinessForm
+                                      <BusinessProfileForm
                                         title={`Edit ${b.name}`}
-                                        formData={draftBusiness}
-                                        setFormData={setDraftBusiness}
+                                        businessId={b.id}
+                                        initialData={draftBusiness}
                                         onSave={() => saveBusiness(draftBusiness)}
                                         onCancel={cancelEditingBusiness}
                                         saving={savingEdit}

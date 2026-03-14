@@ -13,8 +13,7 @@ import {
   Settings2,
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import InlineBusinessForm from "../forms/InlineBusinessForm";
-import BusinessInsightsAccordion from "../forms/BusinessInsightsAccordion";
+import BusinessProfileForm from "../forms/BusinessProfileForm";
 
 function MainStepSection({
   title,
@@ -218,6 +217,17 @@ export default function BusinessCard({
                 View Listing
               </Link>
 
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMainStep("listing");
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a3e3e]"
+              >
+                <Settings2 className="h-4 w-4" />
+                Edit Business
+              </button>
+
               <div className="hidden text-right md:block">
                 <div className="text-xs text-slate-500">Open to manage</div>
                 <div className="text-xs font-medium text-slate-700">Step-based sections</div>
@@ -237,45 +247,20 @@ export default function BusinessCard({
 
       {isBusinessOpen && (
         <div className="border-t border-slate-200 bg-white">
-          <MainStepSection
-            title="Listing, access & contact"
-            step="Step 1"
-            summary="Business details, ownership, contact, media"
-            icon={Settings2}
-            isOpen={openMainStep === "listing"}
-            onToggle={() => toggleMainStep("listing")}
-            isFirst
-          >
-            <InlineBusinessForm
-              title={`Edit ${business.name}`}
-              formData={draftBusiness || business}
-              setFormData={onDraftChange}
-              onSave={onSave}
-              onCancel={onCancel}
-              saving={savingEdit}
-              mode="edit"
-            />
-          </MainStepSection>
-
-          <MainStepSection
-            title="Business insights"
-            step="Step 2"
-            summary="Funding, barriers, growth, impact"
-            icon={BarChart3}
-            isOpen={openMainStep === "insights"}
-            onToggle={() => toggleMainStep("insights")}
-          >
-            <BusinessInsightsAccordion
-              businessId={business.id}
-              onSubmit={onInsightsSubmit}
-              isLoading={insightsSubmitting}
-              initialData={null}
-              onStart={() => {}}
-              embedded
-            />
-          </MainStepSection>
-
-          <DangerSection onDelete={onDelete} />
+          {openMainStep && (
+            <div className="space-y-4">
+              <BusinessProfileForm
+                title={`Edit ${business.name}`}
+                businessId={business.id}
+                initialData={draftBusiness || business}
+                onSave={onSave}
+                onCancel={onCancel}
+                saving={savingEdit}
+                mode="edit"
+                showAdminFields={false}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
