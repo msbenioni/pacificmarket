@@ -27,7 +27,7 @@ const DEFAULT_FORM_STATE = {
   industry: "",
   team_size_band: "",
   revenue_band: "",
-  business_registered: false,
+  is_business_registered: false,
   employs_anyone: false,
   employs_family_community: false,
   sales_channels: [],
@@ -449,9 +449,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 <label className="flex items-center">
                   <input
                     type="radio"
-                    name="business_registered"
-                    checked={form.business_registered === true}
-                    onChange={() => setForm({ ...form, business_registered: true })}
+                    name="is_business_registered"
+                    checked={form.is_business_registered === true}
+                    onChange={() => setForm({ ...form, is_business_registered: true })}
                     className="w-4 h-4 text-[#0d4f4f] border-gray-300"
                   />
                   <span className="ml-2 text-sm text-gray-700">Yes</span>
@@ -459,9 +459,9 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                 <label className="flex items-center">
                   <input
                     type="radio"
-                    name="business_registered"
-                    checked={form.business_registered === false}
-                    onChange={() => setForm({ ...form, business_registered: false })}
+                    name="is_business_registered"
+                    checked={form.is_business_registered === false}
+                    onChange={() => setForm({ ...form, is_business_registered: false })}
                     className="w-4 h-4 text-[#0d4f4f] border-gray-300"
                   />
                   <span className="ml-2 text-sm text-gray-700">No</span>

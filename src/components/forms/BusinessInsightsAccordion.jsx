@@ -125,7 +125,7 @@ export default function BusinessInsightsAccordion({
     revenue_band: "",
     business_operating_status: "",
     business_age: "",
-    business_registered: false,
+    is_business_registered: false,
     employs_anyone: false,
     employs_family_community: false,
     current_funding_source: "",

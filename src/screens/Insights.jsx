@@ -28,7 +28,7 @@ const fetchInsightsData = async () => {
         hiring_intentions,
         business_operating_status,
         business_age,
-        business_registered,
+        is_business_registered,
         employs_anyone,
         employs_family_community,
         team_size_band,
