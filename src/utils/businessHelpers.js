@@ -5,6 +5,7 @@
 
 import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import { TIER_STYLES } from "@/constants/portalUI";
+import { getLogoUrl } from '@/utils/bannerUtils';
 
 /**
  * Get business owner information from profiles table
@@ -120,7 +121,7 @@ export function getBusinessDisplayInfo(business) {
     metaDescription: metaParts.join(" · "),
     tierStyles: TIER_STYLES.getTierStyles(business.subscription_tier),
     isVerified: business.is_verified,
-    logoUrl: business.logo_url,
+    logoUrl: getLogoUrl(business),
     subscriptionTier: business.subscription_tier,
   };
 }
