@@ -145,7 +145,7 @@ export default function BusinessCard({
       <div className="h-1.5 bg-gradient-to-r from-[#0a1628] via-[#0d4f4f] to-[#00c4cc]/70" />
 
       <div
-        onClick={() => setIsBusinessOpen((prev) => !prev)}
+        onClick={() => toggleMainStep("listing")}
         className="relative w-full overflow-hidden text-left transition hover:bg-slate-50 cursor-pointer"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(13,79,79,0.06),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(201,168,76,0.08),transparent_24%)]" />
