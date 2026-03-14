@@ -386,43 +386,6 @@ const FounderInsightsFormShared = ({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className={labelCls}>Operating Status *</label>
-                <select
-                  value={form.formData.business_operating_status || ""}
-                  onChange={(e) => form.handleFieldChange("business_operating_status", e.target.value)}
-                  className={`${selectCls} ${form.errors.business_operating_status ? 'border-red-500' : ''}`}
-                >
-                  <option value="">Select status</option>
-                  <option value="full-time">Full-time</option>
-                  <option value="part-time">Part-time</option>
-                  <option value="seasonal">Seasonal</option>
-                  <option value="planning">Planning stage</option>
-                </select>
-                {form.errors.business_operating_status && (
-                  <p className="mt-1 text-xs text-red-600">{form.errors.business_operating_status}</p>
-                )}
-              </div>
-
-              <div>
-                <label className={labelCls}>Business Age *</label>
-                <select
-                  value={form.formData.business_age || ""}
-                  onChange={(e) => form.handleFieldChange("business_age", e.target.value)}
-                  className={`${selectCls} ${form.errors.business_age ? 'border-red-500' : ''}`}
-                >
-                  <option value="">Select age</option>
-                  <option value="0-6months">Less than 6 months</option>
-                  <option value="6months-1year">6 months - 1 year</option>
-                  <option value="1-2years">1-2 years</option>
-                  <option value="2-5years">2-5 years</option>
-                  <option value="5+years">More than 5 years</option>
-                </select>
-                {form.errors.business_age && (
-                  <p className="mt-1 text-xs text-red-600">{form.errors.business_age}</p>
-                )}
-              </div>
-
-              <div>
                 <label className={labelCls}>Industry *</label>
                 <select
                   value={form.formData.industry || ""}

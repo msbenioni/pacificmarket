@@ -366,27 +366,9 @@ export default function BusinessInsightsAccordion({
                   <option value="1m+">Over $1,000,000</option>
                 </select>
               </div>
-
-              <div>
-                <label className={labelCls}>Operating Status</label>
-                <select
-                  value={form.business_operating_status || ""}
-                  onChange={(e) =>
-                    handleInputChange("business_operating_status", e.target.value)
-                  }
-                  className={selectCls}
-                >
-                  <option value="">Select status</option>
-                  <option value="operating">Operating</option>
-                  <option value="paused">Paused</option>
-                  <option value="planning">Planning</option>
-                  <option value="closed">Closed</option>
-                </select>
-              </div>
             </div>
           </div>
-
-                  </div>
+        </div>
       );
     }
 
