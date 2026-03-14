@@ -116,18 +116,23 @@ export function useBusinessOperations(refetchPortalData) {
       let businessInsightsData = {};
       
       // Check if this is the new unified form data structure
-      if (businessData.publicData && businessData.privateData) {
-        // New unified form structure - data is already separated
-        console.log('Using unified form data structure');
-        console.log('Public data keys:', Object.keys(businessData.publicData || {}));
-        console.log('Private data keys:', Object.keys(businessData.privateData || {}));
+      if (businessData.businessesData && businessData.businessInsightsData) {
+        // New unified form structure - data is already separated by table
+        console.log('Using table-based data structure');
+        console.log('Businesses data keys:', Object.keys(businessData.businessesData || {}));
+        console.log('Business insights data keys:', Object.keys(businessData.businessInsightsData || {}));
         
         // Use the provided data directly
+        updatedData = { ...businessData.businessesData };
+        businessInsightsData = { ...businessData.businessInsightsData };
+      } else if (businessData.publicData && businessData.privateData) {
+        // Legacy structure - data separated by public/private
+        console.log('Using legacy public/private data structure');
         updatedData = { ...businessData.publicData };
         businessInsightsData = { ...businessData.privateData };
       } else {
-        // Legacy structure - separate private fields manually
-        console.log('Using legacy data structure');
+        // Very old structure - separate private fields manually
+        console.log('Using very old data structure');
         
         // Fields that should go to business_insights table
         const privateFields = ['private_business_phone', 'private_business_email'];

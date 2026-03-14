@@ -1,11 +1,14 @@
 /**
  * Business Data Transformer
- * Splits unified form data into public and private data for different database tables
+ * Splits unified form data by table destination:
+ * - businesses table: Public data for Insights/Registry pages
+ * - business_insights table: Internal business tracking data
+ * - founder_insights table: Founder-specific insights data
  */
 
 export const transformBusinessFormData = (formData) => {
-  // Public data for businesses table
-  const publicData = {
+  // Public data for businesses table (displayed on Insights/Registry pages)
+  const businessesData = {
     name: formData.name,
     business_handle: formData.business_handle,
     tagline: formData.tagline,
@@ -31,52 +34,36 @@ export const transformBusinessFormData = (formData) => {
     is_homepage_featured: formData.is_homepage_featured,
   };
 
-  // Private data for business_insights table
-  const privateData = {
+  // Business insights data for business_insights table (internal tracking)
+  const businessInsightsData = {
     business_stage: formData.business_stage,
-    revenue_band: formData.revenue_band,
+    top_challenges_array: formData.top_challenges_array,
+    hiring_intentions: formData.hiring_intentions,
     business_operating_status: formData.business_operating_status,
     business_age: formData.business_age,
-    business_registered: formData.business_registered,
+    is_business_registered: formData.is_business_registered,
     employs_anyone: formData.employs_anyone,
     employs_family_community: formData.employs_family_community,
+    team_size_band: formData.team_size_band,
+    revenue_band: formData.revenue_band,
     current_funding_source: formData.current_funding_source,
     funding_amount_needed: formData.funding_amount_needed,
     funding_purpose: formData.funding_purpose,
     investment_stage: formData.investment_stage,
     investment_exploration: formData.investment_exploration,
-    community_impact_areas: formData.community_impact_areas,
-    support_needed_next: formData.support_needed_next,
-    current_support_sources: formData.current_support_sources,
+    community_impact_areas_array: formData.community_impact_areas_array,
+    support_needed_next_array: formData.support_needed_next_array,
+    current_support_sources_array: formData.current_support_sources_array,
     expansion_plans: formData.expansion_plans,
-    import_export_status: formData.import_export_status,
-    import_countries: formData.import_countries,
-    export_countries: formData.export_countries,
-    growth_stage: formData.growth_stage,
-    top_challenges: formData.top_challenges,
-    hiring_intentions: formData.hiring_intentions,
-    founder_role: formData.founder_role,
-    founder_story: formData.founder_story,
-    founder_motivation: formData.founder_motivation,
-    gender: formData.gender,
-    age_range: formData.age_range,
-    based_in_country: formData.based_in_country,
-    based_in_city: formData.based_in_city,
-    based_in_suburb: formData.based_in_suburb,
-    cultural_background: formData.cultural_background,
-    family_responsibilities: formData.family_responsibilities,
-    goals_next_12_months: formData.goals_next_12_months,
-    financial_challenges: formData.financial_challenges,
-    goals_next_12_months_array: formData.goals_next_12_months_array,
-    goals_details: formData.goals_details,
-    collaboration_interest: formData.collaboration_interest,
-    mentorship_offering: formData.mentorship_offering,
-    open_to_future_contact: formData.open_to_future_contact,
+    industry: formData.industry,
     private_business_phone: formData.private_business_phone,
     private_business_email: formData.private_business_email,
   };
 
-  return { publicData, privateData };
+  return {
+    businessesData,
+    businessInsightsData,
+  };
 };
 
 /**
