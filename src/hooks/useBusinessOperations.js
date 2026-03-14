@@ -36,6 +36,13 @@ export function useBusinessOperations(refetchPortalData) {
       return;
     }
 
+    // Debug the data structure
+    console.log("Data structure check:");
+    console.log("- Has businessesData:", !!businessData.businessesData);
+    console.log("- Has businessInsightsData:", !!businessData.businessInsightsData);
+    console.log("- businessesData keys:", businessData.businessesData ? Object.keys(businessData.businessesData) : 'undefined');
+    console.log("- businessInsightsData keys:", businessData.businessInsightsData ? Object.keys(businessData.businessInsightsData) : 'undefined');
+
     setSavingEdit(true);
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
