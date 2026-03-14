@@ -96,7 +96,7 @@ export const sanitizeForBusinessesTable = (data) => {
   
   // Remove any fields that don't belong in businesses table
   const allowedFields = [
-    'name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url',
+    'name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url', 'mobile_banner_url',
     'business_owner', 'business_owner_email', 'additional_owner_emails',
     'contact_email', 'contact_phone', 'contact_website', 'business_hours',
     'country', 'industry', 'city', 'year_started', 'business_structure',
@@ -118,7 +118,7 @@ export const sanitizeForBusinessInsightsTable = (data) => {
   
   // Remove any fields that don't belong in business_insights table
   const disallowedFields = [
-    'name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url',
+    'name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url', 'mobile_banner_url',
     'contact_email', 'contact_phone', 'contact_website', 'business_hours',
     'country', 'industry', 'city', 'status', 'is_verified', 'is_claimed', 'is_homepage_featured'
   ];
