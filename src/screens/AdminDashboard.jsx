@@ -1255,22 +1255,11 @@ export default function AdminDashboard() {
                             >
                               <div className="flex items-start gap-4">
                                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                                  {business?.logo_url ? (
-                                    <img
-                                      src={business.logo_url}
-                                      alt=""
-                                      className="h-full w-full object-cover"
-                                      onError={(e) => {
-                                        e.currentTarget.src = "/pm_logo.png";
-                                      }}
-                                    />
-                                  ) : (
-                                    <img
-                                      src="/pm_logo.png"
-                                      alt="Pacific Market"
-                                      className="h-full w-full object-cover"
-                                    />
-                                  )}
+                                  <img
+                                    src={getLogoUrl(business)}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                  />
                                 </div>
 
                                 <div className="min-w-0 flex-1">
