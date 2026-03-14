@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { getHomepageBusinesses } from "@/lib/supabase/queries/businesses";
 import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
-import { getBannerUrl } from '@/utils/bannerUtils';
+import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
 import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Phone, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
@@ -117,11 +117,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
         {/* Logo positioned to overlap banner without pushing content */}
         <div className="relative -mt-8 mb-3">
           <div className="w-16 h-16 rounded-2xl border-3 border-white shadow-lg overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
-            {b.logo_url ? (
-              <img src={b.logo_url} alt="" className="w-full h-full object-cover" loading="lazy" />
-            ) : (
-              <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" loading="lazy" />
-            )}
+            <img src={getLogoUrl(b)} alt="" className="w-full h-full object-cover" loading="lazy" />
           </div>
         </div>
 
@@ -243,11 +239,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
           {/* Logo positioned on top of banner */}
           <div className="relative -mt-12 mb-4">
             <div className="w-20 h-20 rounded-3xl border-3 border-white/80 shadow-2xl overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
-              {b?.logo_url ? (
-                <img src={b.logo_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <img src="/pm_logo.png" alt="Pacific Market" className="w-full h-full object-cover" />
-              )}
+              <img src={getLogoUrl(b)} alt="" className="w-full h-full object-cover" />
             </div>
           </div>
 
