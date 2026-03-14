@@ -16,7 +16,7 @@ import {
   Eye,
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import { getBannerUrl } from '@/utils/bannerUtils';
+import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 
 export default function PortalBusinessCard({
   business,
@@ -59,17 +59,11 @@ export default function PortalBusinessCard({
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10">
-              {business.logo_url ? (
-                <img
-                  src={business.logo_url}
-                  alt={`${business.name} logo`}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="grid h-full w-full place-items-center">
-                  <Building2 className="h-5 w-5 text-white/80" />
-                </div>
-              )}
+              <img
+                src={getLogoUrl(business)}
+                alt={`${business.name} logo`}
+                className="h-full w-full object-cover"
+              />
             </div>
 
             <div className="min-w-0">
