@@ -54,7 +54,7 @@ export function getBusinessLogoUrl(business: Business | null): string | null {
  * Get business banner URL
  */
 export function getBusinessBannerUrl(business: Business | null): string | null {
-  return business?.banner_url ?? null;
+  return business?.mobile_banner_url ?? business?.banner_url ?? null;
 }
 
 /**

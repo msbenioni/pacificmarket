@@ -14,6 +14,7 @@ export type Business = {
   // Visual assets
   logo_url: string | null;
   banner_url: string | null;
+  mobile_banner_url: string | null;
 
   // Contact information
   contact_email: string | null;
