@@ -230,7 +230,7 @@ export default function BusinessCard({
               >
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
-                    isBusinessOpen ? "rotate-180" : ""
+                    openMainStep === "listing" ? "rotate-180" : ""
                   }`}
                 />
               </div>
@@ -239,7 +239,7 @@ export default function BusinessCard({
         </div>
       </div>
 
-      {isBusinessOpen && (
+      {openMainStep === "listing" && (
         <div className="border-t border-slate-200 bg-white">
           {openMainStep && (
             <div className="space-y-4">
