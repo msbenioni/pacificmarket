@@ -14,6 +14,7 @@ const BUSINESS_PUBLIC_FIELDS = `
   business_handle,
   logo_url,
   banner_url,
+  mobile_banner_url,
   contact_email,
   contact_phone,
   contact_website,
