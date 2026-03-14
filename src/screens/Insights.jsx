@@ -393,13 +393,13 @@ const investmentInterestRate = insights.length > 0
 const byBusinessStage = BUSINESS_STAGE
   .map(stage => ({
     label: stage.label, 
-    value: insights.filter(i => i.business_stage_id === stage.value).length
+    value: insights.filter(i => i.business_stage === stage.value).length
   }));
 
 // Challenges analysis from actual insights data
 const allChallenges = insights.reduce((acc, insight) => {
-  if (insight.top_challenges && Array.isArray(insight.top_challenges)) {
-    insight.top_challenges.forEach(challenge => {
+  if (insight.top_challenges_array && Array.isArray(insight.top_challenges_array)) {
+    insight.top_challenges_array.forEach(challenge => {
       acc[challenge] = (acc[challenge] || 0) + 1;
     });
   }
