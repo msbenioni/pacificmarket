@@ -151,7 +151,7 @@ const InlineBusinessFormShared = ({
       
       // Public contact info
       contact_email: '',
-      public_phone: '',
+      contact_phone: '',
       contact_website: '',
       business_hours: '',
       
@@ -370,6 +370,17 @@ const InlineBusinessFormShared = ({
               </div>
 
               <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">Public Contact Phone</label>
+                <input
+                  type="tel"
+                  value={form.formData?.contact_phone || ""}
+                  onChange={(e) => form.handleFieldChange("contact_phone", e.target.value)}
+                  className={inputCls}
+                  placeholder="Public phone number"
+                />
+              </div>
+
+              <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Business Handle</label>
                 <input
                   type="text"
@@ -380,19 +391,7 @@ const InlineBusinessFormShared = ({
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">Tagline</label>
-                <textarea
-                  rows={3}
-                  value={form.formData?.tagline || ""}
-                  onChange={(e) => form.handleFieldChange("tagline", e.target.value)}
-                  className={textareaCls}
-                  placeholder="Brief description for listing cards"
-                  maxLength={150}
-                />
-              </div>
-
-              <div className="md:col-span-2">
+              <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Full Description</label>
                 <textarea
                   rows={15}

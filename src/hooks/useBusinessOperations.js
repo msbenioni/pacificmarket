@@ -132,6 +132,8 @@ export function useBusinessOperations(refetchPortalData) {
       // Save public business data to businesses table
       const sanitizedPayload = sanitizeBusinessPayload(publicBusinessData);
       console.log("Sanitized payload:", sanitizedPayload);
+      console.log("Payload keys:", Object.keys(sanitizedPayload || {}));
+      console.log("Payload values:", Object.values(sanitizedPayload || {}));
       
       const validation = validateBusinessData(sanitizedPayload);
       console.log("Validation result:", validation);
@@ -146,18 +148,83 @@ export function useBusinessOperations(refetchPortalData) {
         return;
       }
 
-      const { error: businessError } = await supabase
-        .from("businesses")
-        .update(sanitizedPayload)
-        .eq("id", businessData.id);
-
-      if (businessError) {
-        console.error("Business update error:", {
-          error: businessError,
-          businessId: businessData.id,
-          sanitizedPayload: sanitizedPayload
+      // Check if payload is empty
+      if (!sanitizedPayload || Object.keys(sanitizedPayload).length === 0) {
+        console.error("Empty payload detected - nothing to update");
+        toast({
+          title: "No Changes Detected",
+          description: "No valid fields to update. Please make some changes before saving.",
+          variant: "error",
         });
-        throw new Error(`Failed to update business: ${businessError.message || JSON.stringify(businessError)}`);
+        return;
+      }
+
+      console.log("Attempting to update business with:", {
+        businessId: businessData.id,
+        payloadFields: Object.keys(sanitizedPayload),
+        payloadSize: JSON.stringify(sanitizedPayload).length
+      });
+
+      let businessError = null;
+      let updateResult = null;
+      
+      try {
+        const result = await supabase
+          .from("businesses")
+          .update(sanitizedPayload)
+          .eq("id", businessData.id);
+        
+        updateResult = result;
+        businessError = result.error;
+        
+        console.log("Supabase result:", {
+          data: result.data,
+          error: result.error,
+          status: result.status,
+          statusText: result.statusText,
+          body: result.body
+        });
+      } catch (supabaseError) {
+        console.error("Supabase operation threw exception:", supabaseError);
+        businessError = supabaseError;
+      }
+
+      // Check for any type of error
+      // Note: status 204 with no data is SUCCESS for UPDATE operations
+      if (businessError || (updateResult?.status !== 204 && !updateResult?.data)) {
+        const errorInfo = {
+          error: businessError,
+          errorType: typeof businessError,
+          errorString: String(businessError),
+          errorKeys: businessError ? Object.keys(businessError) : [],
+          hasData: !!updateResult?.data,
+          status: updateResult?.status,
+          businessId: businessData.id,
+          sanitizedPayload: sanitizedPayload,
+          updateResult: updateResult
+        };
+        
+        console.error("Business update error:", errorInfo);
+        
+        // Create a meaningful error message
+        let errorMessage = "Unknown error occurred";
+        if (businessError?.message) {
+          errorMessage = businessError.message;
+        } else if (businessError && typeof businessError === 'object') {
+          errorMessage = `Database error: ${JSON.stringify(businessError)}`;
+        } else if (typeof businessError === 'string') {
+          errorMessage = businessError;
+        } else if (updateResult?.status === 204) {
+          // This is actually success, don't treat as error
+          console.log("Update successful (status 204)");
+        } else if (!updateResult?.data) {
+          errorMessage = "No data returned from database - possible permission issue";
+        }
+        
+        // Only throw error if it's actually an error (not 204 success)
+        if (updateResult?.status !== 204) {
+          throw new Error(`Failed to update business: ${errorMessage}`);
+        }
       }
 
       // Save private data to business_insights table if any exists
@@ -168,12 +235,17 @@ export function useBusinessOperations(refetchPortalData) {
         const currentYear = new Date().getFullYear();
         
         // Check if insights record exists for this year
-        const { data: existingInsights } = await supabase
+        const { data: existingInsights, error: checkError } = await supabase
           .from("business_insights")
           .select("*")
           .eq("business_id", businessData.id)
           .eq("snapshot_year", currentYear)
-          .single();
+          .maybeSingle();
+
+        if (checkError) {
+          console.error("Error checking existing insights:", checkError);
+          throw new Error(`Failed to check business insights: ${checkError.message}`);
+        }
 
         if (existingInsights) {
           // Update existing record

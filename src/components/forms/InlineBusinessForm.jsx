@@ -138,7 +138,7 @@ const InlineBusinessForm = ({
       
       // Public contact info
       contact_email: '',
-      public_phone: '',
+      contact_phone: '',
       contact_website: '',
       business_hours: '',
       
@@ -152,9 +152,9 @@ const InlineBusinessForm = ({
       city: '',
       
       // Business details
-      business_type: '',
-      team_size: '',
-      founded_year: '',
+      business_structure: '',
+      team_size_band: '',
+      year_started: '',
       
       // Status & verification (admin only)
       status: BUSINESS_STATUS.ACTIVE,
@@ -571,8 +571,8 @@ const InlineBusinessForm = ({
                 <label className="mb-1 block text-sm font-medium text-slate-700">Public Contact Phone</label>
                 <input
                   type="tel"
-                  value={formData?.public_phone || ""}
-                  onChange={(e) => form.handleFieldChange("public_phone", e.target.value)}
+                  value={formData?.contact_phone || ""}
+                  onChange={(e) => form.handleFieldChange("contact_phone", e.target.value)}
                   className={inputCls}
                   placeholder="Public phone number"
                 />
