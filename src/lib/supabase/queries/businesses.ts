@@ -114,19 +114,73 @@ export async function getBusinessById(id: string) {
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   
   if (isUUID) {
-    // Query by UUID
-    return supabase
+    // Query by UUID - get data from both tables
+    const { data: businessesData, error: businessesError } = await supabase
       .from('businesses')
       .select(BUSINESS_PUBLIC_FIELDS)
       .eq('id', id)
       .single();
+
+    if (businessesError) {
+      console.error('Business query error:', businessesError);
+      throw new Error(`Failed to fetch business: ${businessesError.message}`);
+    }
+
+    // Get current year for business insights
+    const currentYear = new Date().getFullYear();
+    
+    // Get business insights data
+    const { data: insightsData, error: insightsError } = await supabase
+      .from('business_insights')
+      .select('*')
+      .eq('business_id', id)
+      .eq('snapshot_year', currentYear)
+      .maybeSingle();
+
+    if (insightsError) {
+      console.error('Business insights query error:', insightsError);
+      // Don't throw error for insights - it might not exist
+    }
+
+    // Merge the data
+    return {
+      ...businessesData,
+      ...(insightsData || {})
+    };
   } else {
-    // Query by business handle
-    return supabase
+    // Query by business handle - get data from both tables
+    const { data: businessesData, error: businessesError } = await supabase
       .from('businesses')
       .select(BUSINESS_PUBLIC_FIELDS)
       .eq('business_handle', id)
       .single();
+
+    if (businessesError) {
+      console.error('Business query error:', businessesError);
+      throw new Error(`Failed to fetch business: ${businessesError.message}`);
+    }
+
+    // Get current year for business insights
+    const currentYear = new Date().getFullYear();
+    
+    // Get business insights data
+    const { data: insightsData, error: insightsError } = await supabase
+      .from('business_insights')
+      .select('*')
+      .eq('business_id', businessesData.id)
+      .eq('snapshot_year', currentYear)
+      .maybeSingle();
+
+    if (insightsError) {
+      console.error('Business insights query error:', insightsError);
+      // Don't throw error for insights - it might not exist
+    }
+
+    // Merge the data
+    return {
+      ...businessesData,
+      ...(insightsData || {})
+    };
   }
 }
 
