@@ -233,7 +233,7 @@ const InlineBusinessForm = ({
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-slate-700">Full Description</label>
                 <textarea
-                  rows={5}
+                  rows={15}
                   value={formData?.description || ""}
                   onChange={(e) => handleInputChange("description", e.target.value)}
                   className={textareaCls}
