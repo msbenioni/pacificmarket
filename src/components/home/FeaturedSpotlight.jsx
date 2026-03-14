@@ -99,7 +99,16 @@ function BusinessMiniCard({ b, active, onSelect }) {
       <div className="relative h-[133px] rounded-t-2xl overflow-hidden bg-[#0d4f4f] flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
 
-        {b.banner_url && (
+        {b.mobile_banner_url && (
+          <img
+            src={b.mobile_banner_url}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: "center top" }}
+          />
+        )}
+        {!b.mobile_banner_url && b.banner_url && (
           <img
             src={b.banner_url}
             alt=""
@@ -186,7 +195,15 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         <div className="relative h-[233px] overflow-hidden bg-[#0a1628]">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
-          {b?.banner_url && (
+          {b?.mobile_banner_url && (
+            <img
+              src={b.mobile_banner_url}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ objectPosition: "center top" }}
+            />
+          )}
+          {!b?.mobile_banner_url && b?.banner_url && (
             <img
               src={b.banner_url}
               alt=""

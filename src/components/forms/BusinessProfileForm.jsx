@@ -454,6 +454,7 @@ export default function BusinessProfileForm({
         files: {
           logo_file: form.logo_file,
           banner_file: form.banner_file,
+          mobile_banner_file: form.mobile_banner_file,
         },
       });
 
@@ -485,6 +486,7 @@ export default function BusinessProfileForm({
         files: {
           logo_file: form.logo_file,
           banner_file: form.banner_file,
+          mobile_banner_file: form.mobile_banner_file,
         },
         saveAll: true,
       });

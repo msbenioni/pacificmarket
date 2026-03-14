@@ -15,6 +15,7 @@ export const transformBusinessFormData = (formData) => {
     description: formData.description,
     logo_url: formData.logo_url,
     banner_url: formData.banner_url,
+    mobile_banner_url: formData.mobile_banner_url,
     business_owner: formData.business_owner,
     business_owner_email: formData.business_owner_email,
     additional_owner_emails: formData.additional_owner_emails,

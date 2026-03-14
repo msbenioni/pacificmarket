@@ -126,6 +126,39 @@ export function useBusinessOperations(refetchPortalData) {
         businessesDataForUpdate.banner_url = publicUrl;
       }
 
+      // Upload mobile banner if there's a new mobile banner file
+      if (businessData.files?.mobile_banner_file) {
+        const file = businessData.files.mobile_banner_file;
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+        }
+        
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
+        }
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${businessData.businessId}-mobile-banner-${Date.now()}.${fileExt}`;
+        const filePath = `mobile-banners/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('admin-listings')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('admin-listings')
+          .getPublicUrl(filePath);
+
+        businessesDataForUpdate.mobile_banner_url = publicUrl;
+      }
+
       // Handle business insights data if provided
       let businessInsightsData = {};
       
