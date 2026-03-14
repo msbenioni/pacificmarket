@@ -8,7 +8,7 @@ import {
   ModalFooter,
   MODAL_SIZES,
 } from "@/components/shared/ModalWrapper";
-import DetailedBusinessForm from "@/components/forms/DetailedBusinessForm";
+import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import BusinessSearch from "@/components/BusinessSearch";
 import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, ChevronLeft } from "lucide-react";
@@ -450,12 +450,14 @@ export function ClaimAddBusinessModal({
 
         {view === "add" && (
           <div className="rounded-2xl border border-gray-100 bg-[#fbfcff] p-4 sm:p-5">
-            <DetailedBusinessForm
-              onSubmit={handleBusinessSubmit}
-              isLoading={submitting}
-              excludeFields={["claimed", "tier"]}
-              initialData={null}
-              onStepChange={(controls) => setFormControls(controls)}
+            <BusinessProfileForm
+              title="Add Your Business"
+              businessId={null}
+              onSave={handleBusinessSubmit}
+              onCancel={onClose}
+              saving={submitting}
+              mode="create"
+              showAdminFields={false}
             />
           </div>
         )}
