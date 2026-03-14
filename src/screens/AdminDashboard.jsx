@@ -33,6 +33,7 @@ import {
   getIndustryDisplayName,
   getTierDisplayName,
 } from "@/constants/unifiedConstants";
+import { getLogoUrl } from '@/utils/bannerUtils';
 
 const TABS = [
   { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
@@ -167,18 +168,11 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          {business?.logo_url ? (
-            <img
-              src={business.logo_url}
-              alt=""
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = "/pm_logo.png";
-              }}
-            />
-          ) : (
-            <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
-          )}
+          <img
+            src={getLogoUrl(business)}
+            alt=""
+            className="h-full w-full object-cover"
+          />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -245,18 +239,11 @@ function AdminBusinessMobileCard({
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          {business.logo_url ? (
-            <img
-              src={business.logo_url}
-              alt=""
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = "/pm_logo.png";
-              }}
-            />
-          ) : (
-            <img src="/pm_logo.png" alt="Pacific Market" className="h-full w-full object-cover" />
-          )}
+          <img
+            src={getLogoUrl(business)}
+            alt=""
+            className="h-full w-full object-cover"
+          />
         </div>
 
         <div className="min-w-0 flex-1">
