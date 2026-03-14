@@ -23,7 +23,6 @@ export default function BrandMediaSection({
               <p><strong>Logo:</strong> 200×200px (square, for profile cards & listings)</p>
               <p><strong>Desktop Banner:</strong> 1200×300px (wide, for business registry)</p>
               <p><strong>Mobile Banner:</strong> 400×160px (perfect for business cards & homepage)</p>
-              <p className="text-xs mt-2">✨ One mobile banner size works perfectly everywhere!</p>
               <p className="text-xs">All images: PNG, JPG up to 5MB</p>
             </div>
           </div>

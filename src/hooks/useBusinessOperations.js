@@ -196,10 +196,16 @@ export function useBusinessOperations(refetchPortalData) {
       // Save public business data to businesses table
       const sanitizedPayload = sanitizeBusinessPayload(businessesDataForUpdate);
       console.log("Sanitized payload:", sanitizedPayload);
-      console.log("Payload keys:", Object.keys(sanitizedPayload || {}));
-      console.log("Payload values:", Object.values(sanitizedPayload || {}));
+      // Check if this is a media-only update
+      const mediaFields = ['logo_url', 'banner_url', 'mobile_banner_url'];
+      const payloadKeys = Object.keys(sanitizedPayload || {});
+      const isMediaOnly = payloadKeys.every(key => mediaFields.includes(key));
       
-      const validation = validateBusinessData(sanitizedPayload);
+      console.log("Payload keys:", payloadKeys);
+      console.log("Payload values:", Object.values(sanitizedPayload || {}));
+      console.log("Is media-only update:", isMediaOnly);
+      
+      const validation = validateBusinessData(sanitizedPayload, isMediaOnly);
       console.log("Validation result:", validation);
 
       if (!validation.isValid) {
