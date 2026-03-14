@@ -2,7 +2,7 @@ import { Zap, ChevronRight } from "lucide-react";
 import { BUTTON_STYLES, CARD_STYLES } from "@/constants/portalUI";
 import { UPGRADE_CARD_CONFIG } from "@/constants/businessCardConfig";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
-import { TIER_BENEFITS } from "@/constants/businessProfile";
+import { TIER_BENEFITS } from "@/constants/tierBenefits";
 
 export default function UpgradePrompt({ 
   onUpgradeClick, 
