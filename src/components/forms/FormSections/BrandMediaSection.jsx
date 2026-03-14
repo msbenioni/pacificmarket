@@ -158,18 +158,18 @@ export default function BrandMediaSection({
       {/* Banner Preview Section */}
       {(form.logo_url || form.banner_url || form.mobile_banner_url) && (
         <div className="space-y-4">
-          <h4 className="font-medium text-slate-900">Preview: How Your Images Will Appear</h4>
+          <h4 className="font-medium text-slate-900">Preview: How Your Banners Will Appear</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Business Registry Preview */}
+            {/* Desktop Banner Preview */}
             <div>
-              <h5 className="text-sm font-medium text-slate-700 mb-2">Business Registry (Full Width)</h5>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Desktop Banner (Business Registry)</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
                 <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
                   {form.banner_url ? (
                     <img
                       src={form.banner_url}
-                      alt="Business registry banner preview"
+                      alt="Desktop banner preview"
                       className="h-full w-full object-contain"
                     />
                   ) : (
@@ -182,21 +182,21 @@ export default function BrandMediaSection({
               <p className="text-xs text-slate-500 mt-1">Uses desktop banner, shows full image</p>
             </div>
 
-            {/* Business Card Preview */}
+            {/* Mobile Banner Preview */}
             <div>
-              <h5 className="text-sm font-medium text-slate-700 mb-2">Business Card (Portal/Homepage)</h5>
+              <h5 className="text-sm font-medium text-slate-700 mb-2">Mobile Banner (Business Cards)</h5>
               <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm max-w-sm">
                 <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
                   {form.mobile_banner_url ? (
                     <img
                       src={form.mobile_banner_url}
-                      alt="Business card banner preview"
+                      alt="Mobile banner preview"
                       className="h-full w-full object-cover"
                     />
                   ) : form.banner_url ? (
                     <img
                       src={form.banner_url}
-                      alt="Business card banner preview (fallback)"
+                      alt="Desktop banner fallback preview"
                       className="h-full w-full object-cover"
                     />
                   ) : (
