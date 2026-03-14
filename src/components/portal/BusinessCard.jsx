@@ -144,10 +144,9 @@ export default function BusinessCard({
     <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
       <div className="h-1.5 bg-gradient-to-r from-[#0a1628] via-[#0d4f4f] to-[#00c4cc]/70" />
 
-      <button
-        type="button"
+      <div
         onClick={() => setIsBusinessOpen((prev) => !prev)}
-        className="relative w-full overflow-hidden text-left transition hover:bg-slate-50"
+        className="relative w-full overflow-hidden text-left transition hover:bg-slate-50 cursor-pointer"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(13,79,79,0.06),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(201,168,76,0.08),transparent_24%)]" />
         <div className="relative bg-gradient-to-br from-white via-[#f8fbfb] to-[#f3f8f8] px-5 py-5 sm:px-6">
@@ -243,7 +242,7 @@ export default function BusinessCard({
             </div>
           </div>
         </div>
-      </button>
+      </div>
 
       {isBusinessOpen && (
         <div className="border-t border-slate-200 bg-white">
