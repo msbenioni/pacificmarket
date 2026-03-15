@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp, Globe, Target, Lightbulb, ChevronDown, ChevronUp } from "lucide-react";
-import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES } from "@/constants/unifiedConstants";
+import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES, REVENUE_BAND, BUSINESS_OPERATING_STATUS } from "@/constants/unifiedConstants";
 
 const STEPS = [
   { key: "founder", label: "Founder Background", icon: Users },
@@ -29,7 +29,6 @@ const DEFAULT_FORM_STATE = {
   is_business_registered: false,
   employs_anyone: false,
   employs_family_community: false,
-  sales_channels: [],
 
   // Pacific Context
   pacific_identity: [],
@@ -511,35 +510,6 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
                   <span className="ml-2 text-sm text-gray-700">No</span>
                 </label>
               </div>
-            </div>
-          </div>
-
-          <div>
-            <label className={labelCls}>How do you mainly sell? (Select all that apply)</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
-              {['In-person', 'Online', 'Wholesale', 'Services', 'Mixed channels'].map(channel => (
-                <label key={channel} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.sales_channels?.includes(channel)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setForm(prev => ({ 
-                          ...prev, 
-                          sales_channels: [...(prev.sales_channels || []), channel]
-                        }));
-                      } else {
-                        setForm(prev => ({ 
-                          ...prev, 
-                          sales_channels: prev.sales_channels?.filter(c => c !== channel) || []
-                        }));
-                      }
-                    }}
-                    className="rounded border-gray-300 text-[#0d4f4f]"
-                  />
-                  <span className="text-sm">{channel}</span>
-                </label>
-              ))}
             </div>
           </div>
 
