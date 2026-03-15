@@ -466,26 +466,33 @@ export default function ProfileSettings() {
 
   const pacificCountries = COUNTRIES.filter((country) =>
     [
-      "fiji",
-      "samoa",
-      "tonga",
-      "cook",
-      "niue",
-      "tuvalu",
-      "kiribati",
-      "marshall",
-      "micronesia",
-      "palau",
-      "papua",
-      "vanuatu",
-      "solomon",
-      "new-caledonia",
-      "french-polynesia",
-      "wallis",
-      "american-samoa",
-      "guam",
-      "northern-mariana",
-    ].some((term) => country.value.includes(term))
+      'american-samoa',
+      'australia',
+      'australia-aboriginal',
+      'cook-islands',
+      'fiji',
+      'french-polynesia',
+      'guam',
+      'kiribati',
+      'marshall-islands',
+      'micronesia',
+      'nauru',
+      'new-caledonia',
+      'new-zealand',
+      'new-zealand-maori',
+      'niue',
+      'northern-mariana-islands',
+      'palau',
+      'papua-new-guinea',
+      'samoa',
+      'solomon-islands',
+      'tokelau',
+      'tonga',
+      'tuvalu',
+      'vanuatu',
+      'wallis-futuna',
+      'hawaii'
+    ].includes(country.value)
   );
 
   if (loading) {
