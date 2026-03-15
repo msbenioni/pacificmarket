@@ -100,34 +100,6 @@ export const PROFILE_SCHEMA = {
   market_region: 'text',
 };
 
-export const COUNTRY_REGION_MAPPING = {
-  'american-samoa': 'polynesia',
-  'australia': 'australia-new-zealand',
-  'cook-islands': 'polynesia',
-  'fiji': 'melanesia',
-  'french-polynesia': 'polynesia',
-  'guam': 'micronesia',
-  'kiribati': 'micronesia',
-  'marshall-islands': 'micronesia',
-  'micronesia': 'micronesia',
-  'nauru': 'micronesia',
-  'new-caledonia': 'melanesia',
-  'new-zealand': 'australia-new-zealand',
-  'niue': 'polynesia',
-  'northern-mariana-islands': 'micronesia',
-  'palau': 'micronesia',
-  'papua-new-guinea': 'melanesia',
-  'samoa': 'polynesia',
-  'solomon-islands': 'melanesia',
-  'tokelau': 'polynesia',
-  'tonga': 'polynesia',
-  'tuvalu': 'polynesia',
-  'usa': 'north-america',
-  'vanuatu': 'melanesia',
-  'wallis-futuna': 'polynesia',
-  'other': 'other'
-};
-
 export const ONBOARDING_VALIDATION_RULES = {
   // Step 1 validation
   city: {
