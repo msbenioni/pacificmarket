@@ -6,7 +6,6 @@ import {
   ChevronUp,
   User,
   Globe,
-  Heart,
 } from "lucide-react";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
 
@@ -23,12 +22,6 @@ const SECTIONS = [
     icon: Globe,
     description: "Your Pacific cultural background and languages",
   },
-  {
-    key: "community",
-    label: "Community & Engagement",
-    icon: Heart,
-    description: "How you engage with the Pacific business community",
-  },
 ];
 
 export default function ProfileSettingsAccordion({ onComplete }) {
@@ -39,7 +32,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
     primary_cultural: [],
     languages: [],
     years_operating: "",
-    mentorship_availability: false,
   });
 
   const [form, setForm] = useState(() => getInitialForm());
@@ -83,7 +75,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
             : [],
           languages: Array.isArray(profileData.languages) ? profileData.languages : [],
           years_operating: profileData.years_operating || "",
-          mentorship_availability: profileData.mentorship_availability || false,
         });
       }
     } catch (error) {
@@ -307,34 +298,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
                 </label>
               ))}
             </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (sectionKey === "community") {
-      return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
-              <input
-                type="checkbox"
-                checked={form.mentorship_availability || false}
-                onChange={(e) =>
-                  handleInputChange("mentorship_availability", e.target.checked)
-                }
-                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
-              />
-              <div>
-                <span className="block text-sm font-medium text-slate-700">
-                  Open to mentorship or community support opportunities
-                </span>
-                <span className="mt-1 block text-sm text-slate-600">
-                  Let us know if you are open to being part of mentoring, support, or
-                  collaboration opportunities in the community.
-                </span>
-              </div>
-            </label>
           </div>
         </div>
       );
