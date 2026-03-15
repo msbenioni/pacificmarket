@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Sparkles, ShieldCheck, LineChart, UserCircle2, ChevronDown } from "lucide-react";
 import { CARD_STYLES } from "@/constants/portalUI";
 import ProfileSettingsAccordion from "@/components/onboarding/ProfileSettingsAccordion";
-import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
+import FounderInsightsAccordion from "@/components/forms/FounderInsightsForm";
 
 // Premium accordion component (matching InvoiceGenerator style)
 function InsightsAccordionSection({
@@ -134,7 +134,6 @@ export default function ProfileInsightsTab({
             onSubmit={onFounderInsightsSubmit}
             isLoading={insightsSubmitting}
             initialData={insightSnapshots?.[0] || null}
-            onStart={() => setInsightsProgress(true)}
           />
         </InsightsAccordionSection>
       </div>
