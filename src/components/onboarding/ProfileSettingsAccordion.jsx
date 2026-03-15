@@ -6,20 +6,9 @@ import {
   ChevronUp,
   User,
   Globe,
-  Briefcase,
-  Users,
   Heart,
 } from "lucide-react";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
-
-const INVESTMENT_INTEREST_OPTIONS = [
-  { value: "not-interested", label: "Not Interested" },
-  { value: "exploring", label: "Exploring Options" },
-  { value: "angel-investor", label: "Angel Investor" },
-  { value: "venture-capital", label: "Venture Capital" },
-  { value: "community-funding", label: "Community Funding" },
-  { value: "impact-investing", label: "Impact Investing" },
-];
 
 const SECTIONS = [
   {
@@ -33,12 +22,6 @@ const SECTIONS = [
     label: "Cultural Identity",
     icon: Globe,
     description: "Your Pacific cultural background and languages",
-  },
-  {
-    key: "business",
-    label: "Business Experience",
-    icon: Users,
-    description: "Your entrepreneurial journey and business goals",
   },
   {
     key: "community",
@@ -56,9 +39,7 @@ export default function ProfileSettingsAccordion({ onComplete }) {
     primary_cultural: [],
     languages: [],
     years_operating: "",
-    business_goals: "",
     mentorship_availability: false,
-    investment_interest: "",
   });
 
   const [form, setForm] = useState(() => getInitialForm());
@@ -102,9 +83,7 @@ export default function ProfileSettingsAccordion({ onComplete }) {
             : [],
           languages: Array.isArray(profileData.languages) ? profileData.languages : [],
           years_operating: profileData.years_operating || "",
-          business_goals: profileData.business_goals || "",
           mentorship_availability: profileData.mentorship_availability || false,
-          investment_interest: profileData.investment_interest || "",
         });
       }
     } catch (error) {
@@ -328,43 +307,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
                 </label>
               ))}
             </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (sectionKey === "business") {
-      return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Business Goals
-            </label>
-            <textarea
-              value={form.business_goals || ""}
-              onChange={(e) => handleInputChange("business_goals", e.target.value)}
-              className={textareaCls}
-              rows={5}
-              placeholder="What are you building toward in your business?"
-            />
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Investment Interest
-            </label>
-            <select
-              value={form.investment_interest || ""}
-              onChange={(e) => handleInputChange("investment_interest", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select an option</option>
-              {INVESTMENT_INTEREST_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
       );
