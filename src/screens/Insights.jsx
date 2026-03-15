@@ -25,7 +25,6 @@ const fetchInsightsData = async () => {
         user_id,
         business_stage,
         top_challenges_array,
-        hiring_intentions,
         business_operating_status,
         business_age,
         is_business_registered,
@@ -33,16 +32,10 @@ const fetchInsightsData = async () => {
         employs_family_community,
         team_size_band,
         revenue_band,
-        current_funding_source,
-        funding_amount_needed,
-        funding_purpose,
-        investment_stage,
-        investment_exploration,
-        community_impact_areas_array,
-        support_needed_next_array,
-        current_support_sources_array,
-        expansion_plans,
         industry,
+        collaboration_interest,
+        mentorship_offering,
+        open_to_future_contact,
         snapshot_year,
         submitted_date,
         created_at,
@@ -83,11 +76,8 @@ const fetchInsightsData = async () => {
           has_mentorship_access,
           offers_mentorship,
           barriers_to_mentorship,
-          angel_investor_interest,
-          investor_capacity,
           has_collaboration_interest,
-          is_open_to_future_contact,
-          goals_next_12_months_array
+          is_open_to_future_contact
         `);
 
       if (founderError) {
