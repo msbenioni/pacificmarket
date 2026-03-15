@@ -124,13 +124,18 @@ export default function ProfileSettings() {
           return;
         }
 
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select(
-            "role, display_name, city, country, primary_cultural, languages, years_operating"
+            "role, display_name, city, country, primary_cultural, languages"
           )
           .eq("id", user.id)
           .single();
+
+        if (profileError) {
+          console.error("Profile data error:", profileError);
+          // Continue with empty profile data if query fails
+        }
 
         const enhancedUser = {
           ...user,
