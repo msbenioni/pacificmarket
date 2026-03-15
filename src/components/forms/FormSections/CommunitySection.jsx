@@ -102,28 +102,6 @@ export default function CommunitySection({
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className={labelCls}>Based In Country</label>
-            <input
-              type="text"
-              value={form.based_in_country || ""}
-              onChange={(e) => handleInputChange("based_in_country", e.target.value)}
-              className={inputCls}
-              placeholder="Country where you're based"
-            />
-          </div>
-
-          <div>
-            <label className={labelCls}>Based In City</label>
-            <input
-              type="text"
-              value={form.based_in_city || ""}
-              onChange={(e) => handleInputChange("based_in_city", e.target.value)}
-              className={inputCls}
-              placeholder="City where you're based"
-            />
-          </div>
-
-          <div>
             <label className={labelCls}>Age Range</label>
             <select
               value={form.age_range || ""}
