@@ -62,6 +62,7 @@ const SECTION_FIELDS = {
     "collaboration_interest",
     "mentorship_offering",
     "open_to_future_contact",
+    "business_acquisition_interest",
   ],
 };
 
@@ -106,6 +107,7 @@ export default function BusinessInsightsAccordion({
     collaboration_interest: false,
     mentorship_offering: false,
     open_to_future_contact: false,
+    business_acquisition_interest: false,
     // Fields moved from InlineBusinessForm
     year_started: null,
     business_structure: "",

@@ -53,7 +53,17 @@ export default function CommunitySection({
           <OptionCard
             checked={form.open_to_future_contact || false}
             onChange={() => handleInputChange("open_to_future_contact", !form.open_to_future_contact)}
-            label="I am open to future contact from Pacific Market"
+            label="I am open to being contacted from Pacific Market regarding future opportunities"
+          />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <OptionCard
+            checked={form.business_acquisition_interest || false}
+            onChange={() => handleInputChange("business_acquisition_interest", !form.business_acquisition_interest)}
+            label="I am interested in acquiring or investing in existing businesses"
           />
         </div>
       </div>

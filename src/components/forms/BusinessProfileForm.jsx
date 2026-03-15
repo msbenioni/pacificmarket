@@ -162,6 +162,7 @@ const SECTION_FIELDS = {
     "collaboration_interest",
     "mentorship_offering",
     "open_to_future_contact",
+    "business_acquisition_interest",
   ],
 };
 
@@ -223,6 +224,7 @@ export default function BusinessProfileForm({
     collaboration_interest: false,
     mentorship_offering: false,
     open_to_future_contact: false,
+    business_acquisition_interest: false,
   });
 
   const [expandedSections, setExpandedSections] = useState(new Set(["core"]));
