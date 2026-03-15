@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp, Globe, AlertCircle as AlertIcon, Rocket, Lightbulb } from "lucide-react";
-import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES, REVENUE_BAND, SALES_CHANNELS, BUSINESS_OPERATING_STATUS } from "@/constants/unifiedConstants";
+import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp, Globe, AlertCircle as AlertIcon, Lightbulb } from "lucide-react";
+import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES, REVENUE_BAND, SALES_CHANNELS, BUSINESS_OPERATING_STATUS } from "@/constants/unifiedConstants";
 import { 
   useSharedForm, 
   FORM_MODES, 
@@ -16,7 +16,6 @@ const STEPS = [
   { key: "business", label: "Business Reality", icon: TrendingUp },
   { key: "pacific", label: "Pacific Context", icon: Globe },
   { key: "challenges", label: "Challenges & Support", icon: AlertIcon },
-  { key: "growth", label: "Growth & Future", icon: Rocket },
   { key: "community", label: "Community & Impact", icon: Lightbulb },
 ];
 
@@ -62,16 +61,6 @@ const DEFAULT_FORM_STATE = {
   investor_capacity: "",
   has_collaboration_interest: false,
   is_open_to_future_contact: false,
-
-  // Growth & Future
-  goals_next_12_months_array: [],
-  funding_source: [],
-  investment_stage: "",
-  revenue_streams: [],
-  next_milestones: "",
-  scaling_plans: "",
-  international_expansion: false,
-  target_markets: [],
 };
 
 /**
