@@ -192,7 +192,6 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       icon: Award,
       color: "text-pink-600",
       fields: [
-        { label: "Business Stage", key: "business_stage", value: snapshot.business_stage },
         { label: "Goals (12 months)", key: "goals_next_12_months_array", value: snapshot.goals_next_12_months_array },
         { label: "Goals Details", key: "goals_details", value: snapshot.goals_details },
       ],
