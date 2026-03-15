@@ -103,31 +103,6 @@ export const ONBOARDING_STEPS = [
         ]
       },
       {
-        id: 'skills_expertise',
-        label: 'Professional skills & expertise',
-        type: 'multiselect',
-        required: false,
-        placeholder: 'Select your skills',
-        description: 'Your key professional skills (private data)',
-        options: [
-          { value: 'business-strategy', label: 'Business Strategy' },
-          { value: 'financial-management', label: 'Financial Management' },
-          { value: 'marketing-sales', label: 'Marketing & Sales' },
-          { value: 'digital-marketing', label: 'Digital Marketing' },
-          { value: 'project-management', label: 'Project Management' },
-          { value: 'leadership', label: 'Leadership' },
-          { value: 'data-analysis', label: 'Data Analysis' },
-          { value: 'web-development', label: 'Web Development' },
-          { value: 'graphic-design', label: 'Graphic Design' },
-          { value: 'content-creation', label: 'Content Creation' },
-          { value: 'public-speaking', label: 'Public Speaking' },
-          { value: 'languages', label: 'Multiple Languages' },
-          { value: 'networking', label: 'Networking' },
-          { value: 'negotiation', label: 'Negotiation' },
-          { value: 'other', label: 'Other' }
-        ]
-      },
-      {
         id: 'business_goals',
         label: 'Business goals (1-5 years)',
         type: 'textarea',
