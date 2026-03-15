@@ -152,6 +152,8 @@ export default function ProfileSettings() {
         setPrimaryCultural(
           Array.isArray(profileData?.primary_cultural)
             ? profileData.primary_cultural
+            : profileData?.primary_cultural
+            ? JSON.parse(profileData.primary_cultural)
             : []
         );
         setLanguages(
