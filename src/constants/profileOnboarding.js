@@ -135,9 +135,6 @@ export const PROFILE_SCHEMA = {
   primary_cultural: 'text[]',
   languages: 'text[]',
   
-  // Business experience fields (individual only)
-  years_operating: 'integer',
-  
   // Business role field
   business_role: 'text',
   
