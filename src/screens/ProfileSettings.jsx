@@ -129,7 +129,7 @@ export default function ProfileSettings() {
           .select(
             "role, display_name, city, country, primary_cultural, languages"
           )
-          .eq("id", user.id)
+          .eq("user_id", user.id)
           .single();
 
         if (profileError) {
@@ -150,17 +150,32 @@ export default function ProfileSettings() {
         setUser(enhancedUser);
         setIsAdmin(checkIsAdmin(enhancedUser));
 
+        // Debug: Log the raw profile data
+        console.log("Raw profile data:", profileData);
+        console.log("Enhanced user:", enhancedUser);
+
         setDisplayName(enhancedUser.display_name || "");
         setEmail(enhancedUser.email || "");
         setCity(profileData?.city || "");
         setCountry(profileData?.country || "");
-        setPrimaryCultural(
-          Array.isArray(profileData?.primary_cultural)
-            ? profileData.primary_cultural
-            : profileData?.primary_cultural
-            ? JSON.parse(profileData.primary_cultural)
-            : []
-        );
+
+        // Safe JSON parsing for primary_cultural
+        if (profileData?.primary_cultural) {
+          try {
+            if (Array.isArray(profileData.primary_cultural)) {
+              setPrimaryCultural(profileData.primary_cultural);
+            } else {
+              const parsed = JSON.parse(profileData.primary_cultural);
+              setPrimaryCultural(Array.isArray(parsed) ? parsed : []);
+            }
+          } catch (error) {
+            console.error("Error parsing primary_cultural:", error, "Data:", profileData.primary_cultural);
+            setPrimaryCultural([]);
+          }
+        } else {
+          setPrimaryCultural([]);
+        }
+
         setLanguages(
           Array.isArray(profileData?.languages) ? profileData.languages : []
         );
@@ -205,7 +220,7 @@ export default function ProfileSettings() {
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ display_name: displayName })
-        .eq("id", user.id);
+        .eq("user_id", user.id);
 
       if (profileError) throw profileError;
 
@@ -448,7 +463,7 @@ export default function ProfileSettings() {
           primary_cultural: primaryCultural,
           languages,
         })
-        .eq("id", user.id);
+        .eq("user_id", user.id);
 
       if (error) throw error;
 
