@@ -7,41 +7,10 @@ import {
   User,
   Globe,
   Briefcase,
-  GraduationCap,
   Users,
   Heart,
 } from "lucide-react";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
-
-const EDUCATION_LEVELS = [
-  { value: "high-school", label: "High School" },
-  { value: "some-college", label: "Some College" },
-  { value: "associate-degree", label: "Associate Degree" },
-  { value: "bachelors-degree", label: "Bachelor's Degree" },
-  { value: "masters-degree", label: "Master's Degree" },
-  { value: "phd", label: "PhD or Doctorate" },
-  { value: "professional-degree", label: "Professional Degree (MD, JD, etc.)" },
-  { value: "trade-certification", label: "Trade Certification" },
-  { value: "other", label: "Other" },
-];
-
-const SKILLS_EXPERTISE_OPTIONS = [
-  { value: "business-strategy", label: "Business Strategy" },
-  { value: "financial-management", label: "Financial Management" },
-  { value: "marketing-sales", label: "Marketing & Sales" },
-  { value: "digital-marketing", label: "Digital Marketing" },
-  { value: "project-management", label: "Project Management" },
-  { value: "leadership", label: "Leadership" },
-  { value: "data-analysis", label: "Data Analysis" },
-  { value: "web-development", label: "Web Development" },
-  { value: "graphic-design", label: "Graphic Design" },
-  { value: "content-creation", label: "Content Creation" },
-  { value: "public-speaking", label: "Public Speaking" },
-  { value: "languages", label: "Multiple Languages" },
-  { value: "networking", label: "Networking" },
-  { value: "negotiation", label: "Negotiation" },
-  { value: "other", label: "Other" },
-];
 
 const INVESTMENT_INTEREST_OPTIONS = [
   { value: "not-interested", label: "Not Interested" },
@@ -66,12 +35,6 @@ const SECTIONS = [
     description: "Your Pacific cultural background and languages",
   },
   {
-    key: "education",
-    label: "Education & Skills",
-    icon: GraduationCap,
-    description: "Your education level and professional skills",
-  },
-  {
     key: "business",
     label: "Business Experience",
     icon: Users,
@@ -93,8 +56,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
     primary_cultural: [],
     languages: [],
     years_operating: "",
-    education_level: "",
-    skills_expertise: [],
     business_goals: "",
     mentorship_availability: false,
     investment_interest: "",
@@ -141,10 +102,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
             : [],
           languages: Array.isArray(profileData.languages) ? profileData.languages : [],
           years_operating: profileData.years_operating || "",
-          education_level: profileData.education_level || "",
-          skills_expertise: Array.isArray(profileData.skills_expertise)
-            ? profileData.skills_expertise
-            : [],
           business_goals: profileData.business_goals || "",
           mentorship_availability: profileData.mentorship_availability || false,
           investment_interest: profileData.investment_interest || "",
@@ -195,7 +152,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
 
     const arrayFields = [
       "primary_cultural",
-      "skills_expertise",
       "languages",
     ];
 
@@ -369,55 +325,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
                     className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
                   />
                   <span className="text-sm leading-5 text-slate-700">{language.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (sectionKey === "education") {
-      return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Highest Education Level
-            </label>
-            <select
-              value={form.education_level || ""}
-              onChange={(e) => handleInputChange("education_level", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select education level</option>
-              {EDUCATION_LEVELS.map((level) => (
-                <option key={level.value} value={level.value}>
-                  {level.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Professional Skills & Expertise
-            </label>
-            <p className="mb-3 text-sm text-slate-600">
-              Select your key professional skills
-            </p>
-            <div className="max-h-64 space-y-2 overflow-y-auto">
-              {SKILLS_EXPERTISE_OPTIONS.map((skill) => (
-                <label
-                  key={skill.value}
-                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:bg-slate-100"
-                >
-                  <input
-                    type="checkbox"
-                    checked={form.skills_expertise?.includes(skill.value) || false}
-                    onChange={() => toggleArrayItem("skills_expertise", skill.value)}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
-                  />
-                  <span className="text-sm leading-5 text-slate-700">{skill.label}</span>
                 </label>
               ))}
             </div>

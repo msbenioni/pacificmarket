@@ -92,9 +92,6 @@ export const PROFILE_SCHEMA = {
   // Cultural identity fields
   primary_cultural: 'text[]',
   languages: 'text[]',
-  
-  // Business role field
-  business_role: 'text',
 };
 
 export const ONBOARDING_VALIDATION_RULES = {
