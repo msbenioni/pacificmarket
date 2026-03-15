@@ -464,37 +464,6 @@ export default function ProfileSettings() {
     }
   };
 
-  const pacificCountries = COUNTRIES.filter((country) =>
-    [
-      'american-samoa',
-      'australia',
-      'australia-aboriginal',
-      'cook-islands',
-      'fiji',
-      'french-polynesia',
-      'guam',
-      'kiribati',
-      'marshall-islands',
-      'micronesia',
-      'nauru',
-      'new-caledonia',
-      'new-zealand',
-      'new-zealand-maori',
-      'niue',
-      'northern-mariana-islands',
-      'palau',
-      'papua-new-guinea',
-      'samoa',
-      'solomon-islands',
-      'tokelau',
-      'tonga',
-      'tuvalu',
-      'vanuatu',
-      'wallis-futuna',
-      'hawaii'
-    ].includes(country.value)
-  );
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
@@ -646,7 +615,7 @@ export default function ProfileSettings() {
                       Primary Cultural Identity
                     </label>
                     <div className="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3">
-                      {pacificCountries.map((countryItem) => (
+                      {COUNTRIES.map((countryItem) => (
                         <label
                           key={countryItem.value}
                           className="flex items-center gap-2"
