@@ -143,19 +143,6 @@ export const PROFILE_SCHEMA = {
   
   // Market region (derived from country)
   market_region: 'text',
-  
-  // Private Fields (non-public, for analytics only)
-  education_level: 'text',                // Highest education achieved
-  professional_background: 'text[]',      // Previous industries/roles
-  business_networks: 'text[]',            // Professional networks
-  mentorship_availability: 'boolean',     // Available to mentor others
-  investment_interest: 'text',            // Interest in investing
-  community_involvement: 'text[]',        // Community organizations
-  skills_expertise: 'text[]',             // Professional skills
-  business_goals: 'text',                  // 1-5 year business goals
-  challenges_faced: 'text[]',              // Business challenges
-  success_factors: 'text[]',              // Key success factors
-  preferred_collaboration: 'text[]',       // Collaboration preferences
 };
 
 export const COUNTRY_REGION_MAPPING = {
