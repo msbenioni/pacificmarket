@@ -36,11 +36,6 @@ const displayValue = (key, value) => {
       freemium: "Freemium",
       other: "Other",
     },
-    customer_region: {
-      local: "Local (within island/country)",
-      regional: "Regional (multiple Pacific islands)",
-      global: "Global (worldwide)",
-    },
     current_funding_source: {
       "personal-savings": "Personal savings",
       "family-friends": "Family and friends",
@@ -93,11 +88,6 @@ const displayValue = (key, value) => {
       "500k+": "$500,000+ per investment",
       varies: "Varies by opportunity",
       "prefer-not-to-say": "Prefer not to say",
-    },
-    serves_pacific_communities: {
-      yes: "Yes, primarily serves Pacific communities",
-      no: "No, serves broader markets",
-      both: "Both Pacific and broader markets",
     },
   };
 
@@ -190,39 +180,11 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       ],
     },
     {
-      title: "Financial & Investment",
-      icon: TrendingUp,
-      color: "text-purple-600",
-      fields: [
-        { label: "Current Funding Source", key: "current_funding_source", value: snapshot.current_funding_source },
-        { label: "Investment Stage", key: "investment_stage", value: snapshot.investment_stage },
-        { label: "Revenue Streams", key: "revenue_streams", value: snapshot.revenue_streams },
-        { label: "Funding Amount Needed", key: "funding_amount_needed", value: snapshot.funding_amount_needed },
-        { label: "Funding Purpose", key: "funding_purpose", value: snapshot.funding_purpose },
-        ...(snapshot.angel_investor_interest
-          ? [
-              {
-                label: "Angel Investor Interest",
-                key: "angel_investor_interest",
-                value: snapshot.angel_investor_interest,
-              },
-            ]
-          : []),
-        {
-          label: "Investor Capacity",
-          key: "investor_capacity",
-          value: snapshot.investor_capacity,
-        },
-      ],
-    },
-    {
       title: "Challenges & Support",
       icon: Target,
       color: "text-orange-600",
       fields: [
         { label: "Top Challenges", key: "top_challenges_array", value: snapshot.top_challenges_array },
-        { label: "Support Needed", key: "support_needed_next_array", value: snapshot.support_needed_next_array },
-        { label: "Financial Challenges", key: "financial_challenges", value: snapshot.financial_challenges },
       ],
     },
     {
@@ -230,11 +192,9 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       icon: Award,
       color: "text-pink-600",
       fields: [
-        { label: "Business Stage", key: "growth_stage", value: snapshot.growth_stage },
+        { label: "Business Stage", key: "business_stage", value: snapshot.business_stage },
         { label: "Goals (12 months)", key: "goals_next_12_months_array", value: snapshot.goals_next_12_months_array },
         { label: "Goals Details", key: "goals_details", value: snapshot.goals_details },
-        { label: "Hiring Intentions", key: "hiring_intentions", value: snapshot.hiring_intentions },
-        { label: "Expansion Plans", key: "expansion_plans", value: snapshot.expansion_plans },
       ],
     },
     {
@@ -242,7 +202,6 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       icon: Users,
       color: "text-indigo-600",
       fields: [
-        { label: "Community Impact Areas", key: "community_impact_areas_array", value: snapshot.community_impact_areas_array },
         { label: "Collaboration Interest", key: "collaboration_interest", value: snapshot.collaboration_interest },
         { label: "Mentorship Offering", key: "mentorship_offering", value: snapshot.mentorship_offering },
         { label: "Open to Future Contact", key: "open_to_future_contact", value: snapshot.open_to_future_contact },
