@@ -10,7 +10,6 @@ import {
   Settings,
   TrendingUp,
   AlertCircle,
-  Rocket,
   Lightbulb,
 } from "lucide-react";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
@@ -22,7 +21,6 @@ import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import ChallengesSection from "./FormSections/ChallengesSection";
-import GrowthSection from "./FormSections/GrowthSection";
 import CommunitySection from "./FormSections/CommunitySection";
 
 // Form Section Component
@@ -149,12 +147,6 @@ const SECTIONS = [
     description: "Help us identify real barriers and support gaps",
   },
   {
-    key: "growth",
-    label: "Growth & Future",
-    icon: Rocket,
-    description: "Your business growth plans and next-stage priorities",
-  },
-  {
     key: "community",
     label: "Community & Impact",
     icon: Lightbulb,
@@ -176,7 +168,6 @@ const SECTION_FIELDS = {
     "is_business_registered",
   ],
   challenges: ["top_challenges_array", "support_needed_next_array"],
-  growth: ["growth_stage", "goals_next_12_months_array", "goals_details"],
   community: [
     "community_impact_areas_array",
     "collaboration_interest",
@@ -546,20 +537,6 @@ export default function BusinessProfileForm({
             inputCls={inputCls}
             labelCls={labelCls}
             textareaCls={textareaCls}
-            helperCls={helperCls}
-          />
-        );
-      
-      case "growth":
-        return (
-          <GrowthSection
-            form={form}
-            handleInputChange={handleInputChange}
-            toggleArrayItem={toggleArrayItem}
-            inputCls={inputCls}
-            labelCls={labelCls}
-            textareaCls={textareaCls}
-            selectCls={selectCls}
             helperCls={helperCls}
           />
         );
