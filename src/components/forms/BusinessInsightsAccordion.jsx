@@ -44,12 +44,6 @@ const SECTIONS = [
     description: "Help us identify real barriers and support gaps",
   },
   {
-    key: "growth",
-    label: "Growth & Future",
-    icon: Rocket,
-    description: "Your business growth plans and next-stage priorities",
-  },
-  {
     key: "community",
     label: "Community & Impact",
     icon: Lightbulb,
@@ -65,7 +59,6 @@ const SECTION_FIELDS = {
     "business_operating_status",
   ],
   challenges: ["top_challenges_array"],
-  growth: ["growth_stage", "goals_next_12_months_array", "goals_details"],
   community: [
     "collaboration_interest",
     "mentorship_offering",
@@ -110,10 +103,7 @@ export default function BusinessInsightsAccordion({
     is_business_registered: false,
     employs_anyone: false,
     employs_family_community: false,
-    growth_stage: "",
     top_challenges_array: "",
-    goals_next_12_months_array: [],
-    goals_details: "",
     collaboration_interest: false,
     mentorship_offering: false,
     open_to_future_contact: false,
@@ -163,9 +153,6 @@ export default function BusinessInsightsAccordion({
       const limit =
         field === "top_challenges_array"
           ? 5
-          : field === "support_needed_next_array" ||
-            field === "goals_next_12_months_array"
-          ? 3
           : undefined;
 
       if (currentArray.includes(item)) {
@@ -352,65 +339,6 @@ export default function BusinessInsightsAccordion({
                 />
               ))}
             </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (sectionKey === "growth") {
-      return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className={labelCls}>Current Business Stage</label>
-            <select
-              value={form.growth_stage || ""}
-              onChange={(e) => handleInputChange("growth_stage", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select stage</option>
-              <option value={BUSINESS_STAGE[0]?.value}>Idea / Planning</option>
-              <option value={BUSINESS_STAGE[1]?.value}>Startup</option>
-              <option value={BUSINESS_STAGE[2]?.value}>Growth</option>
-              <option value={BUSINESS_STAGE[3]?.value}>Mature</option>
-            </select>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <label className={labelCls}>Growth Priorities</label>
-                <p className={helperCls}>Choose up to 3.</p>
-              </div>
-              <span className="text-xs font-medium text-slate-500">
-                {form.goals_next_12_months_array?.length || 0}/3 selected
-              </span>
-            </div>
-
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {GOALS_NEXT_12_MONTHS.map((goal) => (
-                <OptionCard
-                  key={goal.value}
-                  checked={
-                    form.goals_next_12_months_array?.includes(goal.value) || false
-                  }
-                  onChange={() =>
-                    toggleArrayItem("goals_next_12_months_array", goal.value)
-                  }
-                  label={goal.label}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className={labelCls}>Additional Growth Goals</label>
-            <textarea
-              value={form.goals_details || ""}
-              onChange={(e) => handleInputChange("goals_details", e.target.value)}
-              placeholder="Add any specific targets, milestones, or priorities you are working toward."
-              rows={4}
-              className={textareaCls}
-            />
           </div>
         </div>
       );
