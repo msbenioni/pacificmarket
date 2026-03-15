@@ -7,14 +7,13 @@ import {
   ChevronRight,
   Building2,
   AlertCircle,
-  Rocket,
   Lightbulb,
 } from "lucide-react";
 import {
   BUSINESS_STAGE,
   BUSINESS_CHALLENGES,
-  GOALS_NEXT_12_MONTHS,
 } from "@/constants/unifiedConstants";
+import CommunitySection from "./FormSections/CommunitySection";
 
 const inputCls =
   "w-full min-h-[44px] border border-slate-300 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-slate-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white shadow-sm";
@@ -346,45 +345,16 @@ export default function BusinessInsightsAccordion({
 
     if (sectionKey === "community") {
       return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className={labelCls}>Collaboration Interest</label>
-            <div className="mt-3">
-              <OptionCard
-                checked={form.collaboration_interest || false}
-                onChange={() =>
-                  handleInputChange("collaboration_interest", !form.collaboration_interest)
-                }
-                label="I am open to collaboration opportunities"
-              />
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <OptionCard
-                checked={form.mentorship_offering || false}
-                onChange={() =>
-                  handleInputChange(
-                    "mentorship_offering",
-                    !form.mentorship_offering
-                  )
-                }
-                label="I would be open to mentoring other founders"
-              />
-              <OptionCard
-                checked={form.open_to_future_contact || false}
-                onChange={() =>
-                  handleInputChange(
-                    "open_to_future_contact",
-                    !form.open_to_future_contact
-                  )
-                }
-                label="I am open to future contact from Pacific Market"
-              />
-            </div>
-          </div>
-        </div>
+        <CommunitySection
+          form={form}
+          handleInputChange={handleInputChange}
+          toggleArrayItem={toggleArrayItem}
+          inputCls={inputCls}
+          labelCls={labelCls}
+          textareaCls={textareaCls}
+          selectCls={selectCls}
+          helperCls={helperCls}
+        />
       );
     }
 

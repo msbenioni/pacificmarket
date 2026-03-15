@@ -1,4 +1,4 @@
-import { COMMUNITY_IMPACT_AREAS } from "@/constants/unifiedConstants";
+import { COMMUNITY_IMPACT_AREAS, AGE_RANGES, GENDER_OPTIONS } from "@/constants/unifiedConstants";
 
 function OptionCard({ checked, onChange, label, type = "checkbox" }) {
   return (
