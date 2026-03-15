@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, ShieldCheck, LineChart, UserCircle2, ChevronDown } from "lucide-react";
+import { Sparkles, ShieldCheck, LineChart, UserCircle2, ChevronDown, Building2, Users, TrendingUp } from "lucide-react";
 import { CARD_STYLES } from "@/constants/portalUI";
 import ProfileSettingsAccordion from "@/components/onboarding/ProfileSettingsAccordion";
 import FounderInsightsAccordion from "@/components/forms/FounderInsightsAccordion";
@@ -136,6 +136,60 @@ export default function ProfileInsightsTab({
             initialData={insightSnapshots?.[0] || null}
             onStart={() => setInsightsProgress(true)}
           />
+        </InsightsAccordionSection>
+
+        {/* Business Profile Section */}
+        <InsightsAccordionSection
+          id="business"
+          title="Business details & operations"
+          subtitle="Step 3"
+          summary="Complete your business information and operational details"
+          icon={Building2}
+          isOpen={openSections.includes("business")}
+          onToggle={() => toggleSection("business")}
+        >
+          <div className="p-4">
+            <p className="text-sm text-slate-600 mb-4">
+              Business profile section will be implemented here. This will include business details, 
+              operational information, and other business-specific data.
+            </p>
+          </div>
+        </InsightsAccordionSection>
+
+        {/* Community & Impact Section */}
+        <InsightsAccordionSection
+          id="community"
+          title="Community & impact"
+          subtitle="Step 4"
+          summary="Share how your business contributes to the Pacific community"
+          icon={Users}
+          isOpen={openSections.includes("community")}
+          onToggle={() => toggleSection("community")}
+        >
+          <div className="p-4">
+            <p className="text-sm text-slate-600 mb-4">
+              Community impact section will be implemented here. This will include collaboration interests,
+              mentorship opportunities, and community engagement information.
+            </p>
+          </div>
+        </InsightsAccordionSection>
+
+        {/* Growth & Support Section */}
+        <InsightsAccordionSection
+          id="growth"
+          title="Growth goals & support needs"
+          subtitle="Step 5"
+          summary="Define your growth objectives and support requirements"
+          icon={TrendingUp}
+          isOpen={openSections.includes("growth")}
+          onToggle={() => toggleSection("growth")}
+        >
+          <div className="p-4">
+            <p className="text-sm text-slate-600 mb-4">
+              Growth and support section will be implemented here. This will include growth goals,
+              support needs, and development objectives.
+            </p>
+          </div>
         </InsightsAccordionSection>
       </div>
     </div>
