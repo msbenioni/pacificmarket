@@ -1,4 +1,4 @@
-import { CheckCircle, Users, Target, Globe, TrendingUp, Award, Calendar, Edit } from "lucide-react";
+import { CheckCircle, Users, Target, Globe, Calendar, Edit } from "lucide-react";
 import { TEAM_SIZE_BAND, BUSINESS_STAGE, IMPORT_EXPORT_STATUS } from "@/constants/unifiedConstants";
 
 const displayValue = (key, value) => {
@@ -185,15 +185,6 @@ export default function FounderInsightsSummary({ snapshot, business, onEdit }) {
       color: "text-orange-600",
       fields: [
         { label: "Top Challenges", key: "top_challenges_array", value: snapshot.top_challenges_array },
-      ],
-    },
-    {
-      title: "Growth & Future",
-      icon: Award,
-      color: "text-pink-600",
-      fields: [
-        { label: "Goals (12 months)", key: "goals_next_12_months_array", value: snapshot.goals_next_12_months_array },
-        { label: "Goals Details", key: "goals_details", value: snapshot.goals_details },
       ],
     },
     {
