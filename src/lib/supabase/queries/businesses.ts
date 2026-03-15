@@ -145,7 +145,7 @@ export async function getBusinessById(id: string) {
     // Merge the data
     return {
       ...businessesData,
-      ...(insightsData || {})
+      ...insightsData
     };
   } else {
     // Query by business handle - get data from both tables
@@ -179,7 +179,7 @@ export async function getBusinessById(id: string) {
     // Merge the data
     return {
       ...businessesData,
-      ...(insightsData || {})
+      ...insightsData
     };
   }
 }
