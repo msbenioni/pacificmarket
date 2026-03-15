@@ -143,12 +143,6 @@ export const ONBOARDING_VALIDATION_RULES = {
   primary_cultural: {
     required: true,
     minItems: 1
-  },
-  
-  // Step 4 validation (individual business experience only)
-  years_operating: {
-    min: 0,
-    type: 'number'
   }
 };
 
