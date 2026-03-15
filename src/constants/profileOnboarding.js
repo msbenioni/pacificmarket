@@ -72,48 +72,6 @@ export const ONBOARDING_STEPS = [
       }
     ]
   },
-  {
-    id: 'private-analytics',
-    title: 'Step 4 — Personal Insights (Private)',
-    subtitle: 'Personal Insights',
-    purpose: 'Additional context for economic research (private data)',
-    fields: [
-      {
-        id: 'mentorship_availability',
-        label: 'Available to mentor others?',
-        type: 'checkbox',
-        required: false,
-        description: 'Are you open to mentoring other Pacific entrepreneurs? (private data)',
-        text: 'Yes, I am available to mentor others'
-      },
-      {
-        id: 'investment_interest',
-        label: 'Investment interests',
-        type: 'select',
-        required: false,
-        placeholder: 'Select investment interest',
-        description: 'Interest in investing in Pacific businesses (private data)',
-        options: [
-          { value: 'not-interested', label: 'Not Interested' },
-          { value: 'exploring', label: 'Exploring Options' },
-          { value: 'angel-investor', label: 'Angel Investor' },
-          { value: 'venture-capital', label: 'Venture Capital' },
-          { value: 'community-funding', label: 'Community Funding' },
-          { value: 'impact-investing', label: 'Impact Investing' }
-        ]
-      },
-      {
-        id: 'business_goals',
-        label: 'Business goals (1-5 years)',
-        type: 'textarea',
-        required: false,
-        placeholder: 'Describe your business goals for the next 1-5 years...',
-        description: 'Your short to medium-term business goals (private data)',
-        maxLength: 1000,
-        rows: 3
-      }
-    ]
-  }
 ];
 
 export const BUSINESS_ROLE_OPTIONS = [
