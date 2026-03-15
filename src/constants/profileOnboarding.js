@@ -95,9 +95,6 @@ export const PROFILE_SCHEMA = {
   
   // Business role field
   business_role: 'text',
-  
-  // Market region (derived from country)
-  market_region: 'text',
 };
 
 export const ONBOARDING_VALIDATION_RULES = {
