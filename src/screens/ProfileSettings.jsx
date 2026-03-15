@@ -129,7 +129,7 @@ export default function ProfileSettings() {
           .select(
             "role, display_name, city, country, primary_cultural, languages"
           )
-          .eq("user_id", user.id)
+          .eq("id", user.id)
           .single();
 
         if (profileError) {
@@ -220,7 +220,7 @@ export default function ProfileSettings() {
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ display_name: displayName })
-        .eq("user_id", user.id);
+        .eq("id", user.id);
 
       if (profileError) throw profileError;
 
@@ -463,7 +463,7 @@ export default function ProfileSettings() {
           primary_cultural: primaryCultural,
           languages,
         })
-        .eq("user_id", user.id);
+        .eq("id", user.id);
 
       if (error) throw error;
 
