@@ -18,31 +18,18 @@
 | `revenue_band` | `revenue_band` | ✅ MATCH | Direct mapping |
 | `business_operating_status` | `business_operating_status` | ✅ MATCH | Direct mapping |
 
-### **📊 Financial Overview Section (REMOVED)**
-| Form Field | Database Column | Status | Notes |
-|------------|----------------|---------|-------|
-| `current_funding_source` | `current_funding_source` | ❌ **REMOVED** | Financial section eliminated |
-| `funding_amount_needed` | `funding_amount_needed` | ❌ **REMOVED** | Financial section eliminated |
-| `investment_stage` | `investment_stage` | ❌ **REMOVED** | Financial section eliminated |
-| `financial_challenges` | `financial_challenges` | ❌ **REMOVED** | Financial section eliminated |
 
 ### **📊 Challenges & Support Section (SIMPLIFIED)**
 | Form Field | Database Column | Status | Notes |
 |------------|----------------|---------|-------|
 | `top_challenges_array` | `top_challenges_array` | ✅ MATCH | JSONB array |
-| `support_needed_next_array` | `support_needed_next_array` | ❌ **REMOVED** | Support field eliminated |
+field eliminated |
 
-### **📊 Growth & Future Section (REMOVED)**
-| Form Field | Database Column | Status | Notes |
-|------------|----------------|---------|-------|
-| `growth_stage` | ❌ **REMOVED** | ❌ **REMOVED** | Growth section eliminated |
-| `goals_next_12_months_array` | ❌ **REMOVED** | ❌ **REMOVED** | Moved to founder_insights |
-| `goals_details` | ❌ **REMOVED** | ❌ **REMOVED** | Moved to founder_insights |
 
 ### **📊 Community & Impact Section (SIMPLIFIED)**
 | Form Field | Database Column | Status | Notes |
 |------------|----------------|---------|-------|
-| `community_impact_areas_array` | `community_impact_areas_array` | ❌ **REMOVED** | Community field eliminated |
+Community field eliminated |
 | `collaboration_interest` | `collaboration_interest` | ✅ MATCH | Kept |
 | `mentorship_offering` | `mentorship_offering` | ✅ MATCH | Kept |
 | `open_to_future_contact` | `open_to_future_contact` | ✅ MATCH | Kept |

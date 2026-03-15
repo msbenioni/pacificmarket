@@ -34,18 +34,11 @@ export default function CommunitySection({
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <label className={labelCls}>Collaboration Interest</label>
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="mt-3">
           <OptionCard
-            type="radio"
-            checked={form.collaboration_interest === true}
-            onChange={() => handleInputChange("collaboration_interest", true)}
-            label="Yes, I am open to collaboration opportunities"
-          />
-          <OptionCard
-            type="radio"
-            checked={form.collaboration_interest === false}
-            onChange={() => handleInputChange("collaboration_interest", false)}
-            label="No, not at the moment"
+            checked={form.collaboration_interest || false}
+            onChange={() => handleInputChange("collaboration_interest", !form.collaboration_interest)}
+            label="I am open to collaboration opportunities"
           />
         </div>
       </div>
