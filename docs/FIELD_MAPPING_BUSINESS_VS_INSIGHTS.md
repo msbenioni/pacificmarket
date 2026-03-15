@@ -1,6 +1,6 @@
 # 📊 Input Fields Mapping - Businesses vs Business Insights
 
-> **📅 Last Updated:** March 2026  
+> **📅 Last Updated:** March 2026 (Updated - 11 fields removed from insights)  
 > **🎯 Purpose:** Clear breakdown of which form fields go to which database table
 
 ---
@@ -84,32 +84,12 @@
 | Input Field | Database Column | Form Section | Notes |
 |-------------|----------------|--------------|-------|
 | **business_stage** | business_stage | Overview | Current business stage |
-| **expansion_plans** | expansion_plans | Growth | Expansion strategy |
 
 ### **✅ Challenges & Support**
 
 | Input Field | Database Column | Form Section | Notes |
 |-------------|----------------|--------------|-------|
 | **top_challenges_array** | top_challenges_array | Challenges | Challenges list |
-| **support_needed_next_array** | support_needed_next_array | Challenges | Support needs |
-| **current_support_sources_array** | current_support_sources_array | Community | Current support |
-| **hiring_intentions** | hiring_intentions | Challenges | Hiring plans |
-
-### **✅ Financial & Investment**
-
-| Input Field | Database Column | Form Section | Notes |
-|-------------|----------------|--------------|-------|
-| **current_funding_source** | current_funding_source | Financial | Current funding |
-| **funding_amount_needed** | funding_amount_needed | Financial | Amount needed |
-| **funding_purpose** | funding_purpose | Financial | Funding purpose |
-| **investment_stage** | investment_stage | Financial | Investment stage |
-| **investment_exploration** | investment_exploration | Financial | Exploration status |
-
-### **✅ Community & Impact**
-
-| Input Field | Database Column | Form Section | Notes |
-|-------------|----------------|--------------|-------|
-| **community_impact_areas_array** | community_impact_areas_array | Community | Impact areas |
 
 ### **✅ Private Contact Information**
 
@@ -118,11 +98,11 @@
 | **private_business_phone** | private_business_phone | - | Private phone (internal) |
 | **private_business_email** | private_business_email | - | Private email (internal) |
 
-### **✅ Duplicate Field (Internal)**
+### **✅ Business Registration**
 
 | Input Field | Database Column | Form Section | Notes |
 |-------------|----------------|--------------|-------|
-| **industry** | industry | - | Industry (duplicate for internal use) |
+| **is_business_registered** | is_business_registered | Overview | Legal registration status |
 
 ---
 
@@ -133,8 +113,8 @@
 | Table | Field Count | Purpose | Visibility |
 |-------|-------------|---------|------------|
 | **businesses** | 25 fields | Public business data | Public (with privacy controls) |
-| **business_insights** | 16 fields | Internal tracking | Internal/admin only |
-| **Total** | 41 fields | Complete business profile | Mixed visibility |
+| **business_insights** | 5 fields | Internal tracking | Internal/admin only |
+| **Total** | 30 fields | Complete business profile | Mixed visibility |
 
 ### **✅ Field Distribution by Category**
 
@@ -144,12 +124,12 @@
 | **Visual Assets** | 3 fields | 0 fields | 3 fields |
 | **Contact Info** | 7 fields | 2 fields | 9 fields |
 | **Location** | 4 fields | 0 fields | 4 fields |
-| **Business Details** | 4 fields | 1 field | 5 fields |
-| **Financial** | 1 field | 5 fields | 6 fields |
-| **Growth/Challenges** | 0 fields | 5 fields | 5 fields |
-| **Community** | 0 fields | 2 fields | 2 fields |
+| **Business Details** | 5 fields | 1 field | 6 fields |
+| **Financial** | 1 field | 0 fields | 1 fields |
+| **Growth/Challenges** | 0 fields | 1 field | 1 fields |
+| **Community** | 0 fields | 0 fields | 0 fields |
 | **System** | 4 fields | 0 fields | 4 fields |
-| **Duplicates** | 0 fields | 1 field | 1 field |
+| **Duplicates** | 0 fields | 0 fields | 0 fields |
 
 ---
 
@@ -225,13 +205,10 @@ industry, city, year_started, business_structure, team_size_band, revenue_band,
 status, is_verified, is_claimed, is_homepage_featured, business_registered
 ```
 
-### **✅ Business Insights Table (16 fields):**
+### **✅ Business Insights Table (5 fields):**
 ```
-business_stage, top_challenges_array, hiring_intentions, is_business_registered,
-current_funding_source, funding_amount_needed, funding_purpose, investment_stage,
-investment_exploration, community_impact_areas_array, support_needed_next_array,
-current_support_sources_array, expansion_plans, industry, private_business_phone,
-private_business_email
+business_stage, top_challenges_array, is_business_registered, 
+private_business_phone, private_business_email
 ```
 
 ---
@@ -239,9 +216,10 @@ private_business_email
 ## 🚀 Summary
 
 **✅ Clear separation** between public and internal data  
-**✅ No unnecessary duplicates** after recent cleanup  
+**✅ Streamlined insights table** - Only essential internal fields kept  
 **✅ Proper data transformation** with boolean handling  
 **✅ Efficient data flow** with parallel saves and merged loads  
 **✅ Privacy protection** for sensitive business information  
+**✅ Recent cleanup** - Removed 11 unnecessary fields from insights table  
 
 **This mapping ensures proper data organization and security!** 🎉
