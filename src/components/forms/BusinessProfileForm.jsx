@@ -261,9 +261,6 @@ export default function BusinessProfileForm({
       const limit =
         field === "top_challenges_array"
           ? 5
-          : field === "support_needed_next_array" ||
-            field === "goals_next_12_months_array"
-          ? 3
           : undefined;
 
       if (currentArray.includes(item)) {
