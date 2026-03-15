@@ -165,7 +165,13 @@ export default function ProfileSettings() {
             if (Array.isArray(profileData.primary_cultural)) {
               setPrimaryCultural(profileData.primary_cultural);
             } else {
-              const parsed = JSON.parse(profileData.primary_cultural);
+              // Handle the specific database format: {"cook-islands","french-polynesia"}
+              const jsonString = profileData.primary_cultural
+                .replace(/"/g, '"') // Replace all double quotes with standard quotes
+                .replace(/^{/, '[')   // Replace opening brace with bracket
+                .replace(/}$/, ']'); // Replace closing brace with bracket
+              
+              const parsed = JSON.parse(jsonString);
               setPrimaryCultural(Array.isArray(parsed) ? parsed : []);
             }
           } catch (error) {
