@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp, Globe, Target, Lightbulb, Rocket, ChevronDown, ChevronUp } from "lucide-react";
-import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, GOALS_NEXT_12_MONTHS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES } from "@/constants/unifiedConstants";
+import { ChevronRight, ChevronLeft, CheckCircle, AlertCircle, Users, TrendingUp, Globe, Target, Lightbulb, ChevronDown, ChevronUp } from "lucide-react";
+import { BUSINESS_STAGE, TEAM_SIZE_BAND, INDUSTRIES, FOUNDER_MOTIVATIONS, BUSINESS_CHALLENGES, SUPPORT_NEEDS, COMMUNITY_IMPACT_AREAS, FAMILY_RESPONSIBILITIES, GENDER_OPTIONS, AGE_RANGES, COUNTRIES } from "@/constants/unifiedConstants";
 
 const STEPS = [
   { key: "founder", label: "Founder Background", icon: Users },
   { key: "business", label: "Business Reality", icon: TrendingUp },
   { key: "pacific", label: "Pacific Context", icon: Globe },
   { key: "challenges", label: "Challenges & Support", icon: AlertCircle },
-  { key: "growth", label: "Growth & Future", icon: Rocket },
   { key: "community", label: "Community & Impact", icon: Lightbulb },
 ];
 
@@ -47,13 +46,6 @@ const DEFAULT_FORM_STATE = {
   support_needed_next_array: [],
   current_support_sources_array: [],
   mentorship_access: false,
-
-  // Growth & Future
-  growth_stage: "",
-  goals_next_12_months_array: [],
-  goals_details: "",
-  hiring_intentions: false,
-  expansion_plans: false,
 
   // Community & Impact
   community_impact_areas_array: [],
@@ -866,129 +858,8 @@ export default function FounderInsightsForm({ businessId, onSubmit, isLoading, i
         </div>
       )}
 
-      {/* Step 5: Growth & Future */}
+      {/* Step 5: Community & Impact */}
       {step === 5 && (
-        <div className="space-y-6">
-          <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
-            <h3 className="font-bold text-[#0a1628] text-lg mb-2">Growth & Future</h3>
-            <p className="text-gray-600 text-sm">Help us understand your ambition, readiness, and next-stage needs.</p>
-          </div>
-
-          <div className={sectionCardCls}>
-
-          <div>
-            <label className={labelCls}>What stage best describes your business today? *</label>
-            <select value={form.growth_stage || ""} onChange={e => setForm({ ...form, growth_stage: e.target.value })} className={inputCls}>
-              <option value="">Select stage</option>
-              <option value={BUSINESS_STAGE[0].value}>{BUSINESS_STAGE[0].label}</option>
-              <option value={BUSINESS_STAGE[1].value}>{BUSINESS_STAGE[1].label}</option>
-              <option value={BUSINESS_STAGE[2].value}>{BUSINESS_STAGE[2].label}</option>
-              <option value={BUSINESS_STAGE[3].value}>{BUSINESS_STAGE[3].label}</option>
-            </select>
-          </div>
-
-          <div>
-            <label className={labelCls}>What are your top goals for the next 12 months? (Select up to 3) *</label>
-            <div className="space-y-2">
-              {GOALS_NEXT_12_MONTHS.map(goal => (
-                <label key={goal.value} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.goals_next_12_months_array?.includes(goal.value)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setForm(prev => ({ 
-                          ...prev, 
-                          goals_next_12_months_array: [...(prev.goals_next_12_months_array || []), goal.value].slice(0, 3)
-                        }));
-                      } else {
-                        setForm(prev => ({ 
-                          ...prev, 
-                          goals_next_12_months_array: prev.goals_next_12_months_array?.filter(g => g !== goal.value) || []
-                        }));
-                      }
-                    }}
-                    className="rounded border-gray-300 text-[#0d4f4f] mt-0.5"
-                  />
-                  <span className="text-sm leading-5">{goal.label}</span>
-                </label>
-              ))}
-            </div>
-            {form.goals_next_12_months_array?.length > 0 && (
-              <p className="text-xs text-gray-500 mt-1">Selected: {form.goals_next_12_months_array.length}/3</p>
-            )}
-          </div>
-
-          <div>
-            <label className={labelCls}>Tell us more about your main goal this year (Optional)</label>
-            <textarea
-              value={form.goals_details || ""}
-              onChange={e => setForm({ ...form, goals_details: e.target.value })}
-              rows={2}
-              placeholder="Share more details about your most important goal for the next 12 months..."
-              className={`${inputCls} resize-none`}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={labelCls}>Do you plan to hire in the next 12 months? *</label>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="hiring_intentions"
-                    checked={form.hiring_intentions === true}
-                    onChange={() => setForm({ ...form, hiring_intentions: true })}
-                    className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Yes</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="hiring_intentions"
-                    checked={form.hiring_intentions === false}
-                    onChange={() => setForm({ ...form, hiring_intentions: false })}
-                    className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">No</span>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label className={labelCls}>Are you planning to expand into new markets? *</label>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-3">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="expansion_plans"
-                    checked={form.expansion_plans === true}
-                    onChange={() => setForm({ ...form, expansion_plans: true })}
-                    className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Yes</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="expansion_plans"
-                    checked={form.expansion_plans === false}
-                    onChange={() => setForm({ ...form, expansion_plans: false })}
-                    className="w-4 h-4 text-[#0d4f4f] border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">No</span>
-                </label>
-              </div>
-            </div>
-          </div>
-          </div>
-        </div>
-      )}
-
-      {/* Step 6: Community & Impact */}
-      {step === 6 && (
         <div className="space-y-6">
           <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0a1628]/10 rounded-2xl p-5 sm:p-6 mb-6">
             <h3 className="font-bold text-[#0a1628] text-lg mb-2">Community & Impact</h3>
