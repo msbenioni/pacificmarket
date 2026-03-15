@@ -57,40 +57,6 @@ export default function ChallengesSection({
           />
         </div>
       </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <label className={labelCls}>Support Needed</label>
-            <p className={helperCls}>Select up to 3 types of support.</p>
-          </div>
-          <span className="text-xs font-medium text-slate-500">
-            {form.support_needed_next_array?.length || 0}/3 selected
-          </span>
-        </div>
-
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {SUPPORT_NEEDS.map((need) => (
-            <OptionCard
-              key={need.value}
-              checked={form.support_needed_next_array?.includes(need.value) || false}
-              onChange={() => toggleArrayItem("support_needed_next_array", need.value)}
-              label={need.label}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className={labelCls}>Current Support Sources</label>
-        <textarea
-          value={form.current_support_sources_array || ""}
-          onChange={(e) => handleInputChange("current_support_sources_array", e.target.value)}
-          className={textareaCls}
-          placeholder="Where do you currently get support from? (mentors, networks, programs, etc.)"
-          rows={4}
-        />
-      </div>
     </div>
   );
 }

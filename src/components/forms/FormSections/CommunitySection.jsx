@@ -33,29 +33,6 @@ export default function CommunitySection({
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <label className={labelCls}>Community Impact Areas</label>
-            <p className={helperCls}>Select areas where your business makes an impact.</p>
-          </div>
-          <span className="text-xs font-medium text-slate-500">
-            {form.community_impact_areas_array?.length || 0} selected
-          </span>
-        </div>
-
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {COMMUNITY_IMPACT_AREAS.map((area) => (
-            <OptionCard
-              key={area.value}
-              checked={form.community_impact_areas_array?.includes(area.value) || false}
-              onChange={() => toggleArrayItem("community_impact_areas_array", area.value)}
-              label={area.label}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <label className={labelCls}>Collaboration Interest</label>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <OptionCard

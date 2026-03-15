@@ -83,33 +83,7 @@ export default function GrowthSection({
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className={labelCls}>Expansion Plans</label>
-        <textarea
-          value={form.expansion_plans || ""}
-          onChange={(e) => handleInputChange("expansion_plans", e.target.value)}
-          className={textareaCls}
-          placeholder="Describe your plans for expansion - new markets, products, or services..."
-          rows={4}
-        />
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className={labelCls}>Hiring Intentions</label>
-            <select
-              value={form.hiring_intentions || ""}
-              onChange={(e) => handleInputChange("hiring_intentions", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select hiring plans</option>
-              <option value="actively-hiring">Actively hiring</option>
-              <option value="planning-to-hire">Planning to hire</option>
-              <option value="not-hiring">Not hiring currently</option>
-              <option value="reducing-staff">Reducing staff</option>
-            </select>
-          </div>
-
           <div>
             <label className={labelCls}>Import/Export Status</label>
             <select

@@ -39,18 +39,7 @@ export const transformBusinessFormData = (formData) => {
   const businessInsightsData = {
     business_stage: formData.business_stage,
     top_challenges_array: formData.top_challenges_array,
-    hiring_intentions: formData.hiring_intentions,
     is_business_registered: formData.is_business_registered === true || formData.is_business_registered === "true" ? true : false,
-    current_funding_source: formData.current_funding_source,
-    funding_amount_needed: formData.funding_amount_needed,
-    funding_purpose: formData.funding_purpose,
-    investment_stage: formData.investment_stage,
-    investment_exploration: formData.investment_exploration,
-    community_impact_areas_array: formData.community_impact_areas_array,
-    support_needed_next_array: formData.support_needed_next_array,
-    current_support_sources_array: formData.current_support_sources_array,
-    expansion_plans: formData.expansion_plans,
-    industry: formData.industry,
     private_business_phone: formData.private_business_phone,
     private_business_email: formData.private_business_email,
   };
