@@ -33,13 +33,13 @@ export default function GrowthSection({
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className={labelCls}>Growth Stage</label>
+        <label className={labelCls}>Business Stage</label>
         <select
-          value={form.growth_stage || ""}
-          onChange={(e) => handleInputChange("growth_stage", e.target.value)}
+          value={form.business_stage || ""}
+          onChange={(e) => handleInputChange("business_stage", e.target.value)}
           className={selectCls}
         >
-          <option value="">Select growth stage</option>
+          <option value="">Select business stage</option>
           <option value="idea">Idea/Concept</option>
           <option value="startup">Startup/Early</option>
           <option value="growth">Growth/Scaling</option>
@@ -51,7 +51,7 @@ export default function GrowthSection({
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <label className={labelCls}>Growth Priorities</label>
+            <label className={labelCls}>Business Goals (Next 12 Months)</label>
             <p className={helperCls}>Choose up to 3.</p>
           </div>
           <span className="text-xs font-medium text-slate-500">
@@ -72,34 +72,14 @@ export default function GrowthSection({
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className={labelCls}>Additional Growth Goals</label>
+        <label className={labelCls}>Business Goals Details</label>
         <textarea
           value={form.goals_details || ""}
           onChange={(e) => handleInputChange("goals_details", e.target.value)}
           className={textareaCls}
-          placeholder="Add any specific targets, milestones, or priorities you are working toward."
+          placeholder="Add specific business targets, milestones, or priorities for the next 12 months."
           rows={4}
         />
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className={labelCls}>Import/Export Status</label>
-            <select
-              value={form.import_export_status || ""}
-              onChange={(e) => handleInputChange("import_export_status", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select status</option>
-              <option value="domestic-only">Domestic only</option>
-              <option value="importing-only">Importing only</option>
-              <option value="exporting-only">Exporting only</option>
-              <option value="both-import-export">Both importing and exporting</option>
-              <option value="planning-international">Planning international trade</option>
-            </select>
-          </div>
-        </div>
       </div>
     </div>
   );
