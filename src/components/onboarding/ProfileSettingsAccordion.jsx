@@ -25,24 +25,6 @@ const EDUCATION_LEVELS = [
   { value: "other", label: "Other" },
 ];
 
-const PROFESSIONAL_BACKGROUND_OPTIONS = [
-  { value: "agriculture", label: "Agriculture" },
-  { value: "arts-culture", label: "Arts & Culture" },
-  { value: "education", label: "Education" },
-  { value: "finance", label: "Finance & Banking" },
-  { value: "government", label: "Government/Public Service" },
-  { value: "healthcare", label: "Healthcare" },
-  { value: "hospitality", label: "Hospitality & Tourism" },
-  { value: "it-technology", label: "IT & Technology" },
-  { value: "manufacturing", label: "Manufacturing" },
-  { value: "media-communications", label: "Media & Communications" },
-  { value: "non-profit", label: "Non-Profit" },
-  { value: "retail", label: "Retail" },
-  { value: "trade-construction", label: "Trade & Construction" },
-  { value: "transport-logistics", label: "Transport & Logistics" },
-  { value: "other", label: "Other" },
-];
-
 const SKILLS_EXPERTISE_OPTIONS = [
   { value: "business-strategy", label: "Business Strategy" },
   { value: "financial-management", label: "Financial Management" },
@@ -84,12 +66,6 @@ const SECTIONS = [
     description: "Your Pacific cultural background and languages",
   },
   {
-    key: "professional",
-    label: "Professional Background",
-    icon: Briefcase,
-    description: "Your work experience and professional expertise",
-  },
-  {
     key: "education",
     label: "Education & Skills",
     icon: GraduationCap,
@@ -116,7 +92,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
     country: "",
     primary_cultural: [],
     languages: [],
-    professional_background: [],
     years_operating: "",
     education_level: "",
     skills_expertise: [],
@@ -165,9 +140,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
             ? profileData.primary_cultural
             : [],
           languages: Array.isArray(profileData.languages) ? profileData.languages : [],
-          professional_background: Array.isArray(profileData.professional_background)
-            ? profileData.professional_background
-            : [],
           years_operating: profileData.years_operating || "",
           education_level: profileData.education_level || "",
           skills_expertise: Array.isArray(profileData.skills_expertise)
@@ -223,7 +195,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
 
     const arrayFields = [
       "primary_cultural",
-      "professional_background",
       "skills_expertise",
       "languages",
     ];
@@ -401,53 +372,6 @@ export default function ProfileSettingsAccordion({ onComplete }) {
                 </label>
               ))}
             </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (sectionKey === "professional") {
-      return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Professional Background
-            </label>
-            <p className="mb-3 text-sm text-slate-600">
-              Select industries or roles you have worked in
-            </p>
-            <div className="max-h-64 space-y-2 overflow-y-auto">
-              {PROFESSIONAL_BACKGROUND_OPTIONS.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:bg-slate-100"
-                >
-                  <input
-                    type="checkbox"
-                    checked={form.professional_background?.includes(option.value) || false}
-                    onChange={() =>
-                      toggleArrayItem("professional_background", option.value)
-                    }
-                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
-                  />
-                  <span className="text-sm leading-5 text-slate-700">{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Years Operating in Business
-            </label>
-            <input
-              type="number"
-              value={form.years_operating || ""}
-              onChange={(e) => handleInputChange("years_operating", e.target.value)}
-              className={inputCls}
-              placeholder="Number of years"
-              min="0"
-            />
           </div>
         </div>
       );
