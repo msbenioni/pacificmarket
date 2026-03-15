@@ -73,25 +73,8 @@ export const ONBOARDING_STEPS = [
     ]
   },
   {
-    id: 'business-experience',
-    title: 'Step 4 — Business Experience',
-    subtitle: 'Business Experience',
-    purpose: 'Economic participation insights',
-    fields: [
-      {
-        id: 'years_operating',
-        label: 'Years operating in business',
-        type: 'number',
-        required: false,
-        placeholder: '5',
-        description: 'How many years have you been in business?',
-        min: 0
-      }
-    ]
-  },
-  {
     id: 'private-analytics',
-    title: 'Step 5 — Personal Insights (Private)',
+    title: 'Step 4 — Personal Insights (Private)',
     subtitle: 'Personal Insights',
     purpose: 'Additional context for economic research (private data)',
     fields: [
@@ -111,31 +94,6 @@ export const ONBOARDING_STEPS = [
           { value: 'phd', label: 'PhD or Doctorate' },
           { value: 'professional-degree', label: 'Professional Degree (MD, JD, etc.)' },
           { value: 'trade-certification', label: 'Trade Certification' },
-          { value: 'other', label: 'Other' }
-        ]
-      },
-      {
-        id: 'professional_background',
-        label: 'Previous professional experience',
-        type: 'multiselect',
-        required: false,
-        placeholder: 'Select industries/roles',
-        description: 'Previous industries or roles you\'ve worked in (private data)',
-        options: [
-          { value: 'agriculture', label: 'Agriculture' },
-          { value: 'arts-culture', label: 'Arts & Culture' },
-          { value: 'education', label: 'Education' },
-          { value: 'finance', label: 'Finance & Banking' },
-          { value: 'government', label: 'Government/Public Service' },
-          { value: 'healthcare', label: 'Healthcare' },
-          { value: 'hospitality', label: 'Hospitality & Tourism' },
-          { value: 'it-technology', label: 'IT & Technology' },
-          { value: 'manufacturing', label: 'Manufacturing' },
-          { value: 'media-communications', label: 'Media & Communications' },
-          { value: 'non-profit', label: 'Non-Profit' },
-          { value: 'retail', label: 'Retail' },
-          { value: 'trade-construction', label: 'Trade & Construction' },
-          { value: 'transport-logistics', label: 'Transport & Logistics' },
           { value: 'other', label: 'Other' }
         ]
       },
