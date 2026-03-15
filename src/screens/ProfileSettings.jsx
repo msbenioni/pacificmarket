@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { Mail, Lock, Eye, EyeOff, User, Save, ArrowLeft, Users, Shield, AlertCircle, CheckCircle, X, Plus, Trash2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, Save, ArrowLeft, Users, Shield, AlertCircle, CheckCircle, X, Plus, Trash2, ChevronDown, ChevronUp, Globe } from "lucide-react";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import PortalShell from "@/components/portal/PortalShell";
+import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
 
 export default function ProfileSettings() {
   const [user, setUser] = useState(null);
@@ -24,6 +25,14 @@ export default function ProfileSettings() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Profile foundation state
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [primaryCultural, setPrimaryCultural] = useState([]);
+  const [languages, setLanguages] = useState([]);
+  const [yearsOperating, setYearsOperating] = useState("");
+  const [expandedSections, setExpandedSections] = useState(new Set());
   
   // Admin management state
   const [showAddAdmin, setShowAddAdmin] = useState(false);
@@ -49,10 +58,10 @@ export default function ProfileSettings() {
           return;
         }
 
-        // Get user profile for role information
+        // Get user profile for role information and profile foundation data
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('role, display_name')
+          .select('role, display_name, city, country, primary_cultural, languages, years_operating')
           .eq('id', user.id)
           .single();
 
@@ -68,6 +77,13 @@ export default function ProfileSettings() {
         // Set form values
         setDisplayName(enhancedUser.display_name || "");
         setEmail(enhancedUser.email || "");
+        
+        // Set profile foundation values
+        setCity(profileData?.city || "");
+        setCountry(profileData?.country || "");
+        setPrimaryCultural(Array.isArray(profileData?.primary_cultural) ? profileData.primary_cultural : []);
+        setLanguages(Array.isArray(profileData?.languages) ? profileData.languages : []);
+        setYearsOperating(profileData?.years_operating || "");
 
         // Load admin users if this is an admin
         if (checkIsAdmin(enhancedUser)) {
@@ -319,6 +335,63 @@ export default function ProfileSettings() {
     }
   };
 
+  // Profile foundation helper functions
+  const toggleSection = (sectionKey) => {
+    setExpandedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(sectionKey)) next.delete(sectionKey);
+      else next.add(sectionKey);
+      return next;
+    });
+  };
+
+  const toggleArrayItem = (field, item) => {
+    const currentArray = field === 'primaryCultural' ? primaryCultural : languages;
+    const setter = field === 'primaryCultural' ? setPrimaryCultural : setLanguages;
+    
+    if (currentArray.includes(item)) {
+      setter(currentArray.filter((i) => i !== item));
+    } else {
+      setter([...currentArray, item]);
+    }
+  };
+
+  const updateProfileFoundation = async () => {
+    setSaving(true);
+    try {
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          city,
+          country,
+          primary_cultural: primaryCultural,
+          languages: languages,
+          years_operating: yearsOperating
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile foundation has been successfully updated.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error("Error updating profile foundation:", error);
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update profile foundation. Please try again.",
+        variant: "error"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
@@ -419,6 +492,119 @@ export default function ProfileSettings() {
                   {saving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
+            </div>
+
+            {/* Profile Foundation */}
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-[#0a1628] mb-6">Profile Foundation</h2>
+              
+              {/* Basic Information Section */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-[#0a1628]">Basic Information</h3>
+                    <p className="text-xs text-slate-500">Your name, location, and contact details</p>
+                  </div>
+                  <button
+                    onClick={() => toggleSection("basic")}
+                    className="text-slate-400 hover:text-slate-600"
+                  >
+                    {expandedSections.has("basic") ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                </div>
+                
+                {expandedSections.has("basic") && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[#0a1628] mb-2">City</label>
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                        placeholder="Enter your city"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Country</label>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                      >
+                        <option value="">Select country</option>
+                        {COUNTRIES.map((country) => (
+                          <option key={country.value} value={country.value}>
+                            {country.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Cultural Identity Section */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-[#0a1628]">Cultural Identity</h3>
+                    <p className="text-xs text-slate-500">Your Pacific cultural background and languages</p>
+                  </div>
+                  <button
+                    onClick={() => toggleSection("cultural")}
+                    className="text-slate-400 hover:text-slate-600"
+                  >
+                    {expandedSections.has("cultural") ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                </div>
+                
+                {expandedSections.has("cultural") && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Primary Cultural Identity</label>
+                      <div className="max-h-40 space-y-2 overflow-y-auto">
+                        {COUNTRIES.filter(country => country.value.includes('fiji') || country.value.includes('samoa') || country.value.includes('tonga') || country.value.includes('cook') || country.value.includes('niue') || country.value.includes('tuvalu') || country.value.includes('kiribati') || country.value.includes('marshall') || country.value.includes('micronesia') || country.value.includes('palau') || country.value.includes('papua') || country.value.includes('vanuatu') || country.value.includes('solomon') || country.value.includes('new-caledonia') || country.value.includes('french-polynesia') || country.value.includes('wallis') || country.value.includes('american-samoa') || country.value.includes('guam') || country.value.includes('northern-mariana')).map((country) => (
+                          <label key={country.value} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={primaryCultural.includes(country.value)}
+                              onChange={() => toggleArrayItem('primaryCultural', country.value)}
+                              className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                            />
+                            <span className="text-sm text-gray-700">{country.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Languages Spoken</label>
+                      <div className="max-h-40 space-y-2 overflow-y-auto">
+                        {LANGUAGES.map((language) => (
+                          <label key={language.value} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={languages.includes(language.value)}
+                              onChange={() => toggleArrayItem('languages', language.value)}
+                              className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                            />
+                            <span className="text-sm text-gray-700">{language.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={updateProfileFoundation}
+                disabled={saving}
+                className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                {saving ? "Saving..." : "Save Profile Foundation"}
+              </button>
             </div>
 
             {/* Change Password */}
