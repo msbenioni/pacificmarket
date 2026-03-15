@@ -79,25 +79,6 @@ export const ONBOARDING_STEPS = [
     purpose: 'Additional context for economic research (private data)',
     fields: [
       {
-        id: 'education_level',
-        label: 'Highest education level',
-        type: 'select',
-        required: false,
-        placeholder: 'Select education level',
-        description: 'Your highest completed education (private data)',
-        options: [
-          { value: 'high-school', label: 'High School' },
-          { value: 'some-college', label: 'Some College' },
-          { value: 'associate-degree', label: 'Associate Degree' },
-          { value: 'bachelors-degree', label: 'Bachelor\'s Degree' },
-          { value: 'masters-degree', label: 'Master\'s Degree' },
-          { value: 'phd', label: 'PhD or Doctorate' },
-          { value: 'professional-degree', label: 'Professional Degree (MD, JD, etc.)' },
-          { value: 'trade-certification', label: 'Trade Certification' },
-          { value: 'other', label: 'Other' }
-        ]
-      },
-      {
         id: 'mentorship_availability',
         label: 'Available to mentor others?',
         type: 'checkbox',
