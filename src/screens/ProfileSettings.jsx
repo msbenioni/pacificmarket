@@ -605,7 +605,7 @@ export default function ProfileSettings() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                      City
+                      Where are you based? (City)
                     </label>
                     <input
                       type="text"
@@ -618,7 +618,7 @@ export default function ProfileSettings() {
 
                   <div>
                     <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                      Country
+                      Where are you based? (Country)
                     </label>
                     <select
                       value={country}
