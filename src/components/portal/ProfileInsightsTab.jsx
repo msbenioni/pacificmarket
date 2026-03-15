@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Sparkles, ShieldCheck, LineChart, UserCircle2, ChevronDown } from "lucide-react";
+import { Sparkles, ShieldCheck, UserCircle2, ChevronDown } from "lucide-react";
 import { CARD_STYLES } from "@/constants/portalUI";
 import ProfileSettingsAccordion from "@/components/onboarding/ProfileSettingsAccordion";
-import FounderInsightsAccordion from "@/components/forms/FounderInsightsForm";
 
 // Premium accordion component (matching InvoiceGenerator style)
 function InsightsAccordionSection({
@@ -58,13 +57,7 @@ function InsightsAccordionSection({
 
 export default function ProfileInsightsTab({
   user,
-  businesses,
-  insightsSubmitting,
-  insightsStarted,
-  insightSnapshots,
   onProfileComplete,
-  onFounderInsightsSubmit,
-  setInsightsProgress,
 }) {
   // Accordion state - start with all sections closed
   const [openSections, setOpenSections] = useState([]);
@@ -87,7 +80,7 @@ export default function ProfileInsightsTab({
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#0d4f4f]/10 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0d4f4f] shadow-sm">
               <Sparkles className="h-3.5 w-3.5" />
-              Profile & Insights
+              Profile
             </div>
 
             <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#0a1628] sm:text-3xl">
@@ -95,8 +88,8 @@ export default function ProfileInsightsTab({
             </h2>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-              Complete your profile and share founder insights so your business can be
-              better represented, easier to discover, and better supported over time.
+              Complete your profile information so your business can be better represented 
+              and easier to discover in the Pacific Market community.
             </p>
           </div>
 
@@ -119,24 +112,7 @@ export default function ProfileInsightsTab({
           <ProfileSettingsAccordion onComplete={onProfileComplete} />
         </InsightsAccordionSection>
 
-        {/* Founder Insights Section */}
-        <InsightsAccordionSection
-          id="insights"
-          title="Founder story & growth insights"
-          subtitle="Step 2"
-          summary="Share your founder background, business reality, Pacific context, challenges, and community impact"
-          icon={LineChart}
-          isOpen={openSections.includes("insights")}
-          onToggle={() => toggleSection("insights")}
-        >
-          <FounderInsightsAccordion
-            businessId={businesses?.[0]?.id ?? null}
-            onSubmit={onFounderInsightsSubmit}
-            isLoading={insightsSubmitting}
-            initialData={insightSnapshots?.[0] || null}
-          />
-        </InsightsAccordionSection>
-      </div>
+        </div>
     </div>
   );
 }
