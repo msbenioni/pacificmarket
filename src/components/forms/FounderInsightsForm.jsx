@@ -66,9 +66,9 @@ const buildInitialFormState = (data = null) => {
         return acc;
       }, {}),
     }),
-    current_support_sources: data.current_support_sources ?? DEFAULT_FORM_STATE.current_support_sources,
-    pacific_identity: data.pacific_identity ?? DEFAULT_FORM_STATE.pacific_identity,
-    community_impact_areas_array: data.community_impact_areas_array ?? DEFAULT_FORM_STATE.community_impact_areas_array,
+    current_support_sources: data?.current_support_sources ?? DEFAULT_FORM_STATE.current_support_sources,
+    pacific_identity: data?.pacific_identity ?? DEFAULT_FORM_STATE.pacific_identity,
+    community_impact_areas_array: data?.community_impact_areas_array ?? DEFAULT_FORM_STATE.community_impact_areas_array,
   };
 
   console.log("buildInitialFormState result:", initialState);
