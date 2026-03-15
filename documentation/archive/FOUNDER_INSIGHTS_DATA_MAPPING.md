@@ -47,12 +47,12 @@
 | `top_challenges` | `top_challenges` | array | ✅ Kept |
 | `support_needed_next` | `support_needed_next` | array | ❌ **REMOVED** |
 
-### **5. Growth & Future Section (SIMPLIFIED)**
+### **5. Growth & Future Section (REMOVED)**
 | Form Field | Database Column | Type | Status |
 |------------|-----------------|------|--------|
-| `business_stage` | `business_stage` | text | ✅ Kept |
-| `goals_next_12_months_array` | `goals_next_12_months_array` | array | ✅ Kept |
-| `goals_details` | `goals_details` | text | ✅ Kept |
+| `business_stage` | `business_stage` | text | ❌ **REMOVED** (moved to business_insights) |
+| `goals_next_12_months_array` | `goals_next_12_months_array` | array | ❌ **REMOVED** (moved to business_insights) |
+| `goals_details` | `goals_details` | text | ❌ **REMOVED** (moved to business_insights) |
 | `hiring_intentions` | `hiring_intentions` | text | ❌ **REMOVED** |
 | `expansion_plans` | `expansion_plans` | text | ❌ **REMOVED** |
 
@@ -68,7 +68,7 @@
 
 ## **� Field Removal Summary**
 
-### **✅ Fields Removed (12 total):**
+### **✅ Fields Removed (15 total):**
 1. **Financial Section (8 fields):**
    - current_funding_source
    - investment_stage
@@ -83,17 +83,19 @@
    - support_needed_next
    - current_support_sources
 
-3. **Growth Fields (2 fields):**
+3. **Growth & Future Section (5 fields):**
+   - business_stage (moved to business_insights)
+   - goals_next_12_months_array (moved to business_insights)
+   - goals_details (moved to business_insights)
    - hiring_intentions
    - expansion_plans
 
 4. **Community Field (1 field):**
    - community_impact_areas
 
-### **✅ Fields Kept (16 total):**
+### **✅ Fields Kept (13 total):**
 - **Founder Background (7 fields)** - All kept
 - **Pacific Context (5 fields)** - All kept
-- **Growth & Future (3 fields)** - Simplified but kept
 - **Community & Impact (3 fields)** - Simplified but kept
 - **Challenges (1 field)** - Simplified but kept
 
@@ -108,11 +110,12 @@
 
 ### **✅ Key Changes:**
 - **Financial section completely removed** from all forms
+- **Growth & Future section completely removed** from founder insights (moved to business insights)
 - **Support fields simplified** to only top challenges
-- **Growth section simplified** to core goals and stage
 - **Community section simplified** to collaboration and mentorship
 - **All UI components updated** to reflect new structure
 - **Database migrations executed** to remove columns
+- **Business stage and goals moved** to business_insights table for proper separation
 
 ---
 
@@ -132,15 +135,23 @@ DROP COLUMN IF EXISTS angel_investor_interest,
 DROP COLUMN IF EXISTS investor_capacity,
 DROP COLUMN IF EXISTS support_needed_next_array,
 DROP COLUMN IF EXISTS current_support_sources_array,
+DROP COLUMN IF EXISTS business_stage,
+DROP COLUMN IF EXISTS goals_next_12_months_array,
+DROP COLUMN IF EXISTS goals_details,
 DROP COLUMN IF EXISTS hiring_intentions,
 DROP COLUMN IF EXISTS expansion_plans,
 DROP COLUMN IF EXISTS community_impact_areas_array;
+
+-- Note: business_stage, goals_next_12_months_array, and goals_details 
+-- were moved to business_insights table for proper data separation
 ```
 
 ### **✅ Form Changes:**
-- **FounderInsightsSummary.jsx** - Removed financial section entirely
-- **BusinessInsightsAccordion.jsx** - Simplified sections
-- **BusinessProfileForm.jsx** - Removed financial section
+- **FounderInsightsSummary.jsx** - Removed financial section entirely, removed Growth & Future section
+- **BusinessInsightsAccordion.jsx** - Simplified sections, removed Growth & Future section
+- **BusinessProfileForm.jsx** - Removed financial section, removed Growth & Future section
+- **FounderInsightsForm.jsx** - Removed Growth & Future step entirely
+- **FounderInsightsForm.Shared.jsx** - Removed Growth & Future step entirely
 - **All form sections** - Updated field mappings
 
 ---
