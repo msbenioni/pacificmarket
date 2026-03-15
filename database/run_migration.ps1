@@ -32,7 +32,7 @@ $env:PGPASSWORD = $DB_PASSWORD
 # Execute migration
 Write-Host "🔄 Executing migration..." -ForegroundColor Yellow
 try {
-    psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f $MIGRATION_FILE
+    & psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f $MIGRATION_FILE
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host ""
@@ -46,7 +46,8 @@ try {
         Write-Host "   DROP TABLE founder_insights_backup;" -ForegroundColor Gray
         Write-Host "   DROP TABLE business_insights_backup;" -ForegroundColor Gray
     } else {
-        throw "psql command failed with exit code $LASTEXITCODE"
+        Write-Host "❌ psql command failed with exit code $LASTEXITCODE" -ForegroundColor Red
+        exit 1
     }
 } catch {
     Write-Host ""
