@@ -2,12 +2,64 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { Mail, Lock, Eye, EyeOff, User, Save, ArrowLeft, Users, Shield, AlertCircle, CheckCircle, X, Plus, Trash2, ChevronDown, ChevronUp, Globe } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, Save, ArrowLeft, Users, Shield, AlertCircle, CheckCircle, X, Plus, Trash2, ChevronDown, ChevronUp, Globe, UserCircle2, Sparkles } from "lucide-react";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import HeroRegistry from "@/components/shared/HeroRegistry";
 import PortalShell from "@/components/portal/PortalShell";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
+
+// Premium accordion component (matching ProfileInsightsTab style)
+function InsightsAccordionSection({
+  id,
+  title,
+  subtitle,
+  summary,
+  icon: Icon,
+  isOpen,
+  onToggle,
+  children,
+}) {
+  return (
+    <div className="border-b border-gray-100 last:border-b-0 bg-gradient-to-r from-[#0a1628] to-[#0d4f4f] text-white">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-4 px-4 sm:px-5 py-4 text-left hover:bg-white/10 transition"
+      >
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <Icon className="w-4 h-4 text-white" />
+          </div>
+
+          <div className="min-w-0">
+            <div className="font-semibold text-white text-sm">{title}</div>
+            {subtitle && (
+              <div className="text-xs text-gray-300 mt-0.5">{subtitle}</div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          {summary && (
+            <div className="hidden md:block text-xs text-gray-300 text-right">
+              {summary}
+            </div>
+          )}
+          <div className="text-gray-300 text-sm">
+            {isOpen ? <ChevronDown className="w-4 h-4 rotate-180" /> : <ChevronDown className="w-4 h-4" />}
+          </div>
+        </div>
+      </button>
+
+      {isOpen && (
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 bg-white">
+          <div className="pt-1">{children}</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ProfileSettings() {
   const [user, setUser] = useState(null);
@@ -415,348 +467,261 @@ export default function ProfileSettings() {
     );
   }
 
-  const tabs = [
-    { id: "profile", label: "Profile Settings", icon: User },
-  ];
+            </div>
 
-  if (isAdmin) {
-    tabs.push({ id: "admins", label: "Admin Users", icon: Users });
-  }
+            <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#0a1628] sm:text-3xl">
+              Manage your profile settings
+            </h2>
 
-  return (
-    <PortalShell>
-      <HeroRegistry
-        badge="Profile Settings"
-        title={`Welcome, ${user?.display_name?.split(" ")[0] || user?.full_name?.split(" ")[0] || "User"}`}
-        subtitle={user?.email}
-        description="Manage your account settings and preferences"
-        actions={null}
-      />
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="bg-white border border-gray-200 rounded-xl mb-8">
-          <div className="flex gap-8 p-1">
-            {tabs.map(tab => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-3 px-4 rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-[#0d4f4f] text-white"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px)">
+              Update your account information, profile foundation, and security settings 
+              to keep your Pacific Market profile current and secure.
+            </p>
           </div>
+
         </div>
-        {/* Profile Settings Tab */}
-        {activeTab === "profile" && (
-          <div className="space-y-8">
-            {/* Basic Information */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-[#0a1628] mb-6">Basic Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#0a1628] mb-2">Display Name</label>
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                    placeholder="Enter your display name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#0a1628] mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                    placeholder="Enter your email"
-                  />
-                </div>
-                <button
-                  onClick={updateProfile}
-                  disabled={saving}
-                  className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
+      </section>
+
+      {/* Accordion Sections */}
+      <div className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
+        
+        {/* Basic Account Settings */}
+        <InsightsAccordionSection
+          id="account"
+          title="Account Settings"
+          subtitle="Step 1"
+          summary="Manage your display name and email address"
+          icon={User}
+          isOpen={expandedSections.has("account")}
+          onToggle={() => toggleSection("account")}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Display Name</label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                placeholder="Enter your display name"
+              />
             </div>
-
-            {/* Profile Foundation */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-[#0a1628] mb-6">Profile Foundation</h2>
-              
-              {/* Basic Information Section */}
-              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm mb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-sm font-semibold text-[#0a1628]">Basic Information</h3>
-                    <p className="text-xs text-slate-500">Your name, location, and contact details</p>
-                  </div>
-                  <button
-                    onClick={() => toggleSection("basic")}
-                    className="text-slate-400 hover:text-slate-600"
-                  >
-                    {expandedSections.has("basic") ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                  </button>
-                </div>
-                
-                {expandedSections.has("basic") && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[#0a1628] mb-2">City</label>
-                      <input
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                        placeholder="Enter your city"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Country</label>
-                      <select
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                      >
-                        <option value="">Select country</option>
-                        {COUNTRIES.map((country) => (
-                          <option key={country.value} value={country.value}>
-                            {country.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Cultural Identity Section */}
-              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm mb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-sm font-semibold text-[#0a1628]">Cultural Identity</h3>
-                    <p className="text-xs text-slate-500">Your Pacific cultural background and languages</p>
-                  </div>
-                  <button
-                    onClick={() => toggleSection("cultural")}
-                    className="text-slate-400 hover:text-slate-600"
-                  >
-                    {expandedSections.has("cultural") ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                  </button>
-                </div>
-                
-                {expandedSections.has("cultural") && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Primary Cultural Identity</label>
-                      <div className="max-h-40 space-y-2 overflow-y-auto">
-                        {COUNTRIES.filter(country => country.value.includes('fiji') || country.value.includes('samoa') || country.value.includes('tonga') || country.value.includes('cook') || country.value.includes('niue') || country.value.includes('tuvalu') || country.value.includes('kiribati') || country.value.includes('marshall') || country.value.includes('micronesia') || country.value.includes('palau') || country.value.includes('papua') || country.value.includes('vanuatu') || country.value.includes('solomon') || country.value.includes('new-caledonia') || country.value.includes('french-polynesia') || country.value.includes('wallis') || country.value.includes('american-samoa') || country.value.includes('guam') || country.value.includes('northern-mariana')).map((country) => (
-                          <label key={country.value} className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={primaryCultural.includes(country.value)}
-                              onChange={() => toggleArrayItem('primaryCultural', country.value)}
-                              className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
-                            />
-                            <span className="text-sm text-gray-700">{country.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Languages Spoken</label>
-                      <div className="max-h-40 space-y-2 overflow-y-auto">
-                        {LANGUAGES.map((language) => (
-                          <label key={language.value} className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={languages.includes(language.value)}
-                              onChange={() => toggleArrayItem('languages', language.value)}
-                              className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
-                            />
-                            <span className="text-sm text-gray-700">{language.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={updateProfileFoundation}
-                disabled={saving}
-                className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                {saving ? "Saving..." : "Save Profile Foundation"}
-              </button>
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                placeholder="Enter your email"
+              />
             </div>
-
-            {/* Change Password */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-[#0a1628] mb-6">Change Password</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#0a1628] mb-2">Current Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type={showCurrentPassword ? "text" : "password"}
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                      placeholder="Enter current password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#0a1628] mb-2">New Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type={showNewPassword ? "text" : "password"}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                      placeholder="Enter new password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#0a1628] mb-2">Confirm New Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                      placeholder="Confirm new password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-                <button
-                  onClick={updatePassword}
-                  disabled={saving || !currentPassword || !newPassword || !confirmPassword}
-                  className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? "Updating..." : "Update Password"}
-                </button>
-              </div>
-            </div>
+            <button
+              onClick={updateProfile}
+              disabled={saving}
+              className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
           </div>
-        )}
+        </InsightsAccordionSection>
 
-        {/* Admin Users Tab */}
-        {activeTab === "admins" && isAdmin && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-[#0a1628]">Admin Users</h2>
-                <p className="text-sm text-gray-500">Manage users with administrative access</p>
-              </div>
-              <button
-                onClick={() => setShowAddAdmin(true)}
-                className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-4 py-2 rounded-lg transition-colors"
+        {/* Profile Foundation */}
+        <InsightsAccordionSection
+          id="profile"
+          title="Profile Foundation"
+          subtitle="Step 2"
+          summary="Complete your location and cultural identity information"
+          icon={UserCircle2}
+          isOpen={expandedSections.has("profile")}
+          onToggle={() => toggleSection("profile")}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">City</label>
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                placeholder="Enter your city"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Country</label>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
               >
-                <Plus className="w-4 h-4" />
-                Add Admin
-              </button>
+                <option value="">Select country</option>
+                {COUNTRIES.map((country) => (
+                  <option key={country.value} value={country.value}>
+                    {country.label}
+                  </option>
+                ))}
+              </select>
             </div>
-
-            {/* Admin Users List */}
-            <div className="bg-white border border-gray-200 rounded-xl">
-              {adminUsers.length === 0 ? (
-                <div className="p-8 text-center">
-                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No admin users found</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {adminUsers.map(admin => (
-                    <div key={admin.id} className="p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-red-50 border border-red-200 flex items-center justify-center">
-                          <Shield className="w-5 h-5 text-red-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-[#0a1628]">{admin.display_name || admin.full_name}</p>
-                          <p className="text-sm text-gray-500">{admin.email}</p>
-                        </div>
-                      </div>
-                      {admin.id !== user.id && (
-                        <button
-                          onClick={() => removeAdminUser(admin.id, admin.display_name || admin.full_name)}
-                          className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Primary Cultural Identity</label>
+              <div className="max-h-40 space-y-2 overflow-y-auto">
+                {COUNTRIES.filter(country => country.value.includes('fiji') || country.value.includes('samoa') || country.value.includes('tonga') || country.value.includes('cook') || country.value.includes('niue') || country.value.includes('tuvalu') || country.value.includes('kiribati') || country.value.includes('marshall') || country.value.includes('micronesia') || country.value.includes('palau') || country.value.includes('papua') || country.value.includes('vanuatu') || country.value.includes('solomon') || country.value.includes('new-caledonia') || country.value.includes('french-polynesia') || country.value.includes('wallis') || country.value.includes('american-samoa') || country.value.includes('guam') || country.value.includes('northern-mariana')).map((country) => (
+                  <label key={country.value} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={primaryCultural.includes(country.value)}
+                      onChange={() => toggleArrayItem('primaryCultural', country.value)}
+                      className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                    />
+                    <span className="text-sm text-gray-700">{country.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Languages Spoken</label>
+              <div className="max-h-40 space-y-2 overflow-y-auto">
+                {LANGUAGES.map((language) => (
+                  <label key={language.value} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={languages.includes(language.value)}
+                      onChange={() => toggleArrayItem('languages', language.value)}
+                      className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
+                    />
+                    <span className="text-sm text-gray-700">{language.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={updateProfileFoundation}
+              disabled={saving}
+              className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? "Saving..." : "Save Profile Foundation"}
+            </button>
+          </div>
+        </InsightsAccordionSection>
 
-            {/* Add Admin Modal */}
-            {showAddAdmin && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-[#0a1628]">Add Admin User</h3>
-                    <button
-                      onClick={() => setShowAddAdmin(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+        {/* Security Settings */}
+        <InsightsAccordionSection
+          id="security"
+          title="Security Settings"
+          subtitle="Step 3"
+          summary="Update your password and security preferences"
+          icon={Shield}
+          isOpen={expandedSections.has("security")}
+          onToggle={() => toggleSection("security")}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Current Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                  placeholder="Enter current password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">New Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                  placeholder="Enter new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#0a1628] mb-2">Confirm New Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                  placeholder="Confirm new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={updatePassword}
+              disabled={saving}
+              className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? "Updating..." : "Update Password"}
+            </button>
+          </div>
+        </InsightsAccordionSection>
+
+        {/* Admin Users Section - Only show if admin */}
+        {isAdmin && (
+          <InsightsAccordionSection
+            id="admins"
+            title="Admin Users"
+            subtitle="Admin"
+            summary="Manage admin user access and permissions"
+            icon={Users}
+            isOpen={expandedSections.has("admins")}
+            onToggle={() => toggleSection("admins")}
+          >
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-[#0a1628]">Admin Users</h3>
+                <button
+                  onClick={() => setShowAddAdmin(!showAddAdmin)}
+                  className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-4 py-2 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Admin
+                </button>
+              </div>
+
+              {showAddAdmin && (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Full Name</label>
+                      <label className="block text-sm font-medium text-[#0a1628] mb-2">Name</label>
                       <input
                         type="text"
                         value={newAdminName}
                         onChange={(e) => setNewAdminName(e.target.value)}
                         className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                        placeholder="Enter full name"
+                        placeholder="Enter admin name"
                       />
                     </div>
                     <div>
@@ -796,11 +761,12 @@ export default function ProfileSettings() {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </InsightsAccordionSection>
         )}
+
       </div>
-    </PortalShell>
-  );
-}
+    </div>
+  </PortalShell>
+);
