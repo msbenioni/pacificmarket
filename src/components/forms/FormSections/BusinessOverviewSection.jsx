@@ -11,6 +11,17 @@ export default function BusinessOverviewSection({
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <label className={labelCls}>Founder Story</label>
+        <textarea
+          value={form.founder_story || ""}
+          onChange={(e) => handleInputChange("founder_story", e.target.value)}
+          className={textareaCls}
+          placeholder="Share your journey and what inspired you to start this business..."
+          rows={4}
+        />
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className={labelCls}>Year Started</label>
@@ -108,17 +119,6 @@ export default function BusinessOverviewSection({
             </select>
           </div>
         </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className={labelCls}>Founder Story</label>
-        <textarea
-          value={form.founder_story || ""}
-          onChange={(e) => handleInputChange("founder_story", e.target.value)}
-          className={textareaCls}
-          placeholder="Share your journey and what inspired you to start this business..."
-          rows={4}
-        />
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
