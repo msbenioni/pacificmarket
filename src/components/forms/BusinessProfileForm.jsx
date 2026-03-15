@@ -21,6 +21,7 @@ import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import ChallengesSection from "./FormSections/ChallengesSection";
+import CommunitySection from "./FormSections/CommunitySection";
 
 // Form Section Component
 function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, onSaveSection, saving, formData, errors }) {
@@ -139,6 +140,12 @@ const SECTIONS = [
     icon: Building2,
     description: "Year started, structure, team size, and business operations",
   },
+  {
+    key: "community",
+    label: "Community & Impact",
+    icon: Lightbulb,
+    description: "How your business contributes to the wider community",
+  },
 ];
 
 // Section Fields Mapping
@@ -150,6 +157,11 @@ const SECTION_FIELDS = {
     "year_started",
     "business_structure",
     "team_size_band",
+  ],
+  community: [
+    "collaboration_interest",
+    "mentorship_offering",
+    "open_to_future_contact",
   ],
 };
 
@@ -207,6 +219,10 @@ export default function BusinessProfileForm({
     is_verified: false,
     is_claimed: false,
     is_homepage_featured: false,
+    
+    collaboration_interest: false,
+    mentorship_offering: false,
+    open_to_future_contact: false,
   });
 
   const [expandedSections, setExpandedSections] = useState(new Set(["core"]));
@@ -473,6 +489,20 @@ export default function BusinessProfileForm({
             inputCls={inputCls}
             labelCls={labelCls}
             textareaCls={textareaCls}
+            helperCls={helperCls}
+          />
+        );
+      
+      case "community":
+        return (
+          <CommunitySection
+            form={form}
+            handleInputChange={handleInputChange}
+            toggleArrayItem={toggleArrayItem}
+            inputCls={inputCls}
+            labelCls={labelCls}
+            textareaCls={textareaCls}
+            selectCls={selectCls}
             helperCls={helperCls}
           />
         );
