@@ -96,7 +96,6 @@ export default function ProfileSettings() {
   const [country, setCountry] = useState("");
   const [primaryCultural, setPrimaryCultural] = useState([]);
   const [languages, setLanguages] = useState([]);
-  const [yearsOperating, setYearsOperating] = useState("");
   const [expandedSections, setExpandedSections] = useState(new Set(["account"]));
 
   // Admin management state
@@ -158,7 +157,6 @@ export default function ProfileSettings() {
         setLanguages(
           Array.isArray(profileData?.languages) ? profileData.languages : []
         );
-        setYearsOperating(profileData?.years_operating || "");
 
         if (checkIsAdmin(enhancedUser)) {
           await loadAdminUsers();
@@ -442,7 +440,6 @@ export default function ProfileSettings() {
           country,
           primary_cultural: primaryCultural,
           languages,
-          years_operating: yearsOperating,
         })
         .eq("id", user.id);
 
@@ -687,19 +684,6 @@ export default function ProfileSettings() {
                         </label>
                       ))}
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                      Years Operating
-                    </label>
-                    <input
-                      type="text"
-                      value={yearsOperating}
-                      onChange={(e) => setYearsOperating(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                      placeholder="e.g. 5 years"
-                    />
                   </div>
 
                   <button
