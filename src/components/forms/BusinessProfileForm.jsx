@@ -157,6 +157,9 @@ const SECTION_FIELDS = {
     "year_started",
     "business_structure",
     "team_size_band",
+    "founder_story",
+    "age_range",
+    "gender",
   ],
   community: [
     "collaboration_interest",
@@ -214,6 +217,11 @@ export default function BusinessProfileForm({
     year_started: null,
     business_structure: "",
     team_size_band: "",
+    
+    // Founder Information
+    founder_story: "",
+    age_range: "",
+    gender: "",
     
     // Status & Verification (admin only)
     status: BUSINESS_STATUS.ACTIVE,

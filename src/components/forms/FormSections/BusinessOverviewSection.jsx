@@ -1,4 +1,4 @@
-import { BUSINESS_STAGE } from "@/constants/unifiedConstants";
+import { BUSINESS_STAGE, AGE_RANGES, GENDER_OPTIONS } from "@/constants/unifiedConstants";
 
 export default function BusinessOverviewSection({ 
   form, 
@@ -105,6 +105,53 @@ export default function BusinessOverviewSection({
               <option value="">Select registration status</option>
               <option value="true">Registered</option>
               <option value="false">Not registered</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <label className={labelCls}>Founder Story</label>
+        <textarea
+          value={form.founder_story || ""}
+          onChange={(e) => handleInputChange("founder_story", e.target.value)}
+          className={textareaCls}
+          placeholder="Share your journey and what inspired you to start this business..."
+          rows={4}
+        />
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className={labelCls}>Age Range</label>
+            <select
+              value={form.age_range || ""}
+              onChange={(e) => handleInputChange("age_range", e.target.value)}
+              className={selectCls}
+            >
+              <option value="">Select age range</option>
+              {AGE_RANGES.map((range) => (
+                <option key={range.value} value={range.value}>
+                  {range.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={labelCls}>Gender</label>
+            <select
+              value={form.gender || ""}
+              onChange={(e) => handleInputChange("gender", e.target.value)}
+              className={selectCls}
+            >
+              <option value="">Select gender</option>
+              {GENDER_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

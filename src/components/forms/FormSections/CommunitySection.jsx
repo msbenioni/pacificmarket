@@ -1,4 +1,4 @@
-import { COMMUNITY_IMPACT_AREAS, AGE_RANGES, GENDER_OPTIONS } from "@/constants/unifiedConstants";
+import { COMMUNITY_IMPACT_AREAS } from "@/constants/unifiedConstants";
 
 function OptionCard({ checked, onChange, label, type = "checkbox" }) {
   return (
@@ -55,52 +55,6 @@ export default function CommunitySection({
             onChange={() => handleInputChange("business_acquisition_interest", !form.business_acquisition_interest)}
             label="I am interested in acquiring or investing in existing businesses"
           />
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className={labelCls}>Founder Story</label>
-        <textarea
-          value={form.founder_story || ""}
-          onChange={(e) => handleInputChange("founder_story", e.target.value)}
-          className={textareaCls}
-          placeholder="Share your journey and what inspired you to start this business..."
-          rows={4}
-        />
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className={labelCls}>Age Range</label>
-            <select
-              value={form.age_range || ""}
-              onChange={(e) => handleInputChange("age_range", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select age range</option>
-              <option value="18-24">18-24</option>
-              <option value="25-34">25-34</option>
-              <option value="35-44">35-44</option>
-              <option value="45-54">45-54</option>
-              <option value="55+">55+</option>
-            </select>
-          </div>
-
-          <div>
-            <label className={labelCls}>Gender</label>
-            <select
-              value={form.gender || ""}
-              onChange={(e) => handleInputChange("gender", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="non-binary">Non-binary</option>
-              <option value="prefer-not-to-say">Prefer not to say</option>
-            </select>
-          </div>
         </div>
       </div>
     </div>

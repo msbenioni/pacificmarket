@@ -111,6 +111,10 @@ export default function BusinessInsightsAccordion({
     // Fields moved from InlineBusinessForm
     year_started: null,
     business_structure: "",
+    // Founder Information
+    founder_story: "",
+    age_range: "",
+    gender: "",
   });
 
   const [expandedSections, setExpandedSections] = useState(new Set(["overview"]));
