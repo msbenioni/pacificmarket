@@ -33,18 +33,13 @@ export default function CommunitySection({
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className={labelCls}>Collaboration Interest</label>
-        <div className="mt-3">
+        <label className={labelCls}>Community & Collaboration</label>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <OptionCard
             checked={form.collaboration_interest || false}
             onChange={() => handleInputChange("collaboration_interest", !form.collaboration_interest)}
             label="I am open to collaboration opportunities"
           />
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <OptionCard
             checked={form.mentorship_offering || false}
             onChange={() => handleInputChange("mentorship_offering", !form.mentorship_offering)}
@@ -55,11 +50,6 @@ export default function CommunitySection({
             onChange={() => handleInputChange("open_to_future_contact", !form.open_to_future_contact)}
             label="I am open to being contacted from Pacific Market regarding future opportunities"
           />
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <OptionCard
             checked={form.business_acquisition_interest || false}
             onChange={() => handleInputChange("business_acquisition_interest", !form.business_acquisition_interest)}
