@@ -6,7 +6,6 @@ import {
   ChevronUp,
   ChevronRight,
   Building2,
-  TrendingUp,
   AlertCircle,
   Rocket,
   Lightbulb,
@@ -14,11 +13,7 @@ import {
 import {
   BUSINESS_STAGE,
   BUSINESS_CHALLENGES,
-  SUPPORT_NEEDS,
   GOALS_NEXT_12_MONTHS,
-  COMMUNITY_IMPACT_AREAS,
-  FUNDING_SOURCES,
-  INVESTMENT_STAGES,
 } from "@/constants/unifiedConstants";
 
 const inputCls =
@@ -41,12 +36,6 @@ const SECTIONS = [
     label: "Business Overview",
     icon: Building2,
     description: "Basic information about your business operations and scale",
-  },
-  {
-    key: "financial",
-    label: "Financial Overview",
-    icon: TrendingUp,
-    description: "Funding sources, revenue, and investment needs",
   },
   {
     key: "challenges",
@@ -75,16 +64,9 @@ const SECTION_FIELDS = {
     "revenue_band",
     "business_operating_status",
   ],
-  financial: [
-    "current_funding_source",
-    "funding_amount_needed",
-    "investment_stage",
-    "financial_challenges",
-  ],
-  challenges: ["top_challenges_array", "support_needed_next_array"],
+  challenges: ["top_challenges_array"],
   growth: ["growth_stage", "goals_next_12_months_array", "goals_details"],
   community: [
-    "community_impact_areas_array",
     "collaboration_interest",
     "mentorship_offering",
     "open_to_future_contact",
@@ -128,34 +110,8 @@ export default function BusinessInsightsAccordion({
     is_business_registered: false,
     employs_anyone: false,
     employs_family_community: false,
-    current_funding_source: "",
-    funding_amount_needed: "",
-    funding_purpose: "",
-    investment_stage: "",
-    investment_exploration: "",
-    community_impact_areas_array: [],
-    support_needed_next_array: [],
-    current_support_sources_array: [],
-    expansion_plans: "",
-    import_export_status: "",
-    import_countries: [],
-    export_countries: [],
     growth_stage: "",
     top_challenges_array: "",
-    hiring_intentions: "",
-    founder_role: "",
-    founder_story: "",
-    founder_motivation: [],
-    gender: "",
-    age_range: "",
-    based_in_country: "",
-    based_in_city: "",
-    based_in_suburb: "",
-    cultural_background: "",
-    family_responsibilities: "",
-    goals_next_12_months: [],
-    // Additional fields that exist in database
-    financial_challenges: "",
     goals_next_12_months_array: [],
     goals_details: "",
     collaboration_interest: false,
@@ -372,82 +328,6 @@ export default function BusinessInsightsAccordion({
       );
     }
 
-    if (sectionKey === "financial") {
-      return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className={labelCls}>Current Funding Source</label>
-                <select
-                  value={form.current_funding_source || ""}
-                  onChange={(e) =>
-                    handleInputChange("current_funding_source", e.target.value)
-                  }
-                  className={selectCls}
-                >
-                  <option value="">Select funding source</option>
-                  {FUNDING_SOURCES.map((source) => (
-                    <option key={source.value} value={source.value}>
-                      {source.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={labelCls}>Funding Amount Needed</label>
-                <select
-                  value={form.funding_amount_needed || ""}
-                  onChange={(e) =>
-                    handleInputChange("funding_amount_needed", e.target.value)
-                  }
-                  className={selectCls}
-                >
-                  <option value="">Select amount</option>
-                  <option value="0-5k">Under $5,000</option>
-                  <option value="5k-10k">$5,000 - $10,000</option>
-                  <option value="10k-25k">$10,000 - $25,000</option>
-                  <option value="25k-50k">$25,000 - $50,000</option>
-                  <option value="50k-100k">$50,000 - $100,000</option>
-                  <option value="100k+">Over $100,000</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className={labelCls}>Investment Stage</label>
-            <select
-              value={form.investment_stage || ""}
-              onChange={(e) => handleInputChange("investment_stage", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select stage</option>
-              {INVESTMENT_STAGES.map((stage) => (
-                <option key={stage.value} value={stage.value}>
-                  {stage.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className={labelCls}>Financial Challenges</label>
-            <textarea
-              value={form.financial_challenges || ""}
-              onChange={(e) =>
-                handleInputChange("financial_challenges", e.target.value)
-              }
-              placeholder="Describe any financial challenges or constraints you're facing..."
-              rows={4}
-              className={textareaCls}
-            />
-          </div>
-        </div>
-      );
-    }
-
     if (sectionKey === "challenges") {
       return (
         <div className="space-y-4">
@@ -469,29 +349,6 @@ export default function BusinessInsightsAccordion({
                   checked={form.top_challenges_array?.includes(challenge.value) || false}
                   onChange={() => toggleArrayItem("top_challenges_array", challenge.value)}
                   label={challenge.label}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <label className={labelCls}>Support Needed</label>
-                <p className={helperCls}>Choose up to 3.</p>
-              </div>
-              <span className="text-xs font-medium text-slate-500">
-                {form.support_needed_next_array?.length || 0}/3 selected
-              </span>
-            </div>
-
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {SUPPORT_NEEDS.map((support) => (
-                <OptionCard
-                  key={support.value}
-                  checked={form.support_needed_next_array?.includes(support.value) || false}
-                  onChange={() => toggleArrayItem("support_needed_next_array", support.value)}
-                  label={support.label}
                 />
               ))}
             </div>
@@ -562,23 +419,6 @@ export default function BusinessInsightsAccordion({
     if (sectionKey === "community") {
       return (
         <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <label className={labelCls}>Community Impact Areas</label>
-            <p className={helperCls}>Select all that apply.</p>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {COMMUNITY_IMPACT_AREAS.map((area) => (
-                <OptionCard
-                  key={area.value}
-                  checked={form.community_impact_areas_array?.includes(area.value) || false}
-                  onChange={() =>
-                    toggleArrayItem("community_impact_areas_array", area.value)
-                  }
-                  label={area.label}
-                />
-              ))}
-            </div>
-          </div>
-
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <label className={labelCls}>Collaboration Interest</label>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
