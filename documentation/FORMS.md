@@ -164,15 +164,6 @@ const [form, setForm] = useState({
 - **revenue_band** - Revenue category
 - **business_registered** - Legal registration status
 
-### **✅ FinancialOverviewSection** (Simplified)
-
-**Location:** `src/components/forms/FormSections/FinancialOverviewSection.jsx`
-
-**Fields:**
-- **financial_challenges** - Financial challenges description
-
-*Note: Financial fields like funding sources, investment stages have been removed for simplification.*
-
 ### **✅ ChallengesSection** (Simplified)
 
 **Location:** `src/components/forms/FormSections/ChallengesSection.jsx`
@@ -219,7 +210,6 @@ const [form, setForm] = useState({
 | **BrandMedia** | businesses | logo_url, banner_url, mobile_banner_url |
 | **Location** | businesses | country, industry, city |
 | **Overview** | businesses + business_insights | year_started, business_structure, team_size_band, revenue_band, business_registered, business_stage |
-| **Financial** | - | Only financial_challenges (no database fields) |
 | **Challenges** | business_insights | top_challenges_array |
 | **Growth** | businesses | import_export_status |
 | **Community** | founder_insights | collaboration_interest, mentorship_offering, open_to_future_contact, founder_story, age_range, gender |

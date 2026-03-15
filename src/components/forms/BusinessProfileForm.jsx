@@ -21,7 +21,6 @@ import CoreInfoSection from "./FormSections/CoreInfoSection";
 import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
-import FinancialOverviewSection from "./FormSections/FinancialOverviewSection";
 import ChallengesSection from "./FormSections/ChallengesSection";
 import GrowthSection from "./FormSections/GrowthSection";
 import CommunitySection from "./FormSections/CommunitySection";
@@ -144,12 +143,6 @@ const SECTIONS = [
     description: "Year started, structure, team size, and business operations",
   },
   {
-    key: "financial",
-    label: "Financial Overview",
-    icon: TrendingUp,
-    description: "Funding sources, revenue, and investment needs",
-  },
-  {
     key: "challenges",
     label: "Challenges & Support",
     icon: AlertCircle,
@@ -181,12 +174,6 @@ const SECTION_FIELDS = {
     "business_stage",
     "revenue_band",
     "is_business_registered",
-  ],
-  financial: [
-    "current_funding_source",
-    "funding_amount_needed",
-    "investment_stage",
-    "financial_challenges",
   ],
   challenges: ["top_challenges_array", "support_needed_next_array"],
   growth: ["growth_stage", "goals_next_12_months_array", "goals_details"],
@@ -285,7 +272,6 @@ export default function BusinessProfileForm({
     goals_next_12_months: [],
     
     // Additional fields that exist in database
-    financial_challenges: "",
     goals_next_12_months_array: [],
     goals_details: "",
     collaboration_interest: false,
@@ -542,18 +528,6 @@ export default function BusinessProfileForm({
       case "overview":
         return (
           <BusinessOverviewSection
-            form={form}
-            handleInputChange={handleInputChange}
-            inputCls={inputCls}
-            selectCls={selectCls}
-            labelCls={labelCls}
-            textareaCls={textareaCls}
-          />
-        );
-      
-      case "financial":
-        return (
-          <FinancialOverviewSection
             form={form}
             handleInputChange={handleInputChange}
             inputCls={inputCls}
