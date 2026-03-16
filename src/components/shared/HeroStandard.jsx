@@ -1,4 +1,4 @@
-export default function HeroRegistry({
+export default function HeroStandard({
   title,
   subtitle,
   badge,
@@ -33,7 +33,9 @@ export default function HeroRegistry({
         <h1 className={`font-bold mb-2 ${titleCls}`}>{title}</h1>
 
         {subtitle && <p className="text-gray-400 text-sm mb-2">{subtitle}</p>}
-        {description && <p className="text-gray-400 text-sm max-w-xl">{description}</p>}
+        {description && (
+          <p className="text-gray-400 text-sm max-w-xl">{description}</p>
+        )}
 
         {showStats && stats && (
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -49,7 +51,7 @@ export default function HeroRegistry({
         )}
 
         {actions && (
-          <div className={`${actionsCls} flex items-center gap-4`}>
+          <div className={`${actionsCls} flex flex-col sm:flex-row items-start sm:items-center gap-4`}>
             {actions}
           </div>
         )}

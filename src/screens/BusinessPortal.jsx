@@ -11,7 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 import {
   SUBSCRIPTION_TIER,
   getTierDisplayName,
@@ -143,7 +143,7 @@ export default function BusinessPortal() {
 
   return (
     <PortalShell>
-      <HeroRegistry
+      <HeroStandard
         badge="Business Owner Portal"
         title={`Welcome back, ${user?.full_name?.split(" ")[0] || "Owner"}`}
         subtitle={user?.email}

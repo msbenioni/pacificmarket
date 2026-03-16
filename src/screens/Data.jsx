@@ -1,10 +1,10 @@
 import { Database, Shield, Lock, Users } from "lucide-react";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function Data() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
-      <HeroRegistry
+      <HeroStandard
         badge="Legal"
         title="Data Protection"
         subtitle=""
@@ -70,7 +70,7 @@ export default function Data() {
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Data Categories We Process</h2>
               
-              <h3 className="text-lg font-semibold text-[#0a1628] mb-4">Business Registry Data</h3>
+              <h3 className="text-lg font-semibold text-[#0a1628] mb-4">Business Pacific Discovery Network Data</h3>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
                 <li>Business name, description, and contact information</li>
                 <li>Location, industry, and operational details</li>

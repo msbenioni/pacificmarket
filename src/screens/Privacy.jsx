@@ -1,10 +1,10 @@
 import { Shield, Eye, Lock, Database } from "lucide-react";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function Privacy() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
-      <HeroRegistry
+      <HeroStandard
         badge="Legal"
         title="Privacy Policy"
         subtitle=""
@@ -54,7 +54,7 @@ export default function Privacy() {
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">2. How We Use Your Information</h2>
               <p className="text-gray-600 mb-6">We use your information to:</p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
-                <li>Provide and maintain our registry service</li>
+                <li>Provide and maintain our Pacific Discovery Network service</li>
                 <li>Process business listings and verification requests</li>
                 <li>Communicate with you about your account</li>
                 <li>Improve our services and user experience</li>
@@ -70,7 +70,7 @@ export default function Privacy() {
                 <li><strong>Contract:</strong> When processing is necessary for our service agreement</li>
                 <li><strong>Legal Obligation:</strong> When required by law or regulatory requirements</li>
                 <li><strong>Legitimate Interests:</strong> When processing is necessary for our legitimate business interests</li>
-                <li><strong>Public Interest:</strong> For maintaining the registry and supporting Pacific communities</li>
+                <li><strong>Public Interest:</strong> For maintaining Pacific Discovery Network and supporting Pacific communities</li>
               </ul>
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">4. Information Sharing</h2>
@@ -78,7 +78,7 @@ export default function Privacy() {
                 We do not sell your personal information. We may share information in the following circumstances:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
-                <li><strong>Public Listings:</strong> Business information is publicly displayed in the registry</li>
+                <li><strong>Public Listings:</strong> Business information is publicly displayed in Pacific Discovery Network</li>
                 <li><strong>Service Providers:</strong> With trusted third parties who help us operate our service</li>
                 <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
                 <li><strong>Business Transfers:</strong> In connection with mergers, acquisitions, or asset sales</li>

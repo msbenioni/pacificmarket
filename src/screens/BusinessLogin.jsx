@@ -4,7 +4,7 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import HeroRegistry from "@/components/shared/HeroRegistry";
+import HeroStandard from "@/components/shared/HeroStandard";
 
 export default function BusinessLogin() {
   const router = useRouter();
@@ -205,7 +205,7 @@ export default function BusinessLogin() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
       {/* Hero - using shared component */}
-      <HeroRegistry
+      <HeroStandard
         badge={mode === "signin" ? "Business Login" : "Create Account"}
         title={mode === "signin" ? "Welcome Back" : "Create Your Account"}
         subtitle=""

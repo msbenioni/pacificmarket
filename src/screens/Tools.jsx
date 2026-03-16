@@ -3,7 +3,6 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import {
   ArrowRight,
-  CheckCircle,
   Mail,
   FileText,
   QrCode,
@@ -11,6 +10,7 @@ import {
   Shield,
   Briefcase,
 } from "lucide-react";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function Tools() {
   const tools = [
@@ -38,8 +38,7 @@ export default function Tools() {
       title: "QR Code Generator",
       description:
         "Generate downloadable QR codes for your profile, website, campaign, packaging, stall signage, or promotional material.",
-      benefit:
-        "Help people reach your business faster with a simple scan.",
+      benefit: "Help people reach your business faster with a simple scan.",
       icon: QrCode,
       image: "/QR_Code.png",
       alt: "Pacific Discovery Network QR Code Generator preview",
@@ -69,79 +68,29 @@ export default function Tools() {
 
   return (
     <div className="bg-[#f8f9fc]">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-[#07101d]">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 -right-20 w-[28rem] h-[28rem] rounded-full bg-[#c9a84c]/15 blur-3xl" />
-          <div className="absolute top-1/2 -left-24 w-[24rem] h-[24rem] rounded-full bg-[#00c4cc]/10 blur-3xl" />
-        </div>
+      <HeroStandard
+        badge="Pacific Discovery Network Tools"
+        title="Business tools designed to help you show up professionally."
+        subtitle=""
+        description="Pacific Discovery Network includes practical tools that help businesses look more polished, consistent, and ready across communication, billing, and visibility."
+        actions={
+          <>
+            <Link
+              href={createPageUrl("Pricing")}
+              className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 rounded-xl transition-all text-sm min-h-[44px]"
+            >
+              View Pricing <ArrowRight className="w-4 h-4" />
+            </Link>
 
-        <div className="relative px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto py-14 sm:py-20 lg:py-24">
-            <div className="max-w-4xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
-              <span className="w-2 h-2 rounded-full bg-[#00c9cc]"></span>
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#00c9cc]">
-                Pacific Discovery Network Tools
-              </span>
-            </div>
-
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.05] text-white max-w-5xl">
-                Business Tools That Help You
-                <span className="block text-[#c9a84c] mt-1">
-                  Show Up Professionally
-                </span>
-              </h1>
-
-              <div className="w-28 h-1 rounded-full bg-gradient-to-r from-[#c9a84c] via-[#00c4cc] to-transparent mt-6 mb-6" />
-
-              <p className="text-sm sm:text-lg text-slate-300 leading-6 sm:leading-relaxed max-w-3xl">
-                Pacific Discovery Network gives businesses more than visibility. Our built-in
-                tools help you create polished invoices, branded email signatures,
-                and QR codes that make it easier for customers to find, trust, and
-                remember your business.
-              </p>
-
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 sm:px-5 sm:py-4 max-w-2xl">
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  <span className="text-[#c9a84c] font-semibold">
-                    Included with Moana:
-                  </span>{" "}
-                  practical tools designed to help your business look polished,
-                  organised, and ready.
-                </p>
-              </div>
-
-              <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
-                {["Professional", "Practical", "Built for visibility"].map((chip) => (
-                  <span
-                    key={chip}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10 bg-white/5 text-xs sm:text-sm text-slate-200"
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-4">
-                <Link
-                  href={createPageUrl("Pricing")}
-                  className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all text-sm shadow-[0_12px_30px_rgba(201,168,76,0.25)] w-full sm:w-auto min-h-[44px]"
-                >
-                  View Pricing <ArrowRight className="w-4 h-4" />
-                </Link>
-
-                <Link
-                  href={createPageUrl("BusinessLogin") + "?mode=signup"}
-                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc]/40 text-[#b3e5e5] hover:bg-[#00c4cc]/8 font-medium px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
-                >
-                  List My Business
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <Link
+              href={createPageUrl("BusinessLogin") + "?mode=signup"}
+              className="inline-flex items-center justify-center gap-2 border border-white/20 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm min-h-[44px]"
+            >
+              Join the Network
+            </Link>
+          </>
+        }
+      />
 
       {/* Tools showcase */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

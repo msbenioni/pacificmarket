@@ -1,13 +1,23 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
-import { CheckCircle, X, Shield, ArrowRight, Waves, Compass, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  CheckCircle,
+  X,
+  Shield,
+  ArrowRight,
+  Waves,
+  Compass,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { SUBSCRIPTION_TIER, getTierDisplayName } from "@/constants/unifiedConstants";
 import { TIER_BENEFITS } from "@/constants/tierBenefits";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 
 const plans = [
   {
@@ -17,7 +27,7 @@ const plans = [
     price: TIER_BENEFITS.vaka.price,
     period: "",
     description: TIER_BENEFITS.vaka.description,
-    bestFor: "Early visibility and proud Pacific representation",
+    bestFor: "Getting discovered with a strong, credible starting presence",
     badge: null,
     icon: Compass,
     border: "border-slate-200",
@@ -27,7 +37,10 @@ const plans = [
     ctaClass:
       "bg-white border-2 border-[#0a1628] text-[#0a1628] hover:bg-[#0a1628] hover:text-white",
     highlights: TIER_BENEFITS.vaka.features,
-    features: TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
+    features: TIER_BENEFITS.vaka.features.map((feature) => ({
+      label: feature,
+      included: true,
+    })),
   },
   {
     id: SUBSCRIPTION_TIER.MANA,
@@ -36,7 +49,7 @@ const plans = [
     price: TIER_BENEFITS.mana.price,
     period: "/month",
     description: TIER_BENEFITS.mana.description,
-    bestFor: "Businesses ready for a stronger public presence",
+    bestFor: "Businesses ready for a stronger public presence and more trust",
     badge: null,
     icon: Shield,
     border: "border-[#0d4f4f]",
@@ -44,10 +57,16 @@ const plans = [
     accent: "text-white",
     cta: "Choose Mana",
     ctaClass: "bg-[#0d4f4f] text-white hover:bg-[#1a6b6b]",
-    highlights: TIER_BENEFITS.mana.features.slice(0, 3), // First 3 features as highlights
+    highlights: TIER_BENEFITS.mana.features.slice(0, 3),
     features: [
-      ...TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
-      ...TIER_BENEFITS.mana.features.map(feature => ({ label: feature, included: true })),
+      ...TIER_BENEFITS.vaka.features.map((feature) => ({
+        label: feature,
+        included: true,
+      })),
+      ...TIER_BENEFITS.mana.features.map((feature) => ({
+        label: feature,
+        included: true,
+      })),
     ],
   },
   {
@@ -57,7 +76,7 @@ const plans = [
     price: TIER_BENEFITS.moana.price,
     period: "/month",
     description: TIER_BENEFITS.moana.description,
-    bestFor: "Businesses ready to grow reach, visibility and momentum",
+    bestFor: "Businesses ready to expand visibility, reach, and momentum",
     badge: "Most Popular",
     icon: Waves,
     border: "border-[#c9a84c]",
@@ -65,11 +84,20 @@ const plans = [
     accent: "text-[#0a1628]",
     cta: "Choose Moana",
     ctaClass: "bg-[#c9a84c] text-[#0a1628] hover:bg-[#b8973b]",
-    highlights: TIER_BENEFITS.moana.features.slice(0, 4), // First 4 features as highlights
+    highlights: TIER_BENEFITS.moana.features.slice(0, 4),
     features: [
-      ...TIER_BENEFITS.vaka.features.map(feature => ({ label: feature, included: true })),
-      ...TIER_BENEFITS.mana.features.map(feature => ({ label: feature, included: true })),
-      ...TIER_BENEFITS.moana.features.map(feature => ({ label: feature, included: true })),
+      ...TIER_BENEFITS.vaka.features.map((feature) => ({
+        label: feature,
+        included: true,
+      })),
+      ...TIER_BENEFITS.mana.features.map((feature) => ({
+        label: feature,
+        included: true,
+      })),
+      ...TIER_BENEFITS.moana.features.map((feature) => ({
+        label: feature,
+        included: true,
+      })),
     ],
   },
 ];
@@ -86,7 +114,6 @@ export default function Pricing() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Import getSupabase dynamically
         const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         const {
@@ -106,7 +133,6 @@ export default function Pricing() {
   const handleUpgrade = async (planId) => {
     if (!user) {
       if (planId === SUBSCRIPTION_TIER.VAKA) {
-        // Route to signup for Vaka tier
         router.push(createPageUrl("BusinessLogin"));
         return;
       }
@@ -118,7 +144,6 @@ export default function Pricing() {
 
     try {
       if (planId === SUBSCRIPTION_TIER.VAKA) {
-        // Vaka is free, just show modal or handle differently
         setShowModal(true);
       } else {
         await createCheckoutSession({ tier: planId });
@@ -138,11 +163,11 @@ export default function Pricing() {
 
   return (
     <div className="bg-[#f8f9fc]">
-      <HeroRegistry
+      <HeroStandard
         badge="Pricing"
-        title="Choose the Presence That Fits Your Journey"
+        title="Choose the plan that matches your visibility goals."
         subtitle=""
-        description=""
+        description="Pacific Discovery Network plans are designed to support every stage of business visibility — from getting discovered to building a stronger, more trusted presence."
         compact
       />
 
@@ -156,13 +181,16 @@ export default function Pricing() {
 
           <div className="mb-10 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0d4f4f]">
-              A Pacific business journey
+              Built for growth
             </p>
             <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-[#0a1628]">
-              {getTierDisplayName(SUBSCRIPTION_TIER.VAKA)} → {getTierDisplayName(SUBSCRIPTION_TIER.MANA)} → {getTierDisplayName(SUBSCRIPTION_TIER.MOANA)}
+              {getTierDisplayName(SUBSCRIPTION_TIER.VAKA)} →{" "}
+              {getTierDisplayName(SUBSCRIPTION_TIER.MANA)} →{" "}
+              {getTierDisplayName(SUBSCRIPTION_TIER.MOANA)}
             </h2>
             <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base leading-6 text-slate-600">
-              Begin the journey, strengthen your presence, then expand your reach.
+              Start with a strong foundation, strengthen your presence, then
+              expand your reach when you are ready.
             </p>
           </div>
 
@@ -208,7 +236,9 @@ export default function Pricing() {
                           />
                         </div>
                         <div>
-                          <p className={`text-base sm:text-lg font-bold ${plan.accent}`}>{plan.name}</p>
+                          <p className={`text-base sm:text-lg font-bold ${plan.accent}`}>
+                            {plan.name}
+                          </p>
                           <p
                             className={`text-[11px] sm:text-xs ${
                               plan.id === SUBSCRIPTION_TIER.MANA
@@ -224,7 +254,9 @@ export default function Pricing() {
                       </div>
 
                       <div className="mt-4 sm:mt-6 flex items-end gap-1">
-                        <span className={`text-3xl sm:text-4xl font-black ${plan.accent}`}>{plan.price}</span>
+                        <span className={`text-3xl sm:text-4xl font-black ${plan.accent}`}>
+                          {plan.price}
+                        </span>
                         {plan.period && (
                           <span
                             className={`pb-1 text-sm ${
@@ -242,7 +274,9 @@ export default function Pricing() {
                     </div>
 
                     <div className="flex-1 flex flex-col p-5 sm:p-7">
-                      <p className="text-[13px] sm:text-sm leading-6 text-slate-600">{plan.description}</p>
+                      <p className="text-[13px] sm:text-sm leading-6 text-slate-600">
+                        {plan.description}
+                      </p>
 
                       <div className="mt-3 sm:mt-4 rounded-xl sm:rounded-2xl bg-slate-50 px-4 py-3">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
@@ -260,10 +294,14 @@ export default function Pricing() {
                             <li key={item} className="flex items-start gap-2.5">
                               <CheckCircle
                                 className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                                  plan.id === SUBSCRIPTION_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                                  plan.id === SUBSCRIPTION_TIER.MOANA
+                                    ? "text-[#c9a84c]"
+                                    : "text-[#0d4f4f]"
                                 }`}
                               />
-                              <span className="text-[13px] sm:text-sm text-slate-700">{item}</span>
+                              <span className="text-[13px] sm:text-sm text-slate-700">
+                                {item}
+                              </span>
                             </li>
                           ))}
                         </ul>
@@ -272,9 +310,13 @@ export default function Pricing() {
                       <div className="mt-auto border-t border-slate-200 pt-5 sm:pt-6">
                         <button
                           onClick={() => handleUpgrade(plan.id)}
-                          disabled={processingPlan !== null || (plan.id === SUBSCRIPTION_TIER.VAKA && user)}
+                          disabled={
+                            processingPlan !== null ||
+                            (plan.id === SUBSCRIPTION_TIER.VAKA && user)
+                          }
                           className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition min-h-[44px] ${
-                            processingPlan !== null || (plan.id === SUBSCRIPTION_TIER.VAKA && user)
+                            processingPlan !== null ||
+                            (plan.id === SUBSCRIPTION_TIER.VAKA && user)
                               ? "opacity-60 cursor-not-allowed bg-gray-100 text-gray-500 border border-gray-200"
                               : plan.ctaClass
                           }`}
@@ -313,10 +355,11 @@ export default function Pricing() {
               Compare features
             </p>
             <h2 className="mt-2 text-xl sm:text-2xl font-bold text-[#0a1628]">
-              See what grows with each plan
+              See what’s included at each level
             </h2>
             <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
-              Choose the level that matches where your business is now, then upgrade when you are ready for stronger identity or wider visibility.
+              Choose the level that fits your business today, then upgrade when
+              you are ready for stronger presentation, identity, and reach.
             </p>
           </div>
 
@@ -331,7 +374,10 @@ export default function Pricing() {
                   : "text-[#0a1628]";
 
               return (
-                <div key={plan.id} className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div
+                  key={plan.id}
+                  className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+                >
                   <button
                     type="button"
                     onClick={() => setMobileComparePlan(isOpen ? null : plan.id)}
@@ -354,10 +400,15 @@ export default function Pricing() {
                     <div className="border-t border-slate-100 px-4 pb-4 pt-3">
                       <ul className="space-y-2">
                         {plan.features.map((feature) => (
-                          <li key={feature.label} className="flex items-start gap-2 text-xs text-slate-700">
+                          <li
+                            key={feature.label}
+                            className="flex items-start gap-2 text-xs text-slate-700"
+                          >
                             <CheckCircle
                               className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                                plan.id === SUBSCRIPTION_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                                plan.id === SUBSCRIPTION_TIER.MOANA
+                                  ? "text-[#c9a84c]"
+                                  : "text-[#0d4f4f]"
                               }`}
                             />
                             <span>{feature.label}</span>
@@ -410,7 +461,11 @@ export default function Pricing() {
                     <tr
                       key={label}
                       className={`border-b border-slate-100 ${
-                        highlighted ? "bg-[#fffaf0]" : i % 2 === 0 ? "bg-white" : "bg-slate-50/60"
+                        highlighted
+                          ? "bg-[#fffaf0]"
+                          : i % 2 === 0
+                          ? "bg-white"
+                          : "bg-slate-50/60"
                       }`}
                     >
                       <td className="px-6 py-3 text-xs font-medium text-slate-700">
@@ -425,7 +480,9 @@ export default function Pricing() {
                           {plan.features[i]?.included ? (
                             <CheckCircle
                               className={`mx-auto h-4 w-4 ${
-                                plan.id === SUBSCRIPTION_TIER.MOANA ? "text-[#c9a84c]" : "text-[#0d4f4f]"
+                                plan.id === SUBSCRIPTION_TIER.MOANA
+                                  ? "text-[#c9a84c]"
+                                  : "text-[#0d4f4f]"
                               }`}
                             />
                           ) : (

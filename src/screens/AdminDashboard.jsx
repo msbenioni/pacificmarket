@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
-import HeroRegistry from "@/components/shared/HeroRegistry";
+import HeroStandard from "@/components/shared/HeroStandard";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import {
@@ -1015,7 +1015,7 @@ export default function AdminDashboard() {
 
   return (
     <PortalShell>
-      <HeroRegistry
+      <HeroStandard
         badge="Admin Dashboard"
         title="Pacific Market Registry"
         subtitle="Administrative control center for business listings and insights"

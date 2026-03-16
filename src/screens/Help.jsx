@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { HelpCircle, BookOpen, MessageCircle, Search, ChevronDown } from "lucide-react";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 import CookieManager from "../components/shared/CookieManager";
 
 function cx(...classes) {
@@ -79,14 +79,14 @@ export default function Help() {
       ]
     },
     {
-      category: "Using the Registry",
+      category: "Using Pacific Businesses",
       questions: [
         {
           q: "How do I search for businesses?",
-          a: "Use the search bar on the Registry page to search by name, or filter by location, industry, cultural identity, or verification status."
+          a: "Use the search bar on the Pacific Businesses page to search by name, or filter by location, industry, cultural identity, or verification status."
         },
         {
-          q: "Can I contact businesses through the registry?",
+          q: "Can I contact businesses through the Pacific Businesses page?",
           a: "Yes. All businesses show their contact details after you provide a valid email address. (This prevents spam and ensures legitimate inquiries.)"
         },
         {
@@ -94,7 +94,7 @@ export default function Help() {
           a: "We work for accuracy through review and verification, but information can change. Report inaccuracies and we’ll investigate."
         },
         {
-          q: "Can I export data from the registry?",
+          q: "Can I export data from the Pacific Businesses page?",
           a: "Users can export their own business data. Researchers and organizations can request bulk access via the contact form."
         }
       ]
@@ -135,7 +135,7 @@ export default function Help() {
     const iconMap = {
       "Getting Started": BookOpen,
       "Business Listings": Search,
-      "Using the Registry": MessageCircle,
+      "Using Pacific Businesses": MessageCircle,
       "Account & Billing": HelpCircle,
     };
 
@@ -174,7 +174,7 @@ export default function Help() {
 
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
-      <HeroRegistry
+      <HeroStandard
         badge="Support"
         title="Help Center"
         subtitle=""

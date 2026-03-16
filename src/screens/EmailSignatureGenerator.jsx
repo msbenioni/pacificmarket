@@ -33,7 +33,7 @@ import { getUserBusinesses, getBusinessById, updateBusiness } from "@/lib/supaba
 import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
 import { getLogoUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
 const SIGNATURE_TEMPLATES = {
@@ -932,7 +932,7 @@ export default function EmailSignatureGeneratorPage() {
 
   return (
     <div>
-      <HeroRegistry
+      <HeroStandard
         badge="Business Tool"
         title="Email Signature Generator"
         subtitle="Create polished, branded email signatures for founders, teams, and client-facing communication."

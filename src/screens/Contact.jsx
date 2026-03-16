@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowRight, Mail, Send, CheckCircle } from "lucide-react";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -84,7 +84,7 @@ export default function Contact() {
   if (submitted) {
     return (
       <div className="bg-[#f8f9fc] min-h-screen">
-        <HeroRegistry
+        <HeroStandard
           badge="Contact"
           title="Get in Touch"
           subtitle=""
@@ -116,7 +116,7 @@ export default function Contact() {
 
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
-      <HeroRegistry
+      <HeroStandard
         badge="Contact"
         title="Get in Touch"
         subtitle=""

@@ -127,7 +127,7 @@ export default function BusinessProfile() {
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-400 text-sm">Loading registry record...</p>
+          <p className="text-gray-400 text-sm">Loading Pacific Discovery Network record...</p>
         </div>
       </div>
     );
@@ -139,14 +139,14 @@ export default function BusinessProfile() {
         <div className="text-center bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-sm">
           <h2 className="text-xl font-bold text-[#0a1628] mb-2">Record Not Found</h2>
           <p className="text-gray-500 text-sm mb-5">
-            This business record does not exist in the registry.
+            This business record does not exist in Pacific Discovery Network.
           </p>
           <Link
-            href={createPageUrl("Registry")}
+            href={createPageUrl("PacificBusinesses")}
             className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-5 py-3 text-sm font-semibold text-white hover:bg-[#122040] transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Registry
+            Back to Pacific Businesses
           </Link>
         </div>
       </div>
@@ -371,11 +371,11 @@ export default function BusinessProfile() {
 
           {/* Back */}
           <Link
-            href={createPageUrl("Registry")}
+            href={createPageUrl("PacificBusinesses")}
             className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#0d4f4f] transition-colors mt-6"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Registry
+            Back to Pacific Businesses
           </Link>
         </div>
       </div>

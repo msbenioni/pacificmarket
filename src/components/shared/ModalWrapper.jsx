@@ -38,7 +38,7 @@ export function ModalWrapper({
           "rounded-3xl",
           "shadow-2xl",
           "border border-gray-100",
-          "overflow-hidden", // ✅ keeps rounded corners clean with sticky header/footer
+          "overflow-hidden",
           "max-h-[90vh]",
           className,
         ].join(" ")}
@@ -52,7 +52,7 @@ export function ModalWrapper({
 }
 
 /**
- * ModalHeader - Premium header styling
+ * ModalHeader - Shared modal header
  */
 export function ModalHeader({
   title,
@@ -101,7 +101,6 @@ export function ModalHeader({
             "grid place-items-center",
           ].join(" ")}
         >
-          {/* nicer than "×" */}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               d="M18 6L6 18M6 6l12 12"
@@ -117,8 +116,8 @@ export function ModalHeader({
 }
 
 /**
- * ModalContent - Premium body (scrollable area)
- * ✅ Scroll only the content; header/footer remain sticky.
+ * ModalContent - Scrollable modal body
+ * Keeps content scrollable while header and footer stay visible.
  */
 export function ModalContent({ children, className = "" }) {
   return (
@@ -126,9 +125,9 @@ export function ModalContent({ children, className = "" }) {
       className={[
         "px-6 sm:px-8",
         "py-6",
-        "pb-28", // Extra bottom padding for sticky footer breathing room
+        "pb-28",
         "overflow-y-auto",
-        "max-h-[calc(90vh-140px)]", // header+footer allowance
+        "max-h-[calc(90vh-140px)]",
         className,
       ].join(" ")}
     >
@@ -138,14 +137,14 @@ export function ModalContent({ children, className = "" }) {
 }
 
 /**
- * ModalFooter - Premium footer styling
+ * ModalFooter - Shared modal footer
  */
 export function ModalFooter({ children, className = "" }) {
   return (
     <div
       className={[
         "sticky bottom-0 z-10",
-        "bg-white/95 backdrop-blur", // Premium floating effect
+        "bg-white/95 backdrop-blur",
         "border-t border-gray-100",
         "px-6 sm:px-8",
         "py-5",

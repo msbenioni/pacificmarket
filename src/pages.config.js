@@ -65,7 +65,7 @@ import Pricing from './screens/Pricing';
 import Privacy from './screens/Privacy';
 import ProfileSettings from './screens/ProfileSettings';
 import QRCodeGenerator from './screens/QRCodeGenerator';
-import Registry from './screens/Registry';
+import PacificBusinesses from './screens/PacificBusinesses';
 import Terms from './screens/Terms';
 import Tools from './screens/Tools';
 import __Layout from './components/layout/Layout.jsx';
@@ -90,7 +90,7 @@ export const PAGES = {
     "Privacy": Privacy,
     "ProfileSettings": ProfileSettings,
     "QRCodeGenerator": QRCodeGenerator,
-    "Registry": Registry,
+    "PacificBusinesses": PacificBusinesses,
     "Terms": Terms,
     "Tools": Tools,
 }

@@ -80,7 +80,7 @@ export default function Layout({ children, currentPageName }) {
   const isTransparent = scrollPosition <= 20;
 
   const navLinks = [
-    { label: "Discover", page: "Registry" },
+    { label: "Pacific Businesses", page: "PacificBusinesses" },
     { label: "Tools", page: "Tools" },
     { label: "About", page: "About" },
     { label: "Pricing", page: "Pricing" },

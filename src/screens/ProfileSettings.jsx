@@ -19,7 +19,7 @@ import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import PortalShell from "@/components/portal/PortalShell";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
-import HeroRegistry from "@/components/shared/HeroRegistry";
+import HeroStandard from "@/components/shared/HeroStandard";
 
 // Premium accordion component
 function InsightsAccordionSection({
@@ -522,7 +522,7 @@ export default function ProfileSettings() {
 
   return (
     <PortalShell>
-      <HeroRegistry
+      <HeroStandard
         badge="Profile Settings"
         title={`Welcome back, ${user?.user_metadata?.full_name?.split(" ")[0] || user?.user_metadata?.display_name?.split(" ")[0] || "User"}`}
         subtitle={user?.email}

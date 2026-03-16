@@ -71,7 +71,7 @@ export function getRoleBasedNavigation(user) {
   /** @type {Array<{name: string, href: string}>} */
   const baseNav = [
     { name: 'Home', href: '/' },
-    { name: 'Registry', href: '/registry' }
+    { name: 'Pacific Businesses', href: '/pacific-businesses' }
   ];
 
   if (isOwner(user)) {

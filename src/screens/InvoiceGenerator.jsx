@@ -5,7 +5,7 @@ import { createPageUrl } from "@/utils";
 import { getUserBusinesses, getBusinessById, updateBusiness } from "@/lib/supabase/queries/businesses";
 import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
 import { getLogoUrl } from '@/utils/bannerUtils';
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useToast } from "@/components/ui/toast/ToastProvider";
@@ -587,7 +587,7 @@ export default function InvoiceGenerator() {
 
   return (
     <div>
-      <HeroRegistry
+      <HeroStandard
         badge="Business Tool"
         title="Invoice Generator"
         subtitle="Create polished, branded invoices for your business in minutes."

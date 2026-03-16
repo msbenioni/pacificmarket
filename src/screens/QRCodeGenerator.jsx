@@ -4,7 +4,7 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { getUserBusinesses } from "@/lib/supabase/queries/businesses";
 import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import QRCode from 'qrcode';
 
@@ -114,7 +114,7 @@ export default function QRCodeGenerator() {
 
   return (
     <>
-<HeroRegistry
+<HeroStandard
   badge="Business Tool"
   title="QR Code Generator"
   subtitle="Generate QR codes for your business profile or any custom URL."

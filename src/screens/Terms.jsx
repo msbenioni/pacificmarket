@@ -1,10 +1,10 @@
 import { ArrowRight, Shield, Users, Eye } from "lucide-react";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function Terms() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
-      <HeroRegistry
+      <HeroStandard
         badge="Legal"
         title="Terms & Conditions"
         subtitle=""

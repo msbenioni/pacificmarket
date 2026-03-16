@@ -147,7 +147,7 @@ export default function Home() {
               </div>
 
               <Link
-                href={createPageUrl("Registry")}
+                href={createPageUrl("PacificBusinesses")}
                 className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all self-start sm:self-auto"
               >
                 Explore the network <ChevronRight className="w-4 h-4" />
@@ -188,7 +188,7 @@ export default function Home() {
                 </Link>
 
                 <Link
-                  href={createPageUrl("Registry")}
+                  href={createPageUrl("PacificBusinesses")}
                   className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
                   Explore Businesses

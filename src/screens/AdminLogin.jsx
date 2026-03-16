@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, AlertCircle, AlertTriangle } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import HeroRegistry from "@/components/shared/HeroRegistry";
+import HeroStandard from "@/components/shared/HeroStandard";
 import PortalShell from "@/components/portal/PortalShell";
 import { useAuth } from "@/lib/AuthContext";
 

@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2, Gift } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import HeroRegistry from "@/components/shared/HeroRegistry";
+import HeroStandard from "@/components/shared/HeroStandard";
 import Layout from "@/components/layout/Layout";
 
 export default function ReferralRegister() {
@@ -118,7 +118,7 @@ export default function ReferralRegister() {
     <Layout currentPageName="register">
       <div className="bg-[#f8f9fc] min-h-screen">
         {/* Hero with referral context */}
-        <HeroRegistry
+        <HeroStandard
           badge="Referral Invitation"
           title="Join Pacific Market"
           subtitle={referrerBusiness ? `You've been invited by ${referrerBusiness.name}` : "Create Your Account"}

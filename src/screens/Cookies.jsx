@@ -1,10 +1,10 @@
 import { Cookie, Settings, Eye, Shield } from "lucide-react";
-import HeroRegistry from "../components/shared/HeroRegistry";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function Cookies() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
-      <HeroRegistry
+      <HeroStandard
         badge="Legal"
         title="Cookie Policy"
         subtitle=""
