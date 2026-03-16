@@ -19,8 +19,8 @@ export default function HeroRegistry({
   const actionsCls = compact ? "mt-4 sm:mt-6" : "mt-6";
 
   return (
-    <div className={`bg-[#0a1628] text-white px-4 sm:px-6 lg:px-8 ${wrapperCls}`}>
-      <div className="max-w-7xl mx-auto">
+    <div className={`bg-[#0a1628] text-white ${wrapperCls}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {badge && (
           <span className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#00c9cc]">
             {badge}
