@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { ArrowRight, CheckCircle, Globe, Shield, Star, BookOpen, Award, ChevronRight } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle,
+  Globe,
+  Shield,
+  Star,
+  Compass,
+  Award,
+  ChevronRight,
+} from "lucide-react";
 import { getHomepageBusinesses } from "@/lib/supabase/queries/businesses";
-import { isVerifiedBusiness, getBusinessTier, getBusinessTierDisplay } from "@/lib/business/helpers";
 import StatsBar from "../components/home/StatsBar";
 import FeaturedSpotlight from "../components/home/FeaturedSpotlight";
 import HeroHomepage from "../components/shared/HeroHomepage";
@@ -18,7 +26,7 @@ export default function Home() {
     const loadFeaturedBusinesses = async () => {
       try {
         const { data } = await getHomepageBusinesses({ limit: 12 });
-        
+
         console.log("Homepage featured businesses:", data);
         setFeatured(data || []);
       } catch (error) {
@@ -31,50 +39,39 @@ export default function Home() {
 
   const values = [
     {
-      icon: Shield,
-      title: "Connected Discovery",
+      icon: Compass,
+      title: "Meaningful Discovery",
       description:
-        "More than search — Pacific businesses are part of an interconnected network that makes meaningful discovery and collaboration possible.",
-      color: "text-[#00c4cc]"
+        "Pacific Discovery Network helps people discover businesses with more context, credibility, and intention — not just names in a list.",
+      color: "text-[#00c4cc]",
     },
     {
       icon: Globe,
       title: "Global Pacific Reach",
       description:
-        "From local communities to global markets, Pacific-owned businesses can reach customers and partners who value authentic Pacific enterprise.",
-      color: "text-[#c9a84c]"
+        "From Aotearoa to the wider Pacific and diaspora, businesses gain stronger visibility across regions, communities, and opportunities.",
+      color: "text-[#c9a84c]",
+    },
+    {
+      icon: Shield,
+      title: "Trust and Credibility",
+      description:
+        "Structured profiles, stronger presentation, and trusted visibility help businesses build confidence with customers, partners, and communities.",
+      color: "text-[#00c4cc]",
     },
     {
       icon: CheckCircle,
-      title: "Trust Through Connection",
+      title: "Built for Long-Term Growth",
       description:
-        "Verified businesses build stronger relationships through transparent profiles, real connections, and community trust.",
-      color: "text-[#00c4cc]"
-    },
-    {
-      icon: BookOpen,
-      title: "Living Pacific Network",
-      description:
-        "Pacific identity, innovation, and enterprise flow through a dynamic network that grows stronger with every business that joins.",
-      color: "text-[#c9a84c]"
+        "This is more than exposure. It is a platform designed to support discoverability, connection, and the long-term visibility of Pacific enterprise.",
+      color: "text-[#c9a84c]",
     },
   ];
 
   return (
     <div className="bg-[#f8f9fc]">
       {/* Hero */}
-      <HeroHomepage
-        badge="Global Pacific Discovery Network"
-        title="Connect. Discover. Grow Together."
-        mobileTitle="Discover Pacific businesses worldwide."
-        subtitle=""
-        description="Pacific Discovery Network connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities."
-        mobileDescription="Showcase your business with trust, visibility, and pride. Pacific Discovery Network is built to connect Pacific enterprise worldwide."
-        primaryCtaText="Join the Network"
-        primaryCtaHref={createPageUrl("BusinessLogin") + "?mode=signup"}
-        secondaryCtaText="Discover Businesses"
-        secondaryCtaHref={createPageUrl("Registry")}
-      />
+      <HeroHomepage/>
 
       {/* Stats Bar */}
       <StatsBar />
@@ -83,13 +80,16 @@ export default function Home() {
       <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-8 sm:mb-14">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628] mb-3 sm:mb-4">
-            Built to Connect Pacific Enterprise Globally
+            A Stronger Way to Discover Pacific Enterprise
           </h2>
           <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-6">
-            Pacific Discovery Network is more than a directory — it's a living network that connects Pacific businesses with customers, partners, and opportunities across the globe. We make discovery meaningful and connections lasting.
+            Pacific Discovery Network is designed to make Pacific businesses more
+            visible, more trusted, and easier to discover. It brings together
+            business presence, credibility, and connection in one premium
+            platform.
           </p>
           <p className="text-xs font-semibold text-[#0a1628]/60 mt-3">
-            Built Pacific-led. Designed for connection. Shaped for global impact.
+            Pacific-led. Discovery-driven. Built for visibility that lasts.
           </p>
         </div>
 
@@ -110,13 +110,13 @@ export default function Home() {
 
         <div className="flex flex-wrap justify-center gap-4 mt-6 sm:mt-8">
           <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
-            Pacific pride in business
+            Pacific business visibility
           </span>
           <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
-            Global discoverability
+            Trusted discovery experience
           </span>
           <span className="px-4 py-2 bg-[#0a1628]/5 text-[#0a1628] text-xs font-medium rounded-full border border-[#0a1628]/10">
-            Long-term economic visibility
+            Connection across regions
           </span>
         </div>
       </section>
@@ -133,14 +133,16 @@ export default function Home() {
                 <div className="flex items-center gap-2 mb-2">
                   <Star className="w-4 h-4 text-[#c9a84c]" />
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#c9a84c]">
-                    Featured Businesses
+                    Featured on the Network
                   </span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628]">
-                  Pacific Businesses Leading with Visibility
+                  Pacific Businesses Worth Discovering
                 </h2>
                 <p className="text-sm sm:text-base text-gray-500 mt-2 max-w-xl leading-6">
-                  These businesses are showing what strong Pacific representation looks like — visible, branded, and easy to discover.
+                  Explore a selection of businesses building strong brands,
+                  trusted visibility, and meaningful presence across the Pacific
+                  business landscape.
                 </p>
               </div>
 
@@ -148,7 +150,7 @@ export default function Home() {
                 href={createPageUrl("Registry")}
                 className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all self-start sm:self-auto"
               >
-                View all <ChevronRight className="w-4 h-4" />
+                Explore the network <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
 
@@ -168,10 +170,13 @@ export default function Home() {
             <div className="relative">
               <Award className="w-10 h-10 text-[#c9a84c] mx-auto mb-4" />
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-                Connect Your Business to the Pacific Network
+                Put Your Business on the Pacific Discovery Network
               </h2>
               <p className="text-sm sm:text-base text-slate-300 mb-7 sm:mb-8 max-w-2xl mx-auto leading-6">
-                Every business added to Pacific Discovery Network strengthens our global network. Join the discovery platform, build your connections, and help show that Pacific people are not only rich in culture — we are rich in capability, enterprise, and ambition too.
+                Join a platform built to make Pacific businesses easier to
+                discover, trust, and support. Strengthen your visibility, present
+                your business with confidence, and become part of a growing
+                network shaped for long-term impact.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -186,7 +191,7 @@ export default function Home() {
                   href={createPageUrl("Registry")}
                   className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-8 py-4 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
-                  Discover Businesses
+                  Explore Businesses
                 </Link>
               </div>
             </div>

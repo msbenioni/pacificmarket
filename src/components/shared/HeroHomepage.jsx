@@ -1,35 +1,36 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, CheckCircle } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import { Search, CheckCircle } from "lucide-react";
 import BusinessSearch from "@/components/BusinessSearch";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function HeroHomepage({
-  badge = "Global Pacific Discovery Network",
-  title = "Connect. Discover. Grow Together.",
-  mobileTitle = title,
+  badge = "Trusted Pacific Business Discovery Platform",
+  title = "Discover Pacific Business, Opportunity, and Connection.",
+  mobileTitle = "Discover Pacific Business, Opportunity, and Connection.",
   subtitle = "",
-  description = "Pacific Discovery Network connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities.",
-  mobileDescription = description,
-  primaryCtaText = "Join the Network",
+  description = "Pacific Discovery Network helps people discover, connect with, and support Pacific-owned businesses across New Zealand, Australia, the Pacific, and beyond — through a trusted, premium platform built for visibility, credibility, and growth.",
+  mobileDescription = "Discover and connect with Pacific-owned businesses across Aotearoa, the Pacific, Australia, and beyond through a trusted platform built for visibility and growth.",
+  primaryCtaText = "Join Pacific Discovery Network",
   primaryCtaHref = createPageUrl("BusinessLogin") + "?mode=signup",
-  secondaryCtaText = "Discover Businesses",
-  secondaryCtaHref = createPageUrl("Registry")
+  secondaryCtaText = "Explore Businesses",
+  secondaryCtaHref = createPageUrl("Registry"),
 }) {
   const router = useRouter();
   const [selectedBusiness, setSelectedBusiness] = useState(null);
 
   const handleBusinessSelect = (business) => {
     setSelectedBusiness(business);
-    // Redirect to business profile page
-    router.push(createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`);
+    router.push(
+      createPageUrl("BusinessProfile") +
+        `?handle=${business.business_handle || business.id}`
+    );
   };
 
   const handleSearchChange = (searchTerm) => {
-    // Optional: Handle search term changes if needed
-    console.log('Search term changed:', searchTerm);
+    console.log("Search term changed:", searchTerm);
   };
+
   return (
     <section className="relative overflow-hidden min-h-[640px] sm:min-h-[720px]">
       <div className="absolute inset-0">
@@ -48,7 +49,7 @@ export default function HeroHomepage({
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-[#00c9cc]"></span>
               <span className="text-[10px] font-semibold uppercase tracking-widest text-[#00c9cc]">
-                Global Pacific Discovery Network
+                {badge}
               </span>
             </div>
 
@@ -95,31 +96,29 @@ export default function HeroHomepage({
           <div className="lg:w-7/12">
             <div className="bg-white/95 backdrop-blur-md border border-white/40 rounded-2xl p-5 sm:p-7 shadow-xl">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
-                Registry Search
+                Discover Pacific Businesses
               </h2>
 
               <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
                 <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
-                <span>Verified. Structured. Trusted.</span>
+                <span>Trusted profiles. Stronger visibility. Meaningful discovery.</span>
               </div>
 
-              {/* BusinessSearch component */}
               <BusinessSearch
                 onSelect={handleBusinessSelect}
-                onError={(error) => console.error('Search error:', error)}
+                onError={(error) => console.error("Search error:", error)}
                 onSearchChange={handleSearchChange}
-                placeholder="Search by business name, keyword, country, or industry…"
+                placeholder="Search by business name, service, country, culture, or industry…"
                 showSelectedPreview={false}
                 initialSearchTerm=""
               />
 
-              {/* Browse all businesses link */}
               <div className="mt-3 text-center">
                 <a
                   href={createPageUrl("Registry")}
                   className="inline-flex items-center gap-1 text-sm text-[#00c4cc] hover:text-[#00aab0] transition-colors"
                 >
-                  Browse all businesses <ChevronRight className="w-3 h-3" />
+                  Explore the full network <ChevronRight className="w-3 h-3" />
                 </a>
               </div>
             </div>
