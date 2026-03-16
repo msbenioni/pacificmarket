@@ -141,13 +141,9 @@ export default function Pricing() {
       <HeroRegistry
         badge="Pricing"
         title="Choose the Presence That Fits Your Journey"
-        subtitle=""
-        description={(
-          <>
-            <span className="sm:hidden">Start with Vaka to be represented in the registry, then upgrade as you grow.</span>
-            <span className="hidden sm:inline">Start with Vaka to be represented in the registry, move into Mana for stronger trust and branding, or choose Moana for premium visibility and practical tools designed to help Pacific businesses grow.</span>
-          </>
-        )}
+        subtitle="Pricing"
+        description=""
+        compact
       />
 
       <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
