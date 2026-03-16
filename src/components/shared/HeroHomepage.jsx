@@ -45,12 +45,9 @@ export default function HeroHomepage({
         <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start lg:items-center">
           {/* Left: Title panel */}
           <div className="lg:w-5/12">
-            <div className="inline-flex items-center gap-2 bg-white/90 border border-white/40 rounded-full py-1.5 shadow-sm backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
-              <span className="text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
-                {badge}
-              </span>
-            </div>
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#00c9cc]">
+              Global Pacific Discovery Network
+            </span>
 
             <div className="mt-5 bg-[#0a1628]/62 backdrop-blur-md border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
               <h1 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight sm:leading-[1.02]">
