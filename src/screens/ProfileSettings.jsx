@@ -97,7 +97,7 @@ export default function ProfileSettings() {
   const [country, setCountry] = useState("");
   const [primaryCultural, setPrimaryCultural] = useState([]);
   const [languages, setLanguages] = useState([]);
-  const [expandedSections, setExpandedSections] = useState(new Set(["account"]));
+  const [expandedSections, setExpandedSections] = useState(new Set());
 
   // Admin management state
   const [showAddAdmin, setShowAddAdmin] = useState(false);

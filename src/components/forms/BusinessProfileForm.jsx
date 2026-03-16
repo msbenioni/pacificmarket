@@ -235,7 +235,7 @@ export default function BusinessProfileForm({
     business_acquisition_interest: false,
   });
 
-  const [expandedSections, setExpandedSections] = useState(new Set(["core"]));
+  const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errors, setErrors] = useState({ submit: undefined });

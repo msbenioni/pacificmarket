@@ -117,7 +117,7 @@ export default function BusinessInsightsAccordion({
     gender: "",
   });
 
-  const [expandedSections, setExpandedSections] = useState(new Set(["overview"]));
+  const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errors, setErrors] = useState({ submit: undefined });
