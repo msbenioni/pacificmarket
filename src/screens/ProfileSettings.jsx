@@ -522,6 +522,15 @@ export default function ProfileSettings() {
 
   return (
     <PortalShell>
+      <HeroRegistry
+        badge="Profile Settings"
+        title={`Welcome back, ${user?.user_metadata?.full_name?.split(" ")[0] || user?.user_metadata?.display_name?.split(" ")[0] || "User"}`}
+        subtitle={user?.email}
+        description="Manage your account information, profile foundation, and security settings"
+        actions={null}
+        compact
+      />
+
       <div className="min-h-screen bg-[#f8f9fc]">
         <section className="px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-5xl">
