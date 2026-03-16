@@ -1,6 +1,5 @@
 import {
   Building2,
-  Users,
   FileText,
   CheckCircle,
   TrendingUp,
@@ -20,12 +19,6 @@ export const PORTAL_TABS = [
     icon: CheckCircle,
   },
   {
-    id: "insights",
-    label: "Profile & Insights",
-    mobileLabel: "Profile",
-    icon: Users,
-  },
-  {
     id: "tools",
     label: "Business Tools",
     mobileLabel: "Tools",
@@ -34,12 +27,6 @@ export const PORTAL_TABS = [
 ];
 
 export const getTabStatus = (tabId, insightSnapshots, insightsStarted) => {
-  if (tabId === "insights") {
-    return insightSnapshots.length > 0
-      ? "completed"
-      : insightsStarted
-      ? "started"
-      : "not-started";
-  }
+  // No insights tab status needed anymore
   return undefined;
 };
