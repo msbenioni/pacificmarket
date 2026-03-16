@@ -90,16 +90,21 @@ export default function BusinessOverviewSection({
           </div>
 
           <div>
-            <label className={labelCls}>Business Registered</label>
-            <select
-              value={form.is_business_registered ? "true" : "false"}
-              onChange={(e) => handleInputChange("is_business_registered", e.target.value === "true")}
-              className={selectCls}
-            >
-              <option value="">Select registration status</option>
-              <option value="true">Registered</option>
-              <option value="false">Not registered</option>
-            </select>
+            <label className={labelCls}>Business Registration Status</label>
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.is_business_registered || false}
+                  onChange={(e) => handleInputChange("is_business_registered", e.target.checked)}
+                  className="w-4 h-4 text-[#0d4f4f] border-slate-300 rounded focus:ring-[#0d4f4f]"
+                />
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-slate-700">My business is officially registered</span>
+                  <p className="text-xs text-slate-500 mt-1">Registered with government authorities (e.g., Companies Office, business registration, tax registration)</p>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
       </div>
