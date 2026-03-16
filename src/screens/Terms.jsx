@@ -28,7 +28,6 @@ export default function Terms() {
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
                 <li>Business directory and search functionality</li>
                 <li>Verification services for business listings</li>
-                <li>Data insights and analytics</li>
                 <li>Business tools and resources</li>
               </ul>
 

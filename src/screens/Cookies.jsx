@@ -85,7 +85,7 @@ export default function Cookies() {
                 We work with trusted third-party services that may place cookies on your device:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
-                <li><strong>Analytics Providers:</strong> Google Analytics, similar tools for website insights</li>
+                <li><strong>Analytics Providers:</strong> Google Analytics, similar tools for website usage tracking</li>
                 <li><strong>Payment Processors:</strong> Stripe, PayPal for transaction processing</li>
                 <li><strong>Social Media:</strong> Facebook, LinkedIn for social sharing and authentication</li>
                 <li><strong>Content Delivery:</strong> Cloudflare, AWS for performance and security</li>

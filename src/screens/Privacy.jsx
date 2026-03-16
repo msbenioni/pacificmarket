@@ -58,7 +58,6 @@ export default function Privacy() {
                 <li>Process business listings and verification requests</li>
                 <li>Communicate with you about your account</li>
                 <li>Improve our services and user experience</li>
-                <li>Generate aggregated insights and analytics</li>
                 <li>Comply with legal obligations</li>
               </ul>
 
