@@ -299,6 +299,11 @@ export default function BusinessProfileForm({
     }
   };
 
+  const handleCancel = (e) => {
+    e.preventDefault();
+    onCancel();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -437,7 +442,7 @@ export default function BusinessProfileForm({
           <div className="flex justify-between items-center pt-6 border-t border-slate-200">
             <button
               type="button"
-              onClick={onCancel}
+              onClick={handleCancel}
               disabled={submitting}
               className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
