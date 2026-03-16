@@ -10,7 +10,7 @@ export default function HeroHomepage({
   title = "Connect. Discover. Grow Together.",
   mobileTitle = title,
   subtitle = "",
-  description = "Pacific Market connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities.",
+  description = "Pacific Discovery Network connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities.",
   mobileDescription = description,
   primaryCtaText = "Join the Network",
   primaryCtaHref = createPageUrl("BusinessLogin") + "?mode=signup",

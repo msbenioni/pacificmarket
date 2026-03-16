@@ -107,7 +107,7 @@ export default function Layout({ children, currentPageName }) {
             <Link href={createPageUrl("Home")} className="flex items-center group">
               <img 
                 src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"} 
-                alt="Pacific Market" 
+                alt="Pacific Discovery Network" 
                 className="h-16 w-40 transition-opacity duration-300" 
               />
             </Link>
@@ -271,7 +271,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="md:col-span-2">
               <Link href={createPageUrl("Home")} className="inline-block">
                 <div className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
-                  <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-40" />
+                  <img src="/pm_logo.png" alt="Pacific Discovery Network" className="h-16 w-40" />
                 </div>
               </Link>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
@@ -306,7 +306,7 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-xs"> 2026 Pacific Market. All rights reserved.</p>
+            <p className="text-gray-500 text-xs"> 2026 Pacific Discovery Network. All rights reserved.</p>
             <div className="flex items-center gap-4">
               <Link href={createPageUrl("AdminLogin")} className="text-gray-500 text-xs hover:text-gray-300 transition-colors">
                 Admin

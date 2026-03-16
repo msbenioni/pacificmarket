@@ -68,8 +68,8 @@ export default function Home() {
         title="Connect. Discover. Grow Together."
         mobileTitle="Discover Pacific businesses worldwide."
         subtitle=""
-        description="Pacific Market connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities."
-        mobileDescription="Showcase your business with trust, visibility, and pride. Pacific Market is built to connect Pacific enterprise worldwide."
+        description="Pacific Discovery Network connects the global Pacific business ecosystem — making it easier to discover, connect with, and support Pacific-owned businesses across oceans, industries, and communities."
+        mobileDescription="Showcase your business with trust, visibility, and pride. Pacific Discovery Network is built to connect Pacific enterprise worldwide."
         primaryCtaText="Join the Network"
         primaryCtaHref={createPageUrl("BusinessLogin") + "?mode=signup"}
         secondaryCtaText="Discover Businesses"
@@ -86,7 +86,7 @@ export default function Home() {
             Built to Connect Pacific Enterprise Globally
           </h2>
           <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-6">
-            Pacific Market is more than a directory — it's a living network that connects Pacific businesses with customers, partners, and opportunities across the globe. We make discovery meaningful and connections lasting.
+            Pacific Discovery Network is more than a directory — it's a living network that connects Pacific businesses with customers, partners, and opportunities across the globe. We make discovery meaningful and connections lasting.
           </p>
           <p className="text-xs font-semibold text-[#0a1628]/60 mt-3">
             Built Pacific-led. Designed for connection. Shaped for global impact.
@@ -171,7 +171,7 @@ export default function Home() {
                 Connect Your Business to the Pacific Network
               </h2>
               <p className="text-sm sm:text-base text-slate-300 mb-7 sm:mb-8 max-w-2xl mx-auto leading-6">
-                Every business added to Pacific Market strengthens our global network. Join the discovery platform, build your connections, and help show that Pacific people are not only rich in culture — we are rich in capability, enterprise, and ambition too.
+                Every business added to Pacific Discovery Network strengthens our global network. Join the discovery platform, build your connections, and help show that Pacific people are not only rich in culture — we are rich in capability, enterprise, and ambition too.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

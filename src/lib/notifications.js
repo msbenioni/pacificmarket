@@ -25,7 +25,7 @@ const getEmailTemplate = (type, data) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">Business Claimed</h2>
@@ -54,7 +54,7 @@ const getEmailTemplate = (type, data) => {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>
@@ -67,13 +67,13 @@ const getEmailTemplate = (type, data) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">New Business Added</h2>
           
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-            A new business has been added to the Pacific Market registry.
+            A new business has been added to the Pacific Discovery Network registry.
           </p>
           
           <div style="background: #f8f9fc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -92,7 +92,7 @@ const getEmailTemplate = (type, data) => {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>
@@ -105,7 +105,7 @@ const getEmailTemplate = (type, data) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">Business Updated</h2>
@@ -129,7 +129,7 @@ const getEmailTemplate = (type, data) => {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>
@@ -142,7 +142,7 @@ const getEmailTemplate = (type, data) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #c9a84c; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">Plan Upgraded 🎉</h2>
@@ -160,12 +160,12 @@ const getEmailTemplate = (type, data) => {
           </div>
           
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-            This upgrade enhances their visibility and features on the Pacific Market.
+            This upgrade enhances their visibility and features on the Pacific Discovery Network.
           </p>
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>
@@ -178,7 +178,7 @@ const getEmailTemplate = (type, data) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">Profile Updated</h2>
@@ -196,7 +196,7 @@ const getEmailTemplate = (type, data) => {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>
@@ -209,7 +209,7 @@ const getEmailTemplate = (type, data) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #00c4cc; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">New Claim Submitted</h2>
@@ -234,7 +234,7 @@ const getEmailTemplate = (type, data) => {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>

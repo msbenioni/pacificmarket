@@ -22,7 +22,7 @@ export default function Tools() {
         "Turn everyday emails into a more professional and consistent brand touchpoint.",
       icon: Mail,
       image: "/Email_Sig_Gen.png",
-      alt: "Pacific Market Email Signature Generator preview",
+      alt: "Pacific Discovery Network Email Signature Generator preview",
     },
     {
       title: "Invoice Generator",
@@ -32,7 +32,7 @@ export default function Tools() {
         "Send invoices that look clearer, stronger, and more aligned with your business identity.",
       icon: FileText,
       image: "/Invoice_Gen.png",
-      alt: "Pacific Market Invoice Generator preview",
+      alt: "Pacific Discovery Network Invoice Generator preview",
     },
     {
       title: "QR Code Generator",
@@ -42,7 +42,7 @@ export default function Tools() {
         "Help people reach your business faster with a simple scan.",
       icon: QrCode,
       image: "/QR_Code.png",
-      alt: "Pacific Market QR Code Generator preview",
+      alt: "Pacific Discovery Network QR Code Generator preview",
     },
   ];
 
@@ -82,7 +82,7 @@ export default function Tools() {
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-[#00c9cc]"></span>
               <span className="text-[10px] font-semibold uppercase tracking-widest text-[#00c9cc]">
-                Pacific Market Tools
+                Pacific Discovery Network Tools
               </span>
             </div>
 
@@ -96,7 +96,7 @@ export default function Tools() {
               <div className="w-28 h-1 rounded-full bg-gradient-to-r from-[#c9a84c] via-[#00c4cc] to-transparent mt-6 mb-6" />
 
               <p className="text-sm sm:text-lg text-slate-300 leading-6 sm:leading-relaxed max-w-3xl">
-                Pacific Market gives businesses more than visibility. Our built-in
+                Pacific Discovery Network gives businesses more than visibility. Our built-in
                 tools help you create polished invoices, branded email signatures,
                 and QR codes that make it easier for customers to find, trust, and
                 remember your business.
@@ -255,7 +255,7 @@ export default function Tools() {
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-3xl mx-auto">
                 The Moana plan is built for businesses that want stronger
                 presentation as well as stronger visibility. These tools help
-                turn your Pacific Market presence into something practical,
+                turn your Pacific Discovery Network presence into something practical,
                 professional, and useful across real business moments.
               </p>
 

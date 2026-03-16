@@ -134,20 +134,20 @@ export default function About() {
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
                   <span className="w-2 h-2 rounded-full bg-[#00c9cc]"></span>
                   <span className="text-[10px] font-semibold uppercase tracking-widest text-[#00c9cc]">
-                    About Pacific Market
+                    About Pacific Discovery Network
                   </span>
                 </div>
 
                 <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.05] text-white max-w-4xl">
                   Our Ancestors Built,
                   <span className="block text-[#c9a84c] mt-1">Traded, Made, and Led.</span>
-                  <span className="block mt-1">Pacific Market Continues That Legacy.</span>
+                  <span className="block mt-1">Pacific Discovery Network Continues That Legacy.</span>
                 </h1>
 
                 <div className="w-28 h-1 rounded-full bg-gradient-to-r from-[#c9a84c] via-[#00c4cc] to-transparent mt-6 mb-6" />
 
                 <p className="text-sm sm:text-lg text-slate-300 leading-6 sm:leading-relaxed max-w-2xl">
-                  Pacific Market is a modern registry for Pacific-owned enterprise — designed to strengthen visibility, credibility, and recognition across communities, countries, and industries.
+                  Pacific Discovery Network is a modern registry for Pacific-owned enterprise — designed to strengthen visibility, credibility, and recognition across communities, countries, and industries.
               </p>
 
                 <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 sm:px-5 sm:py-4 max-w-2xl">
@@ -197,7 +197,7 @@ export default function About() {
                   <div className="aspect-[4/5] relative">
                     <Image
                       src="/about_hero.png"
-                      alt="Pacific Market hero visual"
+                      alt="Pacific Discovery Network hero visual"
                       fill
                       className="object-cover"
                     />
@@ -221,13 +221,13 @@ export default function About() {
 
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0d4f4f]">
-                  What Pacific Market is
+                  What Pacific Discovery Network is
                 </p>
                 <h2 className="text-xl sm:text-2xl font-bold text-[#0a1628] mt-2">
                   A structured registry for Pacific-owned businesses
                 </h2>
                 <p className="text-sm sm:text-base text-gray-600 mt-3 leading-relaxed">
-                  Pacific Market is not just a directory. It is a structured registry designed to represent Pacific-owned businesses with greater depth, clarity, and credibility.
+                  Pacific Discovery Network is not just a directory. It is a structured registry designed to represent Pacific-owned businesses with greater depth, clarity, and credibility.
                 </p>
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function About() {
                   Pacific-owned businesses are often undercounted, misrepresented, or absent from the places people search, study, and source from. That affects visibility, access, recognition, and long-term opportunity.
                 </p>
                 <p>
-                  Pacific Market was created to help change that — by building a registry that is not only searchable, but intentional in how Pacific enterprise is represented.
+                  Pacific Discovery Network was created to help change that — by building a registry that is not only searchable, but intentional in how Pacific enterprise is represented.
                 </p>
               </div>
 
@@ -269,7 +269,7 @@ export default function About() {
                   </p>
                 </div>
                 <p className="text-sm sm:text-base text-gray-600">
-                  Pacific Market is being built to reflect real Pacific enterprise — including businesses that may not have had polished digital visibility yet, but still carry deep value, skill, and legacy.
+                  Pacific Discovery Network is being built to reflect real Pacific enterprise — including businesses that may not have had polished digital visibility yet, but still carry deep value, skill, and legacy.
                 </p>
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function About() {
               Enterprise is not new to us
             </h2>
             <p className="text-gray-500 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">
-              Long before modern platforms, Pacific families were already building livelihoods through trade, making, hosting, selling, repairing, feeding, farming, creating, and serving. Pacific Market is a modern continuation of that same spirit — just with better visibility, better structure, and a wider stage.
+              Long before modern platforms, Pacific families were already building livelihoods through trade, making, hosting, selling, repairing, feeding, farming, creating, and serving. Pacific Discovery Network is a modern continuation of that same spirit — just with better visibility, better structure, and a wider stage.
             </p>
           </div>
 
@@ -339,14 +339,14 @@ export default function About() {
                   and the families that worked together to make something from what they had.
                 </p>
                 <p>
-                  That is the spirit behind Pacific Market.
+                  That is the spirit behind Pacific Discovery Network.
                 </p>
                 <p>
                   This is not a borrowed idea of entrepreneurship.
                   It is a recognition that Pacific people have long carried business knowledge, capability, and ingenuity — even when it was not named that way.
                 </p>
                 <p className="text-[#0a1628] font-semibold">
-                  Pacific Market simply exists to make that reality easier to see.
+                  Pacific Discovery Network simply exists to make that reality easier to see.
                 </p>
               </div>
             </div>
@@ -376,7 +376,7 @@ export default function About() {
           <div className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-sm px-6 py-10 sm:px-10 sm:py-12 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
             <div className="max-w-4xl mx-auto text-center">
               <p className="text-[11px] uppercase tracking-[0.24em] font-semibold text-[#c9a84c] mb-4">
-                A Pacific Market belief
+                A Pacific Discovery Network belief
               </p>
 
               <blockquote className="text-xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white">
@@ -389,7 +389,7 @@ export default function About() {
               <div className="w-24 h-1 rounded-full bg-gradient-to-r from-transparent via-[#00c4cc] to-transparent mx-auto my-6" />
 
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                Pacific Market helps close that gap with structure, pride, and a more respectful standard of representation.
+                Pacific Discovery Network helps close that gap with structure, pride, and a more respectful standard of representation.
               </p>
             </div>
           </div>
@@ -407,7 +407,7 @@ export default function About() {
               Built with pride, care, and structure
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">
-              Pacific Market is designed to feel culturally grounded and professionally credible at the same time.
+              Pacific Discovery Network is designed to feel culturally grounded and professionally credible at the same time.
             </p>
           </div>
 
@@ -444,7 +444,7 @@ export default function About() {
               Built by founders who understand both people and systems
             </h2>
             <p className="text-gray-500 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">
-              Pacific Market is being shaped by founders who care deeply about visibility, trust, and long-term opportunity for Pacific-owned businesses — combining digital infrastructure, relationship-building, and a real respect for where Pacific enterprise comes from.
+              Pacific Discovery Network is being shaped by founders who care deeply about visibility, trust, and long-term opportunity for Pacific-owned businesses — combining digital infrastructure, relationship-building, and a real respect for where Pacific enterprise comes from.
             </p>
           </div>
 
@@ -583,13 +583,13 @@ export default function About() {
                   Why this matters to us
                 </p>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#0a1628] leading-snug">
-                  We want Pacific Market to feel worthy of the people it represents.
+                  We want Pacific Discovery Network to feel worthy of the people it represents.
                 </h3>
               </div>
 
               <div className="space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
                 <p>
-                  Pacific Market is not being built from distance.
+                  Pacific Discovery Network is not being built from distance.
                   It comes from lived understanding — from seeing the skill, care, and business intelligence that already exists across Pacific communities, often without the digital visibility it deserves.
                 </p>
                 <p>
@@ -610,7 +610,7 @@ export default function About() {
               href={createPageUrl("Contact")}
               className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-[#0d4f4f] hover:underline"
             >
-              Contact the Pacific Market team <ArrowRight className="w-4 h-4" />
+              Contact the Pacific Discovery Network team <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -627,7 +627,7 @@ export default function About() {
               How businesses enter the registry
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">
-              Pacific Market combines a warm, community-aware approach with a structured review process designed to keep the registry useful and trustworthy.
+              Pacific Discovery Network combines a warm, community-aware approach with a structured review process designed to keep the registry useful and trustworthy.
             </p>
           </div>
 
@@ -676,7 +676,7 @@ export default function About() {
                 Add your business to the Pacific record
               </h2>
               <p className="text-sm sm:text-base text-slate-300 leading-6 mb-6 sm:mb-8 max-w-2xl mx-auto">
-                Pacific business has always been here. Pacific Market helps give it the visibility, structure, and recognition it deserves. Join the registry with pride.
+                Pacific business has always been here. Pacific Discovery Network helps give it the visibility, structure, and recognition it deserves. Join the registry with pride.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -698,7 +698,7 @@ export default function About() {
           </div>
 
           <p className="text-xs text-gray-500 mt-4 sm:mt-6">
-            For partnerships, sponsorships, structured data access, or research enquiries, contact the Pacific Market team.
+            For partnerships, sponsorships, structured data access, or research enquiries, contact the Pacific Discovery Network team.
           </p>
         </div>
       </section>
