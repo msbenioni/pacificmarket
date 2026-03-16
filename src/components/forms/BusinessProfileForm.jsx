@@ -299,11 +299,6 @@ export default function BusinessProfileForm({
     }
   };
 
-  const handleCancel = (e) => {
-    e.preventDefault();
-    onCancel();
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -438,17 +433,8 @@ export default function BusinessProfileForm({
             </FormSection>
           ))}
 
-          {/* Global Save/Cancel Actions */}
-          <div className="flex justify-between items-center pt-6 border-t border-slate-200">
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={submitting}
-              className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            
+          {/* Global Save Actions */}
+          <div className="flex justify-end items-center pt-6 border-t border-slate-200">
             <div className="flex gap-3">
               {saveSuccess && (
                 <span className="text-green-600 text-sm font-medium">Saved successfully!</span>
