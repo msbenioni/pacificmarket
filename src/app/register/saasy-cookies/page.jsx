@@ -131,7 +131,7 @@ export default function SaasyCookiesRegister() {
                 <div>
                   <h3 className="text-lg font-bold text-[#0a1628]">You've been invited!</h3>
                   <p className="text-sm text-gray-600">
-                    {referrerBusiness.name} from {referrerBusiness.city}, {referrerBusiness.country} referred you to join Pacific Market.
+                    {referrerBusiness.name} from {referrerBusiness.city}, {referrerBusiness.country} referred you to join Pacific Discovery Network.
                   </p>
                 </div>
               </div>
