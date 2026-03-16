@@ -38,12 +38,6 @@ const SECTIONS = [
     description: "Basic information about your business operations and scale",
   },
   {
-    key: "challenges",
-    label: "Challenges & Support",
-    icon: AlertCircle,
-    description: "Help us identify real barriers and support gaps",
-  },
-  {
     key: "community",
     label: "Community & Impact",
     icon: Lightbulb,
@@ -56,7 +50,6 @@ const SECTION_FIELDS = {
     "business_stage",
     "team_size_band",
   ],
-  challenges: ["top_challenges_array"],
   community: [
     "collaboration_interest",
     "mentorship_offering",
@@ -106,7 +99,6 @@ export default function BusinessInsightsAccordion({
     mentorship_offering: false,
     open_to_future_contact: false,
     business_acquisition_interest: false,
-    top_challenges_array: "",
   });
 
   const [expandedSections, setExpandedSections] = useState(new Set());
@@ -229,35 +221,6 @@ export default function BusinessInsightsAccordion({
           labelCls={labelCls}
           textareaCls={textareaCls}
         />
-      );
-    }
-
-    if (sectionKey === "challenges") {
-      return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <label className={labelCls}>Top Challenges</label>
-                <p className={helperCls}>Choose up to 5.</p>
-              </div>
-              <span className="text-xs font-medium text-slate-500">
-                {form.top_challenges_array?.length || 0}/5 selected
-              </span>
-            </div>
-
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {BUSINESS_CHALLENGES.map((challenge) => (
-                <OptionCard
-                  key={challenge.value}
-                  checked={form.top_challenges_array?.includes(challenge.value) || false}
-                  onChange={() => toggleArrayItem("top_challenges_array", challenge.value)}
-                  label={challenge.label}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
       );
     }
 
