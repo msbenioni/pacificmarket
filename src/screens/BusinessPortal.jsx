@@ -149,16 +149,14 @@ export default function BusinessPortal() {
 
   return (
     <PortalShell>
-      <div className="sm:px-4 px-3 py-3 sm:py-6">
-        <HeroRegistry
-          badge="Business Owner Portal"
-          title={`Welcome back, ${user?.full_name?.split(" ")[0] || "Owner"}`}
-          subtitle={user?.email}
-          description=""
-          actions={null}
-          compact
-        />
-      </div>
+      <HeroRegistry
+        badge="Business Owner Portal"
+        title={`Welcome back, ${user?.full_name?.split(" ")[0] || "Owner"}`}
+        subtitle={user?.email}
+        description=""
+        actions={null}
+        compact
+      />
 
       <div className={portalUI.wrap}>
         <div className={portalUI.shell}>
