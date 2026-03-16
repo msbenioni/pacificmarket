@@ -13,48 +13,41 @@ ADD COLUMN IF NOT EXISTS collaboration_interest BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS mentorship_offering BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS open_to_future_contact BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS business_acquisition_interest BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS business_stage TEXT,
+ADD COLUMN IF NOT EXISTS business_stage TEXT;
 
--- Migrate data from business_insights to businesses (if any exists)
-INSERT INTO businesses (
-    id, 
-    founder_story, 
-    age_range, 
-    gender, 
-    collaboration_interest, 
-    mentorship_offering, 
-    open_to_future_contact, 
-    business_acquisition_interest,
-    business_stage,
-    updated_at
-)
-SELECT 
-    b.id,
-    fi.founder_story,
-    fi.age_range,
-    fi.gender,
-    fi.collaboration_interest,
-    fi.mentorship_offering,
-    fi.open_to_future_contact,
-    FALSE as business_acquisition_interest, -- Not in founder_insights, set default
-    bi.business_stage,
-    NOW()
-FROM businesses b
-LEFT JOIN founder_insights fi ON b.id = fi.business_id AND fi.snapshot_year = EXTRACT(YEAR FROM NOW())
-LEFT JOIN business_insights bi ON b.id = bi.business_id AND bi.snapshot_year = EXTRACT(YEAR FROM NOW())
-WHERE fi.id IS NOT NULL OR bi.id IS NOT NULL
-ON CONFLICT (id) DO UPDATE SET
-    founder_story = EXCLUDED.founder_story,
-    age_range = EXCLUDED.age_range,
-    gender = EXCLUDED.gender,
-    collaboration_interest = EXCLUDED.collaboration_interest,
-    mentorship_offering = EXCLUDED.mentorship_offering,
-    open_to_future_contact = EXCLUDED.open_to_future_contact,
-    business_acquisition_interest = EXCLUDED.business_acquisition_interest,
-    business_stage = EXCLUDED.business_stage,
-    updated_at = NOW();
+-- Check if insights tables exist before trying to migrate data
+DO $$
+BEGIN
+    -- Only migrate data if the insights tables exist
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'founder_insights') THEN
+        -- Migrate data from founder_insights to businesses (if any exists)
+        UPDATE businesses b
+        SET 
+            founder_story = fi.founder_story,
+            age_range = fi.age_range,
+            gender = fi.gender,
+            collaboration_interest = fi.collaboration_interest,
+            mentorship_offering = fi.mentorship_offering,
+            open_to_future_contact = fi.open_to_future_contact,
+            updated_at = NOW()
+        FROM founder_insights fi
+        WHERE b.id = fi.business_id 
+        AND fi.snapshot_year = EXTRACT(YEAR FROM NOW());
+    END IF;
 
--- Drop the redundant insights tables
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'business_insights') THEN
+        -- Migrate data from business_insights to businesses (if any exists)
+        UPDATE businesses b
+        SET 
+            business_stage = bi.business_stage,
+            updated_at = NOW()
+        FROM business_insights bi
+        WHERE b.id = bi.business_id 
+        AND bi.snapshot_year = EXTRACT(YEAR FROM NOW());
+    END IF;
+END $$;
+
+-- Drop the redundant insights tables if they exist
 DROP TABLE IF EXISTS business_insights CASCADE;
 DROP TABLE IF EXISTS founder_insights CASCADE;
 

@@ -42,7 +42,6 @@ import { PORTAL_TABS, getTabStatus } from "@/constants/portalTabs";
 import { useBusinessPortalData } from "@/hooks/useBusinessPortalData";
 import { useBusinessOperations } from "@/hooks/useBusinessOperations";
 import { usePortalState } from "@/hooks/usePortalState";
-import { useInsightsHandlers } from "@/hooks/useInsightsHandlers";
 
 export default function BusinessPortal() {
   const router = useRouter();
@@ -89,11 +88,6 @@ export default function BusinessPortal() {
     setInsightsLoading,
     setInsightsProgress,
   } = usePortalState();
-
-  const { handleBusinessInsightsSubmit, handleFounderInsightsSubmit } = useInsightsHandlers(
-    refetchPortalData,
-    setInsightsLoading
-  );
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
   const { toast } = useToast();
@@ -220,9 +214,6 @@ export default function BusinessPortal() {
                     break;
                   case "logoUpload":
                     // Handle logo upload
-                    break;
-                  case "insightsSubmit":
-                    handleBusinessInsightsSubmit(data);
                     break;
                 }
               }}
