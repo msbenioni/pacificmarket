@@ -15,20 +15,7 @@ import {
 } from "@/constants/unifiedConstants";
 import CommunitySection from "./FormSections/CommunitySection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
-
-const inputCls =
-  "w-full min-h-[44px] border border-slate-300 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-slate-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white shadow-sm";
-
-const textareaCls =
-  "w-full border border-slate-300 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-slate-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white resize-none shadow-sm";
-
-const selectCls =
-  "w-full min-h-[44px] border border-slate-300 rounded-xl px-4 py-3 pr-10 text-sm text-[#0a1628] focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white appearance-none shadow-sm";
-
-const labelCls =
-  "block text-xs font-semibold uppercase tracking-wider text-slate-700";
-
-const helperCls = "mt-1 text-xs text-slate-500";
+import { OptionCard, inputCls, textareaCls, selectCls, labelCls, helperCls } from "./shared/FormComponents";
 
 const SECTIONS = [
   {
@@ -49,26 +36,6 @@ const SECTION_FIELDS = {
   overview: [],
   community: [],
 };
-
-function OptionCard({ checked, onChange, label, type = "checkbox" }) {
-  return (
-    <label
-      className={`flex min-h-[64px] w-full cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition ${
-        checked
-          ? "border-[#0d4f4f]/30 bg-[#0d4f4f]/6 shadow-sm"
-          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-      }`}
-    >
-      <input
-        type={type}
-        checked={checked}
-        onChange={onChange}
-        className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
-      />
-      <span className="text-sm leading-6 text-slate-700">{label}</span>
-    </label>
-  );
-}
 
 export default function BusinessInsightsAccordion({
   businessId,
