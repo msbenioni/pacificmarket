@@ -14,6 +14,7 @@ import {
   BUSINESS_CHALLENGES,
 } from "@/constants/unifiedConstants";
 import CommunitySection from "./FormSections/CommunitySection";
+import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 
 const inputCls =
   "w-full min-h-[44px] border border-slate-300 rounded-xl px-4 py-3 text-sm text-[#0a1628] placeholder:text-slate-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10 bg-white shadow-sm";
@@ -227,77 +228,14 @@ export default function BusinessInsightsAccordion({
   const renderSectionContent = (sectionKey) => {
     if (sectionKey === "overview") {
       return (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className={labelCls}>Business Stage</label>
-                <select
-                  value={form.business_stage || ""}
-                  onChange={(e) => handleInputChange("business_stage", e.target.value)}
-                  className={selectCls}
-                >
-                  <option value="">Select stage</option>
-                  {BUSINESS_STAGE.map((stage) => (
-                    <option key={stage.value} value={stage.value}>
-                      {stage.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={labelCls}>Year Started</label>
-                <input
-                  type="number"
-                  value={form.year_started ?? ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    handleInputChange("year_started", value === "" ? null : Number(value));
-                  }}
-                  className={inputCls}
-                  min="1900"
-                  max={new Date().getFullYear()}
-                  placeholder="2020"
-                />
-              </div>
-
-              <div>
-                <label className={labelCls}>Business Structure</label>
-                <select
-                  value={form.business_structure || ""}
-                  onChange={(e) => handleInputChange("business_structure", e.target.value)}
-                  className={selectCls}
-                >
-                  <option value="">Select Structure</option>
-                  <option value="sole-proprietorship">Sole Proprietorship</option>
-                  <option value="partnership">Partnership</option>
-                  <option value="llc">LLC</option>
-                  <option value="corporation">Corporation</option>
-                  <option value="non-profit">Non-Profit</option>
-                  <option value="cooperative">Cooperative</option>
-                </select>
-              </div>
-
-              <div>
-                <label className={labelCls}>Team Size</label>
-                <select
-                  value={form.team_size_band || ""}
-                  onChange={(e) => handleInputChange("team_size_band", e.target.value)}
-                  className={selectCls}
-                >
-                  <option value="">Select team size</option>
-                  <option value="1">Just me</option>
-                  <option value="2-5">2-5 people</option>
-                  <option value="6-10">6-10 people</option>
-                  <option value="11-20">11-20 people</option>
-                  <option value="21-50">21-50 people</option>
-                  <option value="51+">51+ people</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BusinessOverviewSection
+          form={form}
+          handleInputChange={handleInputChange}
+          inputCls={inputCls}
+          selectCls={selectCls}
+          labelCls={labelCls}
+          textareaCls={textareaCls}
+        />
       );
     }
 
