@@ -105,7 +105,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-              <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-20" />
+              <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-40" />
             </Link>
 
             {/* Desktop Nav */}
@@ -264,7 +264,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="md:col-span-2">
               <Link href={createPageUrl("Home")} className="inline-block">
                 <div className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
-                  <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-20" />
+                  <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-40" />
                 </div>
               </Link>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
