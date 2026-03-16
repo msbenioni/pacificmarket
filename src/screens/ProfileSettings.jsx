@@ -67,7 +67,7 @@ function InsightsAccordionSection({
       </button>
 
       {isOpen && (
-        <div className="px-4 sm:px-5 pb-4 sm:pb-5 bg-white">
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 bg-white text-[#0a1628]">
           <div className="pt-1">{children}</div>
         </div>
       )}
@@ -166,12 +166,9 @@ export default function ProfileSettings() {
               setPrimaryCultural(profileData.primary_cultural);
             } else {
               // Handle the specific database format: {"cook-islands","french-polynesia"}
-              const jsonString = profileData.primary_cultural
-                .replace(/"/g, '"') // Replace all double quotes with standard quotes
-                .replace(/^{/, '[')   // Replace opening brace with bracket
-                .replace(/}$/, ']'); // Replace closing brace with bracket
-              
-              const parsed = JSON.parse(jsonString);
+              const parsed = JSON.parse(
+                profileData.primary_cultural.replace(/^{/, "[").replace(/}$/, "]")
+              );
               setPrimaryCultural(Array.isArray(parsed) ? parsed : []);
             }
           } catch (error) {
@@ -569,7 +566,7 @@ export default function ProfileSettings() {
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                       placeholder="Enter your display name"
                     />
                   </div>
@@ -582,7 +579,7 @@ export default function ProfileSettings() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                       placeholder="Enter your email"
                     />
                   </div>
@@ -615,7 +612,7 @@ export default function ProfileSettings() {
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                       placeholder="Enter your city"
                     />
                   </div>
@@ -720,7 +717,7 @@ export default function ProfileSettings() {
                         type={showCurrentPassword ? "text" : "password"}
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                        className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                         placeholder="Enter current password"
                       />
                       <button
@@ -749,7 +746,7 @@ export default function ProfileSettings() {
                         type={showNewPassword ? "text" : "password"}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                        className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                         placeholder="Enter new password"
                       />
                       <button
@@ -776,7 +773,7 @@ export default function ProfileSettings() {
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                        className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                         placeholder="Confirm new password"
                       />
                       <button
@@ -838,7 +835,7 @@ export default function ProfileSettings() {
                             type="text"
                             value={newAdminName}
                             onChange={(e) => setNewAdminName(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                             placeholder="Enter admin name"
                           />
                         </div>
@@ -850,7 +847,7 @@ export default function ProfileSettings() {
                             type="email"
                             value={newAdminEmail}
                             onChange={(e) => setNewAdminEmail(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                             placeholder="Enter admin email"
                           />
                         </div>
@@ -862,7 +859,7 @@ export default function ProfileSettings() {
                             type="password"
                             value={newAdminPassword}
                             onChange={(e) => setNewAdminPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                             placeholder="Enter admin password"
                           />
                         </div>
