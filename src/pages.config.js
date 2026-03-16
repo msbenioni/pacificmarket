@@ -60,7 +60,6 @@ import Data from './screens/Data';
 import Guidelines from './screens/Guidelines';
 import Help from './screens/Help';
 import Home from './screens/Home';
-import Insights from './screens/Insights';
 import InvoiceGenerator from './screens/InvoiceGenerator';
 import Pricing from './screens/Pricing';
 import Privacy from './screens/Privacy';
@@ -86,7 +85,6 @@ export const PAGES = {
         "Guidelines": Guidelines,
     "Help": Help,
     "Home": Home,
-    "Insights": Insights,
     "InvoiceGenerator": InvoiceGenerator,
     "Pricing": Pricing,
     "Privacy": Privacy,
