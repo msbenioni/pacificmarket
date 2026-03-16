@@ -18,7 +18,6 @@ import CoreInfoSection from "./FormSections/CoreInfoSection";
 import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
-import ChallengesSection from "./FormSections/ChallengesSection";
 import CommunitySection from "./FormSections/CommunitySection";
 import { OptionCard, inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection } from "./shared/FormComponents";
 
@@ -176,17 +175,9 @@ export default function BusinessProfileForm({
   const toggleArrayItem = (field, item) => {
     setForm((prev) => {
       const currentArray = prev[field] || [];
-      const limit =
-        field === "top_challenges_array"
-          ? 5
-          : undefined;
 
       if (currentArray.includes(item)) {
         return { ...prev, [field]: currentArray.filter((i) => i !== item) };
-      }
-
-      if (limit && currentArray.length >= limit) {
-        return prev;
       }
 
       return { ...prev, [field]: [...currentArray, item] };
@@ -395,19 +386,6 @@ export default function BusinessProfileForm({
             selectCls={selectCls}
             labelCls={labelCls}
             textareaCls={textareaCls}
-          />
-        );
-      
-      case "challenges":
-        return (
-          <ChallengesSection
-            form={form}
-            handleInputChange={handleInputChange}
-            toggleArrayItem={toggleArrayItem}
-            inputCls={inputCls}
-            labelCls={labelCls}
-            textareaCls={textareaCls}
-            helperCls={helperCls}
           />
         );
       

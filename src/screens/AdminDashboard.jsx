@@ -406,12 +406,6 @@ function InsightMobileCard({ insight }) {
                 <span className="ml-2 text-gray-600">{insight.growth_stage}</span>
               </div>
             )}
-            {insight.top_challenges_array && (
-              <div>
-                <span className="font-medium text-gray-700">Top Challenges:</span>
-                <p className="mt-1 text-gray-600">{insight.top_challenges_array}</p>
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -484,7 +478,7 @@ export default function AdminDashboard() {
             id, business_id, user_id, snapshot_year, submitted_date, year_started,
             problem_solved, team_size_band, business_model, family_involvement,
             customer_region, sales_channels, import_export_status, import_countries,
-            export_countries, growth_stage, top_challenges_array, hiring_intentions,
+            export_countries, growth_stage, hiring_intentions,
             founder_role, founder_story, founder_motivation_array
           `)
           .order("submitted_date", { ascending: false })

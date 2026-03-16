@@ -48,12 +48,7 @@ const BUSINESS_PUBLIC_FIELDS = `
   mentorship_offering,
   open_to_future_contact,
   business_acquisition_interest,
-  business_stage,
-  top_challenges,
-  business_operating_status,
-  business_age,
-  employs_anyone,
-  employs_family_community
+  business_stage
 `;
 
 /**
