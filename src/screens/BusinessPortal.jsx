@@ -33,7 +33,6 @@ import { useToast } from "@/components/ui/toast/ToastProvider";
 // New tab components
 import BusinessesTab from "@/components/portal/BusinessesTab";
 import ClaimsTab from "@/components/portal/ClaimsTab";
-import ProfileInsightsTab from "@/components/portal/ProfileInsightsTab";
 import BusinessToolsTab from "@/components/portal/BusinessToolsTab";
 
 // New constants
@@ -150,14 +149,16 @@ export default function BusinessPortal() {
 
   return (
     <PortalShell>
-      <HeroRegistry
-        badge="Business Owner Portal"
-        title={`Welcome back, ${user?.full_name?.split(" ")[0] || "Owner"}`}
-        subtitle={user?.email}
-        description=""
-        actions={null}
-        compact
-      />
+      <div className="sm:px-4 px-3 py-3 sm:py-6">
+        <HeroRegistry
+          badge="Business Owner Portal"
+          title={`Welcome back, ${user?.full_name?.split(" ")[0] || "Owner"}`}
+          subtitle={user?.email}
+          description=""
+          actions={null}
+          compact
+        />
+      </div>
 
       <div className={portalUI.wrap}>
         <div className={portalUI.shell}>
@@ -238,22 +239,6 @@ export default function BusinessPortal() {
             <ClaimsTab
               claims={claims}
               onCancelSuccess={() => refetchPortalData()}
-            />
-          )}
-
-          {activeTab === "insights" && (
-            <ProfileInsightsTab
-              user={user}
-              businesses={businesses}
-              insightsSubmitting={insightsSubmitting}
-              insightsStarted={insightsStarted}
-              insightSnapshots={insightSnapshots}
-              onProfileComplete={async () => {
-                await refetchOnboardingStatus();
-                await refetchPortalData();
-              }}
-              onFounderInsightsSubmit={handleFounderInsightsSubmit}
-              setInsightsProgress={setInsightsProgress}
             />
           )}
 
