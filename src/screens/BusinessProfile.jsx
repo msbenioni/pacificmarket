@@ -54,13 +54,8 @@ export default function BusinessProfile() {
         const businessId = urlParams.get('id');
         const businessHandle = urlParams.get('handle');
         
-        console.log('BusinessProfile URL params:', { businessId, businessHandle });
-        console.log('Full URL:', window.location.search);
-        
         // Use handle as fallback if no ID provided
         const identifier = businessId || businessHandle;
-        
-        console.log('Using identifier:', identifier);
         
         if (!identifier) {
           console.error("No business ID or handle found in URL");
@@ -68,18 +63,11 @@ export default function BusinessProfile() {
           return;
         }
         
-        console.log('Fetching business by ID/handle:', identifier);
         const businessData = await getBusinessById(identifier);
-        
-        console.log('Business data fetched:', businessData);
-        console.log('Type of business data:', typeof businessData);
-        console.log('Business data keys:', businessData ? Object.keys(businessData) : 'null/undefined');
         
         if (businessData) {
           setBusiness(businessData);
           await fetchExtras(businessData);
-        } else {
-          console.log('No business data found');
         }
         
         setLoading(false);
@@ -101,19 +89,29 @@ export default function BusinessProfile() {
       const tier = getBusinessTier(biz);
 
       if (tier === "mana" || tier === "moana") {
-        const { data: imgs } = await supabase
-          .from("business_images")
-          .select("*")
-          .eq("business_id", biz.id);
-        setGalleryImages(imgs || []);
+        try {
+          const { data: imgs } = await supabase
+            .from("business_images")
+            .select("*")
+            .eq("business_id", biz.id);
+          setGalleryImages(imgs || []);
+        } catch (error) {
+          console.log("Gallery images not available:", error.message);
+          setGalleryImages([]);
+        }
       }
 
       if (tier === "moana") {
-        const { data: prods } = await supabase
-          .from("product_services")
-          .select("*")
-          .eq("business_id", biz.id);
-        setProducts(prods || []);
+        try {
+          const { data: prods } = await supabase
+            .from("product_services")
+            .select("*")
+            .eq("business_id", biz.id);
+          setProducts(prods || []);
+        } catch (error) {
+          console.log("Products/services not available:", error.message);
+          setProducts([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching extras:", error);
