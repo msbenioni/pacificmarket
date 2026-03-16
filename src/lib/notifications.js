@@ -1,7 +1,18 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { createPageUrl } from "@/utils";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create SMTP transporter using Google Workspace
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
 // Notification types
 export const NOTIFICATION_TYPES = {
@@ -296,11 +307,12 @@ export const sendNotification = async (type, data, recipients = null) => {
       throw new Error(`No template found for notification type: ${type}`);
     }
 
-    const toEmails = recipients || [process.env.RESEND_FROM_EMAIL];
+    const transporter = createTransporter();
+    const toEmails = recipients || [process.env.SMTP_FROM_EMAIL];
 
     const emailPromises = toEmails.map((email) =>
-      resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL,
+      transporter.sendMail({
+        from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
         to: email,
         subject: template.subject,
         html: template.html,

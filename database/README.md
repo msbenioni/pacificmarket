@@ -1,14 +1,14 @@
-# Pacific Market Database Schema
+# Pacific Discovery Network Database Schema
 
 ## Overview
 
-This directory contains the complete database schema for Pacific Market, a platform connecting Pacific businesses with comprehensive business management and insights features.
+This directory contains the complete database schema for Pacific Discovery Network, a platform connecting Pacific businesses with comprehensive business management and insights features.
 
 ## Files
 
 ### 📋 Schema Files
 
-- **`pacific_market_complete_schema.sql`** - Complete database schema with all tables, RLS policies, functions, and triggers
+- **`pacific_discovery_network_complete_schema.sql`** - Complete database schema with all tables, RLS policies, functions, and triggers
 - **`apply_clean_schema.sql`** - Migration script to safely apply the new schema while preserving existing data
 - **`README.md`** - This documentation file
 
@@ -98,7 +98,7 @@ All tables have RLS policies implemented:
 
 ### 🎯 Business Handles
 
-- Auto-generated unique handles (e.g., "pacific-market-demo")
+- Auto-generated unique handles (e.g., "pacific-discovery-demo")
 - Lowercase, hyphenated format
 - Fallback to numbers if conflicts
 
@@ -121,7 +121,7 @@ Optimized indexes for:
 
 2. **Apply new schema:**
    ```sql
-   \i database/pacific_market_complete_schema.sql
+   \i database/pacific_discovery_network_complete_schema.sql
    ```
 
 3. **Migrate data:**

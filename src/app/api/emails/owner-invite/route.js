@@ -1,7 +1,20 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+
+// Create SMTP transporter using Google Workspace
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
 export async function POST(request) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const transporter = createTransporter();
   const { ownerEmail, ownerName, businessName, businessId } = await request.json();
 
   // Always use production URL for email links
@@ -10,8 +23,8 @@ export async function POST(request) {
   try {
     const invitationUrl = `${appUrl}/customer-portal?business=${businessId}`;
     
-    const data = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
+    const data = await transporter.sendMail({
+      from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
       to: ownerEmail,
       subject: `You're invited to manage ${businessName} on Pacific Discovery Network`,
       html: `
@@ -57,8 +70,8 @@ export async function POST(request) {
       `,
     });
 
-    return Response.json({ data });
+    return Response.json({ data: { messageId: data.messageId } });
   } catch (error) {
-    return new Response(error.message || "Resend error", { status: 500 });
+    return new Response(error.message || "Email sending error", { status: 500 });
   }
 }

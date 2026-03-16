@@ -1,7 +1,7 @@
 # 🗄️ Database Documentation
 
 > **📅 Last Updated:** March 2026  
-> **🎯 Current State:** Optimized 3-table architecture with clean field mappings
+> **🎯 Current State:** Optimized database architecture for Pacific Discovery Network
 
 ---
 
@@ -18,9 +18,9 @@
 
 ## 🏗️ **Database Architecture**
 
-### **✅ 3-Table Structure**
+### **✅ Core Structure**
 
-The Pacific Market platform uses a clean, optimized 3-table architecture:
+The Pacific Discovery Network platform uses a clean, optimized database architecture:
 
 ```
 ┌─────────────────┐  ┌──────────────────┐  ┌─────────────────────┐

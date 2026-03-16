@@ -1,6 +1,19 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 const getCurrentYear = () => new Date().getFullYear();
+
+// Create SMTP transporter using Google Workspace
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
 const emailShell = ({
   accent = "#0d4f4f",
@@ -51,15 +64,15 @@ const emailShell = ({
 `;
 
 export async function POST(request) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const transporter = createTransporter();
   const { name, email, subject, message, inquiryType, marketingConsent } =
     await request.json();
 
   try {
     // Send notification to Pacific Discovery Network team
-    const teamEmail = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
-      to: process.env.RESEND_FROM_EMAIL,
+    const teamEmail = await transporter.sendMail({
+      from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
+      to: process.env.SMTP_FROM_EMAIL,
       subject: `New enquiry: ${inquiryType} - ${subject}`,
       html: emailShell({
         title: "New contact enquiry received",
@@ -80,13 +93,13 @@ export async function POST(request) {
     });
 
     // Send confirmation email to user
-    const userEmail = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
+    const userEmail = await transporter.sendMail({
+      from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
       to: email,
-      subject: `We’ve received your message — Pacific Discovery Network`,
+      subject: `We've received your message — Pacific Discovery Network`,
       html: emailShell({
         title: "Thank you for reaching out",
-        intro: `Hi ${name},<br /><br />Thank you for contacting Pacific Discovery Network. We’ve received your message and will review it as soon as possible.`,
+        intro: `Hi ${name},<br /><br />Thank you for contacting Pacific Discovery Network. We've received your message and will review it as soon as possible.`,
         detailsHtml: `
           <p style="margin: 0 0 10px 0;"><strong>Subject:</strong> ${subject}</p>
           <p style="margin: 0 0 10px 0;"><strong>Enquiry type:</strong> ${inquiryType}</p>
@@ -102,7 +115,7 @@ export async function POST(request) {
 
           <p style="margin: 0;">
             If your enquiry is urgent, you can reply directly to this email or contact us at
-            <a href="mailto:${process.env.RESEND_FROM_EMAIL}" style="color: #0d4f4f;"> ${process.env.RESEND_FROM_EMAIL}</a>.
+            <a href="mailto:${process.env.SMTP_FROM_EMAIL}" style="color: #0d4f4f;"> ${process.env.SMTP_FROM_EMAIL}</a>.
           </p>
         `,
       }),
@@ -111,8 +124,8 @@ export async function POST(request) {
     return Response.json({
       success: true,
       message: "Message sent successfully",
-      teamEmail: teamEmail.data,
-      userEmail: userEmail.data,
+      teamEmail: teamEmail.messageId,
+      userEmail: userEmail.messageId,
     });
   } catch (error) {
     console.error("Contact form error:", error);

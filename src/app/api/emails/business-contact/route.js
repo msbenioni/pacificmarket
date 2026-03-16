@@ -1,6 +1,19 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 const getCurrentYear = () => new Date().getFullYear();
+
+// Create SMTP transporter using Google Workspace
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
 const emailShell = ({
   accent = "#0d4f4f",
@@ -51,7 +64,7 @@ const emailShell = ({
 `;
 
 export async function POST(request) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const transporter = createTransporter();
   const { business, userEmail, userName } = await request.json();
 
   try {
@@ -60,8 +73,8 @@ export async function POST(request) {
     // Send notification to business owner if a contact email exists
     if (business.contact_email) {
       try {
-        await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL,
+        await transporter.sendMail({
+          from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
           to: business.contact_email,
           subject: `New discovery enquiry for ${business.name}`,
           html: emailShell({
@@ -86,9 +99,9 @@ export async function POST(request) {
     }
 
     // Send internal notification to Pacific Discovery Network team
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
-      to: process.env.RESEND_FROM_EMAIL,
+    await transporter.sendMail({
+      from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
+      to: process.env.SMTP_FROM_EMAIL,
       subject: `Discovery enquiry: ${business.name}`,
       html: emailShell({
         title: "Business discovery enquiry received",

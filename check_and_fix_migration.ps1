@@ -18,13 +18,13 @@ if ($columns -contains "business_id") {
     Write-Host "✅ Using 'id' column instead of 'business_id'"
     $idColumn = "id"
 } else {
-    Write-Host "❌ No ID column found!"
+    Write-Host " No ID column found!"
     exit 1
 }
 
 # Create fixed migration
 $fixedMigration = @"
--- Mobile Banner Migration for Pacific Market (Fixed)
+-- Mobile Banner Migration for Pacific Discovery Network (Fixed)
 -- Run this in Supabase SQL Editor
 
 -- Add mobile_banner_url field to businesses table
