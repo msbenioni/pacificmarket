@@ -534,30 +534,6 @@ export default function ProfileSettings() {
       <div className="min-h-screen bg-[#f8f9fc]">
         <section className="px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-5xl">
-            <div className="mb-6 rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] text-white shadow-md">
-                  <UserCircle2 className="h-6 w-6" />
-                </div>
-
-                <div className="min-w-0">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#0d4f4f]/10 px-3 py-1 text-xs font-semibold text-[#0d4f4f]">
-                    Profile Settings
-                  </div>
-
-                  <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#0a1628] sm:text-3xl">
-                    Manage your profile settings
-                  </h2>
-
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-                    Update your account information, profile foundation, and
-                    security settings to keep your Pacific Market profile current
-                    and secure.
-                  </p>
-                </div>
-              </div>
-            </div>
-
             <div className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
               <InsightsAccordionSection
                 title="Account Settings"
