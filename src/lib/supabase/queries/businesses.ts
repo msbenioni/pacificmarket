@@ -104,14 +104,20 @@ export async function getBusinessById(id: string) {
   // Check if the ID looks like a UUID (8-4-4-4-12 format with hyphens)
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   
+  console.log('getBusinessById called with:', id);
+  console.log('isUUID:', isUUID);
+  
   if (isUUID) {
     // Query by UUID - all data now in businesses table
+    console.log('Querying by UUID:', id);
     const { data, error } = await supabase
       .from('businesses')
       .select(BUSINESS_PUBLIC_FIELDS)
       .eq('id', id)
       .single();
 
+    console.log('UUID query result:', { data, error });
+    
     if (error) {
       console.error('Business query error:', error);
       throw new Error(`Failed to fetch business: ${error.message}`);
@@ -120,11 +126,14 @@ export async function getBusinessById(id: string) {
     return data;
   } else {
     // Query by business handle - all data now in businesses table
+    console.log('Querying by business_handle:', id);
     const { data, error } = await supabase
       .from('businesses')
       .select(BUSINESS_PUBLIC_FIELDS)
       .eq('business_handle', id)
       .single();
+
+    console.log('Handle query result:', { data, error });
 
     if (error) {
       console.error('Business query error:', error);
