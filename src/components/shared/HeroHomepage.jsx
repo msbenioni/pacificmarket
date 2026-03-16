@@ -45,7 +45,7 @@ export default function HeroHomepage({
         <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start lg:items-center">
           {/* Left: Title panel */}
           <div className="lg:w-5/12">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-[#00c9cc]"></span>
               <span className="text-[10px] font-semibold uppercase tracking-widest text-[#00c9cc]">
                 Global Pacific Discovery Network
