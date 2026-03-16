@@ -69,9 +69,11 @@ export default function BusinessProfile() {
         }
         
         console.log('Fetching business by ID/handle:', identifier);
-        const { data: businessData } = await getBusinessById(identifier);
+        const businessData = await getBusinessById(identifier);
         
         console.log('Business data fetched:', businessData);
+        console.log('Type of business data:', typeof businessData);
+        console.log('Business data keys:', businessData ? Object.keys(businessData) : 'null/undefined');
         
         if (businessData) {
           setBusiness(businessData);
