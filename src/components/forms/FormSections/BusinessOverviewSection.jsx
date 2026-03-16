@@ -40,23 +40,6 @@ export default function BusinessOverviewSection({
           </div>
 
           <div>
-            <label className={labelCls}>Business Structure</label>
-            <select
-              value={form.business_structure || ""}
-              onChange={(e) => handleInputChange("business_structure", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select Structure</option>
-              <option value="sole-proprietorship">Sole Proprietorship</option>
-              <option value="partnership">Partnership</option>
-              <option value="llc">LLC</option>
-              <option value="corporation">Corporation</option>
-              <option value="non-profit">Non-Profit</option>
-              <option value="cooperative">Cooperative</option>
-            </select>
-          </div>
-
-          <div>
             <label className={labelCls}>Business Stage</label>
             <select
               value={form.business_stage || ""}
@@ -105,6 +88,23 @@ export default function BusinessOverviewSection({
                 </div>
               </label>
             </div>
+          </div>
+
+          <div>
+            <label className={labelCls}>Business Structure</label>
+            <select
+              value={form.business_structure || ""}
+              onChange={(e) => handleInputChange("business_structure", e.target.value)}
+              className={selectCls}
+            >
+              <option value="">Select Structure</option>
+              <option value="sole-proprietorship">Sole Proprietorship</option>
+              <option value="partnership">Partnership</option>
+              <option value="llc">LLC</option>
+              <option value="corporation">Corporation</option>
+              <option value="non-profit">Non-Profit</option>
+              <option value="cooperative">Cooperative</option>
+            </select>
           </div>
         </div>
       </div>
