@@ -53,7 +53,18 @@ export function sanitizeBusinessPayload(formData) {
     "mobile_banner_url",
     "business_owner",
     "business_owner_email",
-    "additional_owner_emails"
+    "additional_owner_emails",
+    // Business insights fields (now in businesses table)
+    "business_stage",
+    "is_business_registered",
+    // Founder insights fields (now in businesses table)
+    "founder_story",
+    "age_range",
+    "gender",
+    "collaboration_interest",
+    "mentorship_offering",
+    "open_to_future_contact",
+    "business_acquisition_interest"
   ];
 
   const payload = {};
