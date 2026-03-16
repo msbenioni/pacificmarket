@@ -1,14 +1,13 @@
 /**
  * Business Data Transformer
- * Splits unified form data by table destination:
- * - businesses table: Public data for Insights/Registry pages
- * - business_insights table: Internal business tracking data
- * - founder_insights table: Founder-specific insights data
+ * Consolidates all form data into the businesses table:
+ * - businesses table: All business data (public + insights + founder data)
  */
 
 export const transformBusinessFormData = (formData) => {
-  // Public data for businesses table (displayed on Insights/Registry pages)
+  // All data now goes to businesses table
   const businessesData = {
+    // Public business data
     name: formData.name,
     business_handle: formData.business_handle,
     tagline: formData.tagline,
@@ -33,20 +32,24 @@ export const transformBusinessFormData = (formData) => {
     is_verified: formData.is_verified,
     is_claimed: formData.is_claimed,
     is_homepage_featured: formData.is_homepage_featured,
-  };
-
-  // Business insights data for business_insights table (internal tracking)
-  const businessInsightsData = {
+    
+    // Business insights data (now in businesses table)
     business_stage: formData.business_stage,
-    top_challenges_array: formData.top_challenges_array,
     is_business_registered: formData.is_business_registered === true || formData.is_business_registered === "true" ? true : false,
-    private_business_phone: formData.private_business_phone,
-    private_business_email: formData.private_business_email,
+    
+    // Founder insights data (now in businesses table)
+    founder_story: formData.founder_story,
+    age_range: formData.age_range,
+    gender: formData.gender,
+    collaboration_interest: formData.collaboration_interest,
+    mentorship_offering: formData.mentorship_offering,
+    open_to_future_contact: formData.open_to_future_contact,
+    business_acquisition_interest: formData.business_acquisition_interest,
   };
 
   return {
     businessesData,
-    businessInsightsData,
+    businessInsightsData: {}, // Empty since we consolidated everything
   };
 };
 
@@ -77,13 +80,18 @@ export const filterEmptyValues = (data) => {
 export const sanitizeForBusinessesTable = (data) => {
   const sanitized = filterEmptyValues(data);
   
-  // Remove any fields that don't belong in businesses table
+  // All fields are now allowed in businesses table after consolidation
   const allowedFields = [
     'name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url', 'mobile_banner_url',
     'business_owner', 'business_owner_email', 'additional_owner_emails',
     'contact_email', 'contact_phone', 'contact_website', 'business_hours',
     'country', 'industry', 'city', 'year_started', 'business_structure',
-    'team_size_band', 'status', 'is_verified', 'is_claimed', 'is_homepage_featured'
+    'team_size_band', 'status', 'is_verified', 'is_claimed', 'is_homepage_featured',
+    // Business insights fields (now in businesses table)
+    'business_stage', 'is_business_registered',
+    // Founder insights fields (now in businesses table)
+    'founder_story', 'age_range', 'gender', 'collaboration_interest', 
+    'mentorship_offering', 'open_to_future_contact', 'business_acquisition_interest'
   ];
   
   const result = {};
@@ -91,24 +99,6 @@ export const sanitizeForBusinessesTable = (data) => {
     if (sanitized[field] !== undefined) {
       result[field] = sanitized[field];
     }
-  });
-  
-  return result;
-};
-
-export const sanitizeForBusinessInsightsTable = (data) => {
-  const sanitized = filterEmptyValues(data);
-  
-  // Remove any fields that don't belong in business_insights table
-  const disallowedFields = [
-    'name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url', 'mobile_banner_url',
-    'contact_email', 'contact_phone', 'contact_website', 'business_hours',
-    'country', 'industry', 'city', 'status', 'is_verified', 'is_claimed', 'is_homepage_featured'
-  ];
-  
-  const result = { ...sanitized };
-  disallowedFields.forEach(field => {
-    delete result[field];
   });
   
   return result;

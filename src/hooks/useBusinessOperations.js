@@ -162,27 +162,29 @@ export function useBusinessOperations(refetchPortalData) {
       }
 
       // Handle business insights data if provided
-      let businessInsightsData = {};
+      let consolidatedBusinessData = {};
       
       // Use the new unified form data structure
       if (businessData.businessesData && businessData.businessInsightsData) {
-        // New unified form structure - data is already separated by table
+        // New unified form structure - consolidate both data sets
         console.log('Using table-based data structure');
         console.log('Businesses data keys:', Object.keys(businessData.businessesData || {}));
         console.log('Business insights data keys:', Object.keys(businessData.businessInsightsData || {}));
         
-        // Use the provided data directly
-        businessInsightsData = { ...businessData.businessInsightsData };
+        // Consolidate all data into single businesses table structure
+        consolidatedBusinessData = {
+          ...businessData.businessesData,
+          ...businessData.businessInsightsData
+        };
       } else {
         // Error: Unsupported data structure
         throw new Error("Invalid data structure. Expected businessesData and businessInsightsData.");
       }
 
-      console.log('Final businesses data for update:', businessesDataForUpdate);
-      console.log('Final business insights data:', businessInsightsData);
+      console.log('Final consolidated business data for update:', consolidatedBusinessData);
 
-      // Save public business data to businesses table
-      const sanitizedPayload = sanitizeBusinessPayload(businessesDataForUpdate);
+      // Save all business data to businesses table
+      const sanitizedPayload = sanitizeBusinessPayload(consolidatedBusinessData);
       console.log("Sanitized payload:", sanitizedPayload);
       
       console.log("Payload keys:", Object.keys(sanitizedPayload || {}));
@@ -277,71 +279,6 @@ export function useBusinessOperations(refetchPortalData) {
         // Only throw error if it's actually an error (not 204 success)
         if (updateResult?.status !== 204) {
           throw new Error(`Failed to update business: ${errorMessage}`);
-        }
-      }
-
-      // Save private data to business_insights table if any exists
-      if (Object.keys(businessInsightsData).length > 0) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not authenticated");
-
-        const currentYear = new Date().getFullYear();
-        
-        // Check if insights record exists for this year
-        const { data: existingInsights, error: checkError } = await supabase
-          .from("business_insights")
-          .select("*")
-          .eq("business_id", businessData.businessId)
-          .eq("snapshot_year", currentYear)
-          .maybeSingle();
-
-        if (checkError) {
-          console.error("Error checking existing insights:", checkError);
-          throw new Error(`Failed to check business insights: ${checkError.message}`);
-        }
-
-        if (existingInsights) {
-          // Update existing record
-          const filteredInsightsData = filterEmptyValues(businessInsightsData);
-          console.log("Filtered insights data:", filteredInsightsData);
-          
-          const { error: insightsError } = await supabase
-            .from("business_insights")
-            .update(filteredInsightsData)
-            .eq("id", existingInsights.id);
-
-          if (insightsError) {
-            console.error("Business insights update error:", {
-              error: insightsError,
-              existingInsightsId: existingInsights.id,
-              privateData: businessInsightsData
-            });
-            throw new Error(`Failed to update business insights: ${insightsError.message || JSON.stringify(insightsError)}`);
-          }
-        } else {
-          // Create new record
-          const filteredInsightsData = filterEmptyValues(businessInsightsData);
-          console.log("Filtered insights data for insert:", filteredInsightsData);
-          
-          const { error: insightsError } = await supabase
-            .from("business_insights")
-            .insert({
-              business_id: businessData.businessId,
-              user_id: user.id,
-              snapshot_year: currentYear,
-              ...filteredInsightsData,
-            });
-
-          if (insightsError) {
-            console.error("Business insights insert error:", {
-              error: insightsError,
-              businessId: businessData.businessId,
-              userId: user.id,
-              snapshotYear: currentYear,
-              privateData: businessInsightsData
-            });
-            throw new Error(`Failed to save business insights: ${insightsError.message || JSON.stringify(insightsError)}`);
-          }
         }
       }
 

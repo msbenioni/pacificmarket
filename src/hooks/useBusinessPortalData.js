@@ -46,17 +46,8 @@ export function useBusinessPortalData() {
       setClaims(claimsResult.data || []);
       setProfiles(profilesResult.data || []);
 
-      const { data: snapshotData, error: snapshotError } = await supabase
-        .from("founder_insights")
-        .select("*")
-        .eq("user_id", u.id)
-        .order("submitted_date", { ascending: false });
-
-      if (snapshotError) {
-        console.error("Error fetching founder insights snapshots:", snapshotError);
-      }
-
-      setInsightSnapshots(snapshotData || []);
+      // No more insights snapshots since we consolidated to businesses table
+      setInsightSnapshots([]);
     } catch (e) {
       console.error("Refetch portal data error:", e);
     }
