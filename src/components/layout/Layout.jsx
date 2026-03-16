@@ -241,6 +241,12 @@ export default function Layout({ children, currentPageName }) {
                 Business Portal
               </Link>
             )}
+            {/* Show Profile Settings for authenticated users */}
+            {user && (
+              <Link href={createPageUrl("ProfileSettings")} className="block text-sm font-medium text-gray-700 py-2" onClick={() => setMenuOpen(false)}>
+                Profile Settings
+              </Link>
+            )}
             {/* Show Create Account for non-users, Admin link for admin users */}
             {!user ? (
               <Link href={`${createPageUrl("BusinessLogin")}?mode=signup`} className="block text-sm font-semibold text-[#0d4f4f] py-2" onClick={() => setMenuOpen(false)}>
