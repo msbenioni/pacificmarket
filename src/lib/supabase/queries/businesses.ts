@@ -40,7 +40,20 @@ const BUSINESS_PUBLIC_FIELDS = `
   referral_code,
   created_at,
   updated_at,
-  created_date
+  created_date,
+  founder_story,
+  age_range,
+  gender,
+  collaboration_interest,
+  mentorship_offering,
+  open_to_future_contact,
+  business_acquisition_interest,
+  business_stage,
+  top_challenges,
+  business_operating_status,
+  business_age,
+  employs_anyone,
+  employs_family_community
 `;
 
 /**
@@ -97,73 +110,33 @@ export async function getBusinessById(id: string) {
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   
   if (isUUID) {
-    // Query by UUID - get data from both tables
-    const { data: businessesData, error: businessesError } = await supabase
+    // Query by UUID - all data now in businesses table
+    const { data, error } = await supabase
       .from('businesses')
       .select(BUSINESS_PUBLIC_FIELDS)
       .eq('id', id)
       .single();
 
-    if (businessesError) {
-      console.error('Business query error:', businessesError);
-      throw new Error(`Failed to fetch business: ${businessesError.message}`);
+    if (error) {
+      console.error('Business query error:', error);
+      throw new Error(`Failed to fetch business: ${error.message}`);
     }
 
-    // Get current year for business insights
-    const currentYear = new Date().getFullYear();
-    
-    // Get business insights data
-    const { data: insightsData, error: insightsError } = await supabase
-      .from('business_insights')
-      .select('*')
-      .eq('business_id', id)
-      .eq('snapshot_year', currentYear)
-      .maybeSingle();
-
-    if (insightsError) {
-      console.error('Business insights query error:', insightsError);
-      // Don't throw error for insights - it might not exist
-    }
-
-    // Merge the data
-    return {
-      ...businessesData,
-      ...insightsData
-    };
+    return data;
   } else {
-    // Query by business handle - get data from both tables
-    const { data: businessesData, error: businessesError } = await supabase
+    // Query by business handle - all data now in businesses table
+    const { data, error } = await supabase
       .from('businesses')
       .select(BUSINESS_PUBLIC_FIELDS)
       .eq('business_handle', id)
       .single();
 
-    if (businessesError) {
-      console.error('Business query error:', businessesError);
-      throw new Error(`Failed to fetch business: ${businessesError.message}`);
+    if (error) {
+      console.error('Business query error:', error);
+      throw new Error(`Failed to fetch business: ${error.message}`);
     }
 
-    // Get current year for business insights
-    const currentYear = new Date().getFullYear();
-    
-    // Get business insights data
-    const { data: insightsData, error: insightsError } = await supabase
-      .from('business_insights')
-      .select('*')
-      .eq('business_id', businessesData.id)
-      .eq('snapshot_year', currentYear)
-      .maybeSingle();
-
-    if (insightsError) {
-      console.error('Business insights query error:', insightsError);
-      // Don't throw error for insights - it might not exist
-    }
-
-    // Merge the data
-    return {
-      ...businessesData,
-      ...insightsData
-    };
+    return data;
   }
 }
 

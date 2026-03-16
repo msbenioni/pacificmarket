@@ -13,28 +13,19 @@ import {
   BUSINESS_STAGE,
   BUSINESS_CHALLENGES,
 } from "@/constants/unifiedConstants";
-import CommunitySection from "./FormSections/CommunitySection";
-import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import { OptionCard, inputCls, textareaCls, selectCls, labelCls, helperCls } from "./shared/FormComponents";
 
 const SECTIONS = [
   {
-    key: "overview",
-    label: "Business Overview",
-    icon: Building2,
-    description: "Basic information about your business operations and scale",
-  },
-  {
-    key: "community",
-    label: "Community & Impact",
-    icon: Lightbulb,
-    description: "How your business contributes to the wider community",
+    key: "challenges",
+    label: "Challenges & Support",
+    icon: AlertCircle,
+    description: "Help us identify real barriers and support gaps",
   },
 ];
 
 const SECTION_FIELDS = {
-  overview: [],
-  community: [],
+  challenges: [],
 };
 
 export default function BusinessInsightsAccordion({
@@ -156,38 +147,6 @@ export default function BusinessInsightsAccordion({
     }
   };
 
-  const renderSectionContent = (sectionKey) => {
-    if (sectionKey === "overview") {
-      return (
-        <BusinessOverviewSection
-          form={form}
-          handleInputChange={handleInputChange}
-          inputCls={inputCls}
-          selectCls={selectCls}
-          labelCls={labelCls}
-          textareaCls={textareaCls}
-        />
-      );
-    }
-
-    if (sectionKey === "community") {
-      return (
-        <CommunitySection
-          form={form}
-          handleInputChange={handleInputChange}
-          toggleArrayItem={toggleArrayItem}
-          inputCls={inputCls}
-          labelCls={labelCls}
-          textareaCls={textareaCls}
-          selectCls={selectCls}
-          helperCls={helperCls}
-        />
-      );
-    }
-
-    return null;
-  };
-
   const renderSection = (section) => {
     const isExpanded = expandedSections.has(section.key);
 
@@ -227,7 +186,9 @@ export default function BusinessInsightsAccordion({
         {isExpanded && (
           <>
             <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:py-5">
-              {renderSectionContent(section.key)}
+              <div className="text-center text-gray-500 text-sm py-8">
+                Challenges section content coming soon...
+              </div>
             </div>
 
             <div className="flex justify-end border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
