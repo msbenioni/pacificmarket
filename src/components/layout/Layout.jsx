@@ -105,21 +105,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-              <img src="/pm_logo.png" alt="Pacific Market" className="h-12 w-12" />
-              <div className="flex flex-col items-center leading-none text-center">
-                <span className={`text-lg font-bold tracking-[0.35em] ${
-                  isTransparent ? "text-white" : "text-[#0a1628]"
-                }`} style={{ fontFamily: "'Cinzel', serif" }}>
-                  PACIFIC
-                </span>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="h-px w-6 bg-[#c9a84c]" />
-                  <span className="text-[#c9a84c] text-[0.65rem] font-bold tracking-[0.45em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                    MARKET
-                  </span>
-                  <span className="h-px w-6 bg-[#c9a84c]" />
-                </div>
-              </div>
+              <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-20" />
             </Link>
 
             {/* Desktop Nav */}
@@ -278,19 +264,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="md:col-span-2">
               <Link href={createPageUrl("Home")} className="inline-block">
                 <div className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
-                  <img src="/pm_logo.png" alt="Pacific Market" className="h-12 w-12" />
-                  <div className="flex flex-col items-center leading-none text-center">
-                    <span className="text-white text-lg font-bold tracking-[0.35em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                      PACIFIC
-                    </span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="h-px w-6 bg-[#c9a84c]" />
-                      <span className="text-[#c9a84c] text-[0.65rem] font-bold tracking-[0.45em]" style={{ fontFamily: "'Cinzel', serif" }}>
-                        MARKET
-                      </span>
-                      <span className="h-px w-6 bg-[#c9a84c]" />
-                    </div>
-                  </div>
+                  <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-20" />
                 </div>
               </Link>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
