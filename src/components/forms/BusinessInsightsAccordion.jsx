@@ -100,8 +100,6 @@ export default function BusinessInsightsAccordion({
     business_operating_status: "",
     business_age: "",
     is_business_registered: false,
-    employs_anyone: false,
-    employs_family_community: false,
     top_challenges_array: "",
     collaboration_interest: false,
     mentorship_offering: false,
