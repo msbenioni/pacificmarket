@@ -9,20 +9,20 @@ export default function BusinessOverviewSection({
   textareaCls 
 }) {
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
         <label className={labelCls}>Founder Story</label>
         <textarea
           value={form.founder_story || ""}
           onChange={(e) => handleInputChange("founder_story", e.target.value)}
           className={textareaCls}
           placeholder="Share your journey and what inspired you to start this business..."
-          rows={4}
+          rows={3}
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <div>
             <label className={labelCls}>Year Started</label>
             <input

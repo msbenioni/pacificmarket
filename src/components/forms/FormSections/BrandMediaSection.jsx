@@ -13,18 +13,18 @@ export default function BrandMediaSection({
   labelCls 
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Image Size Guidelines */}
-      <div className="rounded-xl bg-green-50 border border-green-200 p-4">
+      <div className="rounded-xl bg-green-50 border border-green-200 p-3 sm:p-4">
         <div className="flex items-start gap-2">
-          <Info className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <div className="text-sm">
-            <h4 className="font-medium text-green-900 mb-2">Image Upload Guide</h4>
-            <div className="space-y-1 text-green-700">
+          <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 mt-0.5 flex-shrink-0" />
+          <div className="text-xs sm:text-sm">
+            <h4 className="font-medium text-green-900 mb-1 sm:mb-2">Image Upload Guide</h4>
+            <div className="space-y-0.5 sm:space-y-1 text-green-700">
               <p><strong>Logo:</strong> 200×200px (square, for profile cards & listings)</p>
               <p><strong>Desktop Banner:</strong> 1200×300px (wide, for business registry)</p>
               <p><strong>Mobile Banner:</strong> 400×160px (perfect for business cards & homepage)</p>
-              <p className="text-xs">All images: PNG, JPG up to 5MB</p>
+              <p className="text-[10px] sm:text-xs">All images: PNG, JPG up to 5MB</p>
             </div>
           </div>
         </div>

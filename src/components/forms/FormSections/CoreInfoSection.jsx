@@ -1,6 +1,6 @@
 export default function CoreInfoSection({ form, handleInputChange, inputCls, textareaCls, labelCls, selectCls }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div>
         <label className={labelCls}>Business Name *</label>
         <input
@@ -42,7 +42,7 @@ export default function CoreInfoSection({ form, handleInputChange, inputCls, tex
           onChange={(e) => handleInputChange("description", e.target.value)}
           className={textareaCls}
           placeholder="Describe what your business does, your products/services, and what makes you unique..."
-          rows={15}
+          rows={8}
           required
         />
       </div>
