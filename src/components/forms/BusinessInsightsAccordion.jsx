@@ -46,10 +46,7 @@ const SECTIONS = [
 ];
 
 const SECTION_FIELDS = {
-  overview: [
-    "business_stage",
-    "team_size_band",
-  ],
+  overview: [],
   community: [
     "collaboration_interest",
     "mentorship_offering",
@@ -87,14 +84,6 @@ export default function BusinessInsightsAccordion({
   embedded = false,
 }) {
   const [form, setForm] = useState({
-    founder_story: "",
-    year_started: null,
-    business_stage: "",
-    team_size_band: "",
-    is_business_registered: false,
-    business_structure: "",
-    age_range: "",
-    gender: "",
     collaboration_interest: false,
     mentorship_offering: false,
     open_to_future_contact: false,
