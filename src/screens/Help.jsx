@@ -40,15 +40,15 @@ export default function Help() {
       category: "Getting Started",
       questions: [
         {
-          q: "What is Pacific Market?",
-          a: "Pacific Market is the first global structured registry of Pacific-owned businesses. We provide a searchable database that helps people discover, connect with, and support Pacific enterprises worldwide."
+          q: "What is Pacific Discovery Network?",
+          a: "Pacific Discovery Network is the first global structured registry of Pacific-owned businesses. We provide a searchable database that helps people discover, connect with, and support Pacific enterprises worldwide."
         },
         {
           q: "How do I create an account?",
           a: "Click 'Sign Up' in the top navigation, enter your email and create a password. You'll receive a confirmation email to verify your account."
         },
         {
-          q: "Is Pacific Market free to use?",
+          q: "Is Pacific Discovery Network free to use?",
           a: "Basic browsing and searching is free for everyone. Business listings start with a free Vaka tier, with paid options for Mana and Moana tiers with enhanced features."
         },
         {

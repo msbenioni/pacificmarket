@@ -8,7 +8,7 @@ export default function Terms() {
         badge="Legal"
         title="Terms & Conditions"
         subtitle=""
-        description="The terms and conditions governing your use of Pacific Market."
+        description="The terms and conditions governing your use of Pacific Discovery Network."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -17,13 +17,13 @@ export default function Terms() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">1. Acceptance of Terms</h2>
               <p className="text-gray-600 mb-6">
-                By accessing and using Pacific Market, you accept and agree to be bound by these Terms & Conditions. 
+                By accessing and using Pacific Discovery Network, you accept and agree to be bound by these Terms & Conditions. 
                 If you do not agree to these terms, you should not use this service.
               </p>
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">2. Service Description</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market is a structured database of Pacific-owned businesses. We provide:
+                Pacific Discovery Network is a structured database of Pacific-owned businesses. We provide:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
                 <li>Business directory and search functionality</li>
@@ -32,7 +32,7 @@ export default function Terms() {
               </ul>
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">3. User Responsibilities</h2>
-              <p className="text-gray-600 mb-6">As a user of Pacific Market, you agree to:</p>
+              <p className="text-gray-600 mb-6">As a user of Pacific Discovery Network, you agree to:</p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
                 <li>Provide accurate and truthful information</li>
                 <li>Not misuse the service for illegal purposes</li>
@@ -56,13 +56,13 @@ export default function Terms() {
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">6. Intellectual Property</h2>
               <p className="text-gray-600 mb-6">
-                All content, design, and functionality of Pacific Market is protected by intellectual 
+                All content, design, and functionality of Pacific Discovery Network is protected by intellectual 
                 property laws. You may not copy, reproduce, or distribute our content without permission.
               </p>
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">7. Limitation of Liability</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market is provided "as is" without warranties of any kind. We are not liable for 
+                Pacific Discovery Network is provided "as is" without warranties of any kind. We are not liable for 
                 any damages arising from your use of our service, including but not limited to direct, indirect, 
                 incidental, or consequential damages.
               </p>

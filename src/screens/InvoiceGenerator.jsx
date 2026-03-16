@@ -578,7 +578,7 @@ export default function InvoiceGenerator() {
     const parts = [];
     if (invoice.sender_logo_url) parts.push("Logo added");
     if (invoice.brand_primary === "#0a1628" && invoice.brand_accent === "#c9a84c") {
-      parts.push("Pacific Market colours");
+      parts.push("Pacific Discovery Network colours");
     } else {
       parts.push("Custom colours");
     }

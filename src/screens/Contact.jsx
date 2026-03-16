@@ -88,7 +88,7 @@ export default function Contact() {
           badge="Contact"
           title="Get in Touch"
           subtitle=""
-          description="Reach out to the Pacific Market team for partnerships, research inquiries, or general questions."
+          description="Reach out to the Pacific Discovery Network team for partnerships, research inquiries, or general questions."
         />
 
         <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -120,7 +120,7 @@ export default function Contact() {
         badge="Contact"
         title="Get in Touch"
         subtitle=""
-        description="Reach out to the Pacific Market team for partnerships, research inquiries, or general questions."
+        description="Reach out to the Pacific Discovery Network team for partnerships, research inquiries, or general questions."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">

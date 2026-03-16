@@ -1,5 +1,5 @@
 /**
- * Core Business type contract for Pacific Market
+ * Core Business type contract for Pacific Discovery Network
  * Single source of truth for business data structure
  */
 

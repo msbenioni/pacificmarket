@@ -1,5 +1,5 @@
 /**
- * Referral utility functions for Pacific Market
+ * Referral utility functions for Pacific Discovery Network
  * Handles referral tracking and creation during business signup
  */
 

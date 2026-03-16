@@ -8,7 +8,7 @@ export default function Data() {
         badge="Legal"
         title="Data Protection"
         subtitle=""
-        description="How we protect and manage data in Pacific Market."
+        description="How we protect and manage data in Pacific Discovery Network."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -17,7 +17,7 @@ export default function Data() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Our Commitment to Data Protection</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market is committed to protecting the privacy and security of all data we collect, 
+                Pacific Discovery Network is committed to protecting the privacy and security of all data we collect, 
                 process, and store. We adhere to strict data protection principles and comply with applicable 
                 privacy laws and regulations.
               </p>

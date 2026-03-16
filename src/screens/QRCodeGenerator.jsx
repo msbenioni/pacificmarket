@@ -60,7 +60,7 @@ export default function QRCodeGenerator() {
         width: size,
         margin: 2,
         color: {
-          dark: '#0a1628',  // Dark color (Pacific Market dark blue)
+          dark: '#0a1628',  // Dark color (Pacific Discovery Network dark blue)
           light: '#FFFFFF',  // Light color (white)
         },
         errorCorrectionLevel: 'H' // High error correction
@@ -319,7 +319,7 @@ export default function QRCodeGenerator() {
 
             <div className="mt-4 bg-[#0a1628]/5 border border-[#0a1628]/10 rounded-xl p-3 sm:p-4 text-xs text-gray-500 w-full">
               <p className="font-semibold text-[#0a1628] mb-1">About QR Codes</p>
-              <p>Use QR codes on business cards, signage, packaging, or promotional materials to link customers directly to your Pacific Market profile.</p>
+              <p>Use QR codes on business cards, signage, packaging, or promotional materials to link customers directly to your Pacific Discovery Network profile.</p>
             </div>
           </div>
         </div>

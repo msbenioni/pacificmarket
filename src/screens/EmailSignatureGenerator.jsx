@@ -51,7 +51,7 @@ const SIGNATURE_TEMPLATES = {
   pacific: {
     id: "pacific",
     name: "Pacific",
-    description: "Pacific Market inspired",
+    description: "Pacific Discovery Network inspired",
     colors: {
       primary: "#0a1628",
       secondary: "#c9a84c",
@@ -337,10 +337,10 @@ function generateSignatureHTML(signature) {
     ? `
       <div style="margin-top:14px; padding-top:12px; border-top:1px solid #e5e7eb;">
         <span style="display:inline-block; background:${accent}; color:#ffffff; font-size:10px; font-weight:700; letter-spacing:0.04em; padding:5px 8px; border-radius:999px;">
-          PACIFIC MARKET VERIFIED
+          PACIFIC DISCOVERY NETWORK VERIFIED
         </span>
         <div style="margin-top:6px; font-size:10px; color:#64748b;">
-          Listed on <a href="https://www.pacificmarket.co.nz" target="_blank" style="color:#64748b; text-decoration:none;">Pacific Market</a>
+          Listed on <a href="https://www.pacificmarket.co.nz" target="_blank" style="color:#64748b; text-decoration:none;">Pacific Discovery Network</a>
         </div>
       </div>
     `
@@ -415,7 +415,7 @@ function generateSignatureText(signature) {
   }
 
   if (signature.include_badge) {
-    text += `\nPACIFIC MARKET VERIFIED\nListed on Pacific Market\n`;
+    text += `\nPACIFIC DISCOVERY NETWORK VERIFIED\nListed on Pacific Discovery Network\n`;
   }
 
   if (signature.disclaimer) {
@@ -1170,7 +1170,7 @@ export default function EmailSignatureGeneratorPage() {
                         value={signature.business_name}
                         onChange={(e) => setField("business_name", e.target.value)}
                         className={inputCls}
-                        placeholder="Pacific Market"
+                        placeholder="Pacific Discovery Network"
                       />
                     </div>
                   </div>
@@ -1438,7 +1438,7 @@ export default function EmailSignatureGeneratorPage() {
                           className={checkboxCls}
                         />
                         <span className="text-sm text-gray-700">
-                          Show Pacific Market badge
+                          Show Pacific Discovery Network badge
                         </span>
                       </label>
                     </div>
