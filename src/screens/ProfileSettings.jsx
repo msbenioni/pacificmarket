@@ -19,6 +19,7 @@ import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import PortalShell from "@/components/portal/PortalShell";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
+import HeroRegistry from "@/components/shared/HeroRegistry";
 
 // Premium accordion component
 function InsightsAccordionSection({
