@@ -25,7 +25,6 @@ const BUSINESS_PUBLIC_FIELDS = `
   year_started,
   business_structure,
   team_size_band,
-  revenue_band,
   business_registered,
   status,
   is_verified,

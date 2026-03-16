@@ -251,16 +251,6 @@ export const SALES_CHANNELS = [
   { value: 'other', label: 'Other' },
 ];
 
-export const REVENUE_BAND = [
-  { value: '0-10k', label: 'Under $10,000' },
-  { value: '10k-25k', label: '$10,000 - $25,000' },
-  { value: '25k-50k', label: '$25,000 - $50,000' },
-  { value: '50k-100k', label: '$50,000 - $100,000' },
-  { value: '100k-250k', label: '$100,000 - $250,000' },
-  { value: '250k+', label: '$250,000+' },
-  { value: 'prefer-not-to-say', label: 'Prefer not to say' },
-];
-
 // Financial & Investment constants
 export const FUNDING_SOURCES = [
   { value: 'personal-savings', label: 'Personal savings' },

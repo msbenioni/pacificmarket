@@ -54,7 +54,6 @@ const SECTION_FIELDS = {
   overview: [
     "business_stage",
     "team_size_band",
-    "revenue_band",
     "business_operating_status",
   ],
   challenges: ["top_challenges_array"],
@@ -97,7 +96,6 @@ export default function BusinessInsightsAccordion({
   const [form, setForm] = useState({
     business_stage: "",
     team_size_band: "",
-    revenue_band: "",
     business_operating_status: "",
     business_age: "",
     is_business_registered: false,
@@ -295,23 +293,6 @@ export default function BusinessInsightsAccordion({
                   <option value="11-20">11-20 people</option>
                   <option value="21-50">21-50 people</option>
                   <option value="51+">51+ people</option>
-                </select>
-              </div>
-
-              <div>
-                <label className={labelCls}>Annual Revenue</label>
-                <select
-                  value={form.revenue_band || ""}
-                  onChange={(e) => handleInputChange("revenue_band", e.target.value)}
-                  className={selectCls}
-                >
-                  <option value="">Select revenue range</option>
-                  <option value="0-50k">Under $50,000</option>
-                  <option value="50k-100k">$50,000 - $100,000</option>
-                  <option value="100k-250k">$100,000 - $250,000</option>
-                  <option value="250k-500k">$250,000 - $500,000</option>
-                  <option value="500k-1m">$500,000 - $1,000,000</option>
-                  <option value="1m+">Over $1,000,000</option>
                 </select>
               </div>
             </div>

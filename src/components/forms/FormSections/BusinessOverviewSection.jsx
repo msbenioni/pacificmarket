@@ -90,23 +90,6 @@ export default function BusinessOverviewSection({
           </div>
 
           <div>
-            <label className={labelCls}>Revenue Band</label>
-            <select
-              value={form.revenue_band || ""}
-              onChange={(e) => handleInputChange("revenue_band", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select revenue range</option>
-              <option value="0-50k">Under $50,000</option>
-              <option value="50k-100k">$50,000 - $100,000</option>
-              <option value="100k-250k">$100,000 - $250,000</option>
-              <option value="250k-500k">$250,000 - $500,000</option>
-              <option value="500k-1m">$500,000 - $1,000,000</option>
-              <option value="1m+">Over $1,000,000</option>
-            </select>
-          </div>
-
-          <div>
             <label className={labelCls}>Business Registered</label>
             <select
               value={form.is_business_registered ? "true" : "false"}
