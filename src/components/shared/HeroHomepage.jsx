@@ -42,9 +42,9 @@ export default function HeroHomepage({
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-14 sm:pb-16">
-        <div className="grid lg:grid-cols-12 gap-8 sm:gap-10 items-start lg:items-center">
+        <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start lg:items-center">
           {/* Left: Title panel */}
-          <div className="lg:col-span-5">
+          <div className="lg:w-5/12">
             <div className="inline-flex items-center gap-2 bg-white/90 border border-white/40 rounded-full px-3 py-1.5 shadow-sm backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-[#00c4cc]" />
               <span className="text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-[#0d4f4f]">
@@ -77,56 +77,50 @@ export default function HeroHomepage({
                   href={primaryCtaHref}
                   className="inline-flex items-center justify-center gap-2 bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-bold px-6 py-3 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
                 >
-                  {primaryCtaText} <ChevronRight className="w-4 h-4" />
+                  {primaryCtaText}
+                  <ChevronRight className="w-4 h-4" />
                 </a>
                 <a
                   href={secondaryCtaHref}
-                  className="inline-flex items-center justify-center gap-2 border border-[#00c4cc] text-[#00c4cc] hover:bg-[#00c4cc]/10 font-semibold px-6 py-3 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px]"
+                  className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm w-full sm:w-auto min-h-[44px] border border-white/20"
                 >
                   {secondaryCtaText}
+                  <ChevronRight className="w-4 h-4" />
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Right: Search Card */}
-          <div className="lg:col-span-7">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-5 sm:p-7 relative overflow-hidden">
-              {/* watermark motif behind card (super subtle) */}
-              <div className="absolute -right-10 -top-10 w-72 h-72 rounded-full bg-[#00c4cc]/10 blur-2xl" />
-              <div className="absolute -left-10 -bottom-10 w-72 h-72 rounded-full bg-[#c9a84c]/10 blur-2xl" />
+          {/* Right: Search panel */}
+          <div className="lg:w-7/12">
+            <div className="bg-white/95 backdrop-blur-md border border-white/40 rounded-2xl p-5 sm:p-7 shadow-xl">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
+                Registry Search
+              </h2>
 
-              <div className="relative">
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Registry Search
-                  </h2>
+              <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
+                <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
+                <span>Verified. Structured. Trusted.</span>
+              </div>
 
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <CheckCircle className="w-4 h-4 text-[#00c4cc]" />
-                    <span>Verified. Structured. Trusted.</span>
-                  </div>
-                </div>
+              {/* BusinessSearch component */}
+              <BusinessSearch
+                onSelect={handleBusinessSelect}
+                onError={(error) => console.error('Search error:', error)}
+                onSearchChange={handleSearchChange}
+                placeholder="Search by business name, keyword, country, or industry…"
+                showSelectedPreview={false}
+                initialSearchTerm=""
+              />
 
-                {/* BusinessSearch component */}
-                <BusinessSearch
-                  onSelect={handleBusinessSelect}
-                  onError={(error) => console.error('Search error:', error)}
-                  onSearchChange={handleSearchChange}
-                  placeholder="Search by business name, keyword, country, or industry…"
-                  showSelectedPreview={false}
-                  initialSearchTerm=""
-                />
-
-                {/* Browse all businesses link */}
-                <div className="mt-3 text-center">
-                  <a
-                    href={createPageUrl("Registry")}
-                    className="inline-flex items-center gap-1 text-sm text-[#00c4cc] hover:text-[#00aab0] transition-colors"
-                  >
-                    Browse all businesses <ChevronRight className="w-3 h-3" />
-                  </a>
-                </div>
+              {/* Browse all businesses link */}
+              <div className="mt-3 text-center">
+                <a
+                  href={createPageUrl("Registry")}
+                  className="inline-flex items-center gap-1 text-sm text-[#00c4cc] hover:text-[#00aab0] transition-colors"
+                >
+                  Browse all businesses <ChevronRight className="w-3 h-3" />
+                </a>
               </div>
             </div>
           </div>

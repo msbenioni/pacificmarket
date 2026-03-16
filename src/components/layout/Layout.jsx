@@ -102,20 +102,18 @@ export default function Layout({ children, currentPageName }) {
           : 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-8 sm:gap-10 items-center h-16">
-            {/* Logo - aligned with hero content */}
-            <div className="lg:col-span-5">
-              <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-                <img 
-                  src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"} 
-                  alt="Pacific Market" 
-                  className="h-16 w-40 transition-opacity duration-300" 
-                />
-              </Link>
-            </div>
+          <div className="flex items-center justify-between h-16">
+            {/* Logo - aligned with hero registry content */}
+            <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
+              <img 
+                src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"} 
+                alt="Pacific Market" 
+                className="h-16 w-40 transition-opacity duration-300" 
+              />
+            </Link>
 
             {/* Navigation and Actions */}
-            <div className="lg:col-span-7 flex items-center justify-between">
+            <div className="flex items-center gap-4 lg:gap-8">
               {/* Desktop Nav */}
               <nav className="hidden lg:flex items-center gap-8">
                 {navLinks.map(link => (
