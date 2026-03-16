@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2, Gift } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import HeroStandard from "@/components/shared/HeroStandard";
 import Layout from "@/components/layout/Layout";
 
 export default function ReferralRegister() {

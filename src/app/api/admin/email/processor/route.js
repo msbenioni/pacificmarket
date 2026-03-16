@@ -176,7 +176,7 @@ export async function POST(request) {
 
               // Send email using Resend
               const resendResponse = await resend.emails.send({
-                from: 'Pacific Market <team@pacificmarket.co.nz>',
+                from: 'Pacific Discovery Network <team@pacificmarket.co.nz>',
                 to: recipient.email,
                 subject: campaign.subject,
                 html: personalizedHtml

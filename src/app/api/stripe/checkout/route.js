@@ -71,7 +71,7 @@ export async function POST(request) {
       // Create new customer
       customer = await stripe.customers.create({
         email: customerEmail || user.email,
-        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Pacific Market User',
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Pacific Discovery Network User',
         metadata: {
           supabase_user_id: user.id
         }

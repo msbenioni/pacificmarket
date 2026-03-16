@@ -212,7 +212,7 @@ function CustomerPortalContent() {
           </div>
           <h2 className="text-xl font-bold text-[#0a1628] mb-2">Business Invitation</h2>
           <p className="text-gray-600 mb-6">
-            You've been invited to manage <strong>{business.name}</strong> on Pacific Market.
+            You've been invited to manage <strong>{business.name}</strong> on Pacific Discovery Network.
           </p>
           <button
             onClick={handleAcceptInvitation}
@@ -233,7 +233,7 @@ function CustomerPortalContent() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white/90">
             <div className="w-7 h-7 bg-[#0d4f4f] rounded-full"></div>
           </div>
-          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Join Pacific Market</h2>
+          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Join Pacific Discovery Network</h2>
           <p className="text-gray-600 mb-6">
             Create an account to manage <strong>{business.name}</strong>
           </p>

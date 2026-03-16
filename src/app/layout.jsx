@@ -3,8 +3,8 @@ import Providers from "./providers";
 import { HydrationErrorSuppressor } from "@/components/shared/HydrationErrorSuppressor";
 
 export const metadata = {
-  title: "Pacific Market",
-  description: "Pacific Market",
+  title: "Pacific Discovery Network",
+  description: "Pacific Discovery Network",
   icons: {
     icon: "/pm_favicon.png",
   },

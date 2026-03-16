@@ -13,12 +13,12 @@ export async function POST(request) {
     const data = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: ownerEmail,
-      subject: `You're invited to manage ${businessName} on Pacific Market`,
+      subject: `You're invited to manage ${businessName} on Pacific Discovery Network`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">You're Invited to Manage a Business</h2>
@@ -28,7 +28,7 @@ export async function POST(request) {
           </p>
           
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-            You have been invited to manage <strong>${businessName}</strong> on Pacific Market. 
+            You have been invited to manage <strong>${businessName}</strong> on Pacific Discovery Network. 
             This will give you access to update business information, respond to customer inquiries, and manage the business profile.
           </p>
           
@@ -50,7 +50,7 @@ export async function POST(request) {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>

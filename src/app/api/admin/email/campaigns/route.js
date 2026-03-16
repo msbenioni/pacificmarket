@@ -70,7 +70,7 @@ export async function POST(request) {
       // Send test email using service client (requires elevated access for email sending)
       try {
         const { data, error } = await resend.emails.send({
-          from: 'Pacific Market <hello@pacificmarket.co.nz>',
+          from: 'Pacific Discovery Network <hello@pacificmarket.co.nz>',
           to: testEmail,
           subject: `[TEST] ${subject}`,
           html: html_content

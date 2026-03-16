@@ -109,11 +109,11 @@ function generateSignatureHTML(data, template = 'modern', business = null) {
             ${data.includeBadge ? `
               <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
                 <div style="display: inline-block; background: ${colors.accent}; color: white; padding: 4px 8px; border-radius: 3px; font-size: 10px; font-weight: bold;">
-                  PACIFIC MARKET VERIFIED
+                  PACIFIC DISCOVERY NETWORK VERIFIED
                 </div>
                 <div style="margin-top: 5px; font-size: 10px; color: #666;">
                   <a href="https://pacificmarket.com" style="color: #666; text-decoration: none;" target="_blank">
-                    Listed on Pacific Market
+                    Listed on Pacific Discovery Network
                   </a>
                 </div>
               </div>

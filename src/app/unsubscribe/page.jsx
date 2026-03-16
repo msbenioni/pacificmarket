@@ -121,7 +121,7 @@ function UnsubscribeContent() {
                 </h1>
                 
                 <p className="text-gray-600 mb-6">
-                  You have been removed from our mailing list. You will no longer receive marketing emails from Pacific Market.
+                  You have been removed from our mailing list. You will no longer receive marketing emails from Pacific Discovery Network.
                 </p>
                 
                 <div className="space-y-4">
@@ -150,7 +150,7 @@ function UnsubscribeContent() {
                         onClick={() => router.push('/')}
                         className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-semibold px-6 py-3 rounded-xl transition-colors"
                       >
-                        Return to Pacific Market
+                        Return to Pacific Discovery Network
                       </button>
                       
                       <button
@@ -185,7 +185,7 @@ function UnsubscribeContent() {
               </h1>
               
               <p className="text-gray-600 mb-6">
-                We're sorry to see you go! Enter your email address below to unsubscribe from Pacific Market marketing emails.
+                We're sorry to see you go! Enter your email address below to unsubscribe from Pacific Discovery Network marketing emails.
               </p>
             </div>
 
@@ -270,7 +270,7 @@ function UnsubscribeContent() {
                     onClick={() => router.push('/')}
                     className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-semibold px-6 py-3 rounded-xl transition-colors"
                   >
-                    Return to Pacific Market
+                    Return to Pacific Discovery Network
                   </button>
                   
                   <button
