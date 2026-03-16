@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import { transformBusinessFormData } from "@/utils/businessDataTransformer";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 // Import section components
 import CoreInfoSection from "./FormSections/CoreInfoSection";
@@ -30,12 +31,6 @@ const SECTIONS = [
     description: "Public-facing name, handle, and descriptions",
   },
   {
-    key: "brand",
-    label: "Brand & Media",
-    icon: ImageIcon,
-    description: "Logo, banner, and visual assets",
-  },
-  {
     key: "location",
     label: "Location & Operations",
     icon: MapPin,
@@ -51,7 +46,13 @@ const SECTIONS = [
     key: "community",
     label: "Community & Impact",
     icon: Lightbulb,
-    description: "How your business contributes to the wider community",
+    description: "Collaboration interests, mentorship, and community engagement",
+  },
+  {
+    key: "brand",
+    label: "Brand & Media",
+    icon: ImageIcon,
+    description: "Logo, banner, and visual assets",
   },
 ];
 
@@ -85,6 +86,8 @@ export default function BusinessProfileForm({
   saving = false,
   mode = "create",
   showAdminFields = false,
+  subscriptionTier = SUBSCRIPTION_TIER.VAKA,
+  onUpgrade
 }) {
   // Unified form state combining both forms
   const [form, setForm] = useState({
@@ -363,6 +366,8 @@ export default function BusinessProfileForm({
             mobileBannerInputId={mobileBannerInputId}
             inputCls={inputCls}
             labelCls={labelCls}
+            subscriptionTier={subscriptionTier}
+            onUpgrade={onUpgrade}
           />
         );
       

@@ -3,8 +3,10 @@ import { useRouter } from "next/navigation";
 import { deleteBusiness, updateBusiness, createBusiness } from "@/lib/supabase/queries/businesses";
 import { sanitizeBusinessPayload, validateBusinessData } from "@/utils/dataTransformers";
 import { filterEmptyValues } from "@/utils/businessDataTransformer";
+import { generateBusinessLogo, generateBusinessBanner, generateMobileBanner, svgDataUrlToFile } from "@/utils/businessImageGenerator";
 import { createPageUrl } from "@/utils";
 import { useToast } from "@/components/ui/toast/ToastProvider";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 export function useBusinessOperations(refetchPortalData) {
   const router = useRouter();
@@ -52,6 +54,10 @@ export function useBusinessOperations(refetchPortalData) {
       // Handle file uploads first
       let businessesDataForUpdate = {};
       
+      // Check subscription tier for image upload permissions
+      const subscriptionTier = draftBusiness?.subscription_tier || SUBSCRIPTION_TIER.VAKA;
+      const canUploadImages = subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
+      
       // Extract the business data from the table-based structure
       if (businessData.businessesData) {
         businessesDataForUpdate = { ...businessData.businessesData };
@@ -62,15 +68,22 @@ export function useBusinessOperations(refetchPortalData) {
         throw new Error("Invalid data structure. Expected businessesData.");
       }
       
-      // Upload logo if there's a new logo file
-      if (businessData.files?.logo_file) {
-        const file = businessData.files.logo_file;
+      // For Vaka plan, ignore uploaded files and keep existing images
+      if (!canUploadImages && businessData.files) {
+        console.log(`Vaka plan detected - ignoring uploaded files and keeping existing images`);
+        // Don't process any uploaded files for Vaka plan
+      } else if (canUploadImages) {
+        // For Mana/Moana plans, process uploaded files
         
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
-        }
+        // Upload logo if there's a new logo file
+        if (businessData.files?.logo_file) {
+          const file = businessData.files.logo_file;
+          
+          // Validate file type (accept SVG for auto-generated images)
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+          if (!allowedTypes.includes(file.type)) {
+            throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
+          }
         
         // Validate file size (5MB max)
         const maxSize = 5 * 1024 * 1024; // 5MB
@@ -99,10 +112,10 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.banner_file) {
         const file = businessData.files.banner_file;
         
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        // Validate file type (accept SVG for auto-generated images)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
         }
         
         // Validate file size (5MB max)
@@ -132,10 +145,10 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.mobile_banner_file) {
         const file = businessData.files.mobile_banner_file;
         
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        // Validate file type (accept SVG for auto-generated images)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
         }
         
         // Validate file size (5MB max)
@@ -159,6 +172,7 @@ export function useBusinessOperations(refetchPortalData) {
           .getPublicUrl(filePath);
 
         businessesDataForUpdate.mobile_banner_url = publicUrl;
+        }
       }
 
       // Handle business insights data if provided
@@ -387,14 +401,73 @@ export function useBusinessOperations(refetchPortalData) {
       // Handle file uploads first
       let businessDataForCreate = { ...businessData.businessesData };
       
+      // Check subscription tier - new businesses start on Vaka plan
+      const subscriptionTier = businessData.businessesData.subscription_tier || SUBSCRIPTION_TIER.VAKA;
+      const canUploadImages = subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
+      
+      // For Vaka plan, ignore any uploaded files and generate generic images
+      if (!canUploadImages) {
+        console.log(`Vaka plan detected - generating generic images for ${businessData.businessesData.name || 'New Business'}`);
+        
+        // Generate generic logo
+        const businessName = businessData.businessesData.name || 'New Business';
+        const logoDataUrl = generateBusinessLogo(businessName);
+        if (logoDataUrl) {
+          const logoFile = await svgDataUrlToFile(logoDataUrl, `${businessData.businessesData.business_handle || 'business'}-logo`, 'logo');
+          businessData.files = { ...businessData.files, logo_file: logoFile };
+        }
+        
+        // Generate generic banner
+        const bannerDataUrl = generateBusinessBanner(businessName);
+        if (bannerDataUrl) {
+          const bannerFile = await svgDataUrlToFile(bannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-banner`, 'banner');
+          businessData.files = { ...businessData.files, banner_file: bannerFile };
+        }
+        
+        // Generate generic mobile banner
+        const mobileBannerDataUrl = generateMobileBanner(businessName);
+        if (mobileBannerDataUrl) {
+          const mobileBannerFile = await svgDataUrlToFile(mobileBannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-mobile-banner`, 'mobile');
+          businessData.files = { ...businessData.files, mobile_banner_file: mobileBannerFile };
+        }
+      } else {
+        // For Mana/Moana plans, use uploaded files or generate if missing
+        if (!businessData.files?.logo_file) {
+          const businessName = businessData.businessesData.name || 'New Business';
+          const logoDataUrl = generateBusinessLogo(businessName);
+          if (logoDataUrl) {
+            const logoFile = await svgDataUrlToFile(logoDataUrl, `${businessData.businessesData.business_handle || 'business'}-logo`, 'logo');
+            businessData.files = { ...businessData.files, logo_file: logoFile };
+          }
+        }
+        
+        if (!businessData.files?.banner_file) {
+          const businessName = businessData.businessesData.name || 'New Business';
+          const bannerDataUrl = generateBusinessBanner(businessName);
+          if (bannerDataUrl) {
+            const bannerFile = await svgDataUrlToFile(bannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-banner`, 'banner');
+            businessData.files = { ...businessData.files, banner_file: bannerFile };
+          }
+        }
+        
+        if (!businessData.files?.mobile_banner_file) {
+          const businessName = businessData.businessesData.name || 'New Business';
+          const mobileBannerDataUrl = generateMobileBanner(businessName);
+          if (mobileBannerDataUrl) {
+            const mobileBannerFile = await svgDataUrlToFile(mobileBannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-mobile-banner`, 'mobile');
+            businessData.files = { ...businessData.files, mobile_banner_file: mobileBannerFile };
+          }
+        }
+      }
+      
       // Upload logo if there's a new logo file
       if (businessData.files?.logo_file) {
         const file = businessData.files.logo_file;
         
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        // Validate file type (accept SVG for auto-generated images)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
         }
         
         // Validate file size (5MB max)
@@ -424,10 +497,10 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.banner_file) {
         const file = businessData.files.banner_file;
         
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        // Validate file type (accept SVG for auto-generated images)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
         }
         
         // Validate file size (5MB max)
@@ -457,10 +530,10 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.mobile_banner_file) {
         const file = businessData.files.mobile_banner_file;
         
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        // Validate file type (accept SVG for auto-generated images)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
         }
         
         // Validate file size (5MB max)
@@ -522,9 +595,14 @@ export function useBusinessOperations(refetchPortalData) {
 
       await refetchPortalData();
       
+      // Customize success message based on subscription tier
+      const successMessage = !canUploadImages 
+        ? "Business created! Generic images have been generated for your Vaka plan. Upgrade to Mana or Moana to upload custom images."
+        : "Business created! Your business has been submitted for review and will appear in pending status.";
+      
       toast({
         title: "Business Created",
-        description: "Your business has been submitted for review and will appear in pending status.",
+        description: successMessage,
         variant: "success",
       });
     } catch (error) {

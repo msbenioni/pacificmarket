@@ -13,6 +13,15 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+  async redirects() {
+    return [
+      {
+        source: '/registry',
+        destination: '/PacificBusinesses',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

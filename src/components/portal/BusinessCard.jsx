@@ -15,6 +15,7 @@ import {
 import { createPageUrl } from "@/utils";
 import { getLogoUrl } from '@/utils/bannerUtils';
 import BusinessProfileForm from "../forms/BusinessProfileForm";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 function MainStepSection({
   title,
@@ -102,6 +103,7 @@ export default function BusinessCard({
   onSave,
   onDelete,
   onInsightsSubmit,
+  onUpgrade
 }) {
   const [isBusinessOpen, setIsBusinessOpen] = useState(false);
   const [openMainStep, setOpenMainStep] = useState(null);
@@ -242,6 +244,8 @@ export default function BusinessCard({
                 saving={savingEdit}
                 mode="edit"
                 showAdminFields={false}
+                subscriptionTier={business.subscription_tier || SUBSCRIPTION_TIER.VAKA}
+                onUpgrade={onUpgrade}
               />
             </div>
           )}

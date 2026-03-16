@@ -3,15 +3,30 @@
 import { useState } from "react";
 import { Plus, Building2 } from "lucide-react";
 import BusinessProfileForm from "../forms/BusinessProfileForm";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 export default function AddBusinessCard({ 
   onAddSuccess, 
   onCancel,
   saving = false,
-  onboardingStatus 
+  onboardingStatus,
+  onUpgrade
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleUpgrade = async () => {
+    // First save the current form data, then redirect to upgrade
+    try {
+      // Get the form data from the child component
+      // This will be handled by the child component calling onSave first
+      if (onUpgrade) {
+        onUpgrade();
+      }
+    } catch (error) {
+      console.error('Error during upgrade process:', error);
+    }
+  };
 
   const handleAddBusiness = async (data) => {
     setIsSubmitting(true);
@@ -107,6 +122,8 @@ export default function AddBusinessCard({
               saving={isSubmitting || saving}
               mode="create"
               showAdminFields={false}
+              subscriptionTier={SUBSCRIPTION_TIER.VAKA}
+              onUpgrade={handleUpgrade}
             />
           </div>
         </div>
