@@ -105,7 +105,11 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-              <img src="/pm_logo.png" alt="Pacific Market" className="h-16 w-40" />
+              <img 
+                src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"} 
+                alt="Pacific Market" 
+                className="h-16 w-40 transition-opacity duration-300" 
+              />
             </Link>
 
             {/* Desktop Nav */}
