@@ -366,10 +366,10 @@ export default function About() {
                   </p>
                 </div>
 
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
+                <a href="https://www.saasycookies.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1 hover:bg-[#1a2e40] transition-colors">
                   <Sparkles className="w-3.5 h-3.5 text-[#c9a84c]" />
                   Saasy Cookies
-                </div>
+                </a>
 
                 <div className="space-y-3 text-sm sm:text-base text-gray-600 leading-relaxed">
                   <p>
@@ -406,10 +406,10 @@ export default function About() {
                   </p>
                 </div>
 
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1.5">
+                <a href="https://www.oceaniquesolutionz.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1 hover:bg-[#1a2e40] transition-colors">
                   <Globe className="w-3.5 h-3.5 text-[#00c4cc]" />
-                  Oceanique Solutionz
-                </div>
+                  Oceanique SolutioNZ
+                </a>
 
                 <div className="space-y-3 text-sm sm:text-base text-gray-600 leading-relaxed">
                   <p>
