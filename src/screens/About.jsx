@@ -131,9 +131,12 @@ export default function About() {
             <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-8 sm:gap-10 items-center">
               {/* Left content */}
               <div className="max-w-3xl">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#00c9cc]">
-                  About Pacific Market
-                </span>
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
+                  <span className="w-2 h-2 rounded-full bg-[#00c9cc]"></span>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#00c9cc]">
+                    About Pacific Market
+                  </span>
+                </div>
 
                 <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.05] text-white max-w-4xl">
                   Our Ancestors Built,

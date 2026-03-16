@@ -79,9 +79,12 @@ export default function Tools() {
         <div className="relative px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto py-14 sm:py-20 lg:py-24">
             <div className="max-w-4xl">
-              <span className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#00c9cc]">
-              Pacific Market Tools
-            </span>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-[#00c9cc]"></span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-[#00c9cc]">
+                Pacific Market Tools
+              </span>
+            </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.05] text-white max-w-5xl">
                 Business Tools That Help You
