@@ -74,16 +74,6 @@ export const ONBOARDING_STEPS = [
   },
 ];
 
-export const BUSINESS_ROLE_OPTIONS = [
-  { value: 'founder', label: 'Founder' },
-  { value: 'owner', label: 'Owner' },
-  { value: 'co-owner', label: 'Co-owner' },
-  { value: 'partner', label: 'Partner' },
-  { value: 'director', label: 'Director' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'supporting-team-member', label: 'Supporting team member' }
-];
-
 export const PROFILE_SCHEMA = {
   // Location fields
   city: 'text',
