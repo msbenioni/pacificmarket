@@ -5,16 +5,16 @@ export async function POST(request) {
   const { name, email, subject, message, inquiryType, marketingConsent } = await request.json();
 
   try {
-    // Send notification to Pacific Market team
+    // Send notification to Pacific Discovery Network team
     const teamEmail = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: process.env.RESEND_FROM_EMAIL, // Send to yourself for now
-      subject: `Pacific Market Contact: ${inquiryType} - ${subject}`,
+      subject: `Pacific Discovery Network Contact: ${inquiryType} - ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">New Contact Form Submission</h2>
@@ -33,7 +33,7 @@ export async function POST(request) {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>
@@ -44,12 +44,12 @@ export async function POST(request) {
     const userEmail = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: email,
-      subject: `We've received your message - Pacific Market`,
+      subject: `We've received your message - Pacific Discovery Network`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">Thank you for contacting us!</h2>
@@ -73,7 +73,7 @@ export async function POST(request) {
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>

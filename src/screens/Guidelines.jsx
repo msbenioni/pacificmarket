@@ -8,7 +8,7 @@ export default function Guidelines() {
         badge="Support"
         title="Community Guidelines"
         subtitle=""
-        description="Our standards for maintaining a respectful and valuable Pacific Market community."
+        description="Our standards for maintaining a respectful and valuable Pacific Discovery Network community."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -17,7 +17,7 @@ export default function Guidelines() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Upholding Integrity, Respect & Cultural Pride</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market is built on respect, integrity, and cultural responsibility.
+                Pacific Discovery Network is built on respect, integrity, and cultural responsibility.
                 These guidelines ensure our registry remains a trusted resource for communities, researchers, partners, and Pacific-owned businesses globally.
               </p>
               <p className="text-gray-600 mb-6">
@@ -26,7 +26,7 @@ export default function Guidelines() {
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Our Community Commitment</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market exists to:
+                Pacific Discovery Network exists to:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
                 <li>Preserve cultural identity with care</li>
@@ -70,7 +70,7 @@ export default function Guidelines() {
                     <h3 className="font-semibold text-[#0a1628]">Pacific-led Stewardship</h3>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Pacific Market is built in Aotearoa and guided by Pacific values. Community context matters.
+                    Pacific Discovery Network is built in Aotearoa and guided by Pacific values. Community context matters.
                   </p>
                 </div>
                 <div className="bg-gray-50 p-6 rounded-xl">
@@ -90,7 +90,7 @@ export default function Guidelines() {
               
               <h3 className="text-lg font-semibold text-[#0a1628] mb-4">Who Can Apply</h3>
               <p className="text-gray-600 mb-4">
-                Pacific Market welcomes businesses of all sizes, including:
+                Pacific Discovery Network welcomes businesses of all sizes, including:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
                 <li>Market stallholders</li>
@@ -132,7 +132,7 @@ export default function Guidelines() {
 
               <h3 className="text-lg font-semibold text-[#0a1628] mb-4">Prohibited Content</h3>
               <p className="text-gray-600 mb-6">
-                Pacific Market does not permit listings involving:
+                Pacific Discovery Network does not permit listings involving:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
                 <li>Illegal activities or services</li>
@@ -145,7 +145,7 @@ export default function Guidelines() {
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">User Conduct Guidelines</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market connects communities. We expect respectful behaviour.
+                Pacific Discovery Network connects communities. We expect respectful behaviour.
               </p>
               
               <h3 className="text-lg font-semibold text-[#0a1628] mb-4">When Contacting Businesses</h3>
@@ -230,7 +230,7 @@ export default function Guidelines() {
                 These guidelines may evolve as the registry grows. Significant updates will be communicated to registered users.
               </p>
               <p className="text-gray-600 mb-6">
-                Pacific Market is a living record. As Pacific enterprise evolves, so will our standards.
+                Pacific Discovery Network is a living record. As Pacific enterprise evolves, so will our standards.
               </p>
 
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Questions About the Guidelines?</h2>

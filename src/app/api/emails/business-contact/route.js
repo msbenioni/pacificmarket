@@ -12,18 +12,18 @@ export async function POST(request) {
         await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL,
           to: business.contact_email,
-          subject: `New contact request from Pacific Market - ${userName}`,
+          subject: `New contact request from Pacific Discovery Network - ${userName}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="text-align: center; margin-bottom: 30px;">
                 <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-                <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+                <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
               </div>
               
               <h2 style="color: #0a1628; margin-bottom: 20px;">New Contact Request</h2>
               
               <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-                Someone is interested in your business, <strong>${business.name}</strong>, and has requested your contact information through the Pacific Market.
+                Someone is interested in your business, <strong>${business.name}</strong>, and has requested your contact information through the Pacific Discovery Network.
               </p>
               
               <div style="background: #f8f9fc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -38,7 +38,7 @@ export async function POST(request) {
               
               <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
                 <p style="color: #999; font-size: 12px; margin: 0;">
-                  © 2024 Pacific Market. All rights reserved.
+                  © 2024 Pacific Discovery Network. All rights reserved.
                 </p>
               </div>
             </div>
@@ -50,7 +50,7 @@ export async function POST(request) {
       }
     }
 
-    // Send notification to Pacific Market team
+    // Send notification to Pacific Discovery Network team
     const teamEmail = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: process.env.RESEND_FROM_EMAIL,
@@ -59,7 +59,7 @@ export async function POST(request) {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #0d4f4f; border-radius: 50%; margin: 0 auto 15px;"></div>
-            <h1 style="color: #0a1628; margin: 0;">Pacific Market</h1>
+            <h1 style="color: #0a1628; margin: 0;">Pacific Discovery Network</h1>
           </div>
           
           <h2 style="color: #0a1628; margin-bottom: 20px;">Business Contact Request</h2>
@@ -75,12 +75,12 @@ export async function POST(request) {
           </div>
           
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-            This contact request was generated through the Pacific Market business registry.
+            This contact request was generated through the Pacific Discovery Network business registry.
           </p>
           
           <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2024 Pacific Market. All rights reserved.
+              © 2024 Pacific Discovery Network. All rights reserved.
             </p>
           </div>
         </div>
