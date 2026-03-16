@@ -1,6 +1,6 @@
 /**
  * Shared Onboarding UI System
- * Premium mobile-first design system for Pacific Market onboarding
+ * Premium mobile-first design system for Pacific Discovery Network onboarding
  */
 
 export const onboardingUI = {

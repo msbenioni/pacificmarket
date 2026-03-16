@@ -29,7 +29,7 @@ export default function CommunitySection({
           <OptionCard
             checked={form.open_to_future_contact || false}
             onChange={() => handleInputChange("open_to_future_contact", !form.open_to_future_contact)}
-            label="I'm open to future contact from Pacific Market"
+            label="I'm open to future contact from Pacific Discovery Network"
           />
           <OptionCard
             checked={form.business_acquisition_interest || false}

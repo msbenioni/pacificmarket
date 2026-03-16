@@ -1,4 +1,4 @@
-// Tier Benefits Configuration for Pacific Market
+// Tier Benefits Configuration for Pacific Discovery Network
 // Pacific-inspired tier system with features and pricing
 
 export const TIER_BENEFITS = {
@@ -7,7 +7,7 @@ export const TIER_BENEFITS = {
     price: "$0/month",
     color: "gray",
     description: "Begin the journey",
-    subtitle: "Start your journey in the Pacific Market registry",
+    subtitle: "Start your journey in the Pacific Discovery Network registry",
     features: [
       "Public registry listing",
       "Business name, country and industry", 

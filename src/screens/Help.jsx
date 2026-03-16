@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { HelpCircle, BookOpen, MessageCircle, Search, ChevronDown } from "lucide-react";
-import HeroStandard from "../components/shared/HeroStandard";
+import HeroStandard from "@/components/shared/HeroStandard";
 import CookieManager from "../components/shared/CookieManager";
 
 function cx(...classes) {

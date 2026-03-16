@@ -5,7 +5,6 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2, Gift } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import HeroStandard from "@/components/shared/HeroStandard";
 import Layout from "@/components/layout/Layout";
 
 export default function ReferralRegister() {
@@ -120,12 +119,12 @@ export default function ReferralRegister() {
         {/* Hero with referral context */}
         <HeroStandard
           badge="Referral Invitation"
-          title="Join Pacific Market"
+          title="Join Pacific Discovery Network"
           subtitle={referrerBusiness ? `You've been invited by ${referrerBusiness.name}` : "Create Your Account"}
           description={
             referrerBusiness 
-              ? `${referrerBusiness.name} has invited you to join Pacific Market. After signing up, you'll be able to claim existing businesses or submit new listings.`
-              : "Join Pacific Market. After email confirmation, you'll be able to claim existing businesses or submit new listings."
+              ? `${referrerBusiness.name} has invited you to join Pacific Discovery Network. After signing up, you'll be able to claim existing businesses or submit new listings.`
+              : "Join Pacific Discovery Network. After email confirmation, you'll be able to claim existing businesses or submit new listings."
           }
         />
 
@@ -140,7 +139,7 @@ export default function ReferralRegister() {
                 <div>
                   <h3 className="text-lg font-bold text-[#0a1628]">You've been invited!</h3>
                   <p className="text-sm text-gray-600">
-                    {referrerBusiness.name} from {referrerBusiness.city}, {referrerBusiness.country} referred you to join Pacific Market.
+                    {referrerBusiness.name} from {referrerBusiness.city}, {referrerBusiness.country} referred you to join Pacific Discovery Network.
                   </p>
                 </div>
               </div>

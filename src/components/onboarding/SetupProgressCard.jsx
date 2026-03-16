@@ -99,7 +99,7 @@ export function SetupProgressCard({
           </h3>
           <p className={onboardingUI.body}>
             {remainingSteps} quick step{remainingSteps !== 1 ? "s" : ""} left to
-            complete your Pacific Market profile.
+            complete your Pacific Discovery Network profile.
           </p>
         </div>
 

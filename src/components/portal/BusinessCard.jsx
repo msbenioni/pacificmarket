@@ -106,7 +106,7 @@ export default function BusinessCard({
   const [isBusinessOpen, setIsBusinessOpen] = useState(false);
   const [openMainStep, setOpenMainStep] = useState(null);
 
-  // Pacific Market default assets
+  // Pacific Discovery Network default assets
   const defaultBannerUrl = "/pm_logo_longbanner.png";
 
   const viewListingHref =

@@ -111,7 +111,7 @@ export function ClaimAddBusinessModal({
     if (view === "add") {
       return {
         title: "Add New Business",
-        subtitle: "Create a new listing for Pacific Market.",
+        subtitle: "Create a new listing for Pacific Discovery Network.",
       };
     }
 
@@ -311,7 +311,7 @@ export function ClaimAddBusinessModal({
             <span className="h-2 w-2 rounded-full bg-[#c9a84c]" />
             <span className="h-2 w-2 rounded-full bg-[#0a1628]" />
             <span className="ml-2 text-xs font-semibold text-gray-500">
-              Pacific Market
+              Pacific Discovery Network
             </span>
           </div>
 
@@ -345,7 +345,7 @@ export function ClaimAddBusinessModal({
                   </div>
 
                   <p className="mt-3 text-sm leading-6 text-gray-600">
-                    If your business is already on Pacific Market, claim it to manage details and upgrades.
+                    If your business is already on Pacific Discovery Network, claim it to manage details and upgrades.
                   </p>
                 </div>
 

@@ -46,7 +46,7 @@ export const EMPTY_STATE_CONFIG = {
   noBusinesses: {
     icon: "Building2",
     title: "No businesses yet",
-    description: "Claim an existing business or add your own listing to begin managing your presence in Pacific Market.",
+    description: "Claim an existing business or add your own listing to begin managing your presence in Pacific Discovery Network.",
     actions: [
       {
         key: "claim",

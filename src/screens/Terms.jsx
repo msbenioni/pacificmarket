@@ -1,6 +1,5 @@
 import { ArrowRight, Shield, Users, Eye } from "lucide-react";
-import HeroStandard from "../components/shared/HeroStandard";
-
+import HeroStandard from "@/components/shared/HeroStandard";
 export default function Terms() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">

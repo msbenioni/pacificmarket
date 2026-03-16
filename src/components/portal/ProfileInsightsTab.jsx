@@ -89,7 +89,7 @@ export default function ProfileInsightsTab({
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px]">
               Complete your profile information so your business can be better represented 
-              and easier to discover in the Pacific Market community.
+              and easier to discover in the Pacific Discovery Network community.
             </p>
           </div>
 

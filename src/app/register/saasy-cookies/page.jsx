@@ -111,12 +111,12 @@ export default function SaasyCookiesRegister() {
         {/* Hero with referral context */}
         <HeroStandard
           badge="Referral Invitation"
-          title="Join Pacific Market"
+          title="Join Pacific Discovery Network"
           subtitle={referrerBusiness ? `You've been invited by ${referrerBusiness.name}` : "Create Your Account"}
           description={
             referrerBusiness 
-              ? `${referrerBusiness.name} has invited you to join Pacific Market. After signing up, you'll be able to claim existing businesses or submit new listings.`
-              : "Join Pacific Market. After email confirmation, you'll be able to claim existing businesses or submit new listings."
+              ? `${referrerBusiness.name} has invited you to join Pacific Discovery Network. After signing up, you'll be able to claim existing businesses or submit new listings.`
+              : "Join Pacific Discovery Network. After email confirmation, you'll be able to claim existing businesses or submit new listings."
           }
         />
 

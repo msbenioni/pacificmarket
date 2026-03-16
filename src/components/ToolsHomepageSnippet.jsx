@@ -29,7 +29,7 @@ export default function ToolsHomepageSnippet() {
               </h2>
 
               <p className="text-sm sm:text-base text-slate-300 leading-6 max-w-2xl">
-                Pacific Market tools help businesses look more polished in the
+                Pacific Discovery Network tools help businesses look more polished in the
                 real world — from branded invoices and professional email
                 signatures to QR codes for stalls, signage, packaging, and
                 promotions.

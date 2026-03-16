@@ -1,4 +1,4 @@
-// Unified Constants for Pacific Market
+// Unified Constants for Pacific Discovery Network
 // Single source of truth for all countries and industries
 
 export const LANGUAGES = [
@@ -319,7 +319,7 @@ export const INVESTMENT_TIMELINE = [
 ];
 
 export const ANGEL_INVESTOR_INTEREST = [
-  { value: 'actively-investing', label: 'Actively investing in Pacific businesses' },
+  { value: 'actively-investing', label: 'Actively investing in Pacific Discovery Network businesses' },
   { value: 'considering-future', label: 'Considering investing in future (6+ months)' },
   { value: 'exploring-options', label: 'Exploring angel investing options' },
   { value: 'interested-learning', label: 'Interested in learning more first' },
