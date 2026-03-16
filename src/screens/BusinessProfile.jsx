@@ -54,8 +54,13 @@ export default function BusinessProfile() {
         const businessId = urlParams.get('id');
         const businessHandle = urlParams.get('handle');
         
+        console.log('BusinessProfile URL params:', { businessId, businessHandle });
+        console.log('Full URL:', window.location.search);
+        
         // Use handle as fallback if no ID provided
         const identifier = businessId || businessHandle;
+        
+        console.log('Using identifier:', identifier);
         
         if (!identifier) {
           console.error("No business ID or handle found in URL");
@@ -63,11 +68,16 @@ export default function BusinessProfile() {
           return;
         }
         
+        console.log('Fetching business by ID/handle:', identifier);
         const { data: businessData } = await getBusinessById(identifier);
+        
+        console.log('Business data fetched:', businessData);
         
         if (businessData) {
           setBusiness(businessData);
           await fetchExtras(businessData);
+        } else {
+          console.log('No business data found');
         }
         
         setLoading(false);
