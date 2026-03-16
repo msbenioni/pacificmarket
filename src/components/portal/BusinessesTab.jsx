@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { Plus, Building2 } from "lucide-react";
 import { shouldShowUpgradePrompt } from "@/utils/businessHelpers";
 import BusinessCard from "./BusinessCard";
+import AddBusinessCard from "./AddBusinessCard";
 import EmptyState from "./EmptyState";
 import UpgradePrompt from "./UpgradePrompt";
 
@@ -20,6 +24,7 @@ export default function BusinessesTab({
   onClaimAddAction,
   onUpgradeClick,
 }) {
+  const [showAddBusiness, setShowAddBusiness] = useState(false);
   const handleBusinessCardAction = (action, businessId, data) => {
     switch (action) {
       case "edit":
@@ -60,11 +65,21 @@ export default function BusinessesTab({
         onClaimAddAction("claim");
         break;
       case "add":
-        onClaimAddAction("add");
+        setShowAddBusiness(true);
         break;
       default:
         console.warn(`Unknown empty state action: ${action}`);
     }
+  };
+
+  const handleAddBusinessSuccess = (data) => {
+    // Handle successful business addition
+    // This will trigger a refresh of the businesses list
+    onBusinessAction("addBusiness", null, data);
+  };
+
+  const handleAddBusinessCancel = () => {
+    setShowAddBusiness(false);
   };
 
   return (
@@ -118,7 +133,7 @@ export default function BusinessesTab({
         />
       )}
 
-      {businesses.length === 0 ? (
+      {businesses.length === 0 && !showAddBusiness ? (
         <EmptyState
           type="noBusinesses"
           onboardingStatus={onboardingStatus}
@@ -126,6 +141,15 @@ export default function BusinessesTab({
         />
       ) : (
         <div className="space-y-6">
+          {showAddBusiness && (
+            <AddBusinessCard
+              onAddSuccess={handleAddBusinessSuccess}
+              onCancel={handleAddBusinessCancel}
+              saving={savingEdit}
+              onboardingStatus={onboardingStatus}
+            />
+          )}
+          
           {businesses.map((business) => (
             <BusinessCard
               key={business.id}

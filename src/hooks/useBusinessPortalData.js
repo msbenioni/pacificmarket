@@ -24,15 +24,17 @@ export function useBusinessPortalData() {
         throw businessesError;
       }
 
+      // Fetch all claims from the unified claim_requests table with business names
       const [claimsResult, profilesResult] = await Promise.all([
         supabase
           .from("claim_requests")
           .select(`
             id, business_id, user_id, status, contact_email, contact_phone,
-            verification_documents, rejection_reason, reviewed_by, reviewed_at,
-            business_name, user_email, role, proof_url, created_at
+            role, proof_url, created_at, claim_type, message,
+            businesses:business_id (name)
           `)
-          .eq("user_id", u.id),
+          .eq("user_id", u.id)
+          .order("created_at", { ascending: false }),
         supabase
           .from("profiles")
           .select(`
@@ -41,6 +43,13 @@ export function useBusinessPortalData() {
             invited_date, pending_business_id, pending_business_name
           `),
       ]);
+
+      console.log('DEBUG - Claims query result:', {
+        userId: u.id,
+        claimsData: claimsResult.data,
+        claimsError: claimsResult.error,
+        claimsCount: claimsResult.data?.length || 0
+      });
 
       setBusinesses(businessesData || []);
       setClaims(claimsResult.data || []);

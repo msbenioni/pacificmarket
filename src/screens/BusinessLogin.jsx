@@ -26,6 +26,11 @@ export default function BusinessLogin() {
     return modeParam === 'signup' ? 'signup' : 'signin';
   };
   
+  // Check if this is a business claim flow
+  const businessId = searchParams.get('business');
+  const businessName = searchParams.get('name');
+  const isClaimFlow = !!businessId;
+  
   const [mode, setMode] = useState(getInitialMode());
 
   // Capture referral code from URL on component mount
@@ -180,7 +185,13 @@ export default function BusinessLogin() {
         }
         
         setSuccess("Login successful! Redirecting...");
-        router.push(createPageUrl("BusinessPortal"));
+        
+        // Handle claim flow by redirecting to business portal with claim parameters
+        if (isClaimFlow) {
+          router.push(`${createPageUrl("BusinessPortal")}?claim=true&business=${businessId}&name=${encodeURIComponent(businessName || '')}`);
+        } else {
+          router.push(createPageUrl("BusinessPortal"));
+        }
       } else {
         // Create profile record after successful signup
         if (result.data?.user) {

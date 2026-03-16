@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Mail, Bell, Settings, Save } from "lucide-react";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -20,6 +21,7 @@ const NOTIFICATION_TYPES = {
 };
 
 export default function NotificationSettings() {
+  const { toast } = useToast();
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -84,10 +86,18 @@ export default function NotificationSettings() {
 
       if (error) throw error;
 
-      alert('Notification settings saved successfully!');
+      toast({
+        title: "Settings Saved",
+        description: "Notification settings saved successfully!",
+        variant: "success"
+      });
     } catch (error) {
       console.error('Error saving notification settings:', error);
-      alert('Failed to save settings. Please try again.');
+      toast({
+        title: "Save Failed",
+        description: "Failed to save settings. Please try again.",
+        variant: "error"
+      });
     } finally {
       setSaving(false);
     }

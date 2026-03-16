@@ -368,7 +368,7 @@ export default function About() {
 
                 <a href="https://www.saasycookies.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#0a1628] text-white text-[11px] font-semibold px-3 py-1 hover:bg-[#1a2e40] transition-colors">
                   <Sparkles className="w-3.5 h-3.5 text-[#c9a84c]" />
-                  Saasy Cookies
+                  SaaSy Cookies
                 </a>
 
                 <div className="space-y-3 text-sm sm:text-base text-gray-600 leading-relaxed">

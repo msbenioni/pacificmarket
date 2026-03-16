@@ -13,7 +13,6 @@ import {
   Download,
   X,
   Plus,
-  Users,
   Building2,
   CheckCircle,
   Clock,
@@ -39,7 +38,6 @@ const TABS = [
   { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
   { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
   { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
-  { id: "insights", label: "Insights", icon: Users, color: "text-purple-600" },
 ];
 
 const buttonCls = "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all";
@@ -134,6 +132,7 @@ async function checkIsAdmin(user) {
   try {
     const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
+
     const { data, error } = await supabase.from("profiles").select("role").eq("id", user.id).single();
 
     if (error || !data) {
@@ -322,97 +321,6 @@ function AdminBusinessMobileCard({
   );
 }
 
-function InsightMobileCard({ insight }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-            {insight.business_name && (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#0d4f4f] to-[#1a5c5c] text-xs font-bold text-white">
-                {insight.business_name.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="break-words text-sm font-semibold text-[#0a1628]">{insight.business_name}</h3>
-              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
-                {getTierDisplayName(insight.subscription_tier) || insight.subscription_tier || "vaka"}
-              </span>
-              {insight.is_verified && (
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
-                  Verified
-                </span>
-              )}
-            </div>
-
-            <p className="mt-1 text-xs text-gray-500">
-              {getCountryDisplayName(insight.business_country)} · {getIndustryDisplayName(insight.business_industry) || "No industry"}
-            </p>
-            <p className="mt-1 text-xs text-gray-400">
-              Submitted {insight.submitted_date ? new Date(insight.submitted_date).toLocaleDateString() : "—"}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 text-xs font-medium text-[#0d4f4f] hover:text-[#1a6b6b]"
-          >
-            {isExpanded ? (
-              <>
-                <ChevronUp className="h-3 w-3" />
-                Hide Details
-              </>
-            ) : (
-              <>
-                <ChevronRight className="h-3 w-3" />
-                View Details
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {isExpanded && (
-        <div className="border-t border-gray-200 bg-gray-50 p-4">
-          <div className="space-y-3 text-sm">
-            {insight.year_started && (
-              <div>
-                <span className="font-medium text-gray-700">Year Started:</span>
-                <span className="ml-2 text-gray-600">{insight.year_started}</span>
-              </div>
-            )}
-            {insight.team_size_band && (
-              <div>
-                <span className="font-medium text-gray-700">Team Size:</span>
-                <span className="ml-2 text-gray-600">{insight.team_size_band}</span>
-              </div>
-            )}
-            {insight.business_model && (
-              <div>
-                <span className="font-medium text-gray-700">Business Model:</span>
-                <span className="ml-2 text-gray-600">{insight.business_model}</span>
-              </div>
-            )}
-            {insight.growth_stage && (
-              <div>
-                <span className="font-medium text-gray-700">Growth Stage:</span>
-                <span className="ml-2 text-gray-600">{insight.growth_stage}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function AdminDashboard() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
@@ -424,7 +332,6 @@ export default function AdminDashboard() {
 
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
-  const [insights, setInsights] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -460,39 +367,18 @@ export default function AdminDashboard() {
           .from("claim_requests")
           .select(`
             id, business_id, user_id, status, contact_email, contact_phone,
-            verification_documents, rejection_reason, reviewed_by, reviewed_at,
-            business_name, user_email, role, proof_url, created_at, updated_at,
-            notes, message, admin_notes, listing_contact_email, listing_contact_phone,
-            created_date
+            role, proof_url, created_at, claim_type, message,
+            reviewed_by, reviewed_at
           `)
           .order("created_at", { ascending: false })
           .limit(100),
       ]);
-
-      let insightsRes = { data: [], error: null };
-
-      try {
-        insightsRes = await supabase
-          .from("business_insights_snapshots")
-          .select(`
-            id, business_id, user_id, snapshot_year, submitted_date, year_started,
-            problem_solved, team_size_band, business_model, family_involvement,
-            customer_region, sales_channels, import_export_status, import_countries,
-            export_countries, growth_stage, hiring_intentions,
-            founder_role, founder_story, founder_motivation_array
-          `)
-          .order("submitted_date", { ascending: false })
-          .limit(200);
-      } catch (insightsError) {
-        insightsRes = { data: [], error: insightsError };
-      }
 
       if (businessesRes.error) throw new Error(`Businesses query failed: ${businessesRes.error.message}`);
       if (claimsRes.error) throw new Error(`Claims query failed: ${claimsRes.error.message}`);
 
       setBusinesses(businessesRes.data || []);
       setClaims(claimsRes.data || []);
-      setInsights(insightsRes.data || []);
     } catch (error) {
       console.error("Error loading admin data:", error);
       toast.error(`Failed to load data: ${error.message || "Unknown error"}`);
@@ -973,18 +859,6 @@ export default function AdminDashboard() {
   const filteredData = getFilteredData();
   const filteredClaimsData = getFilteredClaims();
 
-  const activeInsights = insights.map((snapshot) => {
-    const business = businesses.find((b) => b.id === snapshot.business_id);
-    return {
-      ...snapshot,
-      business_name: business?.name || "Unknown Business",
-      business_country: business?.country,
-      business_industry: business?.industry,
-      subscription_tier: business?.subscription_tier,
-      is_verified: business?.is_verified,
-    };
-  });
-
   const pendingCount = businesses.filter((b) => b.status === BUSINESS_STATUS.PENDING).length;
   const pendingClaimsCount = claims.filter((c) => c.status === "pending").length;
 
@@ -1018,7 +892,7 @@ export default function AdminDashboard() {
       <HeroStandard
         badge="Admin Dashboard"
         title="Pacific Discovery Network Registry"
-        subtitle="Administrative control center for business listings and insights"
+        subtitle="Administrative control center for business listings"
         description=""
         showStats={true}
         stats={executiveStats}
@@ -1262,7 +1136,7 @@ export default function AdminDashboard() {
                                       {business?.name || "Unknown Business"}
                                     </span>
                                     <span
-                                      className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+                                      className={`rounded-full border px-2 py-1 text-xs font-medium ${
                                         claim.status === "approved"
                                           ? getBadgeStyles("success")
                                           : claim.status === "rejected"
@@ -1277,7 +1151,7 @@ export default function AdminDashboard() {
                                         : "Unknown"}
                                     </span>
                                     {business && (
-                                      <span className={`rounded-full border px-2 py-0.5 text-xs ${getBadgeStyles("neutral")}`}>
+                                      <span className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles("neutral")}`}>
                                         {getTierDisplayName(business.subscription_tier) ||
                                           business.subscription_tier ||
                                           "vaka"}
@@ -1325,97 +1199,7 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {activeTab === "insights" && (
-                <div className="space-y-4">
-                  {activeInsights.length === 0 ? (
-                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">
-                      <Users className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-                      <p className="text-sm text-gray-500">No founder insights submitted yet.</p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="space-y-3 lg:hidden">
-                        {activeInsights.map((insight) => (
-                          <InsightMobileCard key={insight.id} insight={insight} />
-                        ))}
-                      </div>
-
-                      <div className="hidden space-y-4 lg:block">
-                        {activeInsights.map((insight) => (
-                          <div
-                            key={insight.id}
-                            className="rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
-                          >
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1">
-                                <div className="mb-2 flex items-center gap-2">
-                                  <h4 className="font-semibold text-[#0a1628]">{insight.business_name}</h4>
-                                  <span className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles("neutral")}`}>
-                                    {getTierDisplayName(insight.subscription_tier) ||
-                                      insight.subscription_tier ||
-                                      "vaka"}
-                                  </span>
-                                  {insight.is_verified && (
-                                    <span
-                                      className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("premium")}`}
-                                    >
-                                      Verified
-                                    </span>
-                                  )}
-                                </div>
-
-                                <div className="mb-3 flex flex-wrap items-center gap-4 text-xs text-gray-600">
-                                  <span>
-                                    {getCountryDisplayName(insight.business_country)} •{" "}
-                                    {getIndustryDisplayName(insight.business_industry) || "No industry"}
-                                  </span>
-                                  {insight.submitted_date && (
-                                    <span>Submitted {new Date(insight.submitted_date).toLocaleDateString()}</span>
-                                  )}
-                                </div>
-
-                                {insight.problem_solved && (
-                                  <div className="mb-3">
-                                    <h5 className="mb-1 text-xs font-semibold text-gray-700">Problem Solved</h5>
-                                    <p className="text-xs text-gray-600">{insight.problem_solved}</p>
-                                  </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-4 text-xs">
-                                  {insight.team_size_band && (
-                                    <div>
-                                      <span className="font-medium text-gray-700">Team Size:</span>
-                                      <span> {insight.team_size_band}</span>
-                                    </div>
-                                  )}
-                                  {insight.growth_stage && (
-                                    <div>
-                                      <span className="font-medium text-gray-700">Stage:</span>
-                                      <span> {insight.growth_stage}</span>
-                                    </div>
-                                  )}
-                                  {insight.snapshot_year && (
-                                    <div>
-                                      <span className="font-medium text-gray-700">Year:</span>
-                                      <span> {insight.snapshot_year}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="flex flex-shrink-0 items-center gap-2">
-                                <div className="text-sm text-gray-500">Details available in mobile view</div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {activeTab !== "claims" && activeTab !== "insights" && (
+              {activeTab !== "claims" && (
                 <div className="space-y-3">
                   {filteredData.length === 0 ? (
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">

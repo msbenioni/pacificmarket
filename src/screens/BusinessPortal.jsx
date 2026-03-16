@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { createPageUrl } from "@/utils";
 import {
   Users,
@@ -28,6 +29,7 @@ import { getBusinessOwnerName } from "@/utils/businessHelpers";
 import PortalShell from "@/components/portal/PortalShell";
 import { portalUI } from "@/components/portal/portalUI";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
+import { createBusiness } from "@/lib/supabase/queries/businesses";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
 // New tab components
@@ -45,6 +47,13 @@ import { usePortalState } from "@/hooks/usePortalState";
 
 export default function BusinessPortal() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Check for claim flow parameters
+  const claimParam = searchParams.get('claim');
+  const businessId = searchParams.get('business');
+  const businessName = searchParams.get('name');
+  const isClaimFlow = claimParam === 'true' && businessId;
   
   // Custom hooks for data and state management
   const {
@@ -66,6 +75,7 @@ export default function BusinessPortal() {
     cancelEditingBusiness,
     saveBusiness,
     handleDeleteBusiness,
+    handleAddBusiness,
     handleLogoUpload,
   } = useBusinessOperations(refetchPortalData);
 
@@ -91,6 +101,24 @@ export default function BusinessPortal() {
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
   const { toast } = useToast();
+
+  // Handle claim flow - show claim modal if coming from claim flow
+  useEffect(() => {
+    if (isClaimFlow && user && !loading) {
+      // Show claim modal with the business details
+      setClaimAddModal('claim');
+      
+      // Clear URL parameters to avoid showing modal again on refresh
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      toast({
+        title: "Claim Business",
+        description: `Please complete the claim form for ${businessName || 'this business'}`,
+        variant: "info"
+      });
+    }
+  }, [isClaimFlow, user, loading, businessName, setClaimAddModal, toast]);
 
   const {
     onboardingStatus,
@@ -211,6 +239,10 @@ export default function BusinessPortal() {
                     break;
                   case "addOwner":
                     setAddOwnerModal(businessId);
+                    break;
+                  case "addBusiness":
+                    // Handle new business addition
+                    handleAddBusiness(data);
                     break;
                   case "logoUpload":
                     // Handle logo upload

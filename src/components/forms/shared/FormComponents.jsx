@@ -50,7 +50,9 @@ export function OptionCard({ checked, onChange, label, type = "checkbox" }) {
 }
 
 // Form Section Component
-export function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, onSaveSection, saving, formData, errors }) {
+export function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, onSaveSection, saving, formData, errors, mode = "edit" }) {
+  const showSaveButton = mode === "edit"; // Only show save button in edit mode
+  
   return (
     <div className="rounded-xl border border-slate-300 bg-white shadow-sm transition-all hover:shadow-md">
       <div className="w-full px-3 py-3 sm:px-4 sm:py-4">
@@ -92,16 +94,18 @@ export function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, chi
             </div>
           </div>
 
-          <div className="flex justify-end border-t border-gray-200 bg-gray-50 px-3 py-3 sm:px-4 sm:py-4">
-            <button
-              type="button"
-              onClick={() => onSaveSection(formData)}
-              disabled={saving}
-              className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
-            >
-              {saving ? "Saving..." : "Save Section"}
-            </button>
-          </div>
+          {showSaveButton && (
+            <div className="flex justify-end border-t border-gray-200 bg-gray-50 px-3 py-3 sm:px-4 sm:py-4">
+              <button
+                type="button"
+                onClick={() => onSaveSection(formData)}
+                disabled={saving}
+                className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
+              >
+                {saving ? "Saving..." : "Save Section"}
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Mail, Phone, User, MessageSquare, Link as LinkIcon } from "lucide-react";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 export default function ClaimDetailsForm({ business, onSubmit, isLoading }) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     contact_email: "",
     contact_phone: "",
@@ -17,7 +19,11 @@ export default function ClaimDetailsForm({ business, onSubmit, isLoading }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.contact_email) {
-      alert("Please provide a business email address");
+      toast({
+        title: "Email Required",
+        description: "Please provide a business email address",
+        variant: "error"
+      });
       return;
     }
     onSubmit(formData);

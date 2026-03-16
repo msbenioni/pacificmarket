@@ -12,6 +12,7 @@ import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import BusinessSearch from "@/components/BusinessSearch";
 import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, ChevronLeft } from "lucide-react";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 // Whitelist of allowed fields that match the exact database schema
 const ALLOWED_BUSINESS_FIELDS = [
@@ -77,6 +78,7 @@ export function ClaimAddBusinessModal({
   onClaimSelected,
   onAddSelected,
 }) {
+  const { toast } = useToast();
   const [view, setView] = useState(defaultView);
   const [submitting, setSubmitting] = useState(false);
   const [pickedBusiness, setPickedBusiness] = useState(null);
@@ -158,7 +160,11 @@ export function ClaimAddBusinessModal({
         .maybeSingle();
 
       if (existingClaim) {
-        alert("You already have a pending claim for this business. We'll notify you once it's reviewed.");
+        toast({
+          title: "Claim Already Exists",
+          description: "You already have a pending claim for this business. We'll notify you once it's reviewed.",
+          variant: "default"
+        });
         return;
       }
 
@@ -174,10 +180,7 @@ export function ClaimAddBusinessModal({
         role: details.role || "owner",
         message: details.message || null,
         proof_url: proof_url || null,
-        business_name: pickedBusiness.name,
-        user_email: userRes.user.email,
-        listing_contact_email: pickedBusiness?.contact_email || null,
-        listing_contact_phone: pickedBusiness?.contact_phone || null,
+        claim_type: "request"
       };
 
       const { data: inserted, error: insertErr } = await supabase
@@ -188,27 +191,21 @@ export function ClaimAddBusinessModal({
 
       if (insertErr) throw insertErr;
 
-      // Send notification for claim submission
-      try {
-        await fetch('/api/notifications/claim-submitted', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            businessId: pickedBusiness.id,
-            claimantId: userRes.user.id,
-            claimType: details.role || 'owner'
-          })
-        });
-      } catch (notifError) {
-        console.error('Failed to send claim notification:', notifError);
-        // Don't fail the claim if notification fails
-      }
+      toast({
+        title: "Claim Submitted",
+        description: "Claim request submitted successfully! We'll review it and notify you once it's processed.",
+        variant: "success"
+      });
 
       onClaimSelected?.(inserted);
       onClose();
     } catch (error) {
       console.error("Failed to submit claim:", error);
-      alert("Failed to submit claim request. Please try again.");
+      toast({
+        title: "Submission Failed",
+        description: "Failed to submit claim request. Please try again.",
+        variant: "error"
+      });
     } finally {
       setSubmitting(false);
     }
@@ -287,13 +284,45 @@ export function ClaimAddBusinessModal({
           console.error('Failed to send business added notification:', notifError);
           // Don't fail the business creation if notification fails
         }
+
+        // Create an approved claim request for the new business owner
+        try {
+          const { error: claimError } = await supabase
+            .from("claim_requests")
+            .insert({
+              business_id: data[0].id,
+              user_id: userRes.user.id,
+              status: "approved",
+              contact_email: clean.contact_email || userRes.user.email,
+              contact_phone: clean.contact_phone || null,
+              role: "owner",
+              created_at: new Date().toISOString(),
+              reviewed_at: new Date().toISOString(),
+              reviewed_by: userRes.user.id, // Self-approved for new business creation
+              claim_type: "direct"
+            });
+
+          if (claimError) {
+            console.error("Failed to create claim request for new business:", claimError);
+            // Don't fail the business creation if claim request fails
+          } else {
+            console.log("Created approved claim request for new business:", data[0].id);
+          }
+        } catch (claimError) {
+          console.error("Error creating claim request for new business:", claimError);
+          // Don't fail the business creation if claim request fails
+        }
       }
 
       onAddSelected?.();
       onClose();
     } catch (error) {
       console.error("Business submission error:", error);
-      alert(`Failed to create business: ${error.message || "Unknown error occurred. Please try again."}`);
+      toast({
+        title: "Business Creation Failed",
+        description: `Failed to create business: ${error.message || "Unknown error occurred. Please try again."}`,
+        variant: "error"
+      });
     } finally {
       setSubmitting(false);
     }

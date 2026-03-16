@@ -428,6 +428,7 @@ export default function BusinessProfileForm({
               saving={submitting}
               formData={form}
               errors={errors}
+              mode={mode}
             >
               {renderSectionContent(section.key)}
             </FormSection>

@@ -1,4 +1,15 @@
+import { generateBusinessHandle } from "@/utils/businessHandleGenerator";
+
 export default function CoreInfoSection({ form, handleInputChange, inputCls, textareaCls, labelCls, selectCls }) {
+  const handleNameChange = (value) => {
+    handleInputChange("name", value);
+    
+    // Auto-populate business handle if it's empty or was auto-generated
+    if (!form.business_handle || form.business_handle === generateBusinessHandle(form.name || '')) {
+      const newHandle = generateBusinessHandle(value);
+      handleInputChange("business_handle", newHandle);
+    }
+  };
   return (
     <div className="space-y-3 sm:space-y-4">
       <div>
@@ -6,7 +17,7 @@ export default function CoreInfoSection({ form, handleInputChange, inputCls, tex
         <input
           type="text"
           value={form.name || ""}
-          onChange={(e) => handleInputChange("name", e.target.value)}
+          onChange={(e) => handleNameChange(e.target.value)}
           className={inputCls}
           placeholder="Enter your business name"
           required

@@ -2,10 +2,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 import CancelClaimButton from "../../components/claims/CancelClaimButton";
 import { userClaimActions } from "../../utils/userClaimActions";
 
 export default function MyClaimsPage() {
+  const { toast } = useToast();
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
@@ -46,7 +48,11 @@ export default function MyClaimsPage() {
   };
 
   const handleCancelSuccess = () => {
-    alert("Cancelled — you can submit again anytime");
+    toast({
+      title: "Claim Cancelled",
+      description: "Cancelled — you can submit again anytime",
+      variant: "success"
+    });
     loadMyClaims(); // Refresh the list
   };
 

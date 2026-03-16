@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteBusiness, updateBusiness } from "@/lib/supabase/queries/businesses";
+import { deleteBusiness, updateBusiness, createBusiness } from "@/lib/supabase/queries/businesses";
 import { sanitizeBusinessPayload, validateBusinessData } from "@/utils/dataTransformers";
 import { filterEmptyValues } from "@/utils/businessDataTransformer";
 import { createPageUrl } from "@/utils";
@@ -361,6 +361,182 @@ export function useBusinessOperations(refetchPortalData) {
     }
   };
 
+  const handleAddBusiness = async (businessData) => {
+    console.log("handleAddBusiness called with:", businessData);
+    
+    if (!businessData || !businessData.businessesData) {
+      console.error("Invalid business data structure");
+      toast({
+        title: "Error",
+        description: "Invalid business data provided",
+        variant: "error"
+      });
+      return;
+    }
+
+    try {
+      // Get current user to set as owner
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+      
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Handle file uploads first
+      let businessDataForCreate = { ...businessData.businessesData };
+      
+      // Upload logo if there's a new logo file
+      if (businessData.files?.logo_file) {
+        const file = businessData.files.logo_file;
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+        }
+        
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
+        }
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `logo-${Date.now()}.${fileExt}`;
+        const filePath = `logos/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('admin-listings')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('admin-listings')
+          .getPublicUrl(filePath);
+
+        businessDataForCreate.logo_url = publicUrl;
+      }
+
+      // Upload banner if there's a new banner file
+      if (businessData.files?.banner_file) {
+        const file = businessData.files.banner_file;
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+        }
+        
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
+        }
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `banner-${Date.now()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('admin-listings')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('admin-listings')
+          .getPublicUrl(filePath);
+
+        businessDataForCreate.banner_url = publicUrl;
+      }
+
+      // Upload mobile banner if there's a new mobile banner file
+      if (businessData.files?.mobile_banner_file) {
+        const file = businessData.files.mobile_banner_file;
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, or WebP images.`);
+        }
+        
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
+        }
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `mobile-banner-${Date.now()}.${fileExt}`;
+        const filePath = `mobile-banners/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('admin-listings')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('admin-listings')
+          .getPublicUrl(filePath);
+
+        businessDataForCreate.mobile_banner_url = publicUrl;
+      }
+
+      // Consolidate all business data
+      const consolidatedBusinessData = {
+        ...businessDataForCreate,
+        ...businessData.businessInsightsData,
+        owner_user_id: user.id, // Set the current user as owner
+        status: 'pending', // New businesses start as pending
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_date: new Date().toISOString().split('T')[0]
+      };
+
+      console.log('Final business data for creation:', consolidatedBusinessData);
+
+      // Validate the data
+      const validation = validateBusinessData(consolidatedBusinessData);
+      if (!validation.isValid) {
+        console.error("Validation errors:", validation.errors);
+        toast({
+          title: "Validation Error",
+          description: `Please check these fields: ${Object.keys(validation.errors).join(", ")}`,
+          variant: "error",
+        });
+        return;
+      }
+
+      // Create the business
+      const { data: newBusiness, error: createError } = await createBusiness(consolidatedBusinessData);
+      
+      if (createError) {
+        throw createError;
+      }
+
+      console.log("Business created successfully:", newBusiness);
+
+      await refetchPortalData();
+      
+      toast({
+        title: "Business Created",
+        description: "Your business has been submitted for review and will appear in pending status.",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Error creating business:", error);
+      toast({
+        title: "Creation Failed",
+        description: `Failed to create business: ${error.message || "Unknown error"}`,
+        variant: "error",
+      });
+    }
+  };
+
   return {
     editingBusinessId,
     draftBusiness,
@@ -373,5 +549,6 @@ export function useBusinessOperations(refetchPortalData) {
     saveBusiness,
     handleDeleteBusiness,
     handleLogoUpload,
+    handleAddBusiness,
   };
 }

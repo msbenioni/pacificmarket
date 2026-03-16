@@ -6,8 +6,18 @@ export default function ClaimsTab({
   claims, 
   onCancelSuccess 
 }) {
-  const getStatusBadge = (status) => {
+  console.log('DEBUG - ClaimsTab received claims:', {
+    claims,
+    claimsCount: claims?.length || 0,
+    claimsArray: Array.isArray(claims)
+  });
+
+  const getStatusBadge = (status, claimType) => {
     const baseClass = "text-xs font-semibold rounded-full px-3 py-1 border ";
+    
+    if (claimType === 'direct') {
+      return baseClass + "border-green-200 bg-green-50 text-green-700";
+    }
     
     switch (status) {
       case "pending":
@@ -19,6 +29,13 @@ export default function ClaimsTab({
       default:
         return baseClass + "border-gray-200 bg-gray-50 text-gray-700";
     }
+  };
+
+  const getStatusText = (status, claimType) => {
+    if (claimType === 'direct') {
+      return 'Direct Owner';
+    }
+    return status || 'pending';
   };
 
   const formatDate = (dateString) => {
@@ -45,19 +62,22 @@ export default function ClaimsTab({
           <div className="p-4 sm:p-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="font-semibold text-[#0a1628] truncate">
-                {claim.business_name || claim.business_id}
+                {claim.businesses?.name || claim.business_name || `Business ID: ${claim.business_id}`}
               </p>
               <p className="text-xs text-slate-500 mt-1">
                 Submitted {formatDate(claim.created_at)}
+                {claim.claim_type === 'direct' && ' • Direct ownership'}
+                {claim.status === 'approved' && claim.claim_type !== 'direct' && ' • Approved'}
+                {claim.status === 'rejected' && ' • Rejected'}
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <span className={getStatusBadge(claim.status)}>
-                {claim.status}
+              <span className={getStatusBadge(claim.status, claim.claim_type)}>
+                {getStatusText(claim.status, claim.claim_type)}
               </span>
 
-              {claim.status === "pending" && (
+              {claim.status === "pending" && claim.claim_type !== 'direct' && (
                 <CancelClaimButton
                   claimId={claim.id}
                   onCancelSuccess={onCancelSuccess}
