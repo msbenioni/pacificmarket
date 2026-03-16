@@ -81,7 +81,7 @@ export default function ProfileSettings() {
   const [loading, setLoading] = useState(true);
   const [adminUsers, setAdminUsers] = useState([]);
 
-  // Profile form state
+  // Profile form state - initialize with empty values to avoid hydration mismatch
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -91,7 +91,7 @@ export default function ProfileSettings() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Profile foundation state
+  // Profile foundation state - initialize with empty values to avoid hydration mismatch
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [primaryCultural, setPrimaryCultural] = useState([]);
@@ -781,9 +781,7 @@ export default function ProfileSettings() {
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
                         {showConfirmPassword ? (
@@ -809,19 +807,19 @@ export default function ProfileSettings() {
               {isAdmin && (
                 <InsightsAccordionSection
                   title="Admin Users"
-                  subtitle="Admin"
-                  summary="Manage admin user access and permissions"
+                  subtitle="Step 4"
+                  summary="Manage admin user access"
                   icon={Users}
-                  isOpen={expandedSections.has("admins")}
-                  onToggle={() => toggleSection("admins")}
+                  isOpen={expandedSections.has("admin")}
+                  onToggle={() => toggleSection("admin")}
                 >
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-[#0a1628]">
-                        Admin Users
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-medium text-[#0a1628]">
+                        Current Admin Users
                       </h3>
                       <button
-                        onClick={() => setShowAddAdmin(!showAddAdmin)}
+                        onClick={() => setShowAddAdmin(true)}
                         className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-4 py-2 rounded-lg transition-colors"
                       >
                         <Plus className="w-4 h-4" />
@@ -830,106 +828,82 @@ export default function ProfileSettings() {
                     </div>
 
                     {showAddAdmin && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                              Name
-                            </label>
-                            <input
-                              type="text"
-                              value={newAdminName}
-                              onChange={(e) => setNewAdminName(e.target.value)}
-                              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                              placeholder="Enter admin name"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                              Email Address
-                            </label>
-                            <input
-                              type="email"
-                              value={newAdminEmail}
-                              onChange={(e) => setNewAdminEmail(e.target.value)}
-                              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                              placeholder="Enter email address"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                              Password
-                            </label>
-                            <input
-                              type="password"
-                              value={newAdminPassword}
-                              onChange={(e) =>
-                                setNewAdminPassword(e.target.value)
-                              }
-                              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                              placeholder="Enter password"
-                            />
-                          </div>
-
-                          <div className="flex gap-3 pt-4">
-                            <button
-                              onClick={addAdminUser}
-                              disabled={addingAdmin}
-                              className="flex-1 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-                            >
-                              {addingAdmin ? "Adding..." : "Add Admin"}
-                            </button>
-                            <button
-                              onClick={() => setShowAddAdmin(false)}
-                              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </div>
+                      <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+                        <h4 className="font-medium text-[#0a1628]">Add New Admin User</h4>
+                        <div>
+                          <label className="block text-sm font-medium text-[#0a1628] mb-1">
+                            Name
+                          </label>
+                          <input
+                            type="text"
+                            value={newAdminName}
+                            onChange={(e) => setNewAdminName(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                            placeholder="Enter admin name"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-[#0a1628] mb-1">
+                            Email Address
+                          </label>
+                          <input
+                            type="email"
+                            value={newAdminEmail}
+                            onChange={(e) => setNewAdminEmail(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                            placeholder="Enter admin email"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-[#0a1628] mb-1">
+                            Password
+                          </label>
+                          <input
+                            type="password"
+                            value={newAdminPassword}
+                            onChange={(e) => setNewAdminPassword(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                            placeholder="Enter admin password"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={addAdminUser}
+                            disabled={addingAdmin}
+                            className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {addingAdmin ? "Adding..." : "Add Admin"}
+                          </button>
+                          <button
+                            onClick={() => setShowAddAdmin(false)}
+                            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-colors"
+                          >
+                            Cancel
+                          </button>
                         </div>
                       </div>
                     )}
 
-                    <div className="space-y-3">
-                      {adminUsers.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-gray-300 p-4 text-sm text-gray-500">
-                          No admin users found.
-                        </div>
-                      ) : (
-                        adminUsers.map((adminUser) => (
-                          <div
-                            key={adminUser.id}
-                            className="flex items-center justify-between rounded-xl border border-gray-200 p-4"
-                          >
-                            <div>
-                              <p className="font-medium text-[#0a1628]">
-                                {adminUser.display_name || adminUser.full_name || "Admin User"}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {adminUser.email}
-                              </p>
+                    <div className="space-y-2">
+                      {adminUsers.map((admin) => (
+                        <div
+                          key={admin.id}
+                          className="flex justify-between items-center p-3 border border-gray-200 rounded-lg"
+                        >
+                          <div>
+                            <div className="font-medium text-[#0a1628]">
+                              {admin.display_name || admin.full_name || admin.email}
                             </div>
-
-                            {adminUser.id !== user.id && (
-                              <button
-                                onClick={() =>
-                                  removeAdminUser(
-                                    adminUser.id,
-                                    adminUser.display_name ||
-                                      adminUser.full_name ||
-                                      adminUser.email
-                                  )
-                                }
-                                className="px-3 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                              >
-                                Remove
-                              </button>
-                            )}
+                            <div className="text-sm text-gray-500">{admin.email}</div>
                           </div>
-                        ))
-                      )}
+                          <button
+                            onClick={() => removeAdminUser(admin.id, admin.display_name || admin.full_name || admin.email)}
+                            className="text-red-600 hover:text-red-700 font-medium text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </InsightsAccordionSection>
