@@ -141,7 +141,7 @@ export default function Pricing() {
       <HeroRegistry
         badge="Pricing"
         title="Choose the Presence That Fits Your Journey"
-        subtitle="Pricing"
+        subtitle=""
         description=""
         compact
       />
