@@ -149,10 +149,10 @@ export default function BusinessCard({
         className="relative w-full overflow-hidden text-left transition hover:bg-slate-50 cursor-pointer"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(13,79,79,0.06),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(201,168,76,0.08),transparent_24%)]" />
-        <div className="relative bg-gradient-to-br from-white via-[#f8fbfb] to-[#f3f8f8] px-5 py-5 sm:px-6">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex min-w-0 items-start gap-4">
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="relative bg-gradient-to-br from-white via-[#f8fbfb] to-[#f3f8f8] px-4 py-4 sm:px-5 sm:py-5">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <img
                   src={getLogoUrl(business)}
                   alt={`${business.name} logo`}
@@ -162,35 +162,33 @@ export default function BusinessCard({
 
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="truncate text-xl font-semibold text-[#0a1628]">
+                  <h3 className="truncate text-lg sm:text-xl font-semibold text-[#0a1628]">
                     {business.name}
                   </h3>
 
                   {business.is_verified && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                      <CheckCircle className="h-3.5 w-3.5" />
+                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-[11px] font-semibold text-emerald-700">
+                      <CheckCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       Verified
                     </span>
                   )}
                 </div>
 
-                <p className="mt-2 max-w-2xl text-sm text-slate-600">{summaryText}</p>
-
-                <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-1 sm:gap-2">
                   <span
-                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tierStyles}`}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-3 sm:py-1 sm:text-xs ${tierStyles}`}
                   >
                     {tierLabel}
                   </span>
 
                   <span
-                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusStyles}`}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-3 sm:py-1 sm:text-xs ${statusStyles}`}
                   >
                     {business.status || "draft"}
                   </span>
 
                   {business.industry && (
-                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                    <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:px-3 sm:py-1 sm:text-xs">
                       {business.industry}
                     </span>
                   )}

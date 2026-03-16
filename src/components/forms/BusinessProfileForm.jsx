@@ -19,7 +19,7 @@ import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import CommunitySection from "./FormSections/CommunitySection";
-import { OptionCard, inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection } from "./shared/FormComponents";
+import { OptionCard, inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection, badgeCls, cardCls, buttonCls, textXs, textSm, textBase } from "./shared/FormComponents";
 
 // Form Sections Configuration
 const SECTIONS = [
@@ -414,8 +414,8 @@ export default function BusinessProfileForm({
 
   return (
     <div className="rounded-2xl bg-white overflow-hidden max-w-full">
-      <form onSubmit={handleSubmit} className="p-4 sm:p-8">
-        <div className="space-y-4 overflow-x-hidden">
+      <form onSubmit={handleSubmit} className="p-3 sm:p-8">
+        <div className="space-y-3 sm:space-y-4 overflow-x-hidden">
           {SECTIONS.map((section) => (
             <FormSection
               key={section.key}
@@ -442,7 +442,7 @@ export default function BusinessProfileForm({
               <button
                 type="submit"
                 disabled={submitting}
-                className="rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-medium text-white hover:bg-[#0a3e3e] disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-[#0d4f4f] px-4 py-2 text-xs sm:text-sm sm:px-6 sm:py-3 font-medium text-white hover:bg-[#0a3e3e] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? "Saving..." : "Save All"}
               </button>
