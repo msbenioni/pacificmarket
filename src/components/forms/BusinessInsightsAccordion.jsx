@@ -55,7 +55,6 @@ const SECTION_FIELDS = {
   overview: [
     "business_stage",
     "team_size_band",
-    "business_operating_status",
   ],
   challenges: ["top_challenges_array"],
   community: [
@@ -95,23 +94,19 @@ export default function BusinessInsightsAccordion({
   embedded = false,
 }) {
   const [form, setForm] = useState({
+    founder_story: "",
+    year_started: null,
     business_stage: "",
     team_size_band: "",
-    business_operating_status: "",
-    business_age: "",
     is_business_registered: false,
-    top_challenges_array: "",
+    business_structure: "",
+    age_range: "",
+    gender: "",
     collaboration_interest: false,
     mentorship_offering: false,
     open_to_future_contact: false,
     business_acquisition_interest: false,
-    // Fields moved from InlineBusinessForm
-    year_started: null,
-    business_structure: "",
-    // Founder Information
-    founder_story: "",
-    age_range: "",
-    gender: "",
+    top_challenges_array: "",
   });
 
   const [expandedSections, setExpandedSections] = useState(new Set());
