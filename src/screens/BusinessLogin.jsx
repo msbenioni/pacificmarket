@@ -4,7 +4,7 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import HeroStandard from "@/components/shared/HeroStandard";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function BusinessLogin() {
   const router = useRouter();
@@ -210,8 +210,8 @@ export default function BusinessLogin() {
         title={mode === "signin" ? "Welcome Back" : "Create Your Account"}
         subtitle=""
         description={mode === "signin" 
-          ? "Access your business dashboard and manage your Pacific Market listings." 
-          : "Join Pacific Market. After email confirmation, you'll be able to claim existing businesses or submit new listings."
+          ? "Access your business dashboard and manage your Pacific Discovery Network listings." 
+          : "Join Pacific Discovery Network. After email confirmation, you'll be able to claim existing businesses or submit new listings."
         }
       />
 

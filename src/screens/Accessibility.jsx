@@ -1,6 +1,5 @@
 import { Eye, Users, Keyboard, MousePointer } from "lucide-react";
-import HeroStandard from "../components/shared/HeroStandard";
-
+import HeroStandard from "@/components/shared/HeroStandard";
 export default function Accessibility() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
@@ -8,7 +7,7 @@ export default function Accessibility() {
         badge="Legal"
         title="Accessibility"
         subtitle=""
-        description="Our commitment to making Pacific Market accessible to everyone."
+        description="Our commitment to making Pacific Discovery Network accessible to everyone."
       />
 
       <section className="py-20 px-4 sm:px-6 lg:px-8">
@@ -17,7 +16,7 @@ export default function Accessibility() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-2xl font-bold text-[#0a1628] mb-6">Our Accessibility Commitment</h2>
               <p className="text-gray-600 mb-6">
-                Pacific Market is committed to ensuring digital accessibility for people with disabilities. 
+                Pacific Discovery Network is committed to ensuring digital accessibility for people with disabilities. 
                 We strive to continually improve the user experience for everyone and apply the relevant 
                 accessibility standards.
               </p>

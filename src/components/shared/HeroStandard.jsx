@@ -1,3 +1,4 @@
+// HeroStandard component - shared hero section
 export default function HeroStandard({
   title,
   subtitle,

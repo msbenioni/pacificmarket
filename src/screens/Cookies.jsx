@@ -1,6 +1,5 @@
 import { Cookie, Settings, Eye, Shield } from "lucide-react";
-import HeroStandard from "../components/shared/HeroStandard";
-
+import HeroStandard from "@/components/shared/HeroStandard";
 export default function Cookies() {
   return (
     <div className="bg-[#f8f9fc] min-h-screen">
