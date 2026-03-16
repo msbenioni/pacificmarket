@@ -47,12 +47,7 @@ const SECTIONS = [
 
 const SECTION_FIELDS = {
   overview: [],
-  community: [
-    "collaboration_interest",
-    "mentorship_offering",
-    "open_to_future_contact",
-    "business_acquisition_interest",
-  ],
+  community: [],
 };
 
 function OptionCard({ checked, onChange, label, type = "checkbox" }) {
@@ -83,12 +78,7 @@ export default function BusinessInsightsAccordion({
   onStart,
   embedded = false,
 }) {
-  const [form, setForm] = useState({
-    collaboration_interest: false,
-    mentorship_offering: false,
-    open_to_future_contact: false,
-    business_acquisition_interest: false,
-  });
+  const [form, setForm] = useState({});
 
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
