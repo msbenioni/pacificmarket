@@ -22,7 +22,7 @@ export default function BusinessOverviewSection({
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={labelCls}>Year Started</label>
             <input
@@ -71,7 +71,11 @@ export default function BusinessOverviewSection({
               <option value="51+">51+ people</option>
             </select>
           </div>
+        </div>
+      </div>
 
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className={labelCls}>Business Registration Status</label>
             <div className="space-y-3">
