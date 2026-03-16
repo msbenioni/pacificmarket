@@ -102,111 +102,116 @@ export default function Layout({ children, currentPageName }) {
           : 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
-              <img 
-                src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"} 
-                alt="Pacific Market" 
-                className="h-16 w-40 transition-opacity duration-300" 
-              />
-            </Link>
-
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map(link => (
-                <Link
-                  key={link.page}
-                  href={createPageUrl(link.page)}
-                  className={`text-sm font-medium transition-colors ${
-                    isActive(link.page)
-                      ? isTransparent ? "text-white" : "text-[#0d4f4f]"
-                      : isTransparent ? "text-white/90 hover:text-white" : "text-gray-500 hover:text-[#0a1628]"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Actions */}
-            <div className="hidden md:flex items-center gap-3">
-              {!user && (
-                <Link
-                  href={createPageUrl("BusinessLogin")}
-                  className={`text-sm font-medium px-4 py-2 rounded-lg transition-all ${
-                    isTransparent
-                      ? "text-white border-white/50 hover:bg-white/10"
-                      : "text-gray-600 border border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  Login
-                </Link>
-              )}
-              {!user && (
-                <Link
-                  href={`${createPageUrl("BusinessLogin")}?mode=signup`}
-                  className={`text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
-                    isTransparent
-                      ? "text-white border-white/50 hover:bg-white/10"
-                      : "text-[#0d4f4f] border border-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white"
-                  }`}
-                >
-                  Create Account
-                </Link>
-              )}
-              {user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-                      isTransparent
-                        ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-                        : "bg-[#0a1628] text-white hover:bg-[#0a1628]/90"
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                    {user.full_name?.split(" ")[0] || "Account"}
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
-                  {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
-                      {/* Only show Business Portal for owner users */}
-                      {user?.role === 'owner' && (
-                        <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                          <Home className="w-4 h-4" /> Business Portal
-                        </Link>
-                      )}
-                      <Link href={createPageUrl("ProfileSettings")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                        <User className="w-4 h-4" /> Profile Settings
-                      </Link>
-                      {/* Only show Admin Dashboard for actual admin users */}
-                      {user?.role === 'admin' && (
-                        <Link href={createPageUrl("AdminDashboard")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                          <Shield className="w-4 h-4" /> Admin Dashboard
-                        </Link>
-                      )}
-                      <hr className="my-1 border-gray-100" />
-                      <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                        <LogOut className="w-4 h-4" /> Sign Out
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : null}
+          <div className="grid lg:grid-cols-12 gap-8 sm:gap-10 items-center h-16">
+            {/* Logo - aligned with hero content */}
+            <div className="lg:col-span-5">
+              <Link href={createPageUrl("Home")} className="flex items-center gap-3 group">
+                <img 
+                  src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"} 
+                  alt="Pacific Market" 
+                  className="h-16 w-40 transition-opacity duration-300" 
+                />
+              </Link>
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className={`md:hidden p-2 rounded-lg transition-colors ${
-                isTransparent
-                  ? "text-white hover:text-white/80"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Navigation and Actions */}
+            <div className="lg:col-span-7 flex items-center justify-between">
+              {/* Desktop Nav */}
+              <nav className="hidden lg:flex items-center gap-8">
+                {navLinks.map(link => (
+                  <Link
+                    key={link.page}
+                    href={createPageUrl(link.page)}
+                    className={`text-sm font-medium transition-colors ${
+                      isActive(link.page)
+                        ? isTransparent ? "text-white" : "text-[#0d4f4f]"
+                        : isTransparent ? "text-white/90 hover:text-white" : "text-gray-500 hover:text-[#0a1628]"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+
+              {/* Actions */}
+              <div className="hidden md:flex items-center gap-3">
+                {!user && (
+                  <Link
+                    href={createPageUrl("BusinessLogin")}
+                    className={`text-sm font-medium px-4 py-2 rounded-lg transition-all ${
+                      isTransparent
+                        ? "text-white border-white/50 hover:bg-white/10"
+                        : "text-gray-600 border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    Login
+                  </Link>
+                )}
+                {!user && (
+                  <Link
+                    href={`${createPageUrl("BusinessLogin")}?mode=signup`}
+                    className={`text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
+                      isTransparent
+                        ? "text-white border-white/50 hover:bg-white/10"
+                        : "text-[#0d4f4f] border border-[#0d4f4f] hover:bg-[#0d4f4f] hover:text-white"
+                    }`}
+                  >
+                    Create Account
+                  </Link>
+                )}
+                {user ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+                        isTransparent
+                          ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+                          : "bg-[#0a1628] text-white hover:bg-[#0a1628]/90"
+                      }`}
+                    >
+                      <User className="w-4 h-4" />
+                      {user.full_name?.split(" ")[0] || "Account"}
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                    {userMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
+                        {/* Only show Business Portal for owner users */}
+                        {user?.role === 'owner' && (
+                          <Link href={createPageUrl("BusinessPortal")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
+                            <Home className="w-4 h-4" /> Business Portal
+                          </Link>
+                        )}
+                        <Link href={createPageUrl("ProfileSettings")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
+                          <User className="w-4 h-4" /> Profile Settings
+                        </Link>
+                        {/* Only show Admin Dashboard for actual admin users */}
+                        {user?.role === 'admin' && (
+                          <Link href={createPageUrl("AdminDashboard")} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
+                            <Shield className="w-4 h-4" /> Admin Dashboard
+                          </Link>
+                        )}
+                        <hr className="my-1 border-gray-100" />
+                        <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                          <LogOut className="w-4 h-4" /> Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className={`lg:hidden p-2 rounded-lg transition-colors ${
+                  isTransparent
+                    ? "text-white hover:text-white/80"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
 
