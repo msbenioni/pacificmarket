@@ -137,7 +137,7 @@ export function mergeBusinessData(businessesData = {}, businessInsightsData = {}
     ...businessesData,
     // Business insights fields that should be merged
     business_stage: businessInsightsData.business_stage,
-    is_business_registered: businessInsightsData.is_business_registered,
+    business_registered: businessInsightsData.business_registered,
     private_business_phone: businessInsightsData.private_business_phone,
     private_business_email: businessInsightsData.private_business_email,
   };

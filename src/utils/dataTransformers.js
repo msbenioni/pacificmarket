@@ -56,7 +56,7 @@ export function sanitizeBusinessPayload(formData) {
     "additional_owner_emails",
     // Business insights fields (now in businesses table)
     "business_stage",
-    "is_business_registered",
+    "business_registered",
     // Founder insights fields (now in businesses table)
     "founder_story",
     "age_range",

@@ -35,7 +35,7 @@ export const transformBusinessFormData = (formData) => {
     
     // Business insights data (now in businesses table)
     business_stage: formData.business_stage,
-    is_business_registered: formData.is_business_registered === true || formData.is_business_registered === "true" ? true : false,
+    business_registered: formData.business_registered === true || formData.business_registered === "true" ? true : false,
     
     // Founder insights data (now in businesses table)
     founder_story: formData.founder_story,
