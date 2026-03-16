@@ -112,7 +112,7 @@ function generateSignatureHTML(data, template = 'modern', business = null) {
                   PACIFIC DISCOVERY NETWORK VERIFIED
                 </div>
                 <div style="margin-top: 5px; font-size: 10px; color: #666;">
-                  <a href="https://pacificmarket.com" style="color: #666; text-decoration: none;" target="_blank">
+                  <a href="https://pacificdiscoverynetwork.com" style="color: #666; text-decoration: none;" target="_blank">
                     Listed on Pacific Discovery Network
                   </a>
                 </div>

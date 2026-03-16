@@ -98,8 +98,8 @@ export function getReferralLink(businessHandle) {
     return '';
   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pacificmarket.co.nz';
-  return `${baseUrl}/register/${businessHandle}`;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pacificdiscoverynetwork.com';
+  return `${baseUrl}/PacificBusinesses`;
 }
 
 /**

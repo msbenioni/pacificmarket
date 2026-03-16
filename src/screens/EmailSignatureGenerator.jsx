@@ -340,7 +340,7 @@ function generateSignatureHTML(signature) {
           PACIFIC DISCOVERY NETWORK VERIFIED
         </span>
         <div style="margin-top:6px; font-size:10px; color:#64748b;">
-          Listed on <a href="https://www.pacificmarket.co.nz" target="_blank" style="color:#64748b; text-decoration:none;">Pacific Discovery Network</a>
+          Listed on <a href="https://pacificdiscoverynetwork.com" target="_blank" style="color:#64748b; text-decoration:none;">Pacific Discovery Network</a>
         </div>
       </div>
     `

@@ -144,7 +144,7 @@ export default function NotificationSettings() {
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
                 className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10"
-                placeholder="admin@pacificmarket.com"
+                placeholder="admin@pacificdiscoverynetwork.com"
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">

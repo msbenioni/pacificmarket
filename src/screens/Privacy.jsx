@@ -179,7 +179,7 @@ export default function Privacy() {
                 You can contact our DPO directly for data protection concerns:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
-                <li>Email: dpo@pacificmarket.com</li>
+                <li>Email: support@pacificdiscoverynetwork.com</li>
                 <li>Response time: Within 30 days for GDPR requests</li>
                 <li>Responsibilities: Overseeing compliance, handling requests, advising on data protection</li>
               </ul>

@@ -1,7 +1,7 @@
 # Stripe Integration Setup Guide
 
 ## Overview
-Pacific Market now has full Stripe checkout integration for subscription upgrades. Users can upgrade to "Mana" ($4.99/month) or "Moana" ($29.00/month) tiers directly from the pricing page or business portal.
+Pacific Discovery Network now has full Stripe checkout integration for subscription upgrades. Users can upgrade to "Mana" ($4.99/month) or "Moana" ($29.00/month) tiers directly from the pricing page or business portal.
 
 ## Environment Variables
 
@@ -21,7 +21,7 @@ STRIPE_PRICE_ID_MOANA_AUD=price_...  # $29.00 AUD/month Moana tier
 STRIPE_PRICE_ID_MOANA_USD=price_...  # $29.00 USD/month Moana tier
 
 # Existing URLs
-NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
+NEXT_PUBLIC_APP_PROD_URL=https://pacificdiscoverynetwork.com
 ```
 
 ## Stripe Dashboard Setup
@@ -32,13 +32,13 @@ NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
 2. Create two products:
 
 #### Mana Product
-- **Name**: "Pacific Market Mana"
+- **Name**: "Pacific Discovery Network Mana"
 - **Description**: "Verified business tier with logo, banner, and enhanced profile"
 - **Price**: $4.99 NZD/month
 - **Recurring**: Monthly
 
 #### Moana Product  
-- **Name**: "Pacific Market Moana"
+- **Name**: "Pacific Discovery Network Moana"
 - **Description**: "Premium tier with all features plus business tools"
 - **Price**: $29.00 NZD/month
 - **Recurring**: Monthly
@@ -54,10 +54,10 @@ Add these to your environment variables as `STRIPE_PRICE_MANA` and `STRIPE_PRICE
 ### 3. Configure Webhooks (Optional but Recommended)
 
 #### For Netlify Deployment:
-Create a webhook endpoint at: `https://your-domain.netlify.app/.netlify/functions/stripe-webhook`
+Create a webhook endpoint at: `https://pacificdiscoverynetwork.com/.netlify/functions/stripe-webhook`
 
 #### For Vercel/Next.js Deployment:
-Create a webhook endpoint at: `https://your-domain.com/api/stripe/webhook`
+Create a webhook endpoint at: `https://pacificdiscoverynetwork.com/api/stripe/webhook`
 
 #### Events to listen for:
 - `customer.subscription.created`
@@ -153,4 +153,4 @@ Add console logging to `/api/stripe/checkout/route.js` to debug issues.
 For Stripe-specific issues:
 - Stripe Dashboard: https://dashboard.stripe.com
 - Stripe Documentation: https://stripe.com/docs
-- Pacific Market Code: Check the implemented files above
+- Pacific Discovery Network Code: Check the implemented files above

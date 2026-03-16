@@ -1,7 +1,18 @@
-import { Resend } from 'resend';
 import { requireAdmin } from '@/lib/server-auth';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create SMTP transporter using Google Workspace
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
 export async function GET(request) {
   try {
@@ -67,23 +78,23 @@ export async function POST(request) {
     }
 
     if (testEmail) {
-      // Send test email using service client (requires elevated access for email sending)
+      // Send test email using SMTP
       try {
-        const { data, error } = await resend.emails.send({
-          from: 'Pacific Discovery Network <hello@pacificmarket.co.nz>',
+        const transporter = createTransporter();
+        
+        const mailOptions = {
+          from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
           to: testEmail,
           subject: `[TEST] ${subject}`,
           html: html_content
-        });
+        };
 
-        if (error) {
-          return Response.json({ error: 'Failed to send test email' }, { status: 500 });
-        }
+        const info = await transporter.sendMail(mailOptions);
 
         return Response.json({ 
           success: true, 
           message: 'Test email sent successfully',
-          data 
+          data: { messageId: info.messageId }
         });
 
       } catch (error) {

@@ -1,4 +1,4 @@
-# 🚀 Pacific Market Setup Guide
+# 🚀 Pacific Discovery Network Setup Guide
 
 ## 📋 **Prerequisites**
 
@@ -6,7 +6,7 @@
 - Git installed
 - Supabase account and project
 - Stripe account (for payments)
-- Resend account (for emails)
+- Google Workspace account (for emails)
 
 ## 🛠 **Local Development Setup**
 
@@ -26,7 +26,7 @@ Create `.env.local` file with:
 
 ```env
 # App URLs
-NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
+NEXT_PUBLIC_APP_PROD_URL=https://pacificdiscoverynetwork.com
 
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -49,9 +49,14 @@ STRIPE_PRICE_ID_MOANA_NZD=price_...
 STRIPE_PRICE_ID_MOANA_AUD=price_...
 STRIPE_PRICE_ID_MOANA_USD=price_...
 
-# Email (Resend)
-RESEND_API_KEY=re_...
-RESEND_FROM_EMAIL=admin@pacificmarket.co.nz
+# Email (Google Workspace SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-main-account@pacificdiscoverynetwork.com
+SMTP_PASS=your-generated-app-password
+SMTP_FROM_NAME=Pacific Discovery Network
+SMTP_FROM_EMAIL=hello@pacificdiscoverynetwork.com
 ```
 
 ### **4. Run Development Server**
@@ -68,13 +73,13 @@ Visit `http://localhost:3000`
 In Stripe Dashboard → Products:
 
 #### **Mana Product**
-- **Name**: "Pacific Market Mana"
+- **Name**: "Pacific Discovery Network Mana"
 - **Description**: "Verified business tier with logo, banner, and enhanced profile"
 - **Price**: $4.99 NZD/month (and AUD/USD equivalents)
 - **Recurring**: Monthly
 
 #### **Moana Product**
-- **Name**: "Pacific Market Moana"
+- **Name**: "Pacific Discovery Network Moana"
 - **Description**: "Premium tier with all features plus business tools"
 - **Price**: $29.00 NZD/month (and AUD/USD equivalents)
 - **Recurring**: Monthly
@@ -95,8 +100,8 @@ Create webhook endpoint: `http://localhost:3000/api/stripe/webhook`
 
 ### **1. Authentication Settings**
 In Supabase Dashboard → Authentication → Settings:
-- **Site URL**: `http://localhost:3000` (development) or `https://pacificmarket.co.nz` (production)
-- **Redirect URLs**: `http://localhost:3000/*` (development) or `https://pacificmarket.co.nz/*` (production)
+- **Site URL**: `http://localhost:3000` (development) or `https://pacificdiscoverynetwork.com` (production)
+- **Redirect URLs**: `http://localhost:3000/*` (development) or `https://pacificdiscoverynetwork.com/*` (production)
 
 ### **2. Database Tables**
 Core tables are automatically created. Key tables:
@@ -110,15 +115,33 @@ Create public storage bucket named `public` for business logos and files.
 
 ---
 
-## 📧 **Email Setup (Resend)**
+## 📧 **Email Setup (Google Workspace)**
 
-### **1. Verify Domain**
-- Add `pacificmarket.co.nz` to your Resend account
-- Verify DNS records (TXT, MX, CNAME)
+### **1. Google Workspace Configuration**
+- Ensure `pacificdiscoverynetwork.com` is configured in Google Workspace
+- Set up email aliases: `hello@`, `admin@`, `support@`, `contact@`
+- Enable 2-Step Verification for app password generation
 
-### **2. Configure From Email**
-- Use `admin@pacificmarket.co.nz` as verified sender
-- Update `RESEND_FROM_EMAIL` in environment variables
+### **2. SMTP Configuration**
+- Generate Google App Password for SMTP authentication
+- Configure SMTP settings in Supabase Dashboard:
+  - **SMTP Host**: `smtp.gmail.com`
+  - **SMTP Port**: `587`
+  - **SMTP User**: Your main Google Workspace account
+  - **SMTP Password**: Generated app password
+  - **SMTP Sender Email**: `hello@pacificdiscoverynetwork.com`
+
+### **3. Environment Variables**
+```bash
+# Google Workspace SMTP
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-main-account@pacificdiscoverynetwork.com
+SMTP_PASS=your-generated-app-password
+SMTP_FROM_NAME=Pacific Discovery Network
+SMTP_FROM_EMAIL=hello@pacificdiscoverynetwork.com
+```
 
 ---
 
@@ -132,13 +155,13 @@ Create public storage bucket named `public` for business logos and files.
 3. Add environment variables (use production values)
 
 ### **2. Update Production URLs**
-- **Supabase Dashboard**: Update Site URL to `https://pacificmarket.co.nz`
-- **Stripe Webhooks**: Update endpoint to `https://pacificmarket.co.nz/.netlify/functions/stripe-webhook`
+- **Supabase Dashboard**: Update Site URL to `https://pacificdiscoverynetwork.com`
+- **Stripe Webhooks**: Update endpoint to `https://pacificdiscoverynetwork.com/.netlify/functions/stripe-webhook`
 
 ### **3. DNS Configuration**
 Point domain to Netlify:
 ```
-A record: pacificmarket.co.nz → Netlify IP
+A record: pacificdiscoverynetwork.com → Netlify IP
 CNAME: www → netlify.net
 ```
 
@@ -189,7 +212,7 @@ npm run build
 - **Main Documentation**: [DOCUMENTATION.md](./DOCUMENTATION.md)
 - **Stripe Dashboard**: https://dashboard.stripe.com
 - **Supabase Dashboard**: https://app.supabase.com
-- **Resend Dashboard**: https://resend.com
+- **Google Workspace**: https://workspace.google.com
 - **Netlify Dashboard**: https://app.netlify.com
 
 ---
@@ -204,7 +227,7 @@ STRIPE_SECRET_KEY=sk_test_...
 
 ### **Production (Netlify Environment Variables)**
 ```env
-NEXT_PUBLIC_APP_PROD_URL=https://pacificmarket.co.nz
+NEXT_PUBLIC_APP_PROD_URL=https://pacificdiscoverynetwork.com
 STRIPE_SECRET_KEY=sk_live_...
 ```
 

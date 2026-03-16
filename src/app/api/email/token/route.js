@@ -44,7 +44,7 @@ export async function POST(request) {
       success: true,
       token: data.token,
       expires_at: data.expires_at,
-      unsubscribe_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pacificmarket.co.nz'}/unsubscribe?token=${data.token}`
+      unsubscribe_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pacificdiscoverynetwork.com'}/unsubscribe?token=${data.token}`
     });
 
   } catch (error) {

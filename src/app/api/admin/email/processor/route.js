@@ -1,10 +1,22 @@
 import { createServiceClient } from '@/lib/server-auth';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { extractTemplateVariables, BACKGROUND_BATCH_SIZE, BACKGROUND_BATCH_DELAY, EMAIL_SEND_DELAY } from '@/constants/emailConstants';
 import { buildAudienceRecipients } from '@/lib/email/getAudienceRecipients';
 
 const serviceClient = createServiceClient();
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Create SMTP transporter using Google Workspace
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
 // Background email processor - designed to be run by cron job
 export async function POST(request) {
@@ -162,8 +174,8 @@ export async function POST(request) {
                 first_name: recipient.first_name || 'Business Owner',
                 email: recipient.email,
                 referral_link: recipient.business_handle 
-                  ? `https://www.pacificmarket.co.nz/register/${recipient.business_handle}`
-                  : 'https://www.pacificmarket.co.nz'
+                  ? `https://pacificdiscoverynetwork.com/PacificBusinesses`
+                  : 'https://pacificdiscoverynetwork.com/PacificBusinesses'
               };
 
               // Personalize email content dynamically
@@ -174,17 +186,21 @@ export async function POST(request) {
                 personalizedHtml = personalizedHtml.replace(regex, value);
               }
 
-              // Send email using Resend
-              const resendResponse = await resend.emails.send({
-                from: 'Pacific Discovery Network <team@pacificmarket.co.nz>',
+              // Send email using SMTP
+              const transporter = createTransporter();
+              
+              const mailOptions = {
+                from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
                 to: recipient.email,
                 subject: campaign.subject,
                 html: personalizedHtml
-              });
+              };
 
-              // Validate Resend response before treating as success
-              if (!resendResponse || resendResponse.error) {
-                throw new Error(`Resend API error: ${resendResponse?.error?.message || 'Unknown error'}`);
+              const smtpResponse = await transporter.sendMail(mailOptions);
+
+              // Validate SMTP response before treating as success
+              if (!smtpResponse || !smtpResponse.messageId) {
+                throw new Error(`SMTP error: Failed to send email to ${recipient.email}`);
               }
 
               // Update recipient status with provider ID
@@ -195,7 +211,7 @@ export async function POST(request) {
                   .update({
                     status: 'sent',
                     sent_at: new Date().toISOString(),
-                    provider_message_id: resendResponse.data?.id
+                    provider_message_id: smtpResponse.messageId
                   })
                   .eq('id', recipientRecord.id);
 

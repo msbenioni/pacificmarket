@@ -136,8 +136,8 @@ export default function Contact() {
                 <p className="text-sm text-gray-600 mb-3">
                   For general inquiries, partnerships, or research requests
                 </p>
-                <a href="mailto:contact@pacificmarket.com" className="text-sm font-semibold text-[#0d4f4f] hover:underline">
-                  contact@pacificmarket.com
+                <a href="mailto:contact@pacificdiscoverynetwork.com" className="text-sm font-semibold text-[#0d4f4f] hover:underline">
+                  contact@pacificdiscoverynetwork.com
                 </a>
               </div>
 
