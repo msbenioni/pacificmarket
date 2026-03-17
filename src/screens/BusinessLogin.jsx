@@ -114,7 +114,7 @@ export default function BusinessLogin() {
               gdpr_consent_date: new Date().toISOString(),
               referral_code: referralCode // Store referral code for later use
             },
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_PROD_URL}/BusinessLogin`
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_PROD_URL}/BusinessPortal`
           }
         });
       }
@@ -122,13 +122,13 @@ export default function BusinessLogin() {
       if (result.error) {
         // Handle specific auth errors
         if (result.error.message?.includes("User already registered")) {
-          throw new Error("This email is already registered. <a href=\"/BusinessLogin\" class=\"text-[#0d4f4f] hover:underline font-medium\">Sign in here</a> instead.");
+          throw new Error("This email is already registered. Please sign in instead.");
         }
         if (result.error.message?.includes("user_already_registered")) {
-          throw new Error("This email is already registered. <a href=\"/BusinessLogin\" class=\"text-[#0d4f4f] hover:underline font-medium\">Sign in here</a> instead.");
+          throw new Error("This email is already registered. Please sign in instead.");
         }
         if (result.error.message?.includes("duplicate")) {
-          throw new Error("This email is already registered. <a href=\"/BusinessLogin\" class=\"text-[#0d4f4f] hover:underline font-medium\">Sign in here</a> instead.");
+          throw new Error("This email is already registered. Please sign in instead.");
         }
         throw result.error;
       }
@@ -147,6 +147,12 @@ export default function BusinessLogin() {
           router.push(createPageUrl("BusinessPortal"));
         }
       } else {
+        // Check if this was a duplicate email (Supabase doesn't error but doesn't send email)
+        if (result.data?.user && !result.data?.user?.identities?.length) {
+          // User exists but no identities means duplicate email
+          throw new Error("This email is already registered. Please sign in instead.");
+        }
+        
         // After successful signup, just show success message
         setSuccess("✅ Account created! Please check your email for a confirmation link. After confirming, sign in to access your Business Portal where you can claim existing businesses or submit new listings.");
         // Switch to signin mode after successful signup

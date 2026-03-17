@@ -24,11 +24,19 @@ export default function Layout({ children, currentPageName }) {
         } = await supabase.auth.getUser();
 
         if (user) {
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("role, display_name")
-            .eq("id", user.id)
-            .single();
+          // Try to get profile data, but don't fail if it doesn't exist
+          let profileData = null;
+          try {
+            const { data } = await supabase
+              .from("profiles")
+              .select("role, display_name")
+              .eq("id", user.id)
+              .single();
+            profileData = data;
+          } catch (profileError) {
+            // Profile doesn't exist yet for new users - that's okay
+            console.log("Profile not found for new user:", user.id);
+          }
 
           const enhancedUser = {
             ...user,
@@ -36,7 +44,9 @@ export default function Layout({ children, currentPageName }) {
             display_name:
               profileData?.display_name ||
               user.user_metadata?.display_name ||
-              user.user_metadata?.full_name,
+              user.user_metadata?.full_name ||
+              user.email?.split('@')[0] || // Fallback to email username
+              "User",
           };
 
           setUser(enhancedUser);
