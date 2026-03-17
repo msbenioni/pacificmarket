@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Building2 } from "lucide-react";
 import { shouldShowUpgradePrompt } from "@/utils/businessHelpers";
+import { createPageUrl } from "@/utils";
 import BusinessCard from "./BusinessCard";
 import AddBusinessCard from "./AddBusinessCard";
 import EmptyState from "./EmptyState";
@@ -61,6 +62,10 @@ export default function BusinessesTab({
 
   const handleEmptyStateAction = (action) => {
     switch (action) {
+      case "completeProfile":
+        // Navigate to profile settings
+        window.location.href = createPageUrl("ProfileSettings");
+        break;
       case "claim":
         onClaimAddAction("claim");
         break;
@@ -147,6 +152,7 @@ export default function BusinessesTab({
               onCancel={handleAddBusinessCancel}
               saving={savingEdit}
               onboardingStatus={onboardingStatus}
+              onUpgrade={onUpgradeClick}
             />
           )}
           
@@ -164,6 +170,7 @@ export default function BusinessesTab({
               onSave={(data) => handleBusinessCardAction("save", business.id, data)}
               onDelete={() => handleBusinessCardAction("delete", business.id)}
               onInsightsSubmit={(data) => handleBusinessCardAction("insightsSubmit", business.id, data)}
+              onUpgrade={onUpgradeClick}
             />
           ))}
         </div>

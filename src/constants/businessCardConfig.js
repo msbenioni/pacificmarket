@@ -68,6 +68,12 @@ export const EMPTY_STATE_CONFIG = {
     description: "Your profile helps confirm ownership details before you manage business listings.",
     actions: [
       {
+        key: "completeProfile",
+        label: "Complete Profile",
+        icon: Users,
+        variant: "primary",
+      },
+      {
         key: "claim",
         label: "Claim Business",
         icon: Search,
