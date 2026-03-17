@@ -50,8 +50,27 @@ export function OptionCard({ checked, onChange, label, type = "checkbox" }) {
 }
 
 // Form Section Component
-export function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, children, onSaveSection, saving, formData, errors, mode = "edit" }) {
+export function FormSection({ 
+  title, 
+  subtitle, 
+  icon: Icon, 
+  isOpen, 
+  onToggle, 
+  children, 
+  onSaveSection, 
+  saving, 
+  formData, 
+  errors, 
+  mode = "edit",
+  tierInfo = null,
+  onUpgrade = null,
+  sectionKey = null
+}) {
   const showSaveButton = mode === "edit"; // Only show save button in edit mode
+  
+  // Check if this section should show tier info (only brand/media section)
+  const shouldShowTierInfo = sectionKey === "brand" && tierInfo && mode === "edit";
+  const isVakaTier = tierInfo?.label?.toLowerCase().includes('vaka');
   
   return (
     <div className="rounded-xl border border-slate-300 bg-white shadow-sm transition-all hover:shadow-md">
@@ -76,12 +95,35 @@ export function FormSection({ title, subtitle, icon: Icon, isOpen, onToggle, chi
             </div>
           </div>
 
-          <div className="mt-0.5 flex-shrink-0 text-slate-400">
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
-            ) : (
-              <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
+          <div className="flex items-center gap-2 mt-0.5">
+            {shouldShowTierInfo && (
+              <>
+                {isVakaTier && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                    Vaka Plan
+                  </span>
+                )}
+                {onUpgrade && isVakaTier && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpgrade();
+                    }}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+                  >
+                    Upgrade
+                  </button>
+                )}
+              </>
             )}
+            <div className="flex-shrink-0 text-slate-400">
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
+              ) : (
+                <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
+              )}
+            </div>
           </div>
         </button>
       </div>

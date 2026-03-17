@@ -152,7 +152,6 @@ export default function BusinessesTab({
               onCancel={handleAddBusinessCancel}
               saving={savingEdit}
               onboardingStatus={onboardingStatus}
-              onUpgrade={onUpgradeClick}
             />
           )}
           

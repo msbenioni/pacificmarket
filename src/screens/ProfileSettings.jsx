@@ -490,6 +490,13 @@ export default function ProfileSettings() {
     }
   };
 
+  const isProfileComplete = !!(
+    city &&
+    country &&
+    primaryCultural.length > 0 &&
+    languages.length > 0
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
@@ -527,7 +534,17 @@ export default function ProfileSettings() {
         title={`Welcome back, ${user?.user_metadata?.full_name?.split(" ")[0] || user?.user_metadata?.display_name?.split(" ")[0] || "User"}`}
         subtitle={user?.email}
         description="Manage your account information, profile foundation, and security settings"
-        actions={null}
+        actions={
+          isProfileComplete ? (
+            <Link
+              href={createPageUrl("BusinessPortal")}
+              className="inline-flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Business Portal
+            </Link>
+          ) : null
+        }
         compact
       />
 

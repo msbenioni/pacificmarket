@@ -13,7 +13,7 @@ export default function BrandMediaSection({
   inputCls, 
   labelCls,
   subscriptionTier = SUBSCRIPTION_TIER.VAKA,
-  onUpgrade
+  mode = "create"
 }) {
   const canUploadImages = subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
   return (
@@ -36,14 +36,8 @@ export default function BrandMediaSection({
 
       {/* Logo Upload */}
       <div>
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2">
           <label className={labelCls}>Business Logo</label>
-          {!canUploadImages && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-              <Lock className="h-3 w-3" />
-              Vaka Plan
-            </span>
-          )}
         </div>
         <div className="mt-2 space-y-3">
           {form.logo_url ? (
@@ -90,30 +84,6 @@ export default function BrandMediaSection({
                   : 'Professional logo will be auto-generated from your business name'
                 }
               </p>
-              {!canUploadImages && (
-                <div className="mt-2 rounded-lg bg-amber-50 border border-amber-200 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <p className="text-xs text-amber-800 font-medium">
-                        <strong>Upgrade to unlock custom branding</strong>
-                      </p>
-                      <p className="text-xs text-amber-700 mt-1">
-                        Upload your own logo and banners with Mana or Moana plans
-                      </p>
-                    </div>
-                    {onUpgrade && (
-                      <button
-                        type="button"
-                        onClick={onUpgrade}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
-                      >
-                        <Crown className="h-3 w-3" />
-                        Upgrade
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -123,14 +93,8 @@ export default function BrandMediaSection({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Desktop Banner Upload */}
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2">
             <label className={labelCls}>Desktop Banner (Business Registry)</label>
-            {!canUploadImages && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                <Lock className="h-3 w-3" />
-                Vaka Plan
-              </span>
-            )}
           </div>
           <div className="mt-2 space-y-3">
             {form.banner_url ? (
@@ -184,14 +148,8 @@ export default function BrandMediaSection({
 
         {/* Mobile Banner Upload */}
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2">
             <label className={labelCls}>Mobile Banner (Business Cards & Homepage)</label>
-            {!canUploadImages && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                <Lock className="h-3 w-3" />
-                Vaka Plan
-              </span>
-            )}
           </div>
           <div className="mt-2 space-y-3">
             {form.mobile_banner_url ? (

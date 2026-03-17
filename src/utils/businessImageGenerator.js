@@ -32,9 +32,9 @@ export const generateBusinessLogo = (businessName) => {
     <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
       <rect width="200" height="200" fill="${bgColor}" rx="20"/>
       <text x="100" y="100" 
-            font-family="Arial, sans-serif" 
-            font-size="48" 
-            font-weight="bold" 
+            font-family="League Spartan, Arial Black, sans-serif" 
+            font-size="52" 
+            font-weight="700" 
             fill="${textColor}" 
             text-anchor="middle" 
             dominant-baseline="middle">
@@ -81,24 +81,13 @@ export const generateBusinessBanner = (businessName) => {
       
       <!-- Business name -->
       <text x="600" y="200" 
-            font-family="Arial, sans-serif" 
-            font-size="48" 
-            font-weight="300" 
+            font-family="League Spartan, Arial Black, sans-serif" 
+            font-size="56" 
+            font-weight="700" 
             fill="white" 
             text-anchor="middle" 
             dominant-baseline="middle">
         ${businessName}
-      </text>
-      
-      <!-- Subtitle -->
-      <text x="600" y="250" 
-            font-family="Arial, sans-serif" 
-            font-size="24" 
-            fill="white" 
-            opacity="0.8"
-            text-anchor="middle" 
-            dominant-baseline="middle">
-        Pacific Discovery Network
       </text>
     </svg>
   `;
@@ -141,24 +130,13 @@ export const generateMobileBanner = (businessName) => {
       
       <!-- Business name (truncated if too long) -->
       <text x="200" y="80" 
-            font-family="Arial, sans-serif" 
-            font-size="24" 
-            font-weight="bold" 
+            font-family="League Spartan, Arial Black, sans-serif" 
+            font-size="28" 
+            font-weight="700" 
             fill="white" 
             text-anchor="middle" 
             dominant-baseline="middle">
         ${businessName.length > 20 ? businessName.substring(0, 20) + '...' : businessName}
-      </text>
-      
-      <!-- Tagline -->
-      <text x="200" y="120" 
-            font-family="Arial, sans-serif" 
-            font-size="14" 
-            fill="white" 
-            opacity="0.8"
-            text-anchor="middle" 
-            dominant-baseline="middle">
-        Discover • Connect • Grow
       </text>
     </svg>
   `;
@@ -168,21 +146,87 @@ export const generateMobileBanner = (businessName) => {
   return URL.createObjectURL(svgBlob);
 };
 
-// Convert SVG data URL to File object for upload
-export const svgDataUrlToFile = (dataUrl, filename, type = 'logo') => {
-  return new Promise((resolve) => {
-    // Extract base64 data from data URL
-    const base64Data = dataUrl.replace(/^data:image\/svg\+xml;base64,/, '');
+// Convert SVG blob URL to File object for upload (convert to PNG for storage compatibility)
+export const svgDataUrlToFile = async (dataUrl, filename, type = 'logo') => {
+  try {
+    // Handle blob URLs (from URL.createObjectURL)
+    if (dataUrl.startsWith('blob:')) {
+      // Fetch the SVG blob
+      const response = await fetch(dataUrl);
+      const svgBlob = await response.blob();
+      
+      // Convert SVG to PNG using canvas
+      const pngBlob = await svgToPng(svgBlob, type);
+      
+      const extension = 'png';
+      return new File([pngBlob], `${filename}.${extension}`, { type: 'image/png' });
+    }
     
-    // Convert base64 to blob
-    const byteCharacters = atob(base64Data);
-    const byteNumbers = Array.from({ length: byteCharacters.length }, (_, i) => byteCharacters.charCodeAt(i));
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'image/svg+xml' });
+    throw new Error('Expected blob URL, received unsupported format');
+  } catch (error) {
+    console.error('Error converting SVG blob URL to file:', error);
+    throw error;
+  }
+};
+
+// Convert SVG blob to PNG blob
+const svgToPng = async (svgBlob, type = 'logo') => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const svgText = e.target.result;
+        
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas dimensions based on type
+        if (type === 'logo') {
+          canvas.width = 400;
+          canvas.height = 400;
+        } else if (type === 'banner') {
+          canvas.width = 1200;
+          canvas.height = 400;
+        } else {
+          canvas.width = 800;
+          canvas.height = 600;
+        }
+        
+        // Create image from SVG
+        const img = new Image();
+        img.onload = () => {
+          // Draw white background
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // Draw SVG
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // Convert to PNG blob
+          canvas.toBlob((pngBlob) => {
+            resolve(pngBlob);
+          }, 'image/png');
+        };
+        
+        img.onerror = () => {
+          reject(new Error('Failed to load SVG for PNG conversion'));
+        };
+        
+        // Create blob URL from SVG text and load as image
+        const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        img.src = svgUrl;
+        
+      } catch (error) {
+        reject(error);
+      }
+    };
     
-    // Create file
-    const extension = type === 'logo' ? 'svg' : 'svg';
-    const file = new File([blob], `${filename}.${extension}`, { type: 'image/svg+xml' });
-    resolve(file);
+    reader.onerror = () => {
+      reject(new Error('Failed to read SVG blob'));
+    };
+    
+    reader.readAsText(svgBlob);
   });
 };

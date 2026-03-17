@@ -87,7 +87,7 @@ export default function BusinessProfileForm({
   mode = "create",
   showAdminFields = false,
   subscriptionTier = SUBSCRIPTION_TIER.VAKA,
-  onUpgrade
+  onUpgrade = null
 }) {
   // Unified form state combining both forms
   const [form, setForm] = useState({
@@ -367,7 +367,7 @@ export default function BusinessProfileForm({
             inputCls={inputCls}
             labelCls={labelCls}
             subscriptionTier={subscriptionTier}
-            onUpgrade={onUpgrade}
+            mode={mode}
           />
         );
       
@@ -434,6 +434,9 @@ export default function BusinessProfileForm({
               formData={form}
               errors={errors}
               mode={mode}
+              tierInfo={section.key === "brand" ? { label: subscriptionTier } : null}
+              onUpgrade={section.key === "brand" ? onUpgrade : null}
+              sectionKey={section.key}
             >
               {renderSectionContent(section.key)}
             </FormSection>
