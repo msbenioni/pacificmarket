@@ -408,7 +408,7 @@ function UploadCard({
               <button
                 type="button"
                 onClick={onRemove}
-                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white transition-colors hover:bg-red-600"
+                className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white transition-colors hover:bg-red-600 shadow-md"
               >
                 <X className="h-3 w-3" />
               </button>

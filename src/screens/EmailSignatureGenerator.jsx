@@ -576,10 +576,10 @@ export default function EmailSignatureGeneratorPage() {
         if (business && !isUserEditingRef.current) {
           setBusinessSignature((prev) => ({
             ...prev,
-            business_name: business?.name || "",
+            business_name: business?.business_name || "",
             logo_url: getLogoUrl(business) || "",
-            email: prev.email || business?.contact_email || "",
-            phone: prev.phone || business?.contact_phone || "",
+            email: prev.email || business?.business_email || "",
+            phone: prev.phone || business?.business_phone || "",
             website: prev.website || businessWebsite,
             address: prev.address || businessAddress,
           }));
@@ -593,7 +593,7 @@ export default function EmailSignatureGeneratorPage() {
             department: settings.default_department || prev.department,
             pronouns: settings.default_pronouns || prev.pronouns,
 
-            business_name: business?.name || prev.business_name,
+            business_name: business?.business_name || prev.business_name,
             logo_url: getLogoUrl(business) || prev.logo_url,
 
             email: settings.default_email || prev.email,
@@ -654,7 +654,7 @@ export default function EmailSignatureGeneratorPage() {
   const getBusinessSummary = () => {
     if (mode === "business") {
       const business = businesses.find((b) => b.id === selectedBusinessId);
-      return business?.name || "No business selected";
+      return business?.business_name || "No business selected";
     }
     return signature.business_name || "Custom signature";
   };
@@ -780,9 +780,9 @@ export default function EmailSignatureGeneratorPage() {
       const supabase = getSupabase();
 
       const businessUpdate = {
-        contact_email: signature.email || null,
-        contact_phone: signature.phone || null,
-        contact_website: signature.website || null,
+        business_email: signature.email || null,
+        business_phone: signature.phone || null,
+        business_website: signature.website || null,
         logo_url: signature.logo_url || null,
       };
 
@@ -1092,7 +1092,7 @@ export default function EmailSignatureGeneratorPage() {
                         <option value="">Choose a business...</option>
                         {businesses.map((business) => (
                           <option key={business.id} value={business.id}>
-                            {business.name}
+                            {business.business_name}
                           </option>
                         ))}
                       </select>

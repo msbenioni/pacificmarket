@@ -96,33 +96,24 @@ export function FormSection({
           </div>
 
           <div className="flex items-center gap-2 mt-0.5">
-            {shouldShowTierInfo && (
-              <>
-                {isVakaTier && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                    Vaka Plan
-                  </span>
-                )}
-                {onUpgrade && isVakaTier && (
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onUpgrade();
-                      }
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onUpgrade();
-                    }}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
-                  >
-                    Upgrade
-                  </div>
-                )}
-              </>
+            {shouldShowTierInfo && onUpgrade && isVakaTier && (
+              <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onUpgrade();
+                  }
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpgrade();
+                }}
+                className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+              >
+                Upgrade
+              </div>
             )}
             <div className="flex-shrink-0 text-slate-400">
               {isOpen ? (

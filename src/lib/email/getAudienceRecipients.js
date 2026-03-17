@@ -25,8 +25,8 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         const subscriberEmails = allSubscribers.map(s => s.email);
         const { data: subscriberProfiles } = await serviceClient
           .from('profiles')
-          .select('id, email')
-          .in('email', subscriberEmails);
+          .select('id, private_email')
+          .in('private_email', subscriberEmails);
         
         if (subscriberProfiles && subscriberProfiles.length > 0) {
           const profileIds = subscriberProfiles.map(p => p.id);
@@ -37,7 +37,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
           
           rawEmails = allSubscribers.map(subscriber => {
             const profile = subscriberProfiles?.find(p => 
-              p.email?.toLowerCase() === subscriber.email?.toLowerCase()
+              p.private_email?.toLowerCase() === subscriber.email?.toLowerCase()
             );
             const business = subscriberBusinesses?.find(b => b.owner_user_id === profile?.id);
             return {
@@ -63,8 +63,8 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
     case 'business_owners':
       const { data: businessOwners } = await serviceClient
         .from('profiles')
-        .select('id, email, display_name')
-        .in('role', ['business', 'admin']);
+        .select('id, private_email, display_name')
+        .in('role', ['owner', 'admin']);
       
       // Enrich with business handles
       if (businessOwners && businessOwners.length > 0) {
@@ -75,7 +75,7 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
           .in('owner_user_id', ownerIds);
         
         // Get subscriber data for business owners
-        const ownerEmails = businessOwners.map(o => o.email);
+        const ownerEmails = businessOwners.map(o => o.private_email);
         const { data: ownerSubscribers } = await serviceClient
           .from('email_subscribers')
           .select('id, email, first_name')
@@ -86,11 +86,11 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         
         rawEmails = businessOwners.map(owner => {
           const subscriber = ownerSubscribers?.find(s => 
-            s.email?.toLowerCase() === owner.email?.toLowerCase()
+            s.email?.toLowerCase() === owner.private_email?.toLowerCase()
           );
           const business = ownerBusinesses?.find(b => b.owner_user_id === owner.id);
           return {
-            email: owner.email,
+            email: owner.private_email,
             first_name: owner.display_name,
             business_handle: business?.business_handle,
             subscriber_id: subscriber?.id || null
@@ -109,11 +109,11 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         const manaOwnerIds = manaBusinesses.map(b => b.owner_user_id).filter(Boolean);
         const { data: manaOwners } = await serviceClient
           .from('profiles')
-          .select('id, email, display_name')
+          .select('id, private_email, display_name')
           .in('id', manaOwnerIds);
         
         // Get subscriber data for mana plan owners
-        const manaEmails = manaOwners?.map(o => o.email) || [];
+        const manaEmails = manaOwners?.map(o => o.private_email) || [];
         const { data: manaSubscribers } = await serviceClient
           .from('email_subscribers')
           .select('id, email, first_name')
@@ -125,10 +125,10 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         rawEmails = manaOwners?.map(owner => {
           const business = manaBusinesses.find(b => b.owner_user_id === owner.id);
           const subscriber = manaSubscribers?.find(s => 
-            s.email?.toLowerCase() === owner.email?.toLowerCase()
+            s.email?.toLowerCase() === owner.private_email?.toLowerCase()
           );
           return {
-            email: owner.email,
+            email: owner.private_email,
             first_name: owner.display_name,
             business_handle: business?.business_handle,
             subscriber_id: subscriber?.id || null
@@ -147,11 +147,11 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         const moanaOwnerIds = moanaBusinesses.map(b => b.owner_user_id).filter(Boolean);
         const { data: moanaOwners } = await serviceClient
           .from('profiles')
-          .select('id, email, display_name')
+          .select('id, private_email, display_name')
           .in('id', moanaOwnerIds);
         
         // Get subscriber data for moana plan owners
-        const moanaEmails = moanaOwners?.map(o => o.email) || [];
+        const moanaEmails = moanaOwners?.map(o => o.private_email) || [];
         const { data: moanaSubscribers } = await serviceClient
           .from('email_subscribers')
           .select('id, email, first_name')
@@ -163,10 +163,10 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         rawEmails = moanaOwners?.map(owner => {
           const business = moanaBusinesses.find(b => b.owner_user_id === owner.id);
           const subscriber = moanaSubscribers?.find(s => 
-            s.email?.toLowerCase() === owner.email?.toLowerCase()
+            s.email?.toLowerCase() === owner.private_email?.toLowerCase()
           );
           return {
-            email: owner.email,
+            email: owner.private_email,
             first_name: owner.display_name,
             business_handle: business?.business_handle,
             subscriber_id: subscriber?.id || null
@@ -192,11 +192,11 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
         if (referrerOwnerIds.length > 0) {
           const { data: referrerOwners } = await serviceClient
             .from('profiles')
-            .select('id, email, display_name')
+            .select('id, private_email, display_name')
             .in('id', referrerOwnerIds);
           
           // Get subscriber data for referrers
-          const referrerEmails = referrerOwners?.map(o => o.email) || [];
+          const referrerEmails = referrerOwners?.map(o => o.private_email) || [];
           const { data: referrerSubscribers } = await serviceClient
             .from('email_subscribers')
             .select('id, email, first_name')
@@ -208,10 +208,10 @@ export async function buildAudienceRecipients(campaign, serviceClient) {
           rawEmails = referrerOwners?.map(owner => {
             const business = referrerBusinesses?.find(b => b.owner_user_id === owner.id);
             const subscriber = referrerSubscribers?.find(s => 
-              s.email?.toLowerCase() === owner.email?.toLowerCase()
+              s.email?.toLowerCase() === owner.private_email?.toLowerCase()
             );
             return {
-              email: owner.email,
+              email: owner.private_email,
               first_name: owner.display_name,
               business_handle: business?.business_handle,
               subscriber_id: subscriber?.id || null

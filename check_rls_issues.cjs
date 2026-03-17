@@ -59,7 +59,7 @@ async function checkRLSIssues() {
     
     console.log(`Found ${pendingBusinesses.rows.length} pending businesses:`);
     pendingBusinesses.rows.forEach(business => {
-      console.log(`- ${business.name} (${business.id}) - Status: ${business.status}`);
+      console.log(`- ${business.business_name} (${business.id}) - Status: ${business.status}`);
       console.log(`  Created: ${business.created_date}`);
       console.log(`  Updated: ${business.updated_at}`);
       console.log('');
@@ -72,7 +72,7 @@ async function checkRLSIssues() {
         cr.id as claim_id,
         cr.status as claim_status,
         cr.business_id,
-        b.name as business_name,
+        business.business_name as business_name,
         b.status as business_status,
         cr.created_at as claim_created,
         cr.reviewed_at as claim_reviewed
@@ -100,7 +100,7 @@ async function checkRLSIssues() {
       console.log('🧪 Testing direct status update...');
       
       const originalStatus = testBusiness.status;
-      console.log(`Testing business: ${testBusiness.name} (${testBusiness.id})`);
+      console.log(`Testing business: ${testbusiness.business_name} (${testBusiness.id})`);
       
       // Test update
       const updateTest = await client.query(`

@@ -157,7 +157,7 @@ export default function BusinessCard({
               <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <img
                   src={getLogoUrl(business)}
-                  alt={`${business.name} logo`}
+                  alt={`${business.business_name} logo`}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -165,7 +165,7 @@ export default function BusinessCard({
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="truncate text-lg sm:text-xl font-semibold text-[#0a1628]">
-                    {business.name}
+                    {business.business_name}
                   </h3>
 
                   {business.is_verified && (
@@ -236,7 +236,7 @@ export default function BusinessCard({
           {openMainStep && (
             <div className="space-y-4">
               <BusinessProfileForm
-                title={`Edit ${business.name}`}
+                title={`Edit ${business.business_name}`}
                 businessId={business.id}
                 initialData={draftBusiness || business}
                 onSave={onSave}

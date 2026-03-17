@@ -47,7 +47,7 @@ export function BusinessAvatar({
   const avatarContent = (
     <img
       src={getLogoUrl(business)}
-      alt={`${business.name} logo`}
+      alt={`${business.business_name} logo`}
       className={`w-full h-full object-cover ${isPremium ? 'ring-2 ring-[#c9a84c]/20' : ''}`}
     />
   );

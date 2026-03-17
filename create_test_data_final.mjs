@@ -32,7 +32,7 @@ async function createTestData() {
     if (businessError) {
       console.error('Error creating business:', businessError);
     } else {
-      console.log(`✓ Created pending business: ${newBusiness.name} (ID: ${newBusiness.id})`);
+      console.log(`✓ Created pending business: ${newbusiness.business_name} (ID: ${newBusiness.id})`);
     }
     
     // 2. Create a test claim request on an existing business
@@ -73,7 +73,7 @@ async function createTestData() {
     if (claimError) {
       console.error('Error creating claim:', claimError);
     } else {
-      console.log(`✓ Created claim request: ${newClaim.id} for business ${existingBusiness.name}`);
+      console.log(`✓ Created claim request: ${newClaim.id} for business ${existingbusiness.business_name}`);
     }
     
     // 3. Verify the data was created
@@ -89,7 +89,7 @@ async function createTestData() {
     } else {
       console.log(`Pending businesses: ${pendingBusinesses?.length || 0}`);
       pendingBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (${b.id})`);
+        console.log(`- ${business.business_name} (${b.id})`);
       });
     }
     

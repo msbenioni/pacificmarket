@@ -121,10 +121,10 @@ export default function ReferralRegister() {
         <HeroStandard
           badge="Referral Invitation"
           title="Join Pacific Discovery Network"
-          subtitle={referrerBusiness ? `You've been invited by ${referrerBusiness.name}` : "Create Your Account"}
+          subtitle={referrerBusiness ? `You've been invited by ${referrerbusiness.business_name}` : "Create Your Account"}
           description={
             referrerBusiness 
-              ? `${referrerBusiness.name} has invited you to join Pacific Discovery Network. After signing up, you'll be able to claim existing businesses or submit new listings.`
+              ? `${referrerbusiness.business_name} has invited you to join Pacific Discovery Network. After signing up, you'll be able to claim existing businesses or submit new listings.`
               : "Join Pacific Discovery Network. After email confirmation, you'll be able to claim existing businesses or submit new listings."
           }
         />
@@ -140,7 +140,7 @@ export default function ReferralRegister() {
                 <div>
                   <h3 className="text-lg font-bold text-[#0a1628]">You've been invited!</h3>
                   <p className="text-sm text-gray-600">
-                    {referrerBusiness.name} from {referrerBusiness.city}, {referrerBusiness.country} referred you to join Pacific Discovery Network.
+                    {referrerbusiness.business_name} from {referrerBusiness.city}, {referrerBusiness.country} referred you to join Pacific Discovery Network.
                   </p>
                 </div>
               </div>

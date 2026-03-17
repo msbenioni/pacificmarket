@@ -8,24 +8,31 @@ import type { Business, BusinessUpdate, BusinessCreate } from '../../../types/bu
 // Explicit field selection for performance and consistency
 const BUSINESS_PUBLIC_FIELDS = `
   id,
-  name,
+  business_name,
   description,
   tagline,
   business_handle,
+  role,
   logo_url,
   banner_url,
   mobile_banner_url,
-  contact_email,
-  contact_phone,
-  contact_website,
+  business_contact_person,
+  business_email,
+  business_phone,
+  business_website,
   business_hours,
   country,
   industry,
   city,
+  address,
+  suburb,
+  state_region,
+  postal_code,
   year_started,
+  business_stage,
   business_structure,
   team_size_band,
-  business_registered,
+  is_business_registered,
   status,
   is_verified,
   is_claimed,
@@ -48,7 +55,7 @@ const BUSINESS_PUBLIC_FIELDS = `
   mentorship_offering,
   open_to_future_contact,
   business_acquisition_interest,
-  business_stage
+  social_links
 `;
 
 /**
@@ -56,7 +63,7 @@ const BUSINESS_PUBLIC_FIELDS = `
  */
 export async function getPublicBusinesses(options: {
   limit?: number;
-  orderBy?: 'created_at' | 'updated_at' | 'name';
+  orderBy?: 'created_at' | 'updated_at' | 'business_name';
   orderDirection?: 'asc' | 'desc';
 } = {}) {
   // Import getSupabase dynamically

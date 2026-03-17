@@ -18,7 +18,7 @@ async function createTestData() {
       return;
     }
     
-    console.log(`Using business: ${recentBusiness.name} (ID: ${recentBusiness.id})`);
+    console.log(`Using business: ${recentbusiness.business_name} (ID: ${recentBusiness.id})`);
     
     // Update the most recent business to pending status
     const { error: updateError } = await supabase
@@ -29,7 +29,7 @@ async function createTestData() {
     if (updateError) {
       console.error('Error updating business status:', updateError);
     } else {
-      console.log(`✓ Updated ${recentBusiness.name} to pending status`);
+      console.log(`✓ Updated ${recentbusiness.business_name} to pending status`);
     }
     
     // Create a test claim

@@ -29,42 +29,44 @@ export function sanitizeBusinessPayload(formData) {
   } = formData;
 
   const allowedFields = [
-    "name",
+    "business_name",
     "business_handle",
     "tagline",
     "description",
-    "contact_email",
-    "contact_phone",
-    "contact_website",
+    "business_email",
+    "business_phone",
+    "business_website",
     "business_hours",
+    "address",
+    "suburb",
+    "city",
+    "state_region",
+    "postal_code",
     "country",
     "industry",
-    "city",
     "year_started",
+    "business_stage",
     "business_structure",
     "team_size_band",
-    "business_registered",
-    "status",
-    "is_verified",
-    "is_claimed",
-    "is_homepage_featured",
-    "logo_url",
-    "banner_url",
-    "mobile_banner_url",
-    "business_owner",
-    "business_owner_email",
-    "additional_owner_emails",
-    // Business insights fields (now in businesses table)
-    "business_stage",
-    "business_registered",
-    // Founder insights fields (now in businesses table)
+    "is_business_registered",
     "founder_story",
     "age_range",
     "gender",
     "collaboration_interest",
     "mentorship_offering",
     "open_to_future_contact",
-    "business_acquisition_interest"
+    "business_acquisition_interest",
+    "social_links",
+    "role",
+    "business_contact_person",
+    "logo_url",
+    "banner_url",
+    "mobile_banner_url",
+    "subscription_tier",
+    "status",
+    "is_verified",
+    "is_claimed",
+    "is_homepage_featured"
   ];
 
   const payload = {};
@@ -108,10 +110,10 @@ export function validateBusinessData(data) {
     errors.business_handle = "Business handle can only contain lowercase letters, numbers, and hyphens";
   }
 
-  if (data.contact_email && !data.contact_email.trim()) {
-    errors.contact_email = "Please enter a valid email address";
-  } else if (data.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contact_email)) {
-    errors.contact_email = "Please enter a valid email address";
+  if (data.business_email && !data.business_email.trim()) {
+    errors.business_email = "Please enter a valid email address";
+  } else if (data.business_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.business_email)) {
+    errors.business_email = "Please enter a valid email address";
   }
 
   return {
@@ -172,7 +174,7 @@ export function getTabStatus(tabId, data = {}) {
 export function canAccessTab(tabId, user, businesses = []) {
   switch (tabId) {
     case "tools":
-      return businesses.some((b) => b.subscription_tier === "MOANA");
+      return businesses.some((b) => b.subscription_tier === "moana");
     case "insights":
       return !!user; // Must be logged in
     case "my-businesses":

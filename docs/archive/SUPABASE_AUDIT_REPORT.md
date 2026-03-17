@@ -225,7 +225,7 @@ id, email, full_name, role, display_name, created_at, updated_at
      <img src={business.logo_url} />
    ) : (
      <div className="fallback-avatar">
-       {business.name.charAt(0)}
+       {business.business_name.charAt(0)}
      </div>
    )}
    ```

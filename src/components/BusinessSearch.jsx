@@ -77,7 +77,7 @@ export default function BusinessSearch({
     const normalized = value.toLowerCase().trim();
 
     const matches = allBusinesses.filter((business) =>
-      (business?.name || "").toLowerCase().includes(normalized)
+      (business?.business_name || "").toLowerCase().includes(normalized)
     );
 
     setResults(matches);

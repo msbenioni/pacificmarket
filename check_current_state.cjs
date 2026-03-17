@@ -40,7 +40,7 @@ async function checkCurrentState() {
         cr.id as claim_id,
         cr.status as claim_status,
         cr.business_id,
-        b.name as business_name,
+        business.business_name as business_name,
         b.status as business_status,
         cr.created_at as claim_created,
         cr.reviewed_at as claim_reviewed

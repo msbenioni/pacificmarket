@@ -17,7 +17,7 @@ async function checkAllTables() {
     } else {
       console.log('Recent businesses:');
       recentBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (status: ${b.status}, created: ${b.created_at})`);
+        console.log(`- ${business.business_name} (status: ${b.status}, created: ${b.created_at})`);
       });
     }
 
@@ -32,7 +32,7 @@ async function checkAllTables() {
     } else {
       console.log('Pending businesses found:', pendingBusinesses?.length || 0);
       pendingBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (status: ${b.status}, created: ${b.created_at})`);
+        console.log(`- ${business.business_name} (status: ${b.status}, created: ${b.created_at})`);
       });
     }
 

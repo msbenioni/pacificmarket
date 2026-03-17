@@ -61,7 +61,7 @@ export default function PortalBusinessCard({
             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10">
               <img
                 src={getLogoUrl(business)}
-                alt={`${business.name} logo`}
+                alt={`${business.business_name} logo`}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -69,7 +69,7 @@ export default function PortalBusinessCard({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="truncate text-base font-semibold sm:text-lg">
-                  {business.name}
+                  {business.business_name}
                 </h3>
 
                 {business.is_verified && (
@@ -133,7 +133,7 @@ export default function PortalBusinessCard({
                 {bannerUrl ? (
                   <img
                     src={bannerUrl}
-                    alt={`${business.name} banner`}
+                    alt={`${business.business_name} banner`}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -148,7 +148,7 @@ export default function PortalBusinessCard({
                   Listing Preview
                 </p>
                 <h4 className="mt-1 text-base font-semibold text-[#0a1628]">
-                  {business.name}
+                  {business.business_name}
                 </h4>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   {summaryText}

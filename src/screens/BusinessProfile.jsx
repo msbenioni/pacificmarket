@@ -4,14 +4,9 @@ import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { 
-  getBusinessWebsite, 
   getBusinessTier, 
-  getBusinessTierDisplay,
-  isVerifiedBusiness,
   getBusinessCountryDisplay,
-  getBusinessIndustryDisplay,
-  getBusinessSocialLinks,
-  getBusinessFullAddress
+  getBusinessIndustryDisplay
 } from "@/lib/business/helpers";
 import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 import {
@@ -37,7 +32,6 @@ export default function BusinessProfile() {
   const router = useRouter();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
   const [claimSubmitted, setClaimSubmitted] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [galleryImages, setGalleryImages] = useState([]);
@@ -119,7 +113,7 @@ export default function BusinessProfile() {
   };
 
   const handleClaim = () => {
-    router.push(`${createPageUrl("BusinessLogin")}?business=${business.id}&name=${encodeURIComponent(business.name)}`);
+    router.push(`${createPageUrl("BusinessLogin")}?business=${business.id}&name=${encodeURIComponent(business.business_name)}`);
   };
 
   if (loading) {
@@ -158,32 +152,49 @@ export default function BusinessProfile() {
   const tier = getBusinessTier(business);
 
   const socials = [
-    { icon: Globe, label: "Website", value: getBusinessWebsite(business), href: getBusinessWebsite(business) },
+    { 
+      icon: Globe, 
+      label: "Website", 
+      value: business.business_website, 
+      href: business.business_website?.startsWith("http")
+        ? business.business_website
+        : `https://${business.business_website}`
+    },
     {
       icon: Instagram,
       label: "Instagram",
-      value: business.instagram,
-      href: business.instagram
-        ? `https://instagram.com/${business.instagram.replace("@", "")}`
+      value: business.social_links?.instagram,
+      href: business.social_links?.instagram
+        ? `https://instagram.com/${business.social_links.instagram.replace("@", "")}`
         : "",
     },
-    { icon: Facebook, label: "Facebook", value: business.facebook, href: business.facebook },
-    { icon: Globe, label: "LinkedIn", value: business.linkedin, href: business.linkedin },
-    { icon: Globe, label: "TikTok", value: business.tiktok, href: business.tiktok },
+    { 
+      icon: Facebook, 
+      label: "Facebook", 
+      value: business.social_links?.facebook, 
+      href: business.social_links?.facebook?.startsWith("http")
+        ? business.social_links?.facebook
+        : `https://${business.social_links?.facebook}`
+    },
+    { 
+      icon: Globe, 
+      label: "LinkedIn", 
+      value: business.social_links?.linkedin, 
+      href: business.social_links?.linkedin?.startsWith("http")
+        ? business.social_links?.linkedin
+        : `https://${business.social_links?.linkedin}`
+    },
+    { 
+      icon: Globe, 
+      label: "TikTok", 
+      value: business.social_links?.tiktok, 
+      href: business.social_links?.tiktok?.startsWith("http")
+        ? business.social_links?.tiktok
+        : `https://${business.social_links?.tiktok}`
+    },
   ].filter((s) => s.value);
 
-  const socialLinks = getBusinessSocialLinks(business) ? 
-    Object.entries(getBusinessSocialLinks(business))
-      .filter(([, value]) => value)
-      .map(([label, value]) => ({
-        icon: Globe,
-        label: label.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        value,
-        href: value,
-      }))
-    : [];
-
-  const allSocials = [...socials, ...socialLinks];
+  const allSocials = socials.filter(s => s.value);
 
   const shortText = business.tagline || "";
   const fullText = business.description || "";
@@ -211,7 +222,7 @@ export default function BusinessProfile() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start gap-2 mb-2">
                   <h1 className="text-lg sm:text-xl font-bold leading-tight text-[#0a1628] break-words">
-                    {business.name}
+                    {business.business_name}
                   </h1>
 
                   {(tier === "featured_plus" || tier === "moana") && (
@@ -256,7 +267,7 @@ export default function BusinessProfile() {
             </div>
 
             {/* Actions */}
-            {(business.contact_email || business.contact_phone) && (
+            {(business.business_email || business.business_phone) && (
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setShowContact(true)}
@@ -348,7 +359,7 @@ export default function BusinessProfile() {
           </div>
 
           {/* Claim */}
-          {!business.claimed && (
+          {!business.is_claimed && (
             <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
               {claimSubmitted ? (
                 <div className="flex items-center gap-2 text-green-700 text-sm bg-green-50 px-3 py-3 rounded-xl">

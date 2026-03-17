@@ -122,7 +122,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
         {/* Name and verification - moved below logo */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="font-extrabold text-[#0a1628] text-sm leading-tight">
-            {b.name}
+            {business.business_name}
           </h3>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             {b.cultural_identity && <FlagIcon identity={b.cultural_identity} size={16} />}

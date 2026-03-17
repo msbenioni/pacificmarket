@@ -20,7 +20,7 @@ export function getBusinessTier(business: Business | null): string {
  * Get business website URL (standardized field name)
  */
 export function getBusinessWebsite(business: Business | null): string | null {
-  return business?.contact_website ?? null;
+  return business?.business_website ?? null;
 }
 
 /**
@@ -41,7 +41,7 @@ export function isHomepageBusiness(business: Business | null): boolean {
  * Get business initial for avatar fallback
  */
 export function getBusinessInitial(business: Business | null): string {
-  return business?.name?.trim()?.charAt(0)?.toUpperCase() ?? '?';
+  return business?.business_name?.trim()?.charAt(0)?.toUpperCase() ?? '?';
 }
 
 /**
@@ -62,21 +62,21 @@ export function getBusinessBannerUrl(business: Business | null): string | null {
  * Get business contact email
  */
 export function getBusinessEmail(business: Business | null): string | null {
-  return business?.contact_email ?? null;
+  return business?.business_email ?? null;
 }
 
 /**
  * Get business contact phone
  */
 export function getBusinessPhone(business: Business | null): string | null {
-  return business?.contact_phone ?? null;
+  return business?.business_phone ?? null;
 }
 
 /**
  * Get business display name (with fallback)
  */
 export function getBusinessDisplayName(business: Business | null): string {
-  return business?.name ?? 'Unknown Business';
+  return business?.business_name ?? 'Unknown Business';
 }
 
 // === Status and Verification Helpers ===
@@ -178,7 +178,7 @@ export function getBusinessContactInfo(business: Business | null) {
     email: getBusinessEmail(business),
     phone: getBusinessPhone(business),
     website: getBusinessWebsite(business),
-    name: business?.contact_name ?? null
+    name: business?.business_contact_person ?? null
   };
 }
 
@@ -251,11 +251,11 @@ export function hasCompleteProfile(business: Business | null): boolean {
   if (!business) return false;
   
   const requiredFields = [
-    business.name,
+    business.business_name,
     business.description,
     business.industry,
     business.country,
-    business.contact_email
+    business.business_email
   ];
   
   return requiredFields.every(field => field && field.trim().length > 0);
@@ -296,7 +296,7 @@ export function validateBusiness(business: Partial<Business>): {
 } {
   const errors: string[] = [];
   
-  if (!business.name || business.name.trim().length === 0) {
+  if (!business.business_name || business.business_name.trim().length === 0) {
     errors.push('Business name is required');
   }
   
@@ -308,9 +308,9 @@ export function validateBusiness(business: Partial<Business>): {
     errors.push('Country is required');
   }
   
-  if (!business.contact_email) {
+  if (!business.business_email) {
     errors.push('Contact email is required');
-  } else if (!business.contact_email.includes('@')) {
+  } else if (!business.business_email.includes('@')) {
     errors.push('Valid email address is required');
   }
   

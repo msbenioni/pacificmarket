@@ -71,17 +71,17 @@ export async function POST(request) {
     let businessEmailSent = false;
 
     // Send notification to business owner if a contact email exists
-    if (business.contact_email) {
+    if (business.business_email) {
       try {
         await transporter.sendMail({
           from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
-          to: business.contact_email,
-          subject: `New discovery enquiry for ${business.name}`,
+          to: business.business_email,
+          subject: `New discovery enquiry for ${business.business_name}`,
           html: emailShell({
             title: "New discovery enquiry",
-            intro: `Someone has discovered <strong>${business.name}</strong> through Pacific Discovery Network and would like to connect with your business.`,
+            intro: `Someone has discovered <strong>${business.business_name}</strong> through Pacific Discovery Network and would like to connect with your business.`,
             detailsHtml: `
-              <p style="margin: 0 0 10px 0;"><strong>Business:</strong> ${business.name}</p>
+              <p style="margin: 0 0 10px 0;"><strong>Business:</strong> ${business.business_name}</p>
               <p style="margin: 0 0 10px 0;"><strong>Name:</strong> ${userName}</p>
               <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${userEmail}</p>
               <p style="margin: 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
@@ -102,12 +102,12 @@ export async function POST(request) {
     await transporter.sendMail({
       from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
       to: process.env.SMTP_FROM_EMAIL,
-      subject: `Discovery enquiry: ${business.name}`,
+      subject: `Discovery enquiry: ${business.business_name}`,
       html: emailShell({
         title: "Business discovery enquiry received",
-        intro: `A new enquiry has been submitted through Pacific Discovery Network for <strong>${business.name}</strong>.`,
+        intro: `A new enquiry has been submitted through Pacific Discovery Network for <strong>${business.business_name}</strong>.`,
         detailsHtml: `
-          <p style="margin: 0 0 10px 0;"><strong>Business:</strong> ${business.name}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Business:</strong> ${business.business_name}</p>
           <p style="margin: 0 0 10px 0;"><strong>Industry:</strong> ${business.industry || "Not specified"}</p>
           <p style="margin: 0 0 10px 0;"><strong>Location:</strong> ${
             business.city ? `${business.city}, ${business.country}` : business.country || "Not specified"

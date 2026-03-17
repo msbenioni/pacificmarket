@@ -10,11 +10,15 @@ const supabase = createClient(
 );
 
 function CustomerPortalContent() {
-  const [loading, setLoading] = useState(true);
-  const [business, setBusiness] = useState(null);
-  const [owner, setOwner] = useState(null);
-  const [user, setUser] = useState(null);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showManualSignup, setShowManualSignup] = useState(false);
+  const [authUser, setAuthUser] = useState(null);
+  const [invitedProfile, setInvitedProfile] = useState(null);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [business, setBusiness] = useState(null);
   const searchParams = useSearchParams();
   const businessId = searchParams.get('business');
 
@@ -29,6 +33,7 @@ function CustomerPortalContent() {
 
   const checkInvitation = async () => {
     try {
+      setErrorMessage("");
       // Get profile with pending business invitation
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -56,27 +61,35 @@ function CustomerPortalContent() {
       }
 
       setBusiness(business);
-      setOwner({
-        email: profile.email,
-        name: profile.full_name,
+      setInvitedProfile({
+        private_email: profile.private_email,
+        display_name: profile.display_name,
         profileId: profile.id
       });
 
       // Check if user already has an auth account
-      const { data: authUser } = await supabase.auth.getUser();
+      const { data: authUserData } = await supabase.auth.getUser();
+      const currentUser = authUserData?.user ?? null;
+      setAuthUser(currentUser);
       
-      if (authUser.user && authUser.user.email === profile.email) {
-        // User is already logged in, accept invitation
-        await acceptInvitation(authUser.user.id);
-        router.push('/business-portal');
-      } else if (profile.id && !profile.email.includes('@')) {
-        // Profile exists but no auth account, show signup form
-        setUser(null);
+      // Normalize emails for comparison
+      const invitedEmail = profile.private_email?.trim().toLowerCase();
+      const currentEmail = currentUser?.email?.trim().toLowerCase();
+      
+      if (currentUser && currentEmail === invitedEmail) {
+        // User is already logged in, just set loading false to show accept button
         setLoading(false);
-      } else {
-        // Profile exists with email, try to sign them in
-        await signInExistingUser(profile);
+        return;
       }
+      
+      if (!invitedEmail || !invitedEmail.includes('@')) {
+        // No valid email, show signup form
+        setLoading(false);
+        return;
+      }
+      
+      // Valid email but user not signed in - show options, don't auto-send magic link
+      setLoading(false);
     } catch (error) {
       console.error('Error checking invitation:', error);
       setLoading(false);
@@ -85,30 +98,33 @@ function CustomerPortalContent() {
 
   const signInExistingUser = async (profile) => {
     try {
+      setErrorMessage("");
+      setSubmitting(true);
       // Always use production URL for email redirects
       const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL;
 
       // Generate magic link for existing user
       const { error } = await supabase.auth.signInWithOtp({
-        email: profile.email,
+        email: profile.private_email,
         options: {
-          emailRedirectTo: `${appUrl}/customer-portal?business=${businessId}&accept=true`
+          emailRedirectTo: `${appUrl}/customer-portal?business=${businessId}`
         }
       });
 
       if (error) throw error;
 
-      setUser(profile);
-      setLoading(false);
+      setMagicLinkSent(true);
     } catch (error) {
       console.error('Error signing in existing user:', error);
-      setLoading(false);
+      setErrorMessage("We couldn't send the sign-in link. Please try again.");
+      setSubmitting(false);
     }
   };
 
   const handleSignUp = async (email, password, fullName) => {
     try {
-      setLoading(true);
+      setErrorMessage("");
+      setSubmitting(true);
 
       // Create new user account
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -122,61 +138,85 @@ function CustomerPortalContent() {
       });
 
       if (authError) throw authError;
+      if (!authData?.user?.id) {
+        throw new Error('Authentication failed - no user data returned');
+      }
 
-      // Create profile
+      // Update existing profile instead of creating new one
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          id: authData.user.id,
-          email,
-          full_name: fullName,
-        });
+        .update({
+          private_email: email,
+          display_name: fullName,
+          role: 'owner',
+          status: 'active',
+        })
+        .eq('id', invitedProfile.profileId);
 
       if (profileError) throw profileError;
 
-      // Update business owner status
-      await acceptInvitation(authData.user.id);
+      // Update business owner status with stricter guard
+      if (!authData?.user?.id) {
+        throw new Error('Authentication failed - no user data returned');
+      }
+      
+      await acceptInvitation({
+        userId: authData.user.id,
+        profileId: invitedProfile.profileId
+      });
 
       // Redirect to business portal
       router.push('/business-portal');
     } catch (error) {
       console.error('Error signing up:', error);
-      setLoading(false);
+      setErrorMessage("We couldn't create your account. Please try again.");
+      setSubmitting(false);
     }
   };
 
-  const acceptInvitation = async (userId) => {
-    try {
-      // Update business to assign to new owner
-      const { error } = await supabase
-        .from('businesses')
-        .update({
-          owner_user_id: userId,
-        })
-        .eq('id', businessId);
+  const acceptInvitation = async ({ userId, profileId }) => {
+  // Update business to assign to new owner
+  const { error: businessError } = await supabase
+    .from('businesses')
+    .update({
+      owner_user_id: userId,
+      claimed_at: new Date().toISOString(),
+      claimed_by: userId,
+      is_claimed: true,
+      is_verified: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', businessId);
 
-      if (error) throw error;
+  if (businessError) throw businessError;
 
-      // Clear pending invitation from profile
-      await supabase
-        .from('profiles')
-        .update({
-          pending_business_id: null,
-          pending_business_name: null,
-          invited_by: null,
-          invited_date: null,
-          status: 'active'
-        })
-        .eq('id', owner.profileId || userId);
-    } catch (error) {
-      console.error('Error accepting invitation:', error);
-    }
-  };
+  // Clear pending invitation from profile
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({
+      pending_business_id: null,
+      pending_business_name: null,
+      invited_by: null,
+      invited_date: null,
+      status: 'active'
+    })
+    .eq('id', profileId);
+
+  if (profileError) throw profileError;
+};
 
   const handleAcceptInvitation = async () => {
-    if (user) {
-      await acceptInvitation(user.id);
-      router.push('/business-portal');
+    if (invitedProfile && authUser) {
+      try {
+        setErrorMessage("");
+        setSubmitting(true);
+        await acceptInvitation({ userId: authUser.id, profileId: invitedProfile.profileId });
+        router.push('/business-portal');
+      } catch (error) {
+        console.error('Error accepting invitation:', error);
+        setErrorMessage("We couldn't accept your invitation. Please try again.");
+        setSubmitting(false);
+      }
     }
   };
 
@@ -191,7 +231,7 @@ function CustomerPortalContent() {
     );
   }
 
-  if (!business || !owner) {
+  if (!business || !invitedProfile) {
     return (
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
         <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-md">
@@ -202,65 +242,111 @@ function CustomerPortalContent() {
     );
   }
 
-  if (user) {
-    // User is signed in, show accept invitation
+  if (magicLinkSent) {
+    // Magic link has been sent, show check email message
     return (
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
         <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-md">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white/90">
             <div className="w-7 h-7 bg-[#0d4f4f] rounded-full"></div>
           </div>
-          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Business Invitation</h2>
+          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Check Your Email</h2>
           <p className="text-gray-600 mb-6">
-            You've been invited to manage <strong>{business.name}</strong> on Pacific Discovery Network.
+            We've sent a magic link to <strong>{invitedProfile.private_email}</strong>.
           </p>
-          <button
-            onClick={handleAcceptInvitation}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition"
-          >
-            Accept Invitation
-          </button>
+          <p className="text-gray-500 text-sm">
+            Click the link in the email to continue accepting the invitation for <strong>{business.business_name}</strong>.
+          </p>
         </div>
       </div>
     );
   }
 
-  // Show signup form for new users
+  // Show signup form for new users, accept button for authenticated users, or send magic link button
+  const invitedEmail = invitedProfile?.private_email?.trim().toLowerCase() || "";
+  const currentEmail = authUser?.email?.trim().toLowerCase() || "";
+  const isSignedIn = currentEmail === invitedEmail;
+  const hasValidEmail = invitedEmail.includes("@");
+  
   return (
     <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
-      <div className="w-full max-w-md">
-        <div className="text-center bg-white border border-gray-100 rounded-2xl p-8">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white/90">
-            <div className="w-7 h-7 bg-[#0d4f4f] rounded-full"></div>
+      <div className="text-center bg-white border border-gray-100 rounded-2xl p-12 max-w-md">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-white/90">
+          <div className="w-7 h-7 bg-[#0d4f4f] rounded-full"></div>
+        </div>
+        <h2 className="text-xl font-bold text-[#0a1628] mb-2">Business Invitation</h2>
+        <p className="text-gray-600 mb-6">
+          You've been invited to manage <strong>{business.business_name}</strong> on Pacific Discovery Network.
+        </p>
+        
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{errorMessage}</p>
           </div>
-          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Join Pacific Discovery Network</h2>
-          <p className="text-gray-600 mb-6">
-            Create an account to manage <strong>{business.name}</strong>
-          </p>
-          
+        )}
+        
+        {isSignedIn ? (
+          <button
+            onClick={handleAcceptInvitation}
+            disabled={submitting}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50"
+          >
+            {submitting ? 'Accepting...' : 'Accept Invitation'}
+          </button>
+        ) : hasValidEmail && !showManualSignup ? (
+          <div className="space-y-4">
+            <button
+              onClick={() => signInExistingUser(invitedProfile)}
+              disabled={submitting}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50"
+            >
+              {submitting ? 'Sending...' : 'Send Sign-in Link'}
+            </button>
+            
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setShowManualSignup(true)}
+                className="text-xs text-[#0d4f4f] hover:underline"
+              >
+                Use a different email instead
+              </button>
+            </div>
+            
+            <p className="text-xs text-gray-500">
+              We'll send a magic link to <strong>{invitedProfile.private_email}</strong>
+            </p>
+          </div>
+        ) : hasValidEmail && showManualSignup ? (
           <SignUpForm 
             onSignUp={handleSignUp}
-            defaultEmail={owner.email}
-            defaultName={owner.name}
+            defaultEmail=""
+            defaultName=""
+            submitting={submitting}
           />
-        </div>
+        ) : (
+          <SignUpForm 
+            onSignUp={handleSignUp}
+            defaultEmail={invitedProfile.private_email}
+            defaultName={invitedProfile.display_name}
+            submitting={submitting}
+          />
+        )}
       </div>
     </div>
   );
 }
 
 // Simple signup form component
-function SignUpForm({ onSignUp, defaultEmail, defaultName }) {
+function SignUpForm({ onSignUp, defaultEmail, defaultName, submitting }) {
   const [email, setEmail] = useState(defaultEmail || '');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState(defaultName || '');
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password || !fullName) return;
     
-    setLoading(true);
     await onSignUp(email, password, fullName);
   };
 
@@ -302,10 +388,10 @@ function SignUpForm({ onSignUp, defaultEmail, defaultName }) {
       
       <button
         type="submit"
-        disabled={loading}
+        disabled={submitting}
         className="w-full rounded-xl bg-[#0d4f4f] px-4 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50"
       >
-        {loading ? 'Creating Account...' : 'Create Account & Accept Invitation'}
+        {submitting ? 'Creating Account...' : 'Create Account & Accept Invitation'}
       </button>
     </form>
   );

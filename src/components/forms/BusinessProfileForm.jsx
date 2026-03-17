@@ -75,13 +75,15 @@ const SECTIONS = [
 
 // Section Fields Mapping
 const SECTION_FIELDS = {
-  core: ["name", "business_handle", "tagline", "description"],
-  brand: ["logo_url", "banner_url", "mobile_banner_url"],
-  location: ["country", "industry", "city"],
+  core: ["business_name", "business_handle", "tagline", "description", "role"],
+  contact: ["business_contact_person", "business_email", "business_phone", "business_website", "business_hours"],
+  location: ["country", "city", "address", "suburb", "state_region", "postal_code", "industry"],
   overview: [
     "year_started",
+    "business_stage",
     "business_structure",
     "team_size_band",
+    "is_business_registered",
     "founder_story",
     "age_range",
     "gender",
@@ -92,6 +94,8 @@ const SECTION_FIELDS = {
     "open_to_future_contact",
     "business_acquisition_interest",
   ],
+  social: ["social_links"],
+  brand: ["logo_url", "banner_url", "mobile_banner_url"],
 };
 
 export default function BusinessProfileForm({
@@ -106,15 +110,32 @@ export default function BusinessProfileForm({
   subscriptionTier = SUBSCRIPTION_TIER.VAKA,
   onUpgrade = null
 }) {
-  // Unified form state combining both forms
+  // Unified form state with new field names
   const [form, setForm] = useState({
-    // Core Business Info (from InlineBusinessForm)
-    name: "",
+    // Core Business Info
+    business_name: "",
     business_handle: "",
     tagline: "",
     description: "",
+    role: "",
     
-    // Brand Media (from InlineBusinessForm)
+    // Business Contact & Website
+    business_contact_person: "",
+    business_email: "",
+    business_phone: "",
+    business_website: "",
+    business_hours: "",
+    
+    // Location
+    country: "",
+    city: "",
+    address: "",
+    suburb: "",
+    state_region: "",
+    postal_code: "",
+    industry: "",
+    
+    // Brand Media
     logo_url: "",
     banner_url: "",
     mobile_banner_url: "",
@@ -122,23 +143,23 @@ export default function BusinessProfileForm({
     banner_file: null,
     mobile_banner_file: null,
     
-    // Ownership & Contact (from InlineBusinessForm)
-    business_owner: "",
-    business_owner_email: "",
-    additional_owner_emails: [],
-    contact_email: "",
-    contact_phone: "",
-    contact_website: "",
-    business_hours: "",
+    // Business Overview
+    year_started: null,
+    business_stage: "",
+    business_structure: "",
+    team_size_band: "",
+    is_business_registered: false,
+    founder_story: "",
+    age_range: "",
+    gender: "",
     
-    // Claim Request Details (missing from create form)
-    role: "",
+    // Community & Opportunities
+    collaboration_interest: false,
+    mentorship_offering: false,
+    open_to_future_contact: false,
+    business_acquisition_interest: false,
     
-    // Customer Contact Details (for "Contact Us" button)
-    customer_contact_phone: "",
-    customer_contact_email: "",
-    
-    // Social Media (missing from create form)
+    // Social Media
     social_links: {
       facebook: "",
       instagram: "",
@@ -146,39 +167,10 @@ export default function BusinessProfileForm({
       linkedin: "",
       youtube: "",
       tiktok: "",
-      website: ""
     },
     
-    // Private Contact Details (from InlineBusinessForm)
-    private_business_phone: "",
-    private_business_email: "",
-    
-    // Location & Industry (from InlineBusinessForm)
-    country: "",
-    industry: "",
-    city: "",
-    
-    // Business Details (moved from InlineBusinessForm)
-    year_started: null,
-    business_structure: "",
-    team_size_band: "",
-    
-    // Founder Information
-    founder_story: "",
-    age_range: "",
-    gender: "",
-    
-    // Status & Verification (admin only)
-    status: BUSINESS_STATUS.ACTIVE,
-    is_verified: false,
-    is_claimed: false,
-    is_homepage_featured: false,
-    subscription_tier: "vaka",
-    
-    collaboration_interest: false,
-    mentorship_offering: false,
-    open_to_future_contact: false,
-    business_acquisition_interest: false,
+    // System fields
+    subscription_tier: subscriptionTier,
   });
 
   const [expandedSections, setExpandedSections] = useState(new Set());
@@ -189,7 +181,21 @@ export default function BusinessProfileForm({
   // Initialize form with existing data
   useEffect(() => {
     if (initialData) {
-      setForm((prev) => ({ ...prev, ...initialData }));
+      // Use only final field names - no legacy mapping needed
+      const mappedData = {
+        ...initialData,
+        // Ensure social_links doesn't include website
+        social_links: {
+          facebook: initialData.social_links?.facebook || "",
+          instagram: initialData.social_links?.instagram || "",
+          twitter: initialData.social_links?.twitter || "",
+          linkedin: initialData.social_links?.linkedin || "",
+          youtube: initialData.social_links?.youtube || "",
+          tiktok: initialData.social_links?.tiktok || "",
+        },
+      };
+      
+      setForm((prev) => ({ ...prev, ...mappedData }));
     }
   }, [initialData]);
 
@@ -283,27 +289,6 @@ export default function BusinessProfileForm({
         mobile_banner_file: null,
       }));
     }
-  };
-
-  // Owner Email Handlers
-  const addOwnerEmail = () => {
-    setForm((prev) => ({
-      ...prev,
-      additional_owner_emails: [...(prev.additional_owner_emails || []), ""],
-    }));
-  };
-
-  const updateOwnerEmail = (index, value) => {
-    const currentEmails = form.additional_owner_emails || [];
-    const newEmails = [...currentEmails];
-    newEmails[index] = value;
-    setForm({ ...form, additional_owner_emails: newEmails });
-  };
-
-  const removeOwnerEmail = (index) => {
-    const currentEmails = form.additional_owner_emails || [];
-    const newEmails = currentEmails.filter((_, i) => i !== index);
-    setForm({ ...form, additional_owner_emails: newEmails });
   };
 
   // Save Handlers

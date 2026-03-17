@@ -16,16 +16,14 @@ import { useToast } from "@/components/ui/toast/ToastProvider";
 
 // Whitelist of allowed fields that match the exact database schema
 const ALLOWED_BUSINESS_FIELDS = [
-  "name",
-  "description",
+  "business_name",
+  "business_handle",
   "tagline",
-  "logo_url",
-  "banner_url",
-  "mobile_banner_url",
-  "contact_website",
-  "contact_email",
-  "contact_phone",
-  "contact_name",
+  "description",
+  "business_email",
+  "business_phone",
+  "business_website",
+  "business_hours",
   "address",
   "suburb",
   "city",
@@ -33,13 +31,24 @@ const ALLOWED_BUSINESS_FIELDS = [
   "postal_code",
   "country",
   "industry",
-  "languages_spoken",
+  "year_started",
+  "business_stage",
+  "business_structure",
+  "team_size_band",
+  "is_business_registered",
+  "founder_story",
+  "age_range",
+  "gender",
+  "collaboration_interest",
+  "mentorship_offering",
+  "open_to_future_contact",
+  "business_acquisition_interest",
   "social_links",
-  "business_hours",
-  "cultural_identity",
-  "business_handle",
-  "proof_links",
-  "claimed",
+  "role",
+  "business_contact_person",
+  "logo_url",
+  "banner_url",
+  "mobile_banner_url"
 ];
 
 function pickAllowedBusinessFields(input) {
@@ -48,14 +57,6 @@ function pickAllowedBusinessFields(input) {
     if (input?.[key] !== undefined) {
       out[key] = input[key];
     }
-  }
-
-  // Map form field names to database column names
-  if (input?.tagline) {
-    out.tagline = input.tagline;
-  }
-  if (input?.website) {
-    out.contact_website = input.website;
   }
 
   return out;
@@ -168,18 +169,14 @@ export function ClaimAddBusinessModal({
         return;
       }
 
-      const proof = details.proof_url?.trim();
-      const proof_url = proof && !proof.startsWith("http") ? `https://${proof}` : proof;
-
       const claimData = {
         business_id: pickedBusiness.id,
         user_id: userRes.user.id,
         status: "pending",
-        contact_email: details.contact_email,
-        contact_phone: details.contact_phone || null,
+        business_email: details.business_email,
+        business_phone: details.business_phone || null,
         role: details.role || "owner",
         message: details.message || null,
-        proof_url: proof_url || null,
         claim_type: "request"
       };
 
@@ -216,7 +213,7 @@ export function ClaimAddBusinessModal({
     setView("claim_details");
   };
 
-  const handleBusinessSubmit = async (businessData) => {
+  const handleBusinessSubmit = async (payload) => {
     setSubmitting(true);
     try {
       const { getSupabase } = await import("../../lib/supabase/client");
@@ -226,10 +223,15 @@ export function ClaimAddBusinessModal({
       if (userErr) throw userErr;
       if (!userRes?.user) throw new Error("User not authenticated");
 
-      const clean = pickAllowedBusinessFields(businessData);
+      const {
+        businessesData = {},
+        files = {},
+      } = payload;
+
+      const clean = pickAllowedBusinessFields(businessesData);
 
       console.log("Submitting business data:", {
-        original: businessData,
+        original: payload,
         cleaned: clean,
         userId: userRes.user.id,
       });
@@ -293,8 +295,8 @@ export function ClaimAddBusinessModal({
               business_id: data[0].id,
               user_id: userRes.user.id,
               status: "approved",
-              contact_email: clean.contact_email || userRes.user.email,
-              contact_phone: clean.contact_phone || null,
+              business_email: clean.business_email || userRes.user.email,
+              business_phone: clean.business_phone || null,
               role: "owner",
               created_at: new Date().toISOString(),
               reviewed_at: new Date().toISOString(),
@@ -447,7 +449,7 @@ export function ClaimAddBusinessModal({
                   </p>
 
                   <p className="mt-1 text-base font-bold text-[#0a1628] break-words">
-                    {pickedBusiness?.name}
+                    {pickedBusiness?.business_name}
                   </p>
 
                   <p className="mt-1 text-sm leading-6 text-gray-600">

@@ -57,25 +57,25 @@ export function BusinessContactLinks({
 
   // Contact Links
   if (variant === 'all' || variant === 'contact') {
-    if (business.contact_email) {
+    if (business.business_email) {
       links.push({
         id: 'email',
         icon: Mail,
         label: 'Email',
-        value: business.contact_email,
-        href: `mailto:${business.contact_email}`,
+        value: business.business_email,
+        href: `mailto:${business.business_email}`,
         color: 'text-blue-600 hover:text-blue-700',
         bgColor: 'bg-blue-50 hover:bg-blue-100'
       });
     }
 
-    if (business.contact_phone) {
+    if (business.business_phone) {
       links.push({
         id: 'phone',
         icon: Phone,
         label: 'Phone',
-        value: business.contact_phone,
-        href: `tel:${business.contact_phone}`,
+        value: business.business_phone,
+        href: `tel:${business.business_phone}`,
         color: 'text-green-600 hover:text-green-700',
         bgColor: 'bg-green-50 hover:bg-green-100'
       });
@@ -226,11 +226,11 @@ export function CompactContactLinks({
   const primaryLinks = [];
 
   // Add most important links first
-  if (business.contact_email) {
+  if (business.business_email) {
     primaryLinks.push({
       id: 'email',
       icon: Mail,
-      href: `mailto:${business.contact_email}`,
+      href: `mailto:${business.business_email}`,
       title: 'Email'
     });
   }
@@ -244,11 +244,11 @@ export function CompactContactLinks({
     });
   }
 
-  if (business.contact_phone) {
+  if (business.business_phone) {
     primaryLinks.push({
       id: 'phone',
       icon: Phone,
-      href: `tel:${business.contact_phone}`,
+      href: `tel:${business.business_phone}`,
       title: 'Phone'
     });
   }

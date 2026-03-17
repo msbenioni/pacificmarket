@@ -6,10 +6,11 @@
 export type Business = {
   // Core identity
   id: string;
-  name: string;
+  business_name: string;
   description: string | null;
   tagline: string | null;
   business_handle: string | null;
+  role: string | null;
 
   // Visual assets
   logo_url: string | null;
@@ -17,10 +18,11 @@ export type Business = {
   mobile_banner_url: string | null;
 
   // Contact information
-  contact_email: string | null;
-  contact_phone: string | null;
-  contact_website: string | null;
-  contact_name: string | null;
+  business_contact_person: string | null;
+  business_email: string | null;
+  business_phone: string | null;
+  business_website: string | null;
+  business_hours: string | null;
 
   // Location
   address: string | null;
@@ -33,11 +35,21 @@ export type Business = {
   // Business details
   industry: string | null;
   social_links: Record<string, string> | null;
-  business_hours: string | null;
   business_structure: string | null;
   year_started: number | null;
-  languages_spoken: string[] | null;
-  cultural_identity: string | null;
+  business_stage: string | null;
+  is_business_registered: boolean;
+
+  // Founder information
+  founder_story: string | null;
+  age_range: string | null;
+  gender: string | null;
+
+  // Community & opportunities
+  collaboration_interest: boolean;
+  mentorship_offering: boolean;
+  open_to_future_contact: boolean;
+  business_acquisition_interest: boolean;
 
   // Status and verification
   status: string;

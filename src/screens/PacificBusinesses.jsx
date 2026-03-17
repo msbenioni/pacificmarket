@@ -51,7 +51,7 @@ export default function PacificBusinesses() {
     let result = businesses.filter((b) => {
       if (
         filters.search &&
-        !b.name?.toLowerCase().includes(filters.search.toLowerCase()) &&
+        !business.business_name?.toLowerCase().includes(filters.search.toLowerCase()) &&
         !b.description?.toLowerCase().includes(filters.search.toLowerCase()) &&
         !b.cultural_identity?.toLowerCase().includes(filters.search.toLowerCase())
       )
@@ -84,7 +84,7 @@ export default function PacificBusinesses() {
         );
       });
     } else if (sort === "alpha") {
-      result = [...result].sort((a, b) => a.name?.localeCompare(b.name));
+      result = [...result].sort((a, b) => a.name?.localeCompare(business.business_name));
     }
 
     return result;

@@ -37,7 +37,7 @@ export async function POST(req) {
     // Generate and upload starter branding
     const branding = await createAndUploadStarterBranding({
       businessId: business.id,
-      businessName: business.name,
+      businessName: business.business_name,
       industry: business.industry,
     });
 

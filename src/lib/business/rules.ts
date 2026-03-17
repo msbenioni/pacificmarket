@@ -81,10 +81,10 @@ export function isBusinessProfileComplete(business: Business | null): boolean {
   if (!business) return false;
   
   return !!(
-    business.name &&
+    business.business_name &&
     business.description &&
     business.industry &&
-    business.contact_email &&
+    business.business_email &&
     getBusinessWebsite(business)
   );
 }
@@ -96,11 +96,11 @@ export function getBusinessCompletionPercentage(business: Business | null): numb
   if (!business) return 0;
   
   const requiredFields = [
-    'name',
+    'business_name',
     'description', 
     'industry',
-    'contact_email',
-    'contact_website'
+    'business_email',
+    'business_website'
   ];
   
   const completedFields = requiredFields.filter(field => {
@@ -149,7 +149,7 @@ export function hasPremiumFeatures(business: Business | null): boolean {
  * Get business website URL (standardized field access)
  */
 export function getBusinessWebsite(business: Business | null): string | null {
-  return business?.contact_website || null;
+  return business?.business_website || null;
 }
 
 /**
@@ -199,6 +199,6 @@ export function sortBusinessesByPriority(businesses: Business[]): Business[] {
     if (aVerified !== bVerified) return bVerified ? 1 : -1;
     
     // Finally by name
-    return a.name.localeCompare(b.name);
+    return a.business_name.localeCompare(b.business_name);
   });
 }

@@ -8,17 +8,6 @@ export default function SocialMediaSection({ form, handleInputChange, inputCls, 
 
   return (
     <div className="space-y-4">
-      <div>
-        <label className={labelCls}>Website</label>
-        <input
-          type="url"
-          value={form.social_links?.website || ""}
-          onChange={(e) => handleSocialLinkChange("website", e.target.value)}
-          className={inputCls}
-          placeholder="https://www.yourbusiness.com"
-        />
-      </div>
-
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <label className={labelCls}>Facebook</label>

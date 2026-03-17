@@ -61,7 +61,7 @@ async function findClaims() {
     } else {
       console.log('Most recent businesses:');
       recentBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (status: ${b.status}, created: ${b.created_at})`);
+        console.log(`- ${business.business_name} (status: ${b.status}, created: ${b.created_at})`);
       });
     }
     

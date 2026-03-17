@@ -49,7 +49,7 @@ CREATE VIEW public_businesses AS
 SELECT 
     b.id,
     b.business_id,
-    b.name,
+    business.business_name,
     b.business_handle,
     b.tagline,
     b.description,

@@ -211,10 +211,10 @@ export default function InvoiceGenerator() {
         if (business && !isUserEditingRef.current) {
           setBusinessInvoice(prev => ({
             ...prev,
-            sender_name: prev.sender_name || business.name || "",
+            sender_name: prev.sender_name || business.business_name || "",
             sender_logo_url: prev.sender_logo_url || getLogoUrl(business) || "",
-            sender_email: prev.sender_email || business.contact_email || "",
-            sender_phone: prev.sender_phone || business.contact_phone || "",
+            sender_email: prev.sender_email || business.business_email || "",
+            sender_phone: prev.sender_phone || business.business_phone || "",
             sender_address: prev.sender_address || business.address || "",
             sender_suburb: prev.sender_suburb || business.suburb || "",
             sender_city: prev.sender_city || business.city || "",
@@ -386,9 +386,9 @@ export default function InvoiceGenerator() {
       
       // First update business details using shared query
       const businessUpdate = {
-        name: invoice.sender_name,
-        contact_email: invoice.sender_email,
-        contact_phone: invoice.sender_phone,
+        business_name: invoice.sender_name,
+        business_email: invoice.sender_email,
+        business_phone: invoice.sender_phone,
         address: invoice.sender_address,
         suburb: invoice.sender_suburb,
         city: invoice.sender_city,
@@ -535,7 +535,7 @@ export default function InvoiceGenerator() {
   const getBusinessSummary = () => {
     if (mode === "business") {
       const business = businesses.find(b => b.id === selectedBusinessId);
-      return business ? business.name : "No business selected";
+      return business ? business.business_name : "No business selected";
     }
     return invoice.sender_name || "Custom sender";
   };
@@ -780,7 +780,7 @@ export default function InvoiceGenerator() {
                       <option value="">Choose a business...</option>
                       {businesses.map((business) => (
                         <option key={business.id} value={business.id}>
-                          {business.name}
+                          {business.business_name}
                         </option>
                       ))}
                     </select>

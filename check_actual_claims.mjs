@@ -39,7 +39,7 @@ async function checkActualClaims() {
           .single()
           .then(({ data: business, error: businessError }) => {
             if (!businessError && business) {
-              console.log(`Business: ${business.name} (status: ${business.status})`);
+              console.log(`Business: ${business.business_name} (status: ${business.status})`);
             }
           });
       });

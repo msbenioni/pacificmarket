@@ -49,7 +49,7 @@ export default function BusinessCard({ business, view = "grid" }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-start gap-2">
               <h3 className="text-sm font-semibold leading-5 text-[#0a1628] transition-colors group-hover:text-[#0d4f4f] break-words">
-                {business.name}
+                {business.business_name}
               </h3>
 
               {business.is_verified && (
@@ -105,7 +105,7 @@ export default function BusinessCard({ business, view = "grid" }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-start gap-2">
               <h3 className="text-sm font-semibold leading-5 text-[#0a1628] transition-colors group-hover:text-[#0d4f4f] break-words">
-                {business.name}
+                {business.business_name}
               </h3>
 
               {business.is_verified && (

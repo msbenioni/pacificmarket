@@ -84,7 +84,7 @@ export default function QRCodeGenerator() {
     // Use helper function for consistent website access
     const profileUrl = getBusinessWebsite(b);
     setUrl(profileUrl);
-    setLabel(b.name);
+    setLabel(business.business_name);
   };
 
   const formatUrl = (url) => {
@@ -184,39 +184,39 @@ export default function QRCodeGenerator() {
                           <button 
                             onClick={() => handleBusinessSelect(b)}
                             className={`w-full flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
-                              label === b.name 
+                              label === business.business_name 
                                 ? "border-[#0d4f4f] bg-[#0d4f4f]/5 cursor-pointer hover:border-[#0d4f4f]" 
                                 : "border-gray-100 hover:border-gray-200 cursor-pointer"
                             }`}
                           >
                             <div className="flex items-start gap-3">
                               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center flex-shrink-0">
-                                <span className="text-white font-bold text-sm">{b.name?.[0]}</span>
+                                <span className="text-white font-bold text-sm">{business.business_name?.[0]}</span>
                               </div>
                               <div className="flex-1">
-                                <p className="font-semibold text-sm text-[#0a1628]">{b.name}</p>
+                                <p className="font-semibold text-sm text-[#0a1628]">{business.business_name}</p>
                                 <p className="text-gray-400 text-xs">{b.country}</p>
                               </div>
                             </div>
                             <div className="mt-2 sm:mt-0 text-xs font-medium">
                               <span
                                 className={`inline-flex items-center rounded-full px-2.5 py-1 ${
-                                  label === b.name
+                                  label === business.business_name
                                     ? "bg-[#0d4f4f]/10 text-[#0d4f4f]"
                                     : "bg-slate-100 text-slate-500"
                                 }`}
                               >
-                                {label === b.name ? "Selected" : "Use this website"}
+                                {label === business.business_name ? "Selected" : "Use this website"}
                               </span>
                             </div>
                           </button>
                         ) : (
                           <div className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed">
                             <div className="w-9 h-9 rounded-lg bg-gray-300 flex items-center justify-center flex-shrink-0">
-                              <span className="text-gray-500 font-bold text-sm">{b.name?.[0]}</span>
+                              <span className="text-gray-500 font-bold text-sm">{business.business_name?.[0]}</span>
                             </div>
                             <div className="flex-1">
-                              <p className="font-semibold text-sm text-gray-400">{b.name}</p>
+                              <p className="font-semibold text-sm text-gray-400">{business.business_name}</p>
                               <p className="text-gray-400 text-xs">{b.country}</p>
                               <p className="text-amber-600 text-xs mt-1">
                                 ⚠️ No website added. Update your business profile to add your website.

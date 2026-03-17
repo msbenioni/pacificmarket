@@ -11,10 +11,10 @@ export default function CoreInfoSection({
   showAdminFields = false 
 }) {
   const handleNameChange = (value) => {
-    handleInputChange("name", value);
+    handleInputChange("business_name", value);
     
     // Auto-populate business handle if it's empty or was starter-generated
-    if (!form.business_handle || form.business_handle === generateBusinessHandle(form.name || '')) {
+    if (!form.business_handle || form.business_handle === generateBusinessHandle(form.business_name || '')) {
       const newHandle = generateBusinessHandle(value);
       handleInputChange("business_handle", newHandle);
     }
@@ -25,7 +25,7 @@ export default function CoreInfoSection({
         <label className={labelCls}>Business Name *</label>
         <input
           type="text"
-          value={form.name || ""}
+          value={form.business_name || ""}
           onChange={(e) => handleNameChange(e.target.value)}
           className={inputCls}
           placeholder="Enter your business name"
@@ -65,6 +65,22 @@ export default function CoreInfoSection({
           rows={8}
           required
         />
+      </div>
+
+      <div>
+        <label className={labelCls}>Your Role</label>
+        <select
+          value={form.role || ""}
+          onChange={(e) => handleInputChange("role", e.target.value)}
+          className={selectCls}
+        >
+          <option value="">Select your role</option>
+          <option value="owner">Business Owner</option>
+          <option value="manager">Manager</option>
+          <option value="employee">Employee</option>
+          <option value="partner">Partner</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       {/* Admin-only subscription tier field */}

@@ -49,7 +49,7 @@ function generateSignatureHTML(data, template = 'modern', business = null) {
         <tr>
           ${data.includeLogo ? `
             <td style="vertical-align: top; padding-right: 20px;">
-              <img src="${getLogoUrl(business)} alt="${business?.name || 'Business Logo'}" style="width: 80px; height: auto; max-height: 80px; object-fit: contain;" />
+              <img src="${getLogoUrl(business)} alt="${business?.business_name || 'Business Logo'}" style="width: 80px; height: auto; max-height: 80px; object-fit: contain;" />
             </td>
           ` : ''}
           <td style="vertical-align: top;">
@@ -64,7 +64,7 @@ function generateSignatureHTML(data, template = 'modern', business = null) {
               ` : ''}
               ${business ? `
                 <p style="margin: 2px 0; color: ${colors.secondary}; font-size: 14px; font-weight: 500;">
-                  ${business.name}
+                  ${business.business_name}
                 </p>
               ` : ''}
             </div>
@@ -153,7 +153,7 @@ export async function POST(request) {
       html,
       template,
       business: {
-        name: business.name,
+        name: business.business_name,
         logo_url: getLogoUrl(business)
       }
     });

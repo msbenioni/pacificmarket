@@ -86,7 +86,7 @@ async function findUserAndLinkBusinesses() {
     } else {
       console.log('Updated businesses:');
       updatedBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (owner_user_id: ${b.owner_user_id})`);
+        console.log(`- ${business.business_name} (owner_user_id: ${b.owner_user_id})`);
       });
     }
     

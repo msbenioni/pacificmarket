@@ -19,7 +19,7 @@ async function investigateIssues() {
     } else {
       console.log(`Businesses created in last 2 hours: ${recentBusinesses?.length || 0}`);
       recentBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (status: ${b.status}, created: ${b.created_at}, by: ${b.created_by})`);
+        console.log(`- ${business.business_name} (status: ${b.status}, created: ${b.created_at}, by: ${b.created_by})`);
       });
     }
     

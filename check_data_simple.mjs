@@ -19,7 +19,7 @@ async function checkData() {
     } else {
       console.log('Businesses found:', businesses?.length || 0);
       businesses?.forEach(b => {
-        console.log(`- ${b.name} (status: ${b.status}, created: ${b.created_at})`);
+        console.log(`- ${business.business_name} (status: ${b.status}, created: ${b.created_at})`);
       });
     }
 

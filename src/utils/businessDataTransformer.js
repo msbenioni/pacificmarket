@@ -5,59 +5,63 @@
  */
 
 export const transformBusinessFormData = (formData) => {
-  // All data now goes to businesses table
+  // All data now goes to businesses table with new field names
   const businessesData = {
-    // Public business data
-    name: formData.name,
+    // Core business info
+    business_name: formData.business_name,
     business_handle: formData.business_handle,
     tagline: formData.tagline,
     description: formData.description,
+    role: formData.role,
+    
+    // Brand media
     logo_url: formData.logo_url,
     banner_url: formData.banner_url,
     mobile_banner_url: formData.mobile_banner_url,
-    business_owner: formData.business_owner,
-    business_owner_email: formData.business_owner_email,
-    additional_owner_emails: formData.additional_owner_emails,
-    contact_email: formData.contact_email,
-    contact_phone: formData.contact_phone,
-    contact_website: formData.contact_website,
+    
+    // Business contact & website
+    business_contact_person: formData.business_contact_person,
+    business_email: formData.business_email,
+    business_phone: formData.business_phone,
+    business_website: formData.business_website,
     business_hours: formData.business_hours,
     
-    // Claim request details
-    role: formData.role,
-    
-    // Customer contact details (for "Contact Us" button)
-    customer_contact_phone: formData.customer_contact_phone,
-    customer_contact_email: formData.customer_contact_email,
-    
-    // Social media links
-    social_links: formData.social_links,
-    
-    // Location & Industry
+    // Location
     country: formData.country,
-    industry: formData.industry,
     city: formData.city,
+    address: formData.address,
+    suburb: formData.suburb,
+    state_region: formData.state_region,
+    postal_code: formData.postal_code,
+    industry: formData.industry,
+    
+    // Business overview
     year_started: formData.year_started,
+    business_stage: formData.business_stage,
     business_structure: formData.business_structure,
     team_size_band: formData.team_size_band,
+    is_business_registered: formData.is_business_registered === true || formData.is_business_registered === "true" ? true : false,
+    
+    // Founder info
+    founder_story: formData.founder_story,
+    age_range: formData.age_range,
+    gender: formData.gender,
+    
+    // Community & opportunities
+    collaboration_interest: formData.collaboration_interest,
+    mentorship_offering: formData.mentorship_offering,
+    open_to_future_contact: formData.open_to_future_contact,
+    business_acquisition_interest: formData.business_acquisition_interest,
+    
+    // Social media (without website)
+    social_links: formData.social_links,
+    
+    // System fields
     status: formData.status,
     is_verified: formData.is_verified,
     is_claimed: formData.is_claimed,
     is_homepage_featured: formData.is_homepage_featured,
     subscription_tier: formData.subscription_tier,
-    
-    // Business insights data (now in businesses table)
-    business_stage: formData.business_stage,
-    business_registered: formData.is_business_registered === true || formData.is_business_registered === "true" ? true : false,
-    
-    // Founder insights data (now in businesses table)
-    founder_story: formData.founder_story,
-    age_range: formData.age_range,
-    gender: formData.gender,
-    collaboration_interest: formData.collaboration_interest,
-    mentorship_offering: formData.mentorship_offering,
-    open_to_future_contact: formData.open_to_future_contact,
-    business_acquisition_interest: formData.business_acquisition_interest,
   };
 
   return {
@@ -95,21 +99,16 @@ export const sanitizeForBusinessesTable = (data) => {
   
   // All fields are now allowed in businesses table after consolidation
   const allowedFields = [
-    'name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url', 'mobile_banner_url',
-    'business_owner', 'business_owner_email', 'additional_owner_emails',
-    'contact_email', 'contact_phone', 'contact_website', 'business_hours',
-    'country', 'industry', 'city', 'year_started', 'business_structure',
-    'team_size_band', 'status', 'is_verified', 'is_claimed', 'is_homepage_featured',
-    'subscription_tier',
+    'business_name', 'business_handle', 'tagline', 'description', 'logo_url', 'banner_url', 'mobile_banner_url',
+    'business_contact_person', 'business_email', 'business_phone', 'business_website', 'business_hours',
+    'country', 'city', 'address', 'suburb', 'state_region', 'postal_code', 'industry',
+    'year_started', 'business_stage', 'business_structure', 'team_size_band', 'is_business_registered',
+    'status', 'is_verified', 'is_claimed', 'is_homepage_featured', 'subscription_tier',
     // Claim request details
     'role',
-    // Customer contact details
-    'customer_contact_phone', 'customer_contact_email',
     // Social media
     'social_links',
-    // Business insights fields (now in businesses table)
-    'business_stage', 'business_registered',
-    // Founder insights fields (now in businesses table)
+    // Founder insights fields
     'founder_story', 'age_range', 'gender', 'collaboration_interest', 
     'mentorship_offering', 'open_to_future_contact', 'business_acquisition_interest'
   ];

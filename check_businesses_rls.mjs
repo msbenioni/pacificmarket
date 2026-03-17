@@ -81,7 +81,7 @@ async function checkBusinessesRLS() {
     } else {
       console.log(`Businesses created in last 5 minutes: ${recentBusinesses?.length || 0}`);
       recentBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (status: ${b.status}, owner: ${b.owner_user_id || 'null'})`);
+        console.log(`- ${business.business_name} (status: ${b.status}, owner: ${b.owner_user_id || 'null'})`);
       });
     }
     

@@ -49,7 +49,7 @@ export default function ContactModal({ business, onClose }) {
       className={MODAL_SIZES.md}
     >
       <ModalHeader 
-        title={`Contact ${business.name}`}
+        title={`Contact ${business.business_name}`}
         onClose={onClose}
       />
       
@@ -92,23 +92,23 @@ export default function ContactModal({ business, onClose }) {
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
             <h4 className="text-lg font-semibold text-gray-900 mb-2">Contact Details Revealed!</h4>
             <p className="text-sm text-gray-600 mb-4">
-              Thank you for your interest. Here's how to contact {business.name}:
+              Thank you for your interest. Here's how to contact {business.business_name}:
             </p>
 
             <div className="space-y-3 text-left bg-gray-50 rounded-lg p-4">
-              {business.contact_email && (
+              {business.business_email && (
                 <div className="flex items-center space-x-3">
                   <Mail className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm">{business.contact_email}</span>
+                  <span className="text-sm">{business.business_email}</span>
                 </div>
               )}
-              {business.contact_phone && (
+              {business.business_phone && (
                 <div className="flex items-center space-x-3">
                   <Phone className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm">{business.contact_phone}</span>
+                  <span className="text-sm">{business.business_phone}</span>
                 </div>
               )}
-              {!business.contact_email && !business.contact_phone && (
+              {!business.business_email && !business.business_phone && (
                 <p className="text-sm text-gray-400 text-center py-4">No contact details listed yet.</p>
               )}
             </div>

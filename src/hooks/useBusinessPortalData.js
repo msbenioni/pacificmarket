@@ -29,9 +29,9 @@ export function useBusinessPortalData() {
         supabase
           .from("claim_requests")
           .select(`
-            id, business_id, user_id, status, contact_email, contact_phone,
-            role, proof_url, created_at, claim_type, message,
-            businesses:business_id (name)
+            id, business_id, user_id, status, business_email, business_phone,
+            role, created_at, claim_type, message,
+            businesses:business_id (business_name)
           `)
           .eq("user_id", u.id)
           .order("created_at", { ascending: false }),

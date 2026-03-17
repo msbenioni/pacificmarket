@@ -23,7 +23,7 @@ async function checkBusinessStatus() {
       if (businessError) {
         console.error(`Error for business ${businessId}:`, businessError);
       } else {
-        console.log(`Business: ${business.name}`);
+        console.log(`Business: ${business.business_name}`);
         console.log(`Status: ${business.status}`);
         console.log(`Created at: ${business.created_at}`);
         console.log(`Created date: ${business.created_date}`);
@@ -42,7 +42,7 @@ async function checkBusinessStatus() {
     } else {
       console.log(`Pending businesses found: ${pendingBusinesses?.length || 0}`);
       pendingBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (ID: ${b.id}, created: ${b.created_at})`);
+        console.log(`- ${business.business_name} (ID: ${b.id}, created: ${b.created_at})`);
       });
     }
     
@@ -58,7 +58,7 @@ async function checkBusinessStatus() {
     } else {
       console.log('Recent businesses:');
       recentBusinesses?.forEach(b => {
-        console.log(`- ${b.name} (status: ${b.status}, created: ${b.created_at})`);
+        console.log(`- ${business.business_name} (status: ${b.status}, created: ${b.created_at})`);
       });
     }
     

@@ -79,7 +79,7 @@ export function formatBusinessOwnerInfo(business, profiles = []) {
     email: owner?.email || '',
     role: owner?.role || null,
     businessId: business.id,
-    businessName: business.name
+    businessName: business.business_name
   };
 }
 
@@ -117,7 +117,7 @@ export function getBusinessDisplayInfo(business) {
   ].filter(Boolean);
 
   return {
-    name: business.name,
+    name: business.business_name,
     metaDescription: metaParts.join(" · "),
     tierStyles: TIER_STYLES.getTierStyles(business.subscription_tier),
     isVerified: business.is_verified,
@@ -137,9 +137,7 @@ export function mergeBusinessData(businessesData = {}, businessInsightsData = {}
     ...businessesData,
     // Business insights fields that should be merged
     business_stage: businessInsightsData.business_stage,
-    business_registered: businessInsightsData.business_registered,
-    private_business_phone: businessInsightsData.private_business_phone,
-    private_business_email: businessInsightsData.private_business_email,
+    is_business_registered: businessInsightsData.is_business_registered,
   };
 }
 

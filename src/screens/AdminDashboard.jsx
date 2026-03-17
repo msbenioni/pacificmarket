@@ -48,29 +48,45 @@ const filterButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1
 
 /** @type {Record<string, any>} */
 const emptyBusinessForm = {
-  name: "",
+  business_name: "",
   business_handle: "",
   description: "",
   tagline: "",
-  contact_name: "",
-  contact_email: "",
-  contact_phone: "",
-  contact_website: "",
+  role: "",
+  business_contact_person: "",
+  business_email: "",
+  business_phone: "",
+  business_website: "",
   business_hours: "",
   country: "",
   city: "",
-  suburb: "",
   address: "",
+  suburb: "",
   state_region: "",
   postal_code: "",
   industry: "",
   year_started: null,
+  business_stage: "",
   business_structure: "",
+  is_business_registered: false,
   subscription_tier: "vaka",
   status: BUSINESS_STATUS.PENDING,
   team_size_band: "",
-  cultural_identity: "",
-  languages_spoken: [],
+  founder_story: "",
+  age_range: "",
+  gender: "",
+  collaboration_interest: false,
+  mentorship_offering: false,
+  open_to_future_contact: false,
+  business_acquisition_interest: false,
+  social_links: {
+    facebook: "",
+    instagram: "",
+    twitter: "",
+    linkedin: "",
+    youtube: "",
+    tiktok: "",
+  },
   is_verified: false,
   is_claimed: false,
   is_homepage_featured: false,
@@ -81,40 +97,6 @@ const emptyBusinessForm = {
   banner_file: null,
   mobile_banner_file: null,
 };
-
-function sanitizeBusinessPayload(formData) {
-  const {
-    id,
-    created_date,
-    updated_at,
-    verification_source,
-    logo_file,
-    banner_file,
-    mobile_banner_file,
-    claimed,
-    homepage_featured,
-    ...updateData
-  } = formData;
-
-  /** @type {Record<string, any>} */
-  const safeUpdateData = Object.entries(updateData).reduce((acc, [key, value]) => {
-    if (value === undefined) return acc;
-
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      if (trimmed === "") return acc;
-      acc[key] = trimmed;
-      return acc;
-    }
-
-    if (value === null) return acc;
-
-    acc[key] = value;
-    return acc;
-  }, /** @type {Record<string, any>} */ ({}));
-
-  return { id, safeUpdateData };
-}
 
 function getBadgeStyles(type) {
   const styles = {
@@ -179,7 +161,7 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="break-words text-sm font-semibold text-[#0a1628]">
-              {business?.name || "Unknown Business"}
+              {business?.business_name || "Unknown Business"}
             </h3>
             <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusBadge.style}`}>
               {statusBadge.text}
@@ -269,7 +251,7 @@ function AdminBusinessMobileCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="break-words text-sm font-semibold text-[#0a1628]">{business.name}</h3>
+            <h3 className="break-words text-sm font-semibold text-[#0a1628]">{business.business_name}</h3>
             <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
               {getTierDisplayName(business.subscription_tier) || business.subscription_tier || "vaka"}
             </span>
@@ -283,7 +265,7 @@ function AdminBusinessMobileCard({
           <p className="mt-1 text-xs text-gray-500">
             {getCountryDisplayName(business.country)} · {getIndustryDisplayName(business.industry) || "No industry"}
           </p>
-          <p className="mt-1 break-all text-xs text-gray-500">{business.contact_email || "No email"}</p>
+          <p className="mt-1 break-all text-xs text-gray-500">{business.business_email || "No email"}</p>
           <p className="mt-1 text-xs text-gray-400">
             Submitted {business.created_date ? new Date(business.created_date).toLocaleDateString() : "—"}
           </p>
@@ -328,7 +310,7 @@ function AdminBusinessMobileCard({
       {isEditing && draftBusiness && (
         <div className="mt-4 border-t border-gray-200 pt-4">
           <BusinessProfileForm
-            title={`Edit ${business.name}`}
+            title={`Edit ${business.business_name}`}
             businessId={business.id}
             initialData={draftBusiness}
             onSave={onSave}
@@ -359,7 +341,6 @@ export default function AdminDashboard() {
   const [showFilters, setShowFilters] = useState(false);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [createForm, setCreateForm] = useState({ ...emptyBusinessForm });
   const [savingCreate, setSavingCreate] = useState(false);
 
   const [editingBusinessId, setEditingBusinessId] = useState(null);
@@ -450,8 +431,6 @@ export default function AdminDashboard() {
     setDraftBusiness({
       ...emptyBusinessForm,
       ...business,
-      languages_spoken: Array.isArray(business.languages_spoken) ? business.languages_spoken : [],
-      ...(business.claimed ? { claimed: undefined } : {}),
     });
   };
 
@@ -462,7 +441,6 @@ export default function AdminDashboard() {
 
   const resetCreateForm = () => {
     setShowCreateForm(false);
-    setCreateForm({ ...emptyBusinessForm });
   };
 
   const updateStatus = async (business, newStatus) => {
@@ -537,7 +515,7 @@ export default function AdminDashboard() {
       if (newStatus === "approved") {
         const matchedBusiness = businesses.find((b) => b.id === claim.business_id);
         if (matchedBusiness) {
-          console.log("Approving claim - updating business ownership:", matchedBusiness.id, matchedBusiness.name);
+          console.log("Approving claim - updating business ownership:", matchedBusiness.id, matchedBusiness.business_name);
           
           // Update business with ownership information from claim
           const { getSupabase } = await import("@/lib/supabase/client");
@@ -719,28 +697,30 @@ export default function AdminDashboard() {
     }
   };
 
-  const createVerifiedBusiness = async (formData) => {
+  const createVerifiedBusiness = async (payload) => {
     setSavingCreate(true);
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const { safeUpdateData } = sanitizeBusinessPayload(formData);
+      const {
+        businessesData = {},
+        files = {},
+      } = payload;
 
-      /** @type {Record<string, any>} */
       let businessData = {
-        ...safeUpdateData,
-        status: formData.status || BUSINESS_STATUS.ACTIVE,
-        is_verified: formData.is_verified ?? true,
+        ...businessesData,
+        status: BUSINESS_STATUS.ACTIVE,
+        is_verified: true,
         is_claimed: true, // Admin-created businesses should be marked as claimed
-        created_date: new Date().toISOString(),
+        created_date: new Date().toISOString().split("T")[0],
         updated_at: new Date().toISOString(),
       };
 
-      if (formData.logo_file) {
+      if (files.logo_file) {
         try {
-          const file = formData.logo_file;
+          const file = files.logo_file;
           const filePath = `logos/new-${Date.now()}-${file.name}`;
 
           const { error: uploadError } = await supabase.storage
@@ -762,9 +742,9 @@ export default function AdminDashboard() {
         }
       }
 
-      if (formData.banner_file) {
+      if (files.banner_file) {
         try {
-          const file = formData.banner_file;
+          const file = files.banner_file;
           const filePath = `banners/new-${Date.now()}-${file.name}`;
 
           const { error: uploadError } = await supabase.storage
@@ -786,12 +766,36 @@ export default function AdminDashboard() {
         }
       }
 
+      if (files.mobile_banner_file) {
+        try {
+          const file = files.mobile_banner_file;
+          const filePath = `mobile-banners/new-${Date.now()}-${file.name}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("admin-listings")
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: mobileBannerPublicUrlData } = supabase.storage
+            .from("admin-listings")
+            .getPublicUrl(filePath);
+
+          if (mobileBannerPublicUrlData?.publicUrl) {
+            businessData.mobile_banner_url = mobileBannerPublicUrlData.publicUrl;
+          }
+        } catch (uploadError) {
+          console.error("Error uploading mobile banner:", uploadError);
+          toast.error("Failed to upload mobile banner.");
+        }
+      }
+
       const { data, error } = await supabase
         .from("businesses")
         .insert(businessData)
         .select(`
-          id, name, business_handle, description, industry, country, city,
-          status, visibility_tier, is_verified, claimed, contact_email, contact_website,
+          id, business_name, business_handle, description, industry, country, city,
+          status, visibility_tier, is_verified, is_claimed, business_email, business_website,
           logo_url, banner_url, owner_user_id, created_date, updated_at, subscription_tier
         `)
         .single();
@@ -812,7 +816,7 @@ export default function AdminDashboard() {
 
   const exportCSV = () => {
     const fields = [
-      "name",
+      "business_name",
       "business_handle",
       "description",
       "industry",
@@ -821,9 +825,9 @@ export default function AdminDashboard() {
       "status",
       "subscription_tier",
       "is_verified",
-      "claimed",
-      "contact_email",
-      "contact_website",
+      "is_claimed",
+      "business_email",
+      "business_website",
     ];
 
     const header = fields.join(",");
@@ -907,7 +911,7 @@ export default function AdminDashboard() {
     if (searchQuery) {
       data = data.filter(
         (business) =>
-          business.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          business.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           business.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           business.industry?.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -939,7 +943,7 @@ export default function AdminDashboard() {
         return (
           claim.business_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           claim.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          business?.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           business?.description?.toLowerCase().includes(searchQuery.toLowerCase())
         );
       });
@@ -1114,8 +1118,8 @@ export default function AdminDashboard() {
               <BusinessProfileForm
                 title="Create New Business"
                 businessId={null}
-                initialData={createForm}
-                onSave={() => createVerifiedBusiness(createForm)}
+                initialData={emptyBusinessForm}
+                onSave={createVerifiedBusiness}
                 onCancel={resetCreateForm}
                 saving={savingCreate}
                 mode="create"
@@ -1211,7 +1215,7 @@ export default function AdminDashboard() {
                                 <div className="min-w-0 flex-1">
                                   <div className="mb-1 flex flex-wrap items-center gap-2">
                                     <span className="font-semibold text-[#0a1628]">
-                                      {business?.name || "Unknown Business"}
+                                      {business?.business_name || "Unknown Business"}
                                     </span>
                                     <span
                                       className={`rounded-full border px-2 py-1 text-xs font-medium ${
@@ -1378,8 +1382,8 @@ export default function AdminDashboard() {
                                       </div>
 
                                       <div>
-                                        <div className="font-medium text-[#0a1628]">{b.name}</div>
-                                        <div className="text-xs text-gray-500">{b.contact_email || "No email"}</div>
+                                        <div className="font-medium text-[#0a1628]">{b.business_name}</div>
+                                        <div className="text-xs text-gray-500">{b.business_email || "No email"}</div>
                                       </div>
                                     </div>
                                   </td>
@@ -1463,7 +1467,7 @@ export default function AdminDashboard() {
                                   <tr>
                                     <td colSpan={4} className="bg-gray-50 px-4 py-5">
                                       <BusinessProfileForm
-                                        title={`Edit ${b.name}`}
+                                        title={`Edit ${b.business_name}`}
                                         businessId={b.id}
                                         initialData={draftBusiness}
                                         onSave={saveBusiness}
