@@ -38,9 +38,9 @@ export default function BusinessSearch({
         const supabase = getSupabase();
         const { data, error } = await supabase
           .from("businesses")
-          .select("id, name, city, country, industry, business_handle, status")
+          .select("id, business_name, city, country, industry, business_handle, status")
           .eq("status", BUSINESS_STATUS.ACTIVE)
-          .order("name", { ascending: true });
+          .order("business_name", { ascending: true });
 
         if (error) throw error;
 
@@ -96,7 +96,7 @@ export default function BusinessSearch({
 
   const handleSelectResult = (result) => {
     setSelectedResult(result);
-    setSearchTerm(result.name);
+    setSearchTerm(result.business_name);
     setResults([]);
     setError("");
     onSelect?.(result);
@@ -165,7 +165,7 @@ export default function BusinessSearch({
                 className="w-full px-4 py-3 text-left transition-colors hover:bg-slate-50 border-b border-gray-100 last:border-b-0"
               >
                 <p className="font-semibold text-[#0a1628] text-sm break-words">
-                  {result.name}
+                  {result.business_name}
                 </p>
 
                 {meta && (
@@ -200,7 +200,7 @@ export default function BusinessSearch({
             <CheckCircle className="w-4 h-4 text-[#0d4f4f] mt-0.5 flex-shrink-0" />
             <div className="min-w-0">
               <p className="font-semibold text-[#0a1628] text-sm break-words">
-                {selectedResult.name}
+                {selectedResult.business_name}
               </p>
 
               {selectedMeta && (

@@ -1,13 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { useRouter, useSearchParams } from 'next/navigation';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
 
 function CustomerPortalContent() {
   const router = useRouter();
@@ -34,6 +28,10 @@ function CustomerPortalContent() {
   const checkInvitation = async () => {
     try {
       setErrorMessage("");
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+      
       // Get profile with pending business invitation
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -100,14 +98,18 @@ function CustomerPortalContent() {
     try {
       setErrorMessage("");
       setSubmitting(true);
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+      
       // Always use production URL for email redirects
-      const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL;
+      const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL || "https://pacificdiscoverynetwork.com";
 
       // Generate magic link for existing user
       const { error } = await supabase.auth.signInWithOtp({
         email: profile.private_email,
         options: {
-          emailRedirectTo: `${appUrl}/customer-portal?business=${businessId}`
+          emailRedirectTo: `${appUrl}/BusinessPortal`
         }
       });
 
@@ -125,47 +127,53 @@ function CustomerPortalContent() {
     try {
       setErrorMessage("");
       setSubmitting(true);
+      // Import getSupabase dynamically
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+
+      // Always use production URL for email redirects
+      const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL || "https://pacificdiscoverynetwork.com";
 
       // Create new user account
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: email.trim().toLowerCase(),
         password,
         options: {
           data: {
-            full_name: fullName,
-          }
-        }
+            display_name: fullName.trim(),
+            gdpr_consent: true,
+            gdpr_consent_date: new Date().toISOString(),
+          },
+          emailRedirectTo: `${appUrl}/BusinessPortal`,
+        },
       });
 
+      console.log("Signup result:", { data: authData, error: authError });
+
       if (authError) throw authError;
+
+      // Guard against missing user data
       if (!authData?.user?.id) {
-        throw new Error('Authentication failed - no user data returned');
+        throw new Error("User account creation failed - no user ID returned");
       }
 
-      // Update existing profile instead of creating new one
+      // Update existing profile with auth user id and clear invitation
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          private_email: email,
-          display_name: fullName,
-          role: 'owner',
-          status: 'active',
+          private_email: email.trim().toLowerCase(),
+          display_name: fullName.trim(),
+          pending_business_id: null,
+          pending_business_name: null,
+          invited_date: null,
+          status: 'active'
         })
         .eq('id', invitedProfile.profileId);
 
       if (profileError) throw profileError;
 
-      // Update business owner status with stricter guard
-      if (!authData?.user?.id) {
-        throw new Error('Authentication failed - no user data returned');
-      }
-      
-      await acceptInvitation({
-        userId: authData.user.id,
-        profileId: invitedProfile.profileId
-      });
-
-      // Redirect to business portal
+      // Accept the invitation with the new user
+      await acceptInvitation({ userId: authData.user.id, profileId: invitedProfile.profileId });
       router.push('/business-portal');
     } catch (error) {
       console.error('Error signing up:', error);
@@ -175,30 +183,28 @@ function CustomerPortalContent() {
   };
 
   const acceptInvitation = async ({ userId, profileId }) => {
-  // Update business to assign to new owner
-  const { error: businessError } = await supabase
-    .from('businesses')
-    .update({
-      owner_user_id: userId,
-      claimed_at: new Date().toISOString(),
-      claimed_by: userId,
-      is_claimed: true,
-      is_verified: true,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', businessId);
+    // Import getSupabase dynamically
+    const { getSupabase } = await import("@/lib/supabase/client");
+    const supabase = getSupabase();
+    
+    // Update business to assign to new owner
+    const { error: businessError } = await supabase
+      .from('businesses')
+      .update({ 
+        owner_user_id: userId,
+        status: 'active'
+      })
+      .eq('id', businessId);
 
   if (businessError) throw businessError;
 
-  // Clear pending invitation from profile
+  // Clear invitation from profile
   const { error: profileError } = await supabase
     .from('profiles')
-    .update({
+    .update({ 
       pending_business_id: null,
       pending_business_name: null,
-      invited_by: null,
-      invited_date: null,
-      status: 'active'
+      invited_date: null
     })
     .eq('id', profileId);
 

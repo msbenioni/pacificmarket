@@ -200,6 +200,7 @@ export default function About() {
                     src="/why_we_built_this.png"
                     alt="Pacific legacy and enterprise"
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover"
                   />
                 </div>
@@ -277,6 +278,7 @@ export default function About() {
                   src="/craft.png"
                   alt="Pacific founders craft"
                   fill
+                  sizes="(max-width: 640px) 300px, (max-width: 1024px) 350px, 400px"
                   className="object-cover"
                 />
               </div>
@@ -352,6 +354,7 @@ export default function About() {
                   src="/jasmin.png"
                   alt="Jasmin Benioni"
                   fill
+                  sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 350px"
                   className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
               </div>
@@ -392,6 +395,7 @@ export default function About() {
                   src="/daniel.png"
                   alt="Daniel Maine"
                   fill
+                  sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 350px"
                   className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
               </div>
