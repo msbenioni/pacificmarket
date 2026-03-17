@@ -45,24 +45,24 @@ export const ONBOARDING_STEPS = [
     purpose: 'Representation of Pacific communities',
     fields: [
       {
-        id: 'primary_cultural',
+        id: 'cultural_identity',
         label: 'Cultural Identity',
         type: 'multiselect',
         required: true,
-        placeholder: 'Select your cultural identities',
+        placeholder: 'Select your cultural identity',
         description: 'Select all cultural identities that apply to you',
         options: COUNTRIES
       }
     ]
   },
   {
-    id: 'languages',
+    id: 'languages_spoken',
     title: 'Step 3 — Languages',
     subtitle: 'Languages Spoken',
     purpose: 'Language capabilities and communication',
     fields: [
       {
-        id: 'languages',
+        id: 'languages_spoken',
         label: 'Languages spoken',
         type: 'multiselect',
         required: false,
@@ -80,8 +80,8 @@ export const PROFILE_SCHEMA = {
   country: 'text',
   
   // Cultural identity fields
-  primary_cultural: 'text[]',
-  languages: 'text[]',
+  cultural_identity: 'text[]',
+  languages_spoken: 'text[]',
 };
 
 export const ONBOARDING_VALIDATION_RULES = {
@@ -96,7 +96,7 @@ export const ONBOARDING_VALIDATION_RULES = {
   },
   
   // Step 2 validation
-  primary_cultural: {
+  cultural_identity: {
     required: true,
     minItems: 1
   }
@@ -111,4 +111,4 @@ export const ONBOARDING_DESCRIPTION = {
   estimatedTime: ONBOARDING_COMPLETION_TIME
 };
 
-export const IDENTITIES = ONBOARDING_STEPS[1].fields.find(f => f.id === 'primary_cultural').options.map(o => o.label);
+export const IDENTITIES = ONBOARDING_STEPS[1].fields.find(f => f.id === 'cultural_identity').options.map(o => o.label);

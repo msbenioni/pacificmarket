@@ -191,11 +191,11 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
           </p>
           <div className="mt-2 space-y-1">
             <p className="text-xs text-gray-600">
-              <span className="font-medium">Contact:</span> {claim.contact_email || "Not provided"}
+              <span className="font-medium">Business Email:</span> {claim.business_email || "Not provided"}
             </p>
-            {claim.contact_phone && (
+            {claim.business_phone && (
               <p className="text-xs text-gray-600">
-                <span className="font-medium">Phone:</span> {claim.contact_phone}
+                <span className="font-medium">Business Phone:</span> {claim.business_phone}
               </p>
             )}
             <p className="text-xs text-gray-600">
@@ -207,19 +207,6 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
             {claim.message && (
               <p className="text-xs text-gray-600">
                 <span className="font-medium">Message:</span> {claim.message}
-              </p>
-            )}
-            {claim.proof_url && (
-              <p className="text-xs text-gray-600">
-                <span className="font-medium">Proof:</span>{" "}
-                <a 
-                  href={claim.proof_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  View documentation
-                </a>
               </p>
             )}
           </div>
@@ -384,7 +371,6 @@ export default function AdminDashboard() {
     industry: "",
     tier: "",
     is_verified: "",
-    claimStatus: "",
   });
 
   const loadAdminData = useCallback(async () => {
@@ -401,10 +387,11 @@ export default function AdminDashboard() {
         supabase
           .from("claim_requests")
           .select(`
-            id, business_id, user_id, status, contact_email, contact_phone,
-            role, proof_url, created_at, claim_type, message,
+            id, business_id, user_id, status, business_email, business_phone,
+            role, created_at, claim_type, message,
             reviewed_by, reviewed_at
           `)
+          .eq("status", "pending")
           .order("created_at", { ascending: false })
           .limit(100),
       ]);
@@ -485,12 +472,21 @@ export default function AdminDashboard() {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
+      const updateData = {
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (business.status === BUSINESS_STATUS.PENDING && newStatus === BUSINESS_STATUS.ACTIVE) {
+        updateData.is_claimed = true;
+        updateData.is_verified = true;
+        updateData.claimed_at = new Date().toISOString();
+        updateData.claimed_by = user?.id;
+      }
+
       const { data, error } = await supabase
         .from("businesses")
-        .update({
-          status: newStatus,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", business.id)
         .select(); // Return the updated data
 
@@ -498,7 +494,7 @@ export default function AdminDashboard() {
 
       if (error) throw error;
 
-      setBusinesses((prev) => prev.map((b) => (b.id === business.id ? { ...b, status: newStatus } : b)));
+      setBusinesses((prev) => prev.map((b) => (b.id === business.id ? { ...b, ...updateData } : b)));
       
       // Refresh admin data to ensure consistency
       await loadAdminData();
@@ -531,7 +527,12 @@ export default function AdminDashboard() {
 
       if (error) throw error;
 
-      setClaims((prev) => prev.map((c) => (c.id === claim.id ? { ...c, status: newStatus } : c)));
+      // Remove the claim from local state if it's no longer pending
+      if (newStatus !== "pending") {
+        setClaims((prev) => prev.filter((c) => c.id !== claim.id));
+      } else {
+        setClaims((prev) => prev.map((c) => (c.id === claim.id ? { ...c, status: newStatus } : c)));
+      }
 
       if (newStatus === "approved") {
         const matchedBusiness = businesses.find((b) => b.id === claim.business_id);
@@ -732,7 +733,7 @@ export default function AdminDashboard() {
         ...safeUpdateData,
         status: formData.status || BUSINESS_STATUS.ACTIVE,
         is_verified: formData.is_verified ?? true,
-        is_claimed: formData.is_claimed ?? false,
+        is_claimed: true, // Admin-created businesses should be marked as claimed
         created_date: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -932,15 +933,11 @@ export default function AdminDashboard() {
   const getFilteredClaims = () => {
     let filteredClaims = claims;
 
-    if (filters.claimStatus) {
-      filteredClaims = filteredClaims.filter((claim) => claim.status === filters.claimStatus);
-    }
-
     if (searchQuery) {
       filteredClaims = filteredClaims.filter((claim) => {
         const business = businesses.find((b) => b.id === claim.business_id);
         return (
-          claim.user_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          claim.business_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           claim.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           business?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           business?.description?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -1090,19 +1087,6 @@ export default function AdminDashboard() {
                       <option value="true">Verified</option>
                       <option value="false">Not Verified</option>
                     </select>
-
-                    {activeTab === "claims" && (
-                      <select
-                        value={filters.claimStatus}
-                        onChange={(e) => setFilters((prev) => ({ ...prev, claimStatus: e.target.value }))}
-                        className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-                      >
-                        <option value="">All Claim Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                      </select>
-                    )}
                   </div>
 
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
@@ -1113,7 +1097,6 @@ export default function AdminDashboard() {
                           industry: "",
                           tier: "",
                           is_verified: "",
-                          claimStatus: "",
                         })
                       }
                       className={secondaryButtonCls}
@@ -1256,8 +1239,29 @@ export default function AdminDashboard() {
 
                                   <p className="text-xs text-gray-500">
                                     {business?.country || "Unknown"} · {business?.industry || "Unknown"} ·{" "}
-                                    {claim.user_email}
+                                    {claim.business_email}
                                   </p>
+                                  <div className="mt-2 space-y-1">
+                                    <p className="text-xs text-gray-600">
+                                      <span className="font-medium">Contact:</span> {claim.business_email || "Not provided"}
+                                    </p>
+                                    {claim.business_phone && (
+                                      <p className="text-xs text-gray-600">
+                                        <span className="font-medium">Phone:</span> {claim.business_phone}
+                                      </p>
+                                    )}
+                                    <p className="text-xs text-gray-600">
+                                      <span className="font-medium">Role:</span> {claim.role || "Not specified"}
+                                    </p>
+                                    <p className="text-xs text-gray-600">
+                                      <span className="font-medium">Claim Type:</span> {claim.claim_type || "Standard request"}
+                                    </p>
+                                    {claim.message && (
+                                      <p className="text-xs text-gray-600">
+                                        <span className="font-medium">Message:</span> {claim.message}
+                                      </p>
+                                    )}
+                                  </div>
                                   <p className="mt-1 text-xs text-gray-400">
                                     Requested{" "}
                                     {claim.created_at || claim.created_date

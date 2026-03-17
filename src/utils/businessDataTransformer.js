@@ -22,6 +22,18 @@ export const transformBusinessFormData = (formData) => {
     contact_phone: formData.contact_phone,
     contact_website: formData.contact_website,
     business_hours: formData.business_hours,
+    
+    // Claim request details
+    role: formData.role,
+    
+    // Customer contact details (for "Contact Us" button)
+    customer_contact_phone: formData.customer_contact_phone,
+    customer_contact_email: formData.customer_contact_email,
+    
+    // Social media links
+    social_links: formData.social_links,
+    
+    // Location & Industry
     country: formData.country,
     industry: formData.industry,
     city: formData.city,
@@ -89,6 +101,12 @@ export const sanitizeForBusinessesTable = (data) => {
     'country', 'industry', 'city', 'year_started', 'business_structure',
     'team_size_band', 'status', 'is_verified', 'is_claimed', 'is_homepage_featured',
     'subscription_tier',
+    // Claim request details
+    'role',
+    // Customer contact details
+    'customer_contact_phone', 'customer_contact_email',
+    // Social media
+    'social_links',
     // Business insights fields (now in businesses table)
     'business_stage', 'business_registered',
     // Founder insights fields (now in businesses table)

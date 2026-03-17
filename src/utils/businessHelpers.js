@@ -38,7 +38,7 @@ export function getBusinessOwnerName(ownerUserId, profiles = []) {
  */
 export function getBusinessOwnerEmail(ownerUserId, profiles = []) {
   const owner = getBusinessOwner(ownerUserId, profiles);
-  return owner?.email || '';
+  return owner?.private_email || '';
 }
 
 /**

@@ -38,8 +38,8 @@ export function useBusinessPortalData() {
         supabase
           .from("profiles")
           .select(`
-            id, email, display_name, role, country, city, primary_cultural,
-            languages, gdpr_consent, gdpr_consent_date, status, invited_by,
+            id, private_email, display_name, role, country, city, cultural_identity,
+            languages_spoken, gdpr_consent, gdpr_consent_date, status, invited_by,
             invited_date, pending_business_id, pending_business_name
           `),
       ]);
@@ -80,8 +80,8 @@ export function useBusinessPortalData() {
       const { data: profileData } = await supabase
         .from("profiles")
         .select(`
-          id, email, display_name, role, country, city, primary_cultural,
-          languages, gdpr_consent, gdpr_consent_date, status, invited_by,
+          id, private_email, display_name, role, country, city, cultural_identity,
+          languages_spoken, gdpr_consent, gdpr_consent_date, status, invited_by,
           invited_date, pending_business_id, pending_business_name
         `)
         .eq("id", authUser.id)

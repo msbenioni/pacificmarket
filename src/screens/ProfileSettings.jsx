@@ -84,7 +84,8 @@ export default function ProfileSettings() {
 
   // Profile form state - initialize with empty values to avoid hydration mismatch
   const [displayName, setDisplayName] = useState("");
-  const [email, setEmail] = useState("");
+  const [privateEmail, setPrivateEmail] = useState("");
+  const [privatePhone, setPrivatePhone] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -95,8 +96,8 @@ export default function ProfileSettings() {
   // Profile foundation state - initialize with empty values to avoid hydration mismatch
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
-  const [primaryCultural, setPrimaryCultural] = useState([]);
-  const [languages, setLanguages] = useState([]);
+  const [culturalIdentity, setCulturalIdentity] = useState([]);
+  const [languagesSpoken, setLanguagesSpoken] = useState([]);
   const [expandedSections, setExpandedSections] = useState(new Set());
 
   // Admin management state
@@ -131,7 +132,7 @@ export default function ProfileSettings() {
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select(
-            "role, display_name, city, country, primary_cultural, languages"
+            "role, display_name, city, country, cultural_identity, languages_spoken, private_phone"
           )
           .eq("id", user.id)
           .single();
@@ -157,6 +158,7 @@ export default function ProfileSettings() {
             user.user_metadata?.display_name ||
             user.user_metadata?.full_name ||
             "",
+          private_email: profileData?.private_email || user.email || "",
         };
 
         setUser(enhancedUser);
@@ -167,33 +169,34 @@ export default function ProfileSettings() {
         console.log("Enhanced user:", enhancedUser);
 
         setDisplayName(enhancedUser.display_name || "");
-        setEmail(enhancedUser.email || "");
+        setPrivateEmail(enhancedUser.private_email || "");
         setCity(profileData?.city || "");
         setCountry(profileData?.country || "");
 
-        // Safe JSON parsing for primary_cultural
-        if (profileData?.primary_cultural) {
+        // Safe JSON parsing for cultural_identity
+        if (profileData?.cultural_identity) {
           try {
-            if (Array.isArray(profileData.primary_cultural)) {
-              setPrimaryCultural(profileData.primary_cultural);
+            if (Array.isArray(profileData.cultural_identity)) {
+              setCulturalIdentity(profileData.cultural_identity);
             } else {
               // Handle the specific database format: {"cook-islands","french-polynesia"}
               const parsed = JSON.parse(
-                profileData.primary_cultural.replace(/^{/, "[").replace(/}$/, "]")
+                profileData.cultural_identity.replace(/^{/, "[").replace(/}$/, "]")
               );
-              setPrimaryCultural(Array.isArray(parsed) ? parsed : []);
+              setCulturalIdentity(Array.isArray(parsed) ? parsed : []);
             }
           } catch (error) {
-            console.error("Error parsing primary_cultural:", error, "Data:", profileData.primary_cultural);
-            setPrimaryCultural([]);
+            console.error("Error parsing cultural_identity:", error, "Data:", profileData.cultural_identity);
+            setCulturalIdentity([]);
           }
         } else {
-          setPrimaryCultural([]);
+          setCulturalIdentity([]);
         }
 
-        setLanguages(
-          Array.isArray(profileData?.languages) ? profileData.languages : []
+        setLanguagesSpoken(
+          Array.isArray(profileData?.languages_spoken) ? profileData.languages_spoken : []
         );
+        setPrivatePhone(profileData?.private_phone || "");
 
         if (checkIsAdmin(enhancedUser)) {
           await loadAdminUsers();
@@ -240,7 +243,7 @@ export default function ProfileSettings() {
 
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ display_name: displayName })
+        .update({ display_name: displayName, private_email: privateEmail, private_phone: privatePhone })
         .eq("id", user.id);
 
       if (profileError) throw profileError;
@@ -254,15 +257,15 @@ export default function ProfileSettings() {
 
       if (userError) throw userError;
 
-      if (email !== user.email) {
+      if (privateEmail !== user.email) {
         const { error: emailError } = await supabase.auth.updateUser({
-          email,
+          email: privateEmail,
         });
 
         if (emailError) throw emailError;
       }
 
-      setUser((prev) => ({ ...prev, display_name: displayName, email }));
+      setUser((prev) => ({ ...prev, display_name: displayName, private_email: privateEmail }));
 
       toast({
         title: "Profile Updated",
@@ -378,7 +381,7 @@ export default function ProfileSettings() {
 
       const { error: profileError } = await supabase.from("profiles").insert({
         id: authData.user.id,
-        email: newAdminEmail,
+        private_email: newAdminEmail,
         full_name: newAdminName,
         display_name: newAdminName,
         role: "admin",
@@ -458,9 +461,9 @@ export default function ProfileSettings() {
   };
 
   const toggleArrayItem = (field, item) => {
-    const currentArray = field === "primaryCultural" ? primaryCultural : languages;
+    const currentArray = field === "culturalIdentity" ? culturalIdentity : languagesSpoken;
     const setter =
-      field === "primaryCultural" ? setPrimaryCultural : setLanguages;
+      field === "culturalIdentity" ? setCulturalIdentity : setLanguagesSpoken;
 
     if (currentArray.includes(item)) {
       setter(currentArray.filter((i) => i !== item));
@@ -481,8 +484,8 @@ export default function ProfileSettings() {
         .update({
           city,
           country,
-          primary_cultural: primaryCultural,
-          languages,
+          cultural_identity: culturalIdentity,
+          languages_spoken: languagesSpoken,
         })
         .eq("id", user.id);
 
@@ -507,12 +510,13 @@ export default function ProfileSettings() {
     }
   };
 
-  const isProfileComplete = !!(
+  const isProfileComplete =
+    displayName &&
+    privateEmail &&
     city &&
     country &&
-    primaryCultural.length > 0 &&
-    languages.length > 0
-  );
+    culturalIdentity.length > 0 &&
+    languagesSpoken.length > 0;
 
   if (loading) {
     return (
@@ -593,14 +597,27 @@ export default function ProfileSettings() {
 
                   <div>
                     <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                      Email Address
+                      Private Email
                     </label>
                     <input
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={privateEmail}
+                      onChange={(e) => setPrivateEmail(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
-                      placeholder="Enter your email"
+                      placeholder="Enter your private email"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#0a1628] mb-2">
+                      Private Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={privatePhone}
+                      onChange={(e) => setPrivatePhone(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
+                      placeholder="Enter your private phone"
                     />
                   </div>
 
@@ -657,7 +674,7 @@ export default function ProfileSettings() {
 
                   <div>
                     <label className="block text-sm font-medium text-[#0a1628] mb-2">
-                      Primary Cultural Identity
+                      Cultural Identity
                     </label>
                     <div className="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-3">
                       {COUNTRIES.map((countryItem) => (
@@ -667,9 +684,9 @@ export default function ProfileSettings() {
                         >
                           <input
                             type="checkbox"
-                            checked={primaryCultural.includes(countryItem.value)}
+                            checked={culturalIdentity.includes(countryItem.value)}
                             onChange={() =>
-                              toggleArrayItem("primaryCultural", countryItem.value)
+                              toggleArrayItem("culturalIdentity", countryItem.value)
                             }
                             className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
                           />
@@ -693,9 +710,9 @@ export default function ProfileSettings() {
                         >
                           <input
                             type="checkbox"
-                            checked={languages.includes(language.value)}
+                            checked={languagesSpoken.includes(language.value)}
                             onChange={() =>
-                              toggleArrayItem("languages", language.value)
+                              toggleArrayItem("languagesSpoken", language.value)
                             }
                             className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
                           />

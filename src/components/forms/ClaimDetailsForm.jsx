@@ -1,31 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, User, MessageSquare, Link as LinkIcon } from "lucide-react";
+import { Mail, Phone, User, MessageSquare } from "lucide-react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
 export default function ClaimDetailsForm({ business, onSubmit, isLoading }) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    contact_email: "",
-    contact_phone: "",
+    business_email: "",
+    business_phone: "",
     role: "owner",
     message: "",
-    proof_url: "",
   });
 
   const set = (key, value) => setFormData((prev) => ({ ...prev, [key]: value }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.contact_email) {
+    if (!formData.business_email) {
       toast({
         title: "Email Required",
         description: "Please provide a business email address",
-        variant: "error"
+        variant: "error",
       });
       return;
     }
+
     onSubmit(formData);
   };
 
@@ -46,8 +46,8 @@ export default function ClaimDetailsForm({ business, onSubmit, isLoading }) {
 
         <input
           type="email"
-          value={formData.contact_email}
-          onChange={(e) => set("contact_email", e.target.value)}
+          value={formData.business_email}
+          onChange={(e) => set("business_email", e.target.value)}
           placeholder="contact@yourbusiness.com"
           className={inputCls}
           required
@@ -68,8 +68,8 @@ export default function ClaimDetailsForm({ business, onSubmit, isLoading }) {
 
           <input
             type="tel"
-            value={formData.contact_phone}
-            onChange={(e) => set("contact_phone", e.target.value)}
+            value={formData.business_phone}
+            onChange={(e) => set("business_phone", e.target.value)}
             placeholder="+64 21 123 4567"
             className={inputCls}
           />
@@ -110,26 +110,6 @@ export default function ClaimDetailsForm({ business, onSubmit, isLoading }) {
         />
       </div>
 
-      {/* Proof link */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-4">
-        <div className={labelWrapCls}>
-          <LinkIcon className="w-3.5 h-3.5 text-[#0d4f4f]" />
-          <label className={labelTextCls}>Proof Link (optional)</label>
-        </div>
-
-        <input
-          type="url"
-          value={formData.proof_url}
-          onChange={(e) => set("proof_url", e.target.value)}
-          placeholder="https://yourwebsite.com or https://facebook.com/yourbusiness"
-          className={inputCls}
-        />
-
-        <p className="mt-2 text-xs leading-5 text-gray-400">
-          Add a website, Facebook, Instagram, or Google Business profile to help verify ownership.
-        </p>
-      </div>
-
       {/* Info block */}
       <div className="rounded-2xl border border-[#0d4f4f]/20 bg-[#0d4f4f]/5 p-4">
         <p className="text-sm font-semibold text-[#0a1628]">Next steps</p>
@@ -142,7 +122,7 @@ export default function ClaimDetailsForm({ business, onSubmit, isLoading }) {
       {/* Submit */}
       <button
         type="submit"
-        disabled={isLoading || !formData.contact_email}
+        disabled={isLoading || !formData.business_email}
         className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] disabled:opacity-50 transition"
       >
         {isLoading ? "Submitting..." : "Submit ownership request"}

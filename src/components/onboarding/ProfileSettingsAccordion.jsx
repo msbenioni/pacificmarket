@@ -29,8 +29,8 @@ export default function ProfileSettingsAccordion({ onComplete }) {
     display_name: "",
     city: "",
     country: "",
-    primary_cultural: [],
-    languages: [],
+    cultural_identity: [],
+    languages_spoken: [],
     years_operating: "",
   });
 
@@ -70,10 +70,10 @@ export default function ProfileSettingsAccordion({ onComplete }) {
             "",
           city: profileData.city || "",
           country: profileData.country || "",
-          primary_cultural: Array.isArray(profileData.primary_cultural)
-            ? profileData.primary_cultural
+          cultural_identity: Array.isArray(profileData.cultural_identity)
+            ? profileData.cultural_identity
             : [],
-          languages: Array.isArray(profileData.languages) ? profileData.languages : [],
+          languages_spoken: Array.isArray(profileData.languages_spoken) ? profileData.languages_spoken : [],
           years_operating: profileData.years_operating || "",
         });
       }
@@ -121,8 +121,8 @@ export default function ProfileSettingsAccordion({ onComplete }) {
     const transformedData = { ...form };
 
     const arrayFields = [
-      "primary_cultural",
-      "languages",
+      "cultural_identity",
+      "languages_spoken",
     ];
 
     arrayFields.forEach((field) => {
@@ -265,8 +265,8 @@ export default function ProfileSettingsAccordion({ onComplete }) {
                 >
                   <input
                     type="checkbox"
-                    checked={form.primary_cultural?.includes(country.value) || false}
-                    onChange={() => toggleArrayItem("primary_cultural", country.value)}
+                    checked={form.cultural_identity?.includes(country.value) || false}
+                    onChange={() => toggleArrayItem("cultural_identity", country.value)}
                     className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
                   />
                   <span className="text-sm leading-5 text-slate-700">{country.label}</span>
@@ -290,8 +290,8 @@ export default function ProfileSettingsAccordion({ onComplete }) {
                 >
                   <input
                     type="checkbox"
-                    checked={form.languages?.includes(language.value) || false}
-                    onChange={() => toggleArrayItem("languages", language.value)}
+                    checked={form.languages_spoken.includes(language.value)}
+                    onChange={() => toggleArrayItem("languages_spoken", language.value)}
                     className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
                   />
                   <span className="text-sm leading-5 text-slate-700">{language.label}</span>

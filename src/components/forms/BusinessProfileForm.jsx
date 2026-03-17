@@ -9,6 +9,9 @@ import {
   TrendingUp,
   AlertCircle,
   Lightbulb,
+  Share2,
+  FileText,
+  Phone,
 } from "lucide-react";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import { transformBusinessFormData } from "@/utils/businessDataTransformer";
@@ -20,6 +23,8 @@ import BrandMediaSection from "./FormSections/BrandMediaSection";
 import LocationSection from "./FormSections/LocationSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import CommunitySection from "./FormSections/CommunitySection";
+import SocialMediaSection from "./FormSections/SocialMediaSection";
+import ContactDetailsSection from "./FormSections/ContactDetailsSection";
 import { OptionCard, inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection, badgeCls, cardCls, buttonCls, textXs, textSm, textBase } from "./shared/FormComponents";
 
 // Form Sections Configuration
@@ -47,6 +52,18 @@ const SECTIONS = [
     label: "Community & Impact",
     icon: Lightbulb,
     description: "Collaboration interests, mentorship, and community engagement",
+  },
+  {
+    key: "social",
+    label: "Social Media & Web",
+    icon: Share2,
+    description: "Website and social media profiles",
+  },
+  {
+    key: "contact",
+    label: "Contact Details",
+    icon: Phone,
+    description: "Contact information for customer inquiries",
   },
   {
     key: "brand",
@@ -113,6 +130,24 @@ export default function BusinessProfileForm({
     contact_phone: "",
     contact_website: "",
     business_hours: "",
+    
+    // Claim Request Details (missing from create form)
+    role: "",
+    
+    // Customer Contact Details (for "Contact Us" button)
+    customer_contact_phone: "",
+    customer_contact_email: "",
+    
+    // Social Media (missing from create form)
+    social_links: {
+      facebook: "",
+      instagram: "",
+      twitter: "",
+      linkedin: "",
+      youtube: "",
+      tiktok: "",
+      website: ""
+    },
     
     // Private Contact Details (from InlineBusinessForm)
     private_business_phone: "",
@@ -404,6 +439,27 @@ export default function BusinessProfileForm({
             textareaCls={textareaCls}
             selectCls={selectCls}
             helperCls={helperCls}
+          />
+        );
+      
+      case "social":
+        return (
+          <SocialMediaSection
+            form={form}
+            handleInputChange={handleInputChange}
+            inputCls={inputCls}
+            labelCls={labelCls}
+          />
+        );
+      
+      case "contact":
+        return (
+          <ContactDetailsSection
+            form={form}
+            handleInputChange={handleInputChange}
+            inputCls={inputCls}
+            textareaCls={textareaCls}
+            labelCls={labelCls}
           />
         );
       

@@ -190,7 +190,7 @@ export function canAccessTab(tabId, user, businesses = []) {
  * @returns {Object} - Enhanced user object
  */
 export function formatUserData(authUser, profileData) {
-  return {
+  const enhancedUser = {
     ...authUser,
     role: profileData?.role || "owner",
     permissions: profileData?.role === "admin" ? ["read", "write", "delete"] : [],
@@ -202,7 +202,9 @@ export function formatUserData(authUser, profileData) {
       profileData?.display_name ||
       authUser.user_metadata?.display_name ||
       authUser.user_metadata?.full_name,
+    private_email: profileData?.private_email || authUser.email || "",
   };
+  return enhancedUser;
 }
 
 /**

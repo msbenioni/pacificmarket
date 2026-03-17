@@ -61,8 +61,8 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
             display_name: profileData.display_name || user?.user_metadata?.full_name || user?.user_metadata?.display_name || '',
             city: profileData.city || '',
             country: profileData.country || '',
-            primary_cultural: Array.isArray(profileData.primary_cultural) ? profileData.primary_cultural : [],
-            languages: Array.isArray(profileData.languages) ? profileData.languages : [],
+            cultural_identity: Array.isArray(profileData.cultural_identity) ? profileData.cultural_identity : [],
+            languages_spoken: Array.isArray(profileData.languages_spoken) ? profileData.languages_spoken : [],
             years_operating: profileData.years_operating || '',
             market_region: profileData.market_region || ''
           });
@@ -72,8 +72,8 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
             display_name: user?.user_metadata?.full_name || user?.user_metadata?.display_name || '',
             city: '',
             country: '',
-            primary_cultural: [],
-            languages: [],
+            cultural_identity: [],
+            languages_spoken: [],
             years_operating: '',
             market_region: ''
           });
@@ -146,7 +146,7 @@ export function ProfileSetupModal({ isOpen, onClose, onComplete, initialStep = 1
       const transformedData = { ...formData };
       
       // Handle array fields properly for PostgreSQL
-      const arrayFields = ['primary_cultural', 'professional_background', 'skills_expertise', 'languages'];
+      const arrayFields = ['cultural_identity', 'professional_background', 'skills_expertise', 'languages_spoken'];
       
       arrayFields.forEach(field => {
         if (transformedData[field]) {

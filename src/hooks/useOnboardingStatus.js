@@ -122,9 +122,9 @@ export function useOnboardingStatus() {
       profileProgress: {
         country: !!profile?.country,
         city: !!profile?.city,
-        primary_cultural: !!profile?.primary_cultural,
+        cultural_identity: !!profile?.cultural_identity,
         display_name: !!profile?.display_name,
-        languages: Array.isArray(profile?.languages) && profile.languages.length > 0,
+        languages_spoken: Array.isArray(profile?.languages_spoken) && profile.languages_spoken.length > 0,
         years_operating: !!profile?.years_operating,
         market_region: !!profile?.market_region,
       },
