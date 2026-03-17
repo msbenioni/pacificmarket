@@ -79,7 +79,7 @@ export function useBusinessOperations(refetchPortalData) {
         if (businessData.files?.logo_file) {
           const file = businessData.files.logo_file;
           
-          // Validate file type (accept SVG for auto-generated images)
+          // Validate file type (accept SVG for starter images)
           const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
           if (!allowedTypes.includes(file.type)) {
             throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
@@ -112,7 +112,7 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.banner_file) {
         const file = businessData.files.banner_file;
         
-        // Validate file type (accept SVG for auto-generated images)
+        // Validate file type (accept SVG for starter images)
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
           throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
@@ -145,7 +145,7 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.mobile_banner_file) {
         const file = businessData.files.mobile_banner_file;
         
-        // Validate file type (accept SVG for auto-generated images)
+        // Validate file type (accept SVG for starter images)
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
           throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
@@ -464,7 +464,7 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.logo_file) {
         const file = businessData.files.logo_file;
         
-        // Validate file type (accept SVG for auto-generated images)
+        // Validate file type (accept SVG for starter images)
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
           throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
@@ -497,7 +497,7 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.banner_file) {
         const file = businessData.files.banner_file;
         
-        // Validate file type (accept SVG for auto-generated images)
+        // Validate file type (accept SVG for starter images)
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
           throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
@@ -530,7 +530,7 @@ export function useBusinessOperations(refetchPortalData) {
       if (businessData.files?.mobile_banner_file) {
         const file = businessData.files.mobile_banner_file;
         
-        // Validate file type (accept SVG for auto-generated images)
+        // Validate file type (accept SVG for starter images)
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!allowedTypes.includes(file.type)) {
           throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
@@ -593,11 +593,34 @@ export function useBusinessOperations(refetchPortalData) {
 
       console.log("Business created successfully:", newBusiness);
 
+      // Generate starter branding for Vaka plans
+      if (!canUploadImages && newBusiness?.id) {
+        try {
+          console.log("Generating starter branding for Vaka business:", newBusiness.id);
+          
+          const brandingResponse = await fetch("/api/branding/starter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ businessId: newBusiness.id }),
+          });
+
+          if (brandingResponse.ok) {
+            const brandingResult = await brandingResponse.json();
+            console.log("Starter branding generated:", brandingResult);
+          } else {
+            console.warn("Failed to generate starter branding:", await brandingResponse.text());
+          }
+        } catch (brandingError) {
+          console.error("Error generating starter branding:", brandingError);
+          // Don't fail the whole business creation if branding fails
+        }
+      }
+
       await refetchPortalData();
       
       // Customize success message based on subscription tier
       const successMessage = !canUploadImages 
-        ? "Business created! Generic images have been generated for your Vaka plan. Upgrade to Mana or Moana to upload custom images."
+        ? "Business created! Starter branding has been generated for your Vaka plan. Upgrade to Mana or Moana to upload custom images."
         : "Business created! Your business has been submitted for review and will appear in pending status.";
       
       toast({

@@ -138,6 +138,7 @@ export default function BusinessProfileForm({
     is_verified: false,
     is_claimed: false,
     is_homepage_featured: false,
+    subscription_tier: "vaka",
     
     collaboration_interest: false,
     mentorship_offering: false,
@@ -351,6 +352,7 @@ export default function BusinessProfileForm({
             textareaCls={textareaCls}
             labelCls={labelCls}
             selectCls={selectCls}
+            showAdminFields={showAdminFields}
           />
         );
       
@@ -358,16 +360,13 @@ export default function BusinessProfileForm({
         return (
           <BrandMediaSection
             form={form}
-            handleInputChange={handleInputChange}
             handleFileUpload={handleFileUpload}
             removeImage={removeImage}
             logoInputId={logoInputId}
             bannerInputId={bannerInputId}
             mobileBannerInputId={mobileBannerInputId}
-            inputCls={inputCls}
             labelCls={labelCls}
-            subscriptionTier={subscriptionTier}
-            mode={mode}
+            subscriptionTier={form.subscription_tier}
           />
         );
       

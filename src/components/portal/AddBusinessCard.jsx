@@ -50,31 +50,14 @@ export default function AddBusinessCard({
               </div>
 
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="truncate text-lg sm:text-xl font-semibold text-[#0a1628]">
-                    Add New Business
-                  </h3>
+              <h3 className="truncate text-lg sm:text-xl font-semibold text-[#0a1628]">
+                Add New Business
+              </h3>
 
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#0d4f4f]/20 bg-[#0d4f4f]/10 px-2.5 py-1 text-[11px] font-semibold text-[#0d4f4f]">
-                    <Building2 className="h-3 w-3" />
-                    New Listing
-                  </span>
-                </div>
-
-                <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-1 sm:gap-2">
-                  <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold sm:px-3 sm:py-1 sm:text-xs bg-blue-50 text-blue-700 border border-blue-200">
-                    Create New
-                  </span>
-
-                  <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-medium text-slate-600 sm:px-3 sm:py-1 sm:text-xs border border-slate-200 bg-white">
-                    Pacific Discovery Network
-                  </span>
-                </div>
-
-                <p className="mt-2 text-sm text-slate-600 sm:mt-3">
-                  Create a new listing and represent your people, your country, and your work.
-                </p>
-              </div>
+              <p className="mt-2 text-sm text-slate-600 sm:mt-3">
+                Create a new listing and represent your people, your country, and your work.
+              </p>
+            </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 xl:justify-end">
@@ -85,7 +68,12 @@ export default function AddBusinessCard({
                 </div>
               )}
 
-              <div className="rounded-xl border border-[#0d4f4f]/20 bg-white p-2 text-[#0d4f4f] shadow-sm">
+              <div 
+                className={`rounded-xl border border-[#0d4f4f]/20 bg-white p-2 text-[#0d4f4f] shadow-sm cursor-pointer transition-colors hover:bg-[#f8fbfb] ${
+                  isOpen ? "hover:bg-red-50 hover:border-red-200 hover:text-red-600" : ""
+                }`}
+                onClick={() => isOpen && handleCancel()}
+              >
                 <Plus
                   className={`h-4 w-4 transition-transform ${
                     isOpen ? "rotate-45" : ""

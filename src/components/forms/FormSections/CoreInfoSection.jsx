@@ -1,10 +1,19 @@
 import { generateBusinessHandle } from "@/utils/businessHandleGenerator";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
-export default function CoreInfoSection({ form, handleInputChange, inputCls, textareaCls, labelCls, selectCls }) {
+export default function CoreInfoSection({ 
+  form, 
+  handleInputChange, 
+  inputCls, 
+  textareaCls, 
+  labelCls, 
+  selectCls,
+  showAdminFields = false 
+}) {
   const handleNameChange = (value) => {
     handleInputChange("name", value);
     
-    // Auto-populate business handle if it's empty or was auto-generated
+    // Auto-populate business handle if it's empty or was starter-generated
     if (!form.business_handle || form.business_handle === generateBusinessHandle(form.name || '')) {
       const newHandle = generateBusinessHandle(value);
       handleInputChange("business_handle", newHandle);
@@ -57,6 +66,25 @@ export default function CoreInfoSection({ form, handleInputChange, inputCls, tex
           required
         />
       </div>
+
+      {/* Admin-only subscription tier field */}
+      {showAdminFields && (
+        <div>
+          <label className={labelCls}>Subscription Tier (Admin Only)</label>
+          <select
+            value={form.subscription_tier || SUBSCRIPTION_TIER.VAKA}
+            onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
+            className={selectCls}
+          >
+            <option value={SUBSCRIPTION_TIER.VAKA}>Vaka (Starter)</option>
+            <option value={SUBSCRIPTION_TIER.MANA}>Mana (Professional)</option>
+            <option value={SUBSCRIPTION_TIER.MOANA}>Moana (Premium)</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Change the business subscription tier. This affects branding features and visibility.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

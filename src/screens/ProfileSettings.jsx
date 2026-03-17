@@ -121,9 +121,12 @@ export default function ProfileSettings() {
         } = await supabase.auth.getUser();
 
         if (authError || !user) {
+          console.error("Auth error or no user:", { authError, user });
           setLoading(false);
           return;
         }
+
+        console.log("User found:", user.id, user.email);
 
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
@@ -133,8 +136,16 @@ export default function ProfileSettings() {
           .eq("id", user.id)
           .single();
 
+        console.log("Profile query result:", { profileData, profileError });
+
         if (profileError) {
-          console.error("Profile data error:", profileError);
+          console.error("Profile data error:", {
+            message: profileError.message,
+            details: profileError.details,
+            hint: profileError.hint,
+            code: profileError.code,
+            fullError: profileError
+          });
           // Continue with empty profile data if query fails
         }
 
@@ -190,7 +201,13 @@ export default function ProfileSettings() {
 
         setLoading(false);
       } catch (error) {
-        console.error("Error loading user data:", error);
+        console.error("Error loading user data:", {
+          message: error?.message,
+          stack: error?.stack,
+          name: error?.name,
+          details: error?.details,
+          fullError: error
+        });
         setLoading(false);
       }
     };

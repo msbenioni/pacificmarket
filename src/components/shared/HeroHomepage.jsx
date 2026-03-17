@@ -5,12 +5,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function HeroHomepage({
-  badge = "Trusted Pacific Business Discovery Platform",
+  badge = "Online Pacific Business Discovery Platform",
   title = "Discover Pacific Business, Opportunity, and Connection.",
   mobileTitle = "Discover Pacific Business, Opportunity, and Connection.",
   subtitle = "",
-  description = "Pacific Discovery Network helps people discover, connect with, and support Pacific-owned businesses across New Zealand, Australia, the Pacific, and beyond — through a trusted, premium platform built for visibility, credibility, and growth.",
-  mobileDescription = "Discover and connect with Pacific-owned businesses across Aotearoa, the Pacific, Australia, and beyond through a trusted platform built for visibility and growth.",
+  description = "Pacific Discovery Network helps people discover, connect with, and support Pacific-owned businesses across New Zealand, Australia, the Pacific, and beyond — through a trusted, online platform built for visibility, credibility, and growth.",
+  mobileDescription = "Discover and connect with Pacific-owned businesses across Aotearoa, the Pacific, Australia, and beyond through an online platform built for visibility and growth.",
   primaryCtaText = "Join Pacific Discovery Network",
   primaryCtaHref = createPageUrl("BusinessLogin") + "?mode=signup",
   secondaryCtaText = "Explore Businesses",

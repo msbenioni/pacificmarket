@@ -72,8 +72,8 @@ const emptyBusinessForm = {
   cultural_identity: "",
   languages_spoken: [],
   is_verified: false,
-  claimed: false,
-  homepage_featured: false,
+  is_claimed: false,
+  is_homepage_featured: false,
   logo_url: "",
   banner_url: "",
   mobile_banner_url: "",
@@ -91,6 +91,8 @@ function sanitizeBusinessPayload(formData) {
     logo_file,
     banner_file,
     mobile_banner_file,
+    claimed,
+    homepage_featured,
     ...updateData
   } = formData;
 
@@ -187,8 +189,41 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
           <p className="mt-1 text-xs text-gray-500">
             {business?.country || "Unknown"} · {business?.industry || "Unknown"}
           </p>
-          <p className="mt-1 break-all text-xs text-gray-500">{claim.user_email}</p>
-          <p className="mt-1 text-xs text-gray-400">
+          <div className="mt-2 space-y-1">
+            <p className="text-xs text-gray-600">
+              <span className="font-medium">Contact:</span> {claim.contact_email || "Not provided"}
+            </p>
+            {claim.contact_phone && (
+              <p className="text-xs text-gray-600">
+                <span className="font-medium">Phone:</span> {claim.contact_phone}
+              </p>
+            )}
+            <p className="text-xs text-gray-600">
+              <span className="font-medium">Role:</span> {claim.role || "Not specified"}
+            </p>
+            <p className="text-xs text-gray-600">
+              <span className="font-medium">Claim Type:</span> {claim.claim_type || "Standard request"}
+            </p>
+            {claim.message && (
+              <p className="text-xs text-gray-600">
+                <span className="font-medium">Message:</span> {claim.message}
+              </p>
+            )}
+            {claim.proof_url && (
+              <p className="text-xs text-gray-600">
+                <span className="font-medium">Proof:</span>{" "}
+                <a 
+                  href={claim.proof_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  View documentation
+                </a>
+              </p>
+            )}
+          </div>
+          <p className="mt-2 text-xs text-gray-400">
             Requested{" "}
             {claim.created_at || claim.created_date
               ? new Date(claim.created_at || claim.created_date).toLocaleDateString()
@@ -429,6 +464,7 @@ export default function AdminDashboard() {
       ...emptyBusinessForm,
       ...business,
       languages_spoken: Array.isArray(business.languages_spoken) ? business.languages_spoken : [],
+      ...(business.claimed ? { claimed: undefined } : {}),
     });
   };
 
@@ -444,20 +480,29 @@ export default function AdminDashboard() {
 
   const updateStatus = async (business, newStatus) => {
     try {
+      console.log("Updating business status:", { businessId: business.id, currentStatus: business.status, newStatus });
+      
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("businesses")
         .update({
           status: newStatus,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", business.id);
+        .eq("id", business.id)
+        .select(); // Return the updated data
+
+      console.log("Database update result:", { data, error });
 
       if (error) throw error;
 
       setBusinesses((prev) => prev.map((b) => (b.id === business.id ? { ...b, status: newStatus } : b)));
+      
+      // Refresh admin data to ensure consistency
+      await loadAdminData();
+      
       toast.success(`Business status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -467,17 +512,22 @@ export default function AdminDashboard() {
 
   const updateClaim = async (claim, newStatus) => {
     try {
+      console.log("Updating claim status:", { claimId: claim.id, businessId: claim.business_id, currentStatus: claim.status, newStatus });
+      
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("claim_requests")
         .update({
           status: newStatus,
           reviewed_at: new Date().toISOString(),
           reviewed_by: user?.id,
         })
-        .eq("id", claim.id);
+        .eq("id", claim.id)
+        .select(); // Return updated data
+
+      console.log("Claim update result:", { data, error });
 
       if (error) throw error;
 
@@ -486,9 +536,37 @@ export default function AdminDashboard() {
       if (newStatus === "approved") {
         const matchedBusiness = businesses.find((b) => b.id === claim.business_id);
         if (matchedBusiness) {
-          await updateStatus(matchedBusiness, BUSINESS_STATUS.ACTIVE);
+          console.log("Approving claim - updating business ownership:", matchedBusiness.id, matchedBusiness.name);
+          
+          // Update business with ownership information from claim
+          const { getSupabase } = await import("@/lib/supabase/client");
+          const supabase = getSupabase();
+          
+          const { error: ownershipError } = await supabase
+            .from("businesses")
+            .update({
+              owner_user_id: claim.user_id,
+              claimed_at: new Date().toISOString(),
+              claimed_by: claim.user_id,
+              is_claimed: true,
+              is_verified: true,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", claim.business_id);
+
+          if (ownershipError) {
+            console.error("Error updating business ownership:", ownershipError);
+            throw ownershipError;
+          }
+
+          console.log("Business ownership updated successfully");
+        } else {
+          console.error("Business not found for claim approval:", claim.business_id);
         }
       }
+
+      // Refresh admin data to show updated statuses
+      await loadAdminData();
 
       toast.success(`Claim status changed to ${newStatus}`);
     } catch (error) {
@@ -523,26 +601,31 @@ export default function AdminDashboard() {
     }
   };
 
-  const saveBusiness = async (formData) => {
+  const saveBusiness = async (payload) => {
     setSavingEdit(true);
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const { id, safeUpdateData } = sanitizeBusinessPayload(formData);
+      const {
+        businessId,
+        businessesData = {},
+        files = {},
+      } = payload;
 
-      if (!id) {
+      if (!businessId) {
         throw new Error("Missing business id for update.");
       }
 
-      /** @type {Record<string, any>} */
-      let updatedData = { ...safeUpdateData };
+      let updatedData = {
+        ...businessesData,
+      };
 
-      if (formData.logo_file) {
+      if (files.logo_file) {
         try {
-          const file = formData.logo_file;
-          const filePath = `logos/${id}-${Date.now()}-${file.name}`;
+          const file = files.logo_file;
+          const filePath = `logos/${businessId}-${Date.now()}-${file.name}`;
 
           const { error: uploadError } = await supabase.storage
             .from("admin-listings")
@@ -558,15 +641,14 @@ export default function AdminDashboard() {
             updatedData.logo_url = logoPublicUrlData.publicUrl;
           }
         } catch (uploadError) {
-          console.error("Error uploading logo:", uploadError);
           toast.error("Failed to upload logo. Using existing logo URL.");
         }
       }
 
-      if (formData.banner_file) {
+      if (files.banner_file) {
         try {
-          const file = formData.banner_file;
-          const filePath = `banners/${id}-${Date.now()}-${file.name}`;
+          const file = files.banner_file;
+          const filePath = `banners/${businessId}-${Date.now()}-${file.name}`;
 
           const { error: uploadError } = await supabase.storage
             .from("admin-listings")
@@ -582,42 +664,55 @@ export default function AdminDashboard() {
             updatedData.banner_url = bannerPublicUrlData.publicUrl;
           }
         } catch (uploadError) {
-          console.error("Error uploading banner:", uploadError);
           toast.error("Failed to upload banner. Using existing banner URL.");
         }
       }
 
-      const payload = {
+      if (files.mobile_banner_file) {
+        try {
+          const file = files.mobile_banner_file;
+          const filePath = `mobile-banners/${businessId}-${Date.now()}-${file.name}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("admin-listings")
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: mobileBannerPublicUrlData } = supabase.storage
+            .from("admin-listings")
+            .getPublicUrl(filePath);
+
+          if (mobileBannerPublicUrlData?.publicUrl) {
+            updatedData.mobile_banner_url = mobileBannerPublicUrlData.publicUrl;
+          }
+        } catch (uploadError) {
+          toast.error("Failed to upload mobile banner. Using existing mobile banner URL.");
+        }
+      }
+
+      const finalPayload = {
         ...updatedData,
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from("businesses").update(payload).eq("id", id);
+      const { data, error } = await supabase
+        .from("businesses")
+        .update(finalPayload)
+        .eq("id", businessId)
+        .select()
+        .single();
 
       if (error) throw error;
 
-      setBusinesses((prev) => prev.map((b) => (b.id === id ? { ...b, ...payload } : b)));
-      cancelEditingBusiness();
+      setBusinesses((prev) =>
+        prev.map((b) => (b.id === businessId ? { ...b, ...data } : b))
+      );
 
+      cancelEditingBusiness();
       toast.success("The business has been successfully updated.");
     } catch (error) {
-      // Enhanced error logging for debugging
-      const errorDetails = {
-        message: error?.message || error?.toString() || 'Unknown error',
-        details: error?.details || null,
-        stack: error?.stack || null,
-        formData: formData ? {
-          id: formData.id,
-          name: formData.name,
-          hasLogoFile: !!formData.logo_file,
-          hasBannerFile: !!formData.banner_file,
-          updateKeys: Object.keys(formData).filter(key => !['id', 'logo_file', 'banner_file'].includes(key))
-        } : 'No formData',
-        timestamp: new Date().toISOString()
-      };
-      
-      console.error("Error updating business:", errorDetails);
-      toast.error(errorDetails.message || "Unable to update the business.");
+      toast.error("Unable to update the business.");
     } finally {
       setSavingEdit(false);
     }
@@ -1227,7 +1322,7 @@ export default function AdminDashboard() {
                               }
                             }}
                             onDelete={() => deleteBusiness(business.id)}
-                            onSave={() => saveBusiness(draftBusiness)}
+                            onSave={saveBusiness}
                             onCancel={cancelEditingBusiness}
                             savingEdit={savingEdit}
                           />
@@ -1367,7 +1462,7 @@ export default function AdminDashboard() {
                                         title={`Edit ${b.name}`}
                                         businessId={b.id}
                                         initialData={draftBusiness}
-                                        onSave={() => saveBusiness(draftBusiness)}
+                                        onSave={saveBusiness}
                                         onCancel={cancelEditingBusiness}
                                         saving={savingEdit}
                                         mode="edit"

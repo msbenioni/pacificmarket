@@ -104,16 +104,23 @@ export function FormSection({
                   </span>
                 )}
                 {onUpgrade && isVakaTier && (
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onUpgrade();
+                      }
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onUpgrade();
                     }}
-                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
                   >
                     Upgrade
-                  </button>
+                  </div>
                 )}
               </>
             )}

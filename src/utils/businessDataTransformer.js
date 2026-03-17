@@ -32,10 +32,11 @@ export const transformBusinessFormData = (formData) => {
     is_verified: formData.is_verified,
     is_claimed: formData.is_claimed,
     is_homepage_featured: formData.is_homepage_featured,
+    subscription_tier: formData.subscription_tier,
     
     // Business insights data (now in businesses table)
     business_stage: formData.business_stage,
-    business_registered: formData.business_registered === true || formData.business_registered === "true" ? true : false,
+    business_registered: formData.is_business_registered === true || formData.is_business_registered === "true" ? true : false,
     
     // Founder insights data (now in businesses table)
     founder_story: formData.founder_story,
@@ -87,8 +88,9 @@ export const sanitizeForBusinessesTable = (data) => {
     'contact_email', 'contact_phone', 'contact_website', 'business_hours',
     'country', 'industry', 'city', 'year_started', 'business_structure',
     'team_size_band', 'status', 'is_verified', 'is_claimed', 'is_homepage_featured',
+    'subscription_tier',
     // Business insights fields (now in businesses table)
-    'business_stage', 'is_business_registered',
+    'business_stage', 'business_registered',
     // Founder insights fields (now in businesses table)
     'founder_story', 'age_range', 'gender', 'collaboration_interest', 
     'mentorship_offering', 'open_to_future_contact', 'business_acquisition_interest'
