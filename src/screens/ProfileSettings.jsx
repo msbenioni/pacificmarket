@@ -17,6 +17,7 @@ import {
   ChevronDown,
   UserCircle2,
   Check,
+  ArrowLeft,
 } from "lucide-react";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
@@ -635,8 +636,8 @@ export default function ProfileSettings() {
               href={createPageUrl("BusinessPortal")}
               className="inline-flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors"
             >
+              <ArrowLeft className="w-4 h-4" />
               Back to Business Portal
-              <ArrowRight className="w-4 h-4" />
             </Link>
           ) : null
         }
