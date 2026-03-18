@@ -24,7 +24,7 @@ import {
 import { getLogoUrl } from '@/utils/bannerUtils';
 import ReactMarkdown from "react-markdown";
 import FlagIcon from "@/components/shared/FlagIcon";
-import { BUSINESS_STATUS, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { BUSINESS_STATUS, SUBSCRIPTION_TIER, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import ContactModal from "@/components/profile/ContactModal";
 import BusinessGallery from "@/components/profile/BusinessGallery";
 import ProductsServices from "@/components/profile/ProductsServices";
@@ -146,8 +146,18 @@ export default function BusinessProfile() {
     );
   }
 
-  const countryLabel = business.country || '';
-  const industryLabel = business.industry || '';
+  const getCountryLabel = (value) => {
+    const match = COUNTRIES.find((item) => item.value === value);
+    return match?.label || value || "";
+  };
+
+  const getIndustryLabel = (value) => {
+    const match = INDUSTRIES.find((item) => item.value === value);
+    return match?.label || value || "";
+  };
+
+  const countryLabel = getCountryLabel(business.country);
+  const industryLabel = getIndustryLabel(business.industry);
   const tier = business.subscription_tier || 'vaka';
 
   const socials = [
@@ -227,11 +237,11 @@ export default function BusinessProfile() {
           )}
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[320px] items-start justify-center px-4 pb-8 pt-8 sm:min-h-[420px] sm:px-6 sm:pb-10 sm:pt-12 lg:min-h-[520px] lg:px-8 lg:pb-14 lg:pt-16">
-          <div className="w-full max-w-4xl text-center mt-4 sm:mt-6 lg:mt-8">
-            <div className="rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
-            <div className="flex flex-col items-center gap-4 sm:gap-5">
-              <div className="hidden h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md sm:flex lg:h-20 lg:w-20">
+        <div className="relative z-10 mx-auto flex min-h-[280px] items-start justify-center px-3 pb-6 pt-16 sm:min-h-[420px] sm:px-6 sm:pb-10 sm:pt-8 lg:min-h-[520px] lg:px-8 lg:pb-14 lg:pt-12">
+          <div className="w-full max-w-3xl text-center mt-2 sm:mt-6 lg:mt-8">
+            <div className="rounded-[28px] border border-white/15 bg-white/10 p-2 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
+            <div className="flex flex-col items-center gap-3 sm:gap-5">
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md sm:h-16 sm:w-16 lg:h-20 lg:w-20">
                 <img
                   src={getLogoUrl(business)}
                   alt={`${business.business_name} logo`}
@@ -250,21 +260,26 @@ export default function BusinessProfile() {
                   </p>
                 )}
 
-                <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
-                  {(business.city || countryLabel) && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {business.city ? `${business.city}, ` : ""}
-                      {countryLabel}
-                    </span>
-                  )}
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-3 sm:mt-5 sm:gap-2">
+                  <div className="flex items-center justify-center gap-2 sm:flex-wrap sm:gap-2">
+                    {(business.city || countryLabel) && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-2 sm:text-xs">
+                        <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                        <span className="truncate max-w-[120px] sm:max-w-none">
+                          {business.city ? `${business.city}, ` : ""}{countryLabel}
+                        </span>
+                      </span>
+                    )}
 
-                  {industryLabel && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
-                      <Briefcase className="h-3.5 w-3.5" />
-                      {industryLabel}
-                    </span>
-                  )}
+                    {industryLabel && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-2 sm:text-xs">
+                        <Briefcase className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                        <span className="truncate max-w-[100px] sm:max-w-none">
+                          {industryLabel}
+                        </span>
+                      </span>
+                    )}
+                  </div>
 
                   {business.cultural_identity && (
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
@@ -275,10 +290,10 @@ export default function BusinessProfile() {
                 </div>
 
                 {(business.business_email || business.business_phone) && (
-                <div className="mt-6 flex justify-center">
+                <div className="mt-4 flex justify-center sm:mt-6">
                   <button
                     onClick={() => setShowContact(true)}
-                    className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-xl bg-[#00c9cc] hover:bg-[#00aab0] px-5 py-3 text-sm font-semibold text-white transition-colors"
+                    className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl bg-[#00c9cc] hover:bg-[#00aab0] px-4 py-2.5 text-xs font-semibold text-white transition-colors sm:min-h-[46px] sm:px-5 sm:py-3 sm:text-sm"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Contact Business
@@ -292,12 +307,12 @@ export default function BusinessProfile() {
         </div>
       </div>
 
-      <div className="relative flex justify-center px-4 sm:px-6 lg:px-8 -mt-10 sm:-mt-12 pb-16">
+      <div className="relative flex justify-center px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-6 pb-16">
         <div className="w-full max-w-3xl">
           {/* Main profile card */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
             {/* Business banner at top - always show */}
-            <div className="relative h-48 w-full">
+            <div className={`relative w-full ${(business.banner_url || business.mobile_banner_url) ? 'h-48' : 'h-20 sm:h-24 lg:h-28'}`}>
               {(business.banner_url || business.mobile_banner_url) ? (
                 <>
                   <img
@@ -309,9 +324,9 @@ export default function BusinessProfile() {
                 </>
               ) : (
                 <div className="w-full h-full bg-[#0d4f4f] flex items-center justify-center">
-                  <h3 className="text-white font-bold text-center px-4 drop-shadow-lg text-lg">
+                  <h1 className="text-base sm:text-lg lg:text-xl font-bold text-white drop-shadow-lg px-4 text-center">
                     {business.business_name || "Business Name"}
-                  </h3>
+                  </h1>
                 </div>
               )}
             </div>
@@ -320,8 +335,8 @@ export default function BusinessProfile() {
             {/* Full description */}
             {fullText && (
               <div className="pt-5 border-t border-gray-100">
-                <h2 className="text-sm font-semibold text-[#0a1628] mb-3">About</h2>
-                <div className="text-gray-600 text-sm leading-7 prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-[#0a1628] prose-strong:text-[#0a1628] prose-ul:pl-5 prose-ul:my-3 prose-li:my-2 prose-p:my-3">
+                <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-[#0a1628] mb-3">About</h2>
+                <div className="text-gray-600 text-sm sm:text-base lg:text-lg leading-7 prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-[#0a1628] prose-strong:text-[#0a1628] prose-ul:pl-5 prose-ul:my-3 prose-li:my-2 prose-p:my-3">
                   <ReactMarkdown>{formatMarkdown(fullText)}</ReactMarkdown>
                 </div>
               </div>
@@ -342,7 +357,7 @@ export default function BusinessProfile() {
               
               return languagesArray.length > 0 && (
                 <div className="mt-5 pt-5 border-t border-gray-100">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-[#0a1628] mb-3">
+                  <div className="flex items-center gap-2 text-sm sm:text-base lg:text-lg font-semibold text-[#0a1628] mb-3">
                     <img
                       src="/language_spoken.png"
                       alt="Languages spoken"
@@ -355,7 +370,7 @@ export default function BusinessProfile() {
                     {languagesArray.map((language, index) => (
                       <span
                         key={index}
-                        className="bg-[#0a1628]/5 text-[#0a1628] text-xs px-3 py-1.5 rounded-full"
+                        className="bg-[#0a1628]/5 text-[#0a1628] text-xs sm:text-sm lg:text-base px-3 py-1.5 rounded-full"
                       >
                         {language}
                       </span>
@@ -368,7 +383,7 @@ export default function BusinessProfile() {
             {/* Socials */}
             {allSocials.length > 0 && (
               <div className="mt-5 pt-5 border-t border-gray-100">
-                <h2 className="text-sm font-semibold text-[#0a1628] mb-3">Links</h2>
+                <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-[#0a1628] mb-3">Links</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {allSocials.map((social) => (
                     <a
@@ -376,7 +391,7 @@ export default function BusinessProfile() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 hover:bg-gray-100 px-3 py-3 text-sm text-gray-600 transition-colors"
+                      className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 hover:bg-gray-100 px-3 py-3 text-sm sm:text-base lg:text-lg text-gray-600 transition-colors"
                     >
                       <span className="flex items-center gap-2 min-w-0">
                         <social.icon className="w-4 h-4 flex-shrink-0" />
@@ -404,12 +419,12 @@ export default function BusinessProfile() {
           {!business.is_claimed && (
             <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
               {claimSubmitted ? (
-                <div className="flex items-center gap-2 text-green-700 text-sm bg-green-50 px-3 py-3 rounded-xl">
+                <div className="flex items-center gap-2 text-green-700 text-sm sm:text-base lg:text-lg bg-green-50 px-3 py-3 rounded-xl">
                   <CheckCircle className="w-4 h-4" />
                   Claim submitted for review
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm sm:text-base lg:text-lg text-gray-500">
                   Is this your business?{" "}
                   <button
                     onClick={handleClaim}

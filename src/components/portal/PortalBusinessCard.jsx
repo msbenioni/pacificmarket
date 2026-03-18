@@ -16,6 +16,22 @@ import {
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
+import { BUSINESS_STATUS, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
+
+// Helper function to convert country slug to readable name
+function getCountryDisplayName(countrySlug) {
+  if (!countrySlug) return "";
+  
+  const country = COUNTRIES.find(c => c.value === countrySlug);
+  return country ? country.label : countrySlug;
+}
+
+function getIndustryDisplayName(industrySlug) {
+  if (!industrySlug) return "";
+  
+  const industry = INDUSTRIES.find(i => i.value === industrySlug);
+  return industry ? industry.label : industrySlug;
+}
 
 export default function PortalBusinessCard({
   business,
@@ -98,7 +114,7 @@ export default function PortalBusinessCard({
 
                 {business.industry && (
                   <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-slate-100">
-                    {business.industry}
+                    {getIndustryDisplayName(business.industry)}
                   </span>
                 )}
               </div>

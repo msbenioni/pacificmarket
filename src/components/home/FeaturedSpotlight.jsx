@@ -30,6 +30,13 @@ function getCountryDisplayName(countrySlug) {
   return country ? country.label : countrySlug;
 }
 
+function getIndustryDisplayName(industrySlug) {
+  if (!industrySlug) return "";
+  
+  const industry = INDUSTRIES.find(i => i.value === industrySlug);
+  return industry ? industry.label : industrySlug;
+}
+
 function formatLanguageName(languageCode) {
   if (!languageCode) return "";
 
@@ -179,7 +186,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
   const languages = formatLanguages(getBusinessLanguagesSpoken(b));
   const location = [b.city, getCountryDisplayName(b.country)].filter(Boolean).join(", ");
   const tagline = b.tagline || b.description || "";
-  const industryLabel = b.industry || "Industry";
+  const industryLabel = getIndustryDisplayName(b.industry) || "Industry";
 
   return (
     <button
@@ -377,7 +384,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                 </span>
                 {b?.industry && (
                   <span className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg">
-                    {b.industry}
+                    {getIndustryDisplayName(b.industry)}
                   </span>
                 )}
 {b?.cultural_identity && (

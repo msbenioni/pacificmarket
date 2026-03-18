@@ -12,7 +12,29 @@ import {
 import { createPageUrl } from "@/utils";
 import { getLogoUrl } from '@/utils/bannerUtils';
 import BusinessProfileForm from "../forms/BusinessProfileForm";
-import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { BUSINESS_STATUS, COUNTRIES, INDUSTRIES, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+
+// Helper function to convert country slug to readable name
+function getCountryDisplayName(countrySlug) {
+  if (!countrySlug) return "";
+  
+  const country = COUNTRIES.find(c => c.value === countrySlug);
+  return country ? country.label : countrySlug;
+}
+
+function getIndustryDisplayName(industrySlug) {
+  if (!industrySlug) return "";
+  
+  const industry = INDUSTRIES.find(i => i.value === industrySlug);
+  return industry ? industry.label : industrySlug;
+}
+
+function getBusinessStatusDisplayName(status) {
+  if (!status) return "";
+  
+  const businessStatus = BUSINESS_STATUS.find(bs => bs.value === status);
+  return businessStatus ? businessStatus.label : status;
+}
 
 function MainStepSection({
   title,
@@ -111,7 +133,7 @@ export default function BusinessCard({
   const summaryText = useMemo(() => {
     return (
       business.tagline ||
-      `${business.city || ""}${business.city && business.country ? ", " : ""}${business.country || ""}${business.industry ? ` · ${business.industry}` : ""}` ||
+      `${business.city || ""}${business.city && business.country ? ", " : ""}${getCountryDisplayName(business.country) || ""}${business.industry ? ` · ${getIndustryDisplayName(business.industry)}` : ""}` ||
       "Business record available to manage"
     );
   }, [business]);
@@ -180,12 +202,12 @@ export default function BusinessCard({
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-3 sm:py-1 sm:text-xs ${statusStyles}`}
                   >
-                    {business.status || "draft"}
+                    {getBusinessStatusDisplayName(business.status)}
                   </span>
 
                   {business.industry && (
                     <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 sm:px-3 sm:py-1 sm:text-xs">
-                      {business.industry}
+                      {getIndustryDisplayName(business.industry)}
                     </span>
                   )}
                 </div>
