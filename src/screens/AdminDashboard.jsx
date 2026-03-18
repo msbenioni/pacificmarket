@@ -20,7 +20,7 @@ import {
   XCircle,
   AlertTriangle,
   Eye,
-  MessageSquare,
+  Speech,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
@@ -1460,7 +1460,7 @@ export default function AdminDashboard() {
                                     {b.languages_spoken && (
                                       <div className="mt-2">
                                         <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#00c4cc]">
-                                          <MessageSquare className="w-3 h-3 flex-shrink-0" />
+                                          <Speech className="w-3 h-3 flex-shrink-0" />
                                           {formatLanguages(b.languages_spoken)}
                                         </span>
                                       </div>
