@@ -12,7 +12,7 @@ import {
 import { createPageUrl } from "@/utils";
 import { getLogoUrl } from '@/utils/bannerUtils';
 import BusinessProfileForm from "../forms/BusinessProfileForm";
-import { BUSINESS_STATUS, COUNTRIES, INDUSTRIES, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { BUSINESS_STATUS_OPTIONS, COUNTRIES, INDUSTRIES, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 // Helper function to convert country slug to readable name
 function getCountryDisplayName(countrySlug) {
@@ -32,7 +32,7 @@ function getIndustryDisplayName(industrySlug) {
 function getBusinessStatusDisplayName(status) {
   if (!status) return "";
   
-  const businessStatus = BUSINESS_STATUS.find(bs => bs.value === status);
+  const businessStatus = BUSINESS_STATUS_OPTIONS.find(bs => bs.value === status);
   return businessStatus ? businessStatus.label : status;
 }
 

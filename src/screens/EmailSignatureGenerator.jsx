@@ -515,7 +515,15 @@ export default function EmailSignatureGeneratorPage() {
         let claimedBusinesses = [];
         if (claimedIds.length > 0) {
           // Use shared query for claimed businesses
-          const claimedBusinessPromises = claimedIds.map(id => getBusinessById(id));
+          const claimedBusinessPromises = claimedIds.map(async (id) => {
+            try {
+              const business = await getBusinessById(id);
+              return { data: business, error: null };
+            } catch (error) {
+              console.error(`Failed to load claimed business ${id}:`, error);
+              return { data: null, error };
+            }
+          });
           const claimedResults = await Promise.all(claimedBusinessPromises);
           claimedBusinesses = claimedResults.filter(result => result.data).map(result => result.data);
         }
@@ -529,11 +537,12 @@ export default function EmailSignatureGeneratorPage() {
           setSelectedBusinessId(unique[0].id);
         }
       } catch (error) {
+        const errorMessage = error?.message || error?.toString() || 'Please try again.';
         console.error("Error loading signature page:", error);
         toast({
           variant: "error",
           title: "Failed to load data",
-          description: error?.message || "Please try again.",
+          description: errorMessage,
         });
       } finally {
         setLoading(false);
@@ -553,89 +562,60 @@ export default function EmailSignatureGeneratorPage() {
         const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
 
-        // Get business details using shared query
-        const { data: business, error: businessError } = await getBusinessById(selectedBusinessId);
-
-        if (businessError) throw businessError;
-
-        const { data: settings, error: settingsError } = await supabase
-          .from("business_signature_settings")
-          .select("*")
-          .eq("business_id", selectedBusinessId)
-          .maybeSingle();
-
-        if (settingsError && settingsError.code !== "PGRST116") {
-          throw settingsError;
+        if (!selectedBusinessId) {
+          throw new Error("No business ID selected");
         }
 
-        // Use helper function for consistent website access
-        const businessWebsite = getBusinessWebsite(business) || "";
+        let business, businessError;
+        try {
+          business = await getBusinessById(selectedBusinessId);
+          businessError = null;
+        } catch (err) {
+          business = null;
+          businessError = err;
+        }
 
-        const businessAddress = formatBusinessAddress(business);
+        if (businessError) {
+          console.error("Business query error:", businessError);
+          throw new Error(`Failed to load business: ${businessError.message || 'Unknown error'}`);
+        }
 
+        if (!business) {
+          throw new Error("Business not found");
+        }
+
+        // For generators/exports, use raw saved business assets.
+        // Do not use UI display helpers like getLogoUrl/getBannerUrl here.
+        // Use businesses table directly - no separate settings table needed.
         if (business && !isUserEditingRef.current) {
           setBusinessSignature((prev) => ({
             ...prev,
             business_name: business?.business_name || "",
-            logo_url: getLogoUrl(business) || "",
+            logo_url: business?.logo_url || "",
             email: prev.email || business?.business_email || "",
             phone: prev.phone || business?.business_phone || "",
-            website: prev.website || businessWebsite,
-            address: prev.address || businessAddress,
-          }));
-        }
-
-        if (settings && !isUserEditingRef.current) {
-          setBusinessSignature((prev) => ({
-            ...prev,
-            full_name: settings.default_full_name || prev.full_name,
-            job_title: settings.default_job_title || prev.job_title,
-            department: settings.default_department || prev.department,
-            pronouns: settings.default_pronouns || prev.pronouns,
-
-            business_name: business?.business_name || prev.business_name,
-            logo_url: getLogoUrl(business) || prev.logo_url,
-
-            email: settings.default_email || prev.email,
-            phone: settings.default_phone || prev.phone,
-            website: settings.default_website || prev.website,
-            address: settings.default_address || prev.address,
-
-            linkedin: settings.linkedin_url || "",
-            facebook: settings.facebook_url || "",
-            instagram: settings.instagram_url || "",
-            tiktok: settings.tiktok_url || "",
-
-            template: settings.template || "modern",
-
-            brand_primary:
-              settings.brand_primary ||
-              SIGNATURE_TEMPLATES.modern.colors.primary,
-            brand_secondary:
-              settings.brand_secondary ||
-              SIGNATURE_TEMPLATES.modern.colors.secondary,
-            brand_accent:
-              settings.brand_accent || SIGNATURE_TEMPLATES.modern.colors.accent,
-            text_color:
-              settings.text_color || SIGNATURE_TEMPLATES.modern.colors.text,
-
-            include_logo: settings.include_logo ?? true,
-            include_badge: settings.include_badge ?? true,
-            include_socials: settings.include_socials ?? true,
-            include_address: settings.include_address ?? true,
-            include_pronouns: settings.include_pronouns ?? false,
-
-            disclaimer: settings.disclaimer || "",
+            website: prev.website || business.website || "",
+            address: prev.address || business.address || "",
           }));
         }
 
         loadedBusinessIdRef.current = selectedBusinessId;
       } catch (error) {
-        console.error("Error loading business signature settings:", error);
+        // Enhanced error logging and handling
+        const errorDetails = {
+          message: error?.message || error?.toString() || 'Unknown error occurred',
+          stack: error?.stack,
+          selectedBusinessId,
+          errorObject: error
+        };
+        
+        console.error("Error loading business signature settings:", errorDetails);
+        
+        const errorMessage = errorDetails.message;
         toast({
           variant: "error",
           title: "Failed to load business settings",
-          description: error?.message || "Please try again.",
+          description: errorMessage,
         });
       }
     };
@@ -762,7 +742,7 @@ export default function EmailSignatureGeneratorPage() {
       toast({
         variant: "error",
         title: "Upload failed",
-        description: error?.message || "Please try again.",
+        description: error?.message || error?.toString() || "Please try again.",
       });
     }
 
@@ -775,7 +755,8 @@ export default function EmailSignatureGeneratorPage() {
     try {
       setSaving(true);
 
-      // Import getSupabase for signature settings only
+      // For generators, save directly to businesses table
+      // No separate settings table needed
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
@@ -791,57 +772,17 @@ export default function EmailSignatureGeneratorPage() {
 
       if (businessError) throw businessError;
 
-      const settingsUpdate = {
-        business_id: selectedBusinessId,
-
-        default_full_name: signature.full_name || null,
-        default_job_title: signature.job_title || null,
-        default_department: signature.department || null,
-        default_pronouns: signature.pronouns || null,
-
-        default_email: signature.email || null,
-        default_phone: signature.phone || null,
-        default_website: signature.website || null,
-        default_address: signature.address || null,
-
-        linkedin_url: signature.linkedin || null,
-        facebook_url: signature.facebook || null,
-        instagram_url: signature.instagram || null,
-        tiktok_url: signature.tiktok || null,
-
-        template: signature.template || "modern",
-
-        brand_primary: signature.brand_primary || null,
-        brand_secondary: signature.brand_secondary || null,
-        brand_accent: signature.brand_accent || null,
-        text_color: signature.text_color || null,
-
-        include_logo: !!signature.include_logo,
-        include_badge: !!signature.include_badge,
-        include_socials: !!signature.include_socials,
-        include_address: !!signature.include_address,
-        include_pronouns: !!signature.include_pronouns,
-
-        disclaimer: signature.disclaimer || null,
-      };
-
-      const { error: settingsError } = await supabase
-        .from("business_signature_settings")
-        .upsert(settingsUpdate, { onConflict: "business_id" });
-
-      if (settingsError) throw settingsError;
-
       toast({
         variant: "success",
-        title: "Signature settings saved",
-        description: "Your business signature preferences were saved successfully.",
+        title: "Business information updated",
+        description: "Your business details have been saved.",
       });
     } catch (error) {
-      console.error("Error saving signature settings:", error);
+      console.error("Error saving business signature settings:", error);
       toast({
         variant: "error",
         title: "Failed to save settings",
-        description: error?.message || "Please try again.",
+        description: error?.message || error?.toString() || "Please try again.",
       });
     } finally {
       setSaving(false);
@@ -881,7 +822,7 @@ export default function EmailSignatureGeneratorPage() {
       toast({
         variant: "error",
         title: "Copy failed",
-        description: "Please try again.",
+        description: error?.message || error?.toString() || "Please try again.",
       });
     }
   };

@@ -44,8 +44,8 @@ export const generateBusinessLogo = (businessName) => {
   `;
   
   // Convert SVG to data URL
-  const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
-  return URL.createObjectURL(svgBlob);
+  const svgBase64 = btoa(svg);
+  return `data:image/svg+xml;base64,${svgBase64}`;
 };
 
 export const generateBusinessBanner = (businessName) => {

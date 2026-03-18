@@ -182,6 +182,13 @@ export const BUSINESS_STATUS = {
   REJECTED: 'rejected',
 };
 
+// Business status options for dropdowns/find operations
+export const BUSINESS_STATUS_OPTIONS = [
+  { value: 'active', label: 'Active' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'rejected', label: 'Rejected' },
+];
+
 export const SUBSCRIPTION_TIER = {
   VAKA: 'vaka',
   MANA: 'mana', 

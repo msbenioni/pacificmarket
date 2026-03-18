@@ -4,7 +4,6 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { getUserBusinesses, getBusinessById, updateBusiness } from "@/lib/supabase/queries/businesses";
 import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from "@/lib/business/helpers";
-import { getLogoUrl } from '@/utils/bannerUtils';
 import HeroStandard from "../components/shared/HeroStandard";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -209,10 +208,12 @@ export default function InvoiceGenerator() {
           .maybeSingle();
         
         if (business && !isUserEditingRef.current) {
+          // For generators/exports, use raw saved business assets.
+          // Do not use UI display helpers like getLogoUrl/getBannerUrl here.
           setBusinessInvoice(prev => ({
             ...prev,
             sender_name: prev.sender_name || business.business_name || "",
-            sender_logo_url: prev.sender_logo_url || getLogoUrl(business) || "",
+            sender_logo_url: prev.sender_logo_url || business?.logo_url || "",
             sender_email: prev.sender_email || business.business_email || "",
             sender_phone: prev.sender_phone || business.business_phone || "",
             sender_address: prev.sender_address || business.address || "",

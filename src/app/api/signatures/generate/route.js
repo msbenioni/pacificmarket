@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { getBusinessById } from "@/lib/supabase/queries/businesses";
-import { getLogoUrl } from '@/utils/bannerUtils';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -35,6 +34,8 @@ const SIGNATURE_TEMPLATES = {
 };
 
 function generateSignatureHTML(data, template = 'modern', business = null) {
+  // For generators/exports, use raw saved business assets.
+  // Do not use UI display helpers like getLogoUrl/getBannerUrl here.
   const templateConfig = SIGNATURE_TEMPLATES[template];
   const colors = templateConfig.colors;
 
@@ -49,7 +50,7 @@ function generateSignatureHTML(data, template = 'modern', business = null) {
         <tr>
           ${data.includeLogo ? `
             <td style="vertical-align: top; padding-right: 20px;">
-              <img src="${getLogoUrl(business)} alt="${business?.business_name || 'Business Logo'}" style="width: 80px; height: auto; max-height: 80px; object-fit: contain;" />
+              <img src="${business?.logo_url || ''}" alt="${business?.business_name || 'Business Logo'}" style="width: 80px; height: auto; max-height: 80px; object-fit: contain;" />
             </td>
           ` : ''}
           <td style="vertical-align: top;">
@@ -154,7 +155,7 @@ export async function POST(request) {
       template,
       business: {
         name: business.business_name,
-        logo_url: getLogoUrl(business)
+        logo_url: business?.logo_url || ''
       }
     });
 

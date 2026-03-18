@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { clearSupabaseSession, handleRefreshTokenError } from '@/utils/sessionUtils';
 
 const AuthContext = createContext(null);
 
@@ -41,15 +42,23 @@ export const AuthProvider = ({ children }) => {
         if (!isMounted) return;
 
         if (error) {
-          setAuthError({ type: 'auth_required', message: error.message });
+          // Handle refresh token errors gracefully
+          const wasSessionCleared = await handleRefreshTokenError(supabase, error);
+          if (wasSessionCleared) {
+            setAuthError({ type: 'auth_required', message: 'Session expired, please sign in again' });
+          } else {
+            setAuthError({ type: 'auth_required', message: error.message });
+          }
           setUser(null);
           setIsAuthenticated(false);
         } else {
           setUser(data?.user ?? null);
           setIsAuthenticated(Boolean(data?.user));
+          setAuthError(null);
         }
       } catch (error) {
         if (!isMounted) return;
+        console.error('Auth loading error:', error);
         setAuthError({ type: 'auth_error', message: 'Failed to load user session.' });
         setUser(null);
         setIsAuthenticated(false);
@@ -63,8 +72,15 @@ export const AuthProvider = ({ children }) => {
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
       
+      console.log('Auth state change:', event, session?.user?.id);
+      
       setUser(session?.user ?? null);
       setIsAuthenticated(Boolean(session?.user));
+
+      // Clear auth error on successful sign in
+      if (event === 'SIGNED_IN' && session?.user) {
+        setAuthError(null);
+      }
 
       // Call onboarding endpoint for newly confirmed users (deduped per session)
       if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
@@ -102,12 +118,21 @@ export const AuthProvider = ({ children }) => {
     };
   }, [supabase]);
 
-  const logout = (shouldRedirect = true) => {
+  const logout = async (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
+    setAuthError(null);
+    
+    // Clear all session data
+    await clearSupabaseSession();
     
     if (supabase) {
-      supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Continue with logout even if signOut fails
+      }
     }
     
     if (shouldRedirect && typeof window !== 'undefined') {
