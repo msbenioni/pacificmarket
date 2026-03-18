@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
@@ -7,13 +9,14 @@ import {
   EyeOff,
   User,
   Save,
-  ArrowLeft,
+  ArrowRight,
   Users,
   Shield,
   AlertCircle,
   Plus,
   ChevronDown,
   UserCircle2,
+  Check,
 } from "lucide-react";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
@@ -21,7 +24,7 @@ import PortalShell from "@/components/portal/PortalShell";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
 import HeroStandard from "@/components/shared/HeroStandard";
 
-// Premium accordion component
+// Premium accordion component with badge support
 function InsightsAccordionSection({
   title,
   subtitle,
@@ -30,7 +33,20 @@ function InsightsAccordionSection({
   isOpen,
   onToggle,
   children,
+  badge,
+  badgeTone,
 }) {
+  const getBadgeStyles = (tone) => {
+    switch (tone) {
+      case "required":
+        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case "optional":
+        return "bg-slate-100 text-slate-600 border-slate-200";
+      default:
+        return "bg-gray-100 text-gray-600 border-gray-200";
+    }
+  };
+
   return (
     <div className="border-b border-gray-100 last:border-b-0 bg-gradient-to-r from-[#0a1628] to-[#0d4f4f] text-white">
       <button
@@ -44,7 +60,18 @@ function InsightsAccordionSection({
           </div>
 
           <div className="min-w-0">
-            <div className="font-semibold text-white text-sm">{title}</div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="font-semibold text-white text-sm">{title}</div>
+              {badge && (
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getBadgeStyles(
+                    badgeTone
+                  )}`}
+                >
+                  {badge}
+                </span>
+              )}
+            </div>
             {subtitle && (
               <div className="text-xs text-gray-300 mt-0.5">{subtitle}</div>
             )}
@@ -82,7 +109,7 @@ export default function ProfileSettings() {
   const [loading, setLoading] = useState(true);
   const [adminUsers, setAdminUsers] = useState([]);
 
-  // Profile form state - initialize with empty values to avoid hydration mismatch
+  // Account state
   const [displayName, setDisplayName] = useState("");
   const [privateEmail, setPrivateEmail] = useState("");
   const [privatePhone, setPrivatePhone] = useState("");
@@ -93,14 +120,17 @@ export default function ProfileSettings() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Profile foundation state - initialize with empty values to avoid hydration mismatch
+  // Profile foundation state
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [culturalIdentity, setCulturalIdentity] = useState([]);
   const [languagesSpoken, setLanguagesSpoken] = useState([]);
   const [expandedSections, setExpandedSections] = useState(new Set());
 
-  // Admin management state
+  // Step 2 saved state
+  const [profileFoundationSaved, setProfileFoundationSaved] = useState(false);
+
+  // Admin state
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState("");
   const [newAdminName, setNewAdminName] = useState("");
@@ -109,6 +139,14 @@ export default function ProfileSettings() {
 
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+
+  const isStep2Complete =
+    city.trim() !== "" &&
+    country.trim() !== "" &&
+    culturalIdentity.length > 0 &&
+    languagesSpoken.length > 0;
+
+  const showUnlockedState = profileFoundationSaved && isStep2Complete;
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -127,17 +165,13 @@ export default function ProfileSettings() {
           return;
         }
 
-        console.log("User found:", user.id, user.email);
-
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select(
-            "role, display_name, city, country, cultural_identity, languages_spoken, private_phone"
+            "role, display_name, private_email, city, country, cultural_identity, languages_spoken, private_phone"
           )
           .eq("id", user.id)
           .single();
-
-        console.log("Profile query result:", { profileData, profileError });
 
         if (profileError) {
           console.error("Profile data error:", {
@@ -145,10 +179,36 @@ export default function ProfileSettings() {
             details: profileError.details,
             hint: profileError.hint,
             code: profileError.code,
-            fullError: profileError
+            fullError: profileError,
           });
-          // Continue with empty profile data if query fails
         }
+
+        let parsedCulturalIdentity = [];
+        if (profileData?.cultural_identity) {
+          try {
+            if (Array.isArray(profileData.cultural_identity)) {
+              parsedCulturalIdentity = profileData.cultural_identity;
+            } else {
+              parsedCulturalIdentity = JSON.parse(
+                profileData.cultural_identity
+                  .replace(/^{/, "[")
+                  .replace(/}$/, "]")
+              );
+            }
+          } catch (error) {
+            console.error(
+              "Error parsing cultural_identity:",
+              error,
+              "Data:",
+              profileData.cultural_identity
+            );
+            parsedCulturalIdentity = [];
+          }
+        }
+
+        const parsedLanguages = Array.isArray(profileData?.languages_spoken)
+          ? profileData.languages_spoken
+          : [];
 
         const enhancedUser = {
           ...user,
@@ -164,39 +224,23 @@ export default function ProfileSettings() {
         setUser(enhancedUser);
         setIsAdmin(checkIsAdmin(enhancedUser));
 
-        // Debug: Log the raw profile data
-        console.log("Raw profile data:", profileData);
-        console.log("Enhanced user:", enhancedUser);
-
         setDisplayName(enhancedUser.display_name || "");
         setPrivateEmail(enhancedUser.private_email || "");
+        setPrivatePhone(profileData?.private_phone || "");
         setCity(profileData?.city || "");
         setCountry(profileData?.country || "");
-
-        // Safe JSON parsing for cultural_identity
-        if (profileData?.cultural_identity) {
-          try {
-            if (Array.isArray(profileData.cultural_identity)) {
-              setCulturalIdentity(profileData.cultural_identity);
-            } else {
-              // Handle the specific database format: {"cook-islands","french-polynesia"}
-              const parsed = JSON.parse(
-                profileData.cultural_identity.replace(/^{/, "[").replace(/}$/, "]")
-              );
-              setCulturalIdentity(Array.isArray(parsed) ? parsed : []);
-            }
-          } catch (error) {
-            console.error("Error parsing cultural_identity:", error, "Data:", profileData.cultural_identity);
-            setCulturalIdentity([]);
-          }
-        } else {
-          setCulturalIdentity([]);
-        }
-
-        setLanguagesSpoken(
-          Array.isArray(profileData?.languages_spoken) ? profileData.languages_spoken : []
+        setCulturalIdentity(
+          Array.isArray(parsedCulturalIdentity) ? parsedCulturalIdentity : []
         );
-        setPrivatePhone(profileData?.private_phone || "");
+        setLanguagesSpoken(parsedLanguages);
+
+        const step2Complete =
+          Boolean((profileData?.city || "").trim()) &&
+          Boolean((profileData?.country || "").trim()) &&
+          parsedCulturalIdentity.length > 0 &&
+          parsedLanguages.length > 0;
+
+        setProfileFoundationSaved(step2Complete);
 
         if (checkIsAdmin(enhancedUser)) {
           await loadAdminUsers();
@@ -209,7 +253,7 @@ export default function ProfileSettings() {
           stack: error?.stack,
           name: error?.name,
           details: error?.details,
-          fullError: error
+          fullError: error,
         });
         setLoading(false);
       }
@@ -237,13 +281,18 @@ export default function ProfileSettings() {
 
   const updateProfile = async () => {
     setSaving(true);
+
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ display_name: displayName, private_email: privateEmail, private_phone: privatePhone })
+        .update({
+          display_name: displayName,
+          private_email: privateEmail,
+          private_phone: privatePhone,
+        })
         .eq("id", user.id);
 
       if (profileError) throw profileError;
@@ -265,9 +314,12 @@ export default function ProfileSettings() {
         if (emailError) throw emailError;
       }
 
-      setUser((prev) => ({ ...prev, display_name: displayName, private_email: privateEmail }));
+      setUser((prev) => ({
+        ...prev,
+        display_name: displayName,
+        private_email: privateEmail,
+      }));
 
-      // Close the account section accordion after successful save
       setExpandedSections((prev) => {
         const next = new Set(prev);
         next.delete("account");
@@ -332,7 +384,6 @@ export default function ProfileSettings() {
       setNewPassword("");
       setConfirmPassword("");
 
-      // Close the security section accordion after successful save
       setExpandedSections((prev) => {
         const next = new Set(prev);
         next.delete("security");
@@ -475,7 +526,8 @@ export default function ProfileSettings() {
   };
 
   const toggleArrayItem = (field, item) => {
-    const currentArray = field === "culturalIdentity" ? culturalIdentity : languagesSpoken;
+    const currentArray =
+      field === "culturalIdentity" ? culturalIdentity : languagesSpoken;
     const setter =
       field === "culturalIdentity" ? setCulturalIdentity : setLanguagesSpoken;
 
@@ -505,7 +557,8 @@ export default function ProfileSettings() {
 
       if (error) throw error;
 
-      // Close the profile section accordion after successful save
+      setProfileFoundationSaved(true);
+
       setExpandedSections((prev) => {
         const next = new Set(prev);
         next.delete("profile");
@@ -513,8 +566,9 @@ export default function ProfileSettings() {
       });
 
       toast({
-        title: "Profile Updated",
-        description: "Your profile foundation has been successfully updated.",
+        title: "Profile Foundation Saved",
+        description:
+          "Thanks for completing your profile. You can now claim an existing business or add a new business in the Business Portal.",
         variant: "success",
       });
     } catch (error) {
@@ -530,14 +584,6 @@ export default function ProfileSettings() {
       setSaving(false);
     }
   };
-
-  const isProfileComplete =
-    displayName &&
-    privateEmail &&
-    city &&
-    country &&
-    culturalIdentity.length > 0 &&
-    languagesSpoken.length > 0;
 
   if (loading) {
     return (
@@ -562,7 +608,7 @@ export default function ProfileSettings() {
             href={createPageUrl("BusinessLogin")}
             className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]"
           >
-            Sign In <ArrowLeft className="w-4 h-4" />
+            Sign In <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
@@ -573,17 +619,21 @@ export default function ProfileSettings() {
     <PortalShell>
       <HeroStandard
         badge="Profile Settings"
-        title={`Welcome back, ${user?.user_metadata?.full_name?.split(" ")[0] || user?.user_metadata?.display_name?.split(" ")[0] || "User"}`}
+        title={`Welcome back, ${
+          user?.user_metadata?.full_name?.split(" ")[0] ||
+          user?.user_metadata?.display_name?.split(" ")[0] ||
+          "User"
+        }`}
         subtitle={user?.email}
         description="Manage your account information, profile foundation, and security settings"
         actions={
-          isProfileComplete ? (
+          showUnlockedState ? (
             <Link
               href={createPageUrl("BusinessPortal")}
               className="inline-flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
               Back to Business Portal
+              <ArrowRight className="w-4 h-4" />
             </Link>
           ) : null
         }
@@ -594,6 +644,47 @@ export default function ProfileSettings() {
         <section className="px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-5xl">
             <div className="rounded-[26px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100">
+                {!showUnlockedState ? (
+                  <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-amber-900 text-sm">
+                        Next step required
+                      </h3>
+                      <p className="text-amber-800 text-sm mt-1">
+                        Complete and save Step 2: Profile Foundation to unlock
+                        the ability to claim an existing business or add a new
+                        business in your Business Portal.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center mt-0.5 shrink-0">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-emerald-900 text-sm">
+                        Thank you for completing your profile
+                      </h3>
+                      <p className="text-emerald-800 text-sm mt-1">
+                        Your profile foundation is saved. You can now claim an
+                        existing unclaimed business or add a new business in the
+                        Business Portal.
+                      </p>
+                      <Link
+                        href={createPageUrl("BusinessPortal")}
+                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors mt-2"
+                      >
+                        Go to Business Portal
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <InsightsAccordionSection
                 title="Account Settings"
                 subtitle="Step 1"
@@ -656,12 +747,22 @@ export default function ProfileSettings() {
               <InsightsAccordionSection
                 title="Profile Foundation"
                 subtitle="Step 2"
-                summary="Complete your location and cultural identity information"
+                summary="Required to unlock business claiming and business creation"
                 icon={UserCircle2}
                 isOpen={expandedSections.has("profile")}
                 onToggle={() => toggleSection("profile")}
+                badge="Required"
+                badgeTone="required"
               >
                 <div className="space-y-4">
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <p className="text-emerald-800 text-sm">
+                      Complete this section to unlock the ability to claim an
+                      existing unclaimed business or add a new business in your
+                      Business Portal.
+                    </p>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-[#0a1628] mb-2">
                       Where are you based? (City)
@@ -686,7 +787,10 @@ export default function ProfileSettings() {
                     >
                       <option value="">Select country</option>
                       {COUNTRIES.map((countryItem) => (
-                        <option key={countryItem.value} value={countryItem.value}>
+                        <option
+                          key={countryItem.value}
+                          value={countryItem.value}
+                        >
                           {countryItem.label}
                         </option>
                       ))}
@@ -705,9 +809,14 @@ export default function ProfileSettings() {
                         >
                           <input
                             type="checkbox"
-                            checked={culturalIdentity.includes(countryItem.value)}
+                            checked={culturalIdentity.includes(
+                              countryItem.value
+                            )}
                             onChange={() =>
-                              toggleArrayItem("culturalIdentity", countryItem.value)
+                              toggleArrayItem(
+                                "culturalIdentity",
+                                countryItem.value
+                              )
                             }
                             className="rounded border-gray-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
                           />
@@ -745,26 +854,44 @@ export default function ProfileSettings() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={updateProfileFoundation}
-                    disabled={saving}
-                    className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4" />
-                    {saving ? "Saving..." : "Save Profile Foundation"}
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={updateProfileFoundation}
+                      disabled={saving || !isStep2Complete}
+                      className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Save className="w-4 h-4" />
+                      {saving ? "Saving..." : "Save Profile Foundation"}
+                    </button>
+
+                    {!isStep2Complete && (
+                      <p className="text-xs text-gray-500">
+                        Please complete your city, country, cultural identity,
+                        and languages spoken before saving.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </InsightsAccordionSection>
 
               <InsightsAccordionSection
                 title="Security Settings"
                 subtitle="Step 3"
-                summary="Update your password and security preferences"
+                summary="Optional password and security updates"
                 icon={Shield}
                 isOpen={expandedSections.has("security")}
                 onToggle={() => toggleSection("security")}
+                badge="Optional"
+                badgeTone="optional"
               >
                 <div className="space-y-4">
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-gray-600 text-sm">
+                      This step is optional. You can update your password now or
+                      come back to it later.
+                    </p>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-[#0a1628] mb-2">
                       Current Password
@@ -836,7 +963,9 @@ export default function ProfileSettings() {
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
                         {showConfirmPassword ? (
@@ -884,7 +1013,10 @@ export default function ProfileSettings() {
 
                     {showAddAdmin && (
                       <div className="border border-gray-200 rounded-lg p-4 space-y-4">
-                        <h4 className="font-medium text-[#0a1628]">Add New Admin User</h4>
+                        <h4 className="font-medium text-[#0a1628]">
+                          Add New Admin User
+                        </h4>
+
                         <div>
                           <label className="block text-sm font-medium text-[#0a1628] mb-1">
                             Name
@@ -897,6 +1029,7 @@ export default function ProfileSettings() {
                             placeholder="Enter admin name"
                           />
                         </div>
+
                         <div>
                           <label className="block text-sm font-medium text-[#0a1628] mb-1">
                             Email Address
@@ -909,6 +1042,7 @@ export default function ProfileSettings() {
                             placeholder="Enter admin email"
                           />
                         </div>
+
                         <div>
                           <label className="block text-sm font-medium text-[#0a1628] mb-1">
                             Password
@@ -916,11 +1050,14 @@ export default function ProfileSettings() {
                           <input
                             type="password"
                             value={newAdminPassword}
-                            onChange={(e) => setNewAdminPassword(e.target.value)}
+                            onChange={(e) =>
+                              setNewAdminPassword(e.target.value)
+                            }
                             className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0d4f4f]/30 focus:border-[#0d4f4f]"
                             placeholder="Enter admin password"
                           />
                         </div>
+
                         <div className="flex gap-2">
                           <button
                             onClick={addAdminUser}
@@ -947,12 +1084,23 @@ export default function ProfileSettings() {
                         >
                           <div>
                             <div className="font-medium text-[#0a1628]">
-                              {admin.display_name || admin.full_name || admin.email}
+                              {admin.display_name ||
+                                admin.full_name ||
+                                admin.email}
                             </div>
-                            <div className="text-sm text-gray-500">{admin.email}</div>
+                            <div className="text-sm text-gray-500">
+                              {admin.email}
+                            </div>
                           </div>
                           <button
-                            onClick={() => removeAdminUser(admin.id, admin.display_name || admin.full_name || admin.email)}
+                            onClick={() =>
+                              removeAdminUser(
+                                admin.id,
+                                admin.display_name ||
+                                  admin.full_name ||
+                                  admin.email
+                              )
+                            }
                             className="text-red-600 hover:text-red-700 font-medium text-sm"
                           >
                             Remove

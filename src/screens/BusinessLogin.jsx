@@ -95,6 +95,10 @@ export default function BusinessLogin() {
       const supabase = getSupabase();
       let result;
       
+      // Always use production URL for email redirects
+      const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL || "https://pacificdiscoverynetwork.com";
+      const signupRedirectUrl = process.env.NEXT_PUBLIC_SIGNUP_REDIRECT_URL || `${appUrl}/BusinessPortal`;
+      
       if (mode === "signin") {
         // Sign in with Supabase
         result = await supabase.auth.signInWithPassword({
@@ -114,7 +118,7 @@ export default function BusinessLogin() {
               gdpr_consent_date: new Date().toISOString(),
               referral_code: referralCode // Store referral code for later use
             },
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_PROD_URL}/BusinessPortal`
+            emailRedirectTo: signupRedirectUrl
           }
         });
       }
