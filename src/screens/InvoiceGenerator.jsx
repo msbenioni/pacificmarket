@@ -165,8 +165,16 @@ export default function InvoiceGenerator() {
         const claimedIds = (claims || []).map(claim => claim.business_id).filter(Boolean);
         let claimedBusinesses = [];
         if (claimedIds.length > 0) {
-          // Use shared query for claimed businesses
-          const claimedBusinessPromises = claimedIds.map(id => getBusinessById(id));
+          // Use shared query for claimed businesses - match email generator pattern
+          const claimedBusinessPromises = claimedIds.map(async (id) => {
+            try {
+              const business = await getBusinessById(id);
+              return { data: business, error: null };
+            } catch (error) {
+              console.error(`Failed to load claimed business ${id}:`, error);
+              return { data: null, error };
+            }
+          });
           const claimedResults = await Promise.all(claimedBusinessPromises);
           claimedBusinesses = claimedResults.filter(result => result.data).map(result => result.data);
         }
@@ -197,8 +205,17 @@ export default function InvoiceGenerator() {
         const { getSupabase } = await import("@/lib/supabase/client");
         const supabase = getSupabase();
         
-        // Get business details using shared query
-        const { data: business } = await getBusinessById(selectedBusinessId);
+        let business = null;
+        try {
+          business = await getBusinessById(selectedBusinessId);
+        } catch (err) {
+          console.error("Business query error:", err);
+          throw new Error(`Failed to load business: ${err?.message || "Unknown error"}`);
+        }
+
+        if (!business) {
+          throw new Error("Business not found");
+        }
         
         // Get invoice settings
         const { data: settings, error: settingsError } = await supabase
@@ -752,6 +769,7 @@ export default function InvoiceGenerator() {
                       value={selectedBusinessId}
                       onChange={(e) => {
                         const nextId = e.target.value;
+                        
                         isUserEditingRef.current = false;
                         loadedBusinessIdRef.current = null;
                         setBusinessInvoice(prev => ({
