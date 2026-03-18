@@ -7,8 +7,10 @@ import { createPageUrl } from "@/utils";
 import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, MessageSquare } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
+import { COUNTRIES } from "@/constants/unifiedConstants";
+import { getBusinessLanguagesSpoken } from "@/utils/businessCulturalHelpers";
 
-const WINDOW_SIZE = 6;
+const WINDOW_SIZE = 4;
 
 function hourKeyUTC() {
   return Math.floor(Date.now() / (1000 * 60 * 60));
@@ -18,6 +20,102 @@ function clampText(s, max = 140) {
   if (!s) return "";
   const clean = String(s).replace(/\s+/g, " ").trim();
   return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
+}
+
+// Helper function to convert country slug to readable name
+function getCountryDisplayName(countrySlug) {
+  if (!countrySlug) return "";
+  
+  const country = COUNTRIES.find(c => c.value === countrySlug);
+  return country ? country.label : countrySlug;
+}
+
+function formatLanguageName(languageCode) {
+  if (!languageCode) return "";
+
+  const languageMap = {
+    english: "English",
+    french: "French",
+    spanish: "Spanish",
+    chinese: "Chinese",
+    japanese: "Japanese",
+    korean: "Korean",
+    german: "German",
+    italian: "Italian",
+    portuguese: "Portuguese",
+    russian: "Russian",
+    arabic: "Arabic",
+    hindi: "Hindi",
+    maori: "Māori",
+    "te-reo-maori": "Te Reo Māori",
+    samoan: "Samoan",
+    tongan: "Tongan",
+    fijian: "Fijian",
+    tahitian: "Tahitian",
+    uvean: "Uvean",
+    rotuman: "Rotuman",
+    "tok-pisin": "Tok Pisin",
+    pidgin: "Pidgin",
+    bislama: "Bislama",
+    niuean: "Niuean",
+    cookislandsmaori: "Cook Islands Māori",
+    "cook-islands-maori": "Cook Islands Māori",
+    rarotongan: "Rarotongan",
+    paumotu: "Pa'umotu",
+    marquesan: "Marquesan",
+  };
+
+  const normalized = String(languageCode).trim().toLowerCase();
+  return (
+    languageMap[normalized] ||
+    normalized
+      .replace(/[[\]"]/g, "")
+      .split(/[-_, ]+/)
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  );
+}
+
+function normaliseLanguages(languages) {
+  if (!languages) return [];
+
+  if (Array.isArray(languages)) {
+    return languages.filter(Boolean);
+  }
+
+  if (typeof languages === "string") {
+    const trimmed = languages.trim();
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    } catch {
+      // continue
+    }
+
+    return trimmed
+      .replace(/^\[|\]$/g, "")
+      .split(",")
+      .map((lang) => lang.replace(/"/g, "").trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function formatLanguages(languages) {
+  const normalizedLanguages = normaliseLanguages(languages);
+  
+  if (normalizedLanguages.length === 0) return '';
+  
+  const formattedLanguages = normalizedLanguages.map(lang => formatLanguageName(lang));
+  
+  if (formattedLanguages.length <= 2) {
+    return formattedLanguages.join(' & ');
+  }
+  
+  return `${formattedLanguages.slice(0, 2).join(' & ')} +${formattedLanguages.length - 2} more`;
 }
 
 function getSocialLinks(business) {
@@ -77,88 +175,10 @@ function FeaturedBadge({ tier }) {
   return null;
 }
 
-// Helper function to format language codes to readable names
-function formatLanguageName(languageCode) {
-  const languageMap = {
-    'english': 'English',
-    'french': 'French',
-    'spanish': 'Spanish',
-    'chinese': 'Chinese',
-    'japanese': 'Japanese',
-    'korean': 'Korean',
-    'german': 'German',
-    'italian': 'Italian',
-    'portuguese': 'Portuguese',
-    'russian': 'Russian',
-    'arabic': 'Arabic',
-    'hindi': 'Hindi',
-    'french-polynesia': 'French Polynesian',
-    'cook-islands': 'Cook Islands',
-    'maori': 'Māori',
-    'samoan': 'Samoan',
-    'tongan': 'Tongan',
-    'fijian': 'Fijian',
-    'tok-pisin': 'Tok Pisin',
-    'pidgin': 'Pidgin',
-    'te-reo-maori': 'Te Reo Māori',
-    'uvean': 'Uvean',
-    'tahitian': 'Tahitian',
-    'rotuman': 'Rotuman'
-  };
-  
-  return languageMap[languageCode.toLowerCase()] || 
-         languageCode.charAt(0).toUpperCase() + languageCode.slice(1).toLowerCase();
-}
-
-// Helper function to format languages display
-function formatLanguages(languages) {
-  if (!languages) return '';
-  
-  // Handle different input formats
-  let languageArray;
-  if (Array.isArray(languages)) {
-    languageArray = languages;
-  } else if (typeof languages === 'string') {
-    // Handle string representations like '["french-polynesia","english"]'
-    try {
-      const parsed = JSON.parse(languages);
-      languageArray = Array.isArray(parsed) ? parsed : [languages];
-    } catch {
-      // Handle comma-separated strings like 'french-polynesia,english'
-      languageArray = languages.split(',').map(lang => lang.trim()).filter(Boolean);
-    }
-  } else {
-    return '';
-  }
-  
-  if (languageArray.length === 0) return '';
-  
-  const formattedLanguages = languageArray.map(lang => formatLanguageName(lang));
-  
-  if (formattedLanguages.length <= 2) {
-    return formattedLanguages.join(' & ');
-  }
-  
-  return `${formattedLanguages.slice(0, 2).join(' & ')} +${formattedLanguages.length - 2} more`;
-}
-
 function BusinessMiniCard({ b, active, onSelect }) {
-  // Safe languages handling
-  const languages = (() => {
-    if (!b.languages_spoken) return null;
-    
-    if (Array.isArray(b.languages_spoken)) {
-      return b.languages_spoken.length > 0 ? formatLanguages(b.languages_spoken) : null;
-    }
-    
-    if (typeof b.languages_spoken === 'string') {
-      const parsed = b.languages_spoken.split(',').map(lang => lang.trim()).filter(Boolean);
-      return parsed.length > 0 ? formatLanguages(parsed) : null;
-    }
-    
-    return null;
-  })();
-
+  // Simplified language handling using helper
+  const languages = formatLanguages(getBusinessLanguagesSpoken(b));
+  
   return (
     <button
       type="button"
@@ -188,64 +208,73 @@ function BusinessMiniCard({ b, active, onSelect }) {
         )}
       </div>
 
-      <div className="p-4 flex-1 flex flex-col">
-        {/* Logo positioned to overlap banner without pushing content */}
-        <div className="relative -mt-8 mb-3">
-          <div className="w-16 h-16 rounded-2xl border-3 border-white shadow-lg overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
+      <div className="p-5 flex-1 flex flex-col">
+        {/* Logo positioned to overlap banner */}
+        <div className="relative -mt-10 mb-4">
+          <div className="w-20 h-20 rounded-2xl border-3 border-white shadow-xl overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
             <img src={getLogoUrl(b)} alt="" className="w-full h-full object-cover" loading="lazy" />
           </div>
         </div>
 
-        {/* Name and verification - moved below logo */}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-extrabold text-[#0a1628] text-sm leading-tight">
+        {/* Business name and verification */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <h3 className="font-bold text-[#0a1628] text-lg leading-tight flex-1">
             {b.business_name}
           </h3>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            {b.cultural_identity && <FlagIcon identity={b.cultural_identity} size={16} />}
-            {(b.subscription_tier === "mana" || b.subscription_tier === "moana") && <CheckCircle className="w-4 h-4 text-[#00c4cc] shrink-0" />}
+            {(b.subscription_tier === "mana" || b.subscription_tier === "moana") && <CheckCircle className="w-5 h-5 text-[#00c4cc] shrink-0" />}
           </div>
         </div>
 
-        {/* Location */}
-        <div className="flex items-center gap-1 text-xs text-slate-500 mb-2">
-          <MapPin className="w-3 h-3 flex-shrink-0" />
-          <span className="truncate">
-            {b.city ? `${b.city}, ` : ""}{b.country}
-          </span>
-        </div>
-
-        {/* Cultural Identity & Languages - Simplified Design */}
-        {b.cultural_identity && (
-          <div className="group relative inline-flex items-center justify-center rounded-full border border-[#0d4f4f]/20 bg-gradient-to-r from-[#0d4f4f]/5 to-[#0a1628]/5 p-1 text-[#0d4f4f] shadow-sm cursor-help mb-2">
-            <FlagIcon identity={b.cultural_identity} size={10} />
-            {/* Tooltip on hover */}
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[9px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-              {b.cultural_identity}
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
-            </div>
-          </div>
-        )}
-        
-        {languages && (
-          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#00c4cc] mb-2">
-            <MessageSquare className="w-3 h-3 flex-shrink-0" />
-            {languages}
-          </span>
-        )}
-
-        {/* Tagline - flex-grow to push footer down */}
+        {/* Tagline / short description */}
         {b.tagline && (
-          <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 mb-3 flex-1">
+          <p className="text-[#475569] text-sm leading-relaxed font-medium mb-4 line-clamp-2">
             {b.tagline}
           </p>
         )}
 
-        {/* Footer - always at bottom */}
-        <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100 mt-auto">
-          <span className="text-[11px] text-slate-500 bg-slate-50 px-2 py-1 rounded-md truncate">
-            {b.industry || "Industry"}
-          </span>
+        {/* Information stack */}
+        <div className="space-y-3 mb-4">
+          {/* Location */}
+          {b.country && (
+            <div className="flex items-center gap-2 text-sm text-[#64748b]">
+              <MapPin className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">
+                {b.city ? `${b.city}, ` : ""}{getCountryDisplayName(b.country)}
+              </span>
+            </div>
+          )}
+
+          {/* Cultural identity flags */}
+          {b.cultural_identity && (
+            <div className="flex items-center gap-2">
+              <FlagIcon identity={b.cultural_identity} size={20} />
+            </div>
+          )}
+
+          {/* Languages spoken */}
+          {languages && (
+            <div className="flex items-center gap-2 text-sm font-medium text-[#00c4cc]">
+              <MessageSquare className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">{languages}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Footer - pinned to bottom */}
+        <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100 mt-auto">
+          {/* Industry pill */}
+          {b.industry && (
+            <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600">
+              {b.industry}
+            </span>
+          )}
+          
+          {/* View profile CTA */}
+          <div className="flex items-center gap-1 text-xs font-medium text-[#0d4f4f] opacity-0 group-hover:opacity-100 transition-opacity">
+            View profile
+            <ChevronRight className="w-3 h-3" />
+          </div>
         </div>
       </div>
     </button>
@@ -346,7 +375,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
               <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/75">
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  {b?.city ? `${b.city}, ` : ""}{b?.country}
+                  {b?.city ? `${b.city}, ` : ""}{getCountryDisplayName(b?.country)}
                 </span>
                 {b?.industry && (
                   <span className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg">
@@ -354,9 +383,14 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                   </span>
                 )}
                 {b?.cultural_identity && (
-                  <span className="text-xs bg-[#00c4cc]/10 border border-[#00c4cc]/20 text-white px-2 py-1 rounded-lg">
-                    {b.cultural_identity}
-                  </span>
+                  <div className="group relative inline-flex items-center justify-center rounded-full border border-[#00c4cc]/20 bg-gradient-to-r from-[#00c4cc]/5 to-[#0a9fa8]/5 p-1.5 text-[#00c4cc] shadow-sm cursor-help">
+                    <FlagIcon identity={b.cultural_identity} size={14} />
+                    {/* Tooltip on hover */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                      {b.cultural_identity}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -526,7 +560,7 @@ export default function FeaturedSpotlight({ businesses = [] }) {
               className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all"
             >
               <ChevronLeft className="w-4 h-4" />
-              Previous 6
+              Previous 4
             </button>
 
             <button
@@ -537,7 +571,7 @@ export default function FeaturedSpotlight({ businesses = [] }) {
               }}
               className="flex items-center gap-1 text-sm font-medium text-[#0d4f4f] hover:gap-2 transition-all"
             >
-              Next 6
+              Next 4
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

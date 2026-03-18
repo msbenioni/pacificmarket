@@ -20,6 +20,7 @@ export const IDENTITY_TO_CODE = {
   "New Caledonia": "NC",
   "New Zealand": "NZ",
   "New Zealand Māori": "NZ",
+  "New Zealand Maori": "NZ",
   "Niue": "NU",
   "Northern Mariana Islands": "MP",
   "Palau": "PW",
@@ -242,12 +243,64 @@ function getDisplayName(identity) {
   
   const normalized = normalizeIdentity(identity);
   
-  // Convert slugs to readable names
-  if (normalized.includes('-')) {
-    return normalized
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  // Convert slugs to readable names with better mapping
+  if (normalized.includes('-') || normalized.includes(' ')) {
+    // Special cases for common Pacific countries (handle both hyphens and spaces)
+    const specialCases = {
+      'new-zealand': 'New Zealand',
+      'new zealand': 'New Zealand',
+      'new-zealand-maori': 'New Zealand',
+      'new zealand maori': 'New Zealand',
+      'new-zealand-māori': 'New Zealand',
+      'new zealand māori': 'New Zealand',
+      'french-polynesia': 'French Polynesia',
+      'french polynesia': 'French Polynesia',
+      'cook-islands': 'Cook Islands',
+      'cook islands': 'Cook Islands',
+      'papua-new-guinea': 'Papua New Guinea',
+      'papua new guinea': 'Papua New Guinea',
+      'solomon-islands': 'Solomon Islands',
+      'solomon islands': 'Solomon Islands',
+      'northern-mariana-islands': 'Northern Mariana Islands',
+      'northern mariana islands': 'Northern Mariana Islands',
+      'wallis-and-futuna': 'Wallis and Futuna',
+      'wallis and futuna': 'Wallis and Futuna',
+      'united-states': 'United States',
+      'united states': 'United States',
+      'united-kingdom': 'United Kingdom',
+      'united kingdom': 'United Kingdom',
+      'united-arab-emirates': 'United Arab Emirates',
+      'united arab emirates': 'United Arab Emirates',
+      'south-africa': 'South Africa',
+      'south africa': 'South Africa',
+      'south-korea': 'South Korea',
+      'south korea': 'South Korea',
+      'saudi-arabia': 'Saudi Arabia',
+      'saudi arabia': 'Saudi Arabia',
+      'costa-rica': 'Costa Rica',
+      'costa rica': 'Costa Rica',
+      'puerto-rico': 'Puerto Rico',
+      'puerto rico': 'Puerto Rico',
+      'sri-lanka': 'Sri Lanka',
+      'sri lanka': 'Sri Lanka',
+      'trinidad-tobago': 'Trinidad and Tobago',
+      'trinidad tobago': 'Trinidad and Tobago'
+    };
+    
+    if (specialCases[normalized]) {
+      return specialCases[normalized];
+    }
+    
+    // Default conversion for hyphens
+    if (normalized.includes('-')) {
+      return normalized
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    // Default conversion for spaces (should already be readable)
+    return normalized;
   }
   
   return normalized;
@@ -355,7 +408,7 @@ function SingleFlagIcon({ identity, size = 24, className = "", showTooltip = tru
       return (
         <div className="group relative inline-block">
           {globeElement}
-          <div className="actual bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
             {displayName || identity}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
           </div>
