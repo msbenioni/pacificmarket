@@ -267,6 +267,13 @@ export default function ProfileSettings() {
 
       setUser((prev) => ({ ...prev, display_name: displayName, private_email: privateEmail }));
 
+      // Close the account section accordion after successful save
+      setExpandedSections((prev) => {
+        const next = new Set(prev);
+        next.delete("account");
+        return next;
+      });
+
       toast({
         title: "Profile Updated",
         description: "Your profile has been successfully updated.",
@@ -324,6 +331,13 @@ export default function ProfileSettings() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+
+      // Close the security section accordion after successful save
+      setExpandedSections((prev) => {
+        const next = new Set(prev);
+        next.delete("security");
+        return next;
+      });
 
       toast({
         title: "Password Updated",
@@ -490,6 +504,13 @@ export default function ProfileSettings() {
         .eq("id", user.id);
 
       if (error) throw error;
+
+      // Close the profile section accordion after successful save
+      setExpandedSections((prev) => {
+        const next = new Set(prev);
+        next.delete("profile");
+        return next;
+      });
 
       toast({
         title: "Profile Updated",

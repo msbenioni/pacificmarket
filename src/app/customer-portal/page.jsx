@@ -123,7 +123,7 @@ function CustomerPortalContent() {
     }
   };
 
-  const handleSignUp = async (email, password, fullName) => {
+  const handleSignUp = async (email, password, displayName) => {
     try {
       setErrorMessage("");
       setSubmitting(true);
@@ -140,7 +140,7 @@ function CustomerPortalContent() {
         password,
         options: {
           data: {
-            display_name: fullName.trim(),
+            display_name: displayName.trim(),
             gdpr_consent: true,
             gdpr_consent_date: new Date().toISOString(),
           },
@@ -162,7 +162,7 @@ function CustomerPortalContent() {
         .from('profiles')
         .update({
           private_email: email.trim().toLowerCase(),
-          display_name: fullName.trim(),
+          display_name: displayName.trim(),
           pending_business_id: null,
           pending_business_name: null,
           invited_date: null,
@@ -347,13 +347,13 @@ function CustomerPortalContent() {
 function SignUpForm({ onSignUp, defaultEmail, defaultName, submitting }) {
   const [email, setEmail] = useState(defaultEmail || '');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState(defaultName || '');
+  const [displayName, setDisplayName] = useState(defaultName || '');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password || !fullName) return;
+    if (!email || !password || !displayName) return;
     
-    await onSignUp(email, password, fullName);
+    await onSignUp(email, password, displayName);
   };
 
   return (
@@ -362,8 +362,8 @@ function SignUpForm({ onSignUp, defaultEmail, defaultName, submitting }) {
         <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
         <input
           type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d4f4f] focus:border-[#0d4f4f]"
           required
         />
