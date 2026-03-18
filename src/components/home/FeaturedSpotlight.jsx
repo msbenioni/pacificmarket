@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
-import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, MessageSquare } from "lucide-react";
+import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, Speech } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
 import { COUNTRIES } from "@/constants/unifiedConstants";
@@ -176,104 +176,102 @@ function FeaturedBadge({ tier }) {
 }
 
 function BusinessMiniCard({ b, active, onSelect }) {
-  // Simplified language handling using helper
   const languages = formatLanguages(getBusinessLanguagesSpoken(b));
-  
+  const location = [b.city, getCountryDisplayName(b.country)].filter(Boolean).join(", ");
+  const tagline = b.tagline || b.description || "";
+  const industryLabel = b.industry || "Industry";
+
   return (
     <button
       type="button"
       onFocus={onSelect}
       onClick={onSelect}
       className={[
-        "group w-full text-left rounded-2xl border bg-white transition-all",
+        "group w-full text-left rounded-[24px] border bg-white transition-all duration-300",
         "hover:-translate-y-0.5 hover:shadow-xl",
-        "h-full flex flex-col", // Ensure consistent height
+        "h-full flex flex-col",
         active
           ? "border-[#c9a84c]/70 shadow-lg ring-2 ring-[#c9a84c]/20"
           : "border-gray-200 shadow-sm",
       ].join(" ")}
     >
       {/* Banner */}
-      <div className="relative h-[133px] rounded-t-2xl overflow-hidden bg-[#0d4f4f] flex-shrink-0">
+      <div className="relative h-[133px] overflow-hidden rounded-t-[24px] bg-[#0d4f4f] flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
-
         {getBannerUrl(b) && (
           <img
             src={getBannerUrl(b)}
             alt=""
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
             style={{ objectPosition: "center top" }}
           />
         )}
       </div>
 
-      <div className="p-5 flex-1 flex flex-col">
-        {/* Logo positioned to overlap banner */}
+      <div className="flex flex-1 flex-col px-5 pb-5">
+        {/* Logo overlap */}
         <div className="relative -mt-10 mb-4">
-          <div className="w-20 h-20 rounded-2xl border-3 border-white shadow-xl overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
-            <img src={getLogoUrl(b)} alt="" className="w-full h-full object-cover" loading="lazy" />
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-[3px] border-white bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] shadow-xl">
+            <img
+              src={getLogoUrl(b)}
+              alt=""
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
           </div>
         </div>
 
-        {/* Business name and verification */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="font-bold text-[#0a1628] text-lg leading-tight flex-1">
+        {/* Name + verification */}
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <h3 className="flex-1 text-lg font-bold leading-tight text-[#0a1628]">
             {b.business_name}
           </h3>
-          <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            {(b.subscription_tier === "mana" || b.subscription_tier === "moana") && <CheckCircle className="w-5 h-5 text-[#00c4cc] shrink-0" />}
-          </div>
+
+          {(b.subscription_tier === "mana" || b.subscription_tier === "moana") && (
+            <CheckCircle className="h-5 w-5 shrink-0 text-[#00c4cc]" />
+          )}
         </div>
 
-        {/* Tagline / short description */}
-        {b.tagline && (
-          <p className="text-[#475569] text-sm leading-relaxed font-medium mb-4 line-clamp-2">
-            {b.tagline}
+        {/* Tagline */}
+        {tagline && (
+          <p className="mb-4 line-clamp-2 text-sm font-medium leading-relaxed text-[#475569]">
+            {tagline}
           </p>
         )}
 
-        {/* Information stack */}
-        <div className="space-y-3 mb-4">
-          {/* Location */}
-          {b.country && (
+        {/* Info stack */}
+        <div className="mb-1 space-y-2">
+          {location && (
             <div className="flex items-center gap-2 text-sm text-[#64748b]">
-              <MapPin className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">
-                {b.city ? `${b.city}, ` : ""}{getCountryDisplayName(b.country)}
-              </span>
+              <MapPin className="h-4 w-4 shrink-0" />
+              <span className="truncate">{location}</span>
             </div>
           )}
 
-          {/* Cultural identity flags */}
           {b.cultural_identity && (
-            <div className="flex items-center gap-2">
-              <FlagIcon identity={b.cultural_identity} size={20} />
+            <div className="flex items-center">
+              <FlagIcon identity={b.cultural_identity} size={24} />
             </div>
           )}
 
-          {/* Languages spoken */}
           {languages && (
             <div className="flex items-center gap-2 text-sm font-medium text-[#00c4cc]">
-              <MessageSquare className="w-4 h-4 flex-shrink-0" />
+              <Speech className="h-4 w-4 shrink-0" />
               <span className="truncate">{languages}</span>
             </div>
           )}
         </div>
 
-        {/* Footer - pinned to bottom */}
-        <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100 mt-auto">
-          {/* Industry pill */}
-          {b.industry && (
-            <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600">
-              {b.industry}
-            </span>
-          )}
-          
-          {/* View profile CTA */}
-          <div className="flex items-center gap-1 text-xs font-medium text-[#0d4f4f] opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Footer */}
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
+          <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600">
+            {industryLabel}
+          </span>
+
+          <div className="flex items-center gap-1 text-xs font-medium text-[#0d4f4f] opacity-0 transition-opacity group-hover:opacity-100">
             View profile
-            <ChevronRight className="w-3 h-3" />
+            <ChevronRight className="h-3 w-3" />
           </div>
         </div>
       </div>
@@ -382,16 +380,11 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                     {b.industry}
                   </span>
                 )}
-                {b?.cultural_identity && (
-                  <div className="group relative inline-flex items-center justify-center rounded-full border border-[#00c4cc]/20 bg-gradient-to-r from-[#00c4cc]/5 to-[#0a9fa8]/5 p-1.5 text-[#00c4cc] shadow-sm cursor-help">
-                    <FlagIcon identity={b.cultural_identity} size={14} />
-                    {/* Tooltip on hover */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                      {b.cultural_identity}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
-                    </div>
-                  </div>
-                )}
+{b?.cultural_identity && (
+  <div className="inline-flex items-center">
+    <FlagIcon identity={b.cultural_identity} size={20} />
+  </div>
+)}
               </div>
 
               {(b?.tagline || b?.description) && (

@@ -3,13 +3,12 @@ import { Globe } from "lucide-react";
 import { COUNTRIES } from "@/constants/unifiedConstants";
 
 // Comprehensive mapping for both Pacific and non-Pacific countries
-// Supports both display names and slug formats
 export const IDENTITY_TO_CODE = {
   // Pacific countries (display names)
   "American Samoa": "AS",
   "Australia": "AU",
   "Australia Aboriginal": "AU",
-  "Cook Islands": "CK", 
+  "Cook Islands": "CK",
   "Fiji": "FJ",
   "French Polynesia": "PF",
   "Guam": "GU",
@@ -34,7 +33,7 @@ export const IDENTITY_TO_CODE = {
   "Vanuatu": "VU",
   "Wallis and Futuna": "WF",
   "Hawaii": "US",
-  
+
   // Pacific countries (slug formats)
   "american-samoa": "AS",
   "australia": "AU",
@@ -64,7 +63,7 @@ export const IDENTITY_TO_CODE = {
   "vanuatu": "VU",
   "wallis-and-futuna": "WF",
   "hawaii": "US",
-  
+
   // Major non-Pacific countries (display names)
   "Afghanistan": "AF",
   "Albania": "AL",
@@ -130,7 +129,7 @@ export const IDENTITY_TO_CODE = {
   "United Arab Emirates": "AE",
   "United Kingdom": "GB",
   "Vietnam": "VN",
-  
+
   // Major non-Pacific countries (slug formats)
   "afghanistan": "AF",
   "albania": "AL",
@@ -196,273 +195,294 @@ export const IDENTITY_TO_CODE = {
   "united-arab-emirates": "AE",
   "united-kingdom": "GB",
   "vietnam": "VN",
-  
+
+  // common aliases
+  "UK": "GB",
+  "uk": "GB",
+  "England": "GB",
+  "england": "GB",
+  "USA": "US",
+  "usa": "US",
+  "United States of America": "US",
+
   // Special cases
   "Other": "GLOBE",
   "Unknown": "GLOBE",
   "other": "GLOBE",
-  "unknown": "GLOBE"
+  "unknown": "GLOBE",
 };
 
 export const GLOBE_IDENTITIES = ["Other", "Unknown", "other", "unknown"];
 
+function parseIdentities(identity) {
+  if (!identity) return [];
+
+  if (Array.isArray(identity)) {
+    return identity
+      .map((item) => String(item).trim())
+      .filter(Boolean);
+  }
+
+  if (typeof identity === "string") {
+    const trimmed = identity.trim();
+
+    if (!trimmed) return [];
+
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map((item) => String(item).trim())
+            .filter(Boolean);
+        }
+      } catch {
+        // continue below
+      }
+    }
+
+    if (trimmed.includes(",")) {
+      return trimmed
+        .split(",")
+        .map((item) => item.replace(/"/g, "").trim())
+        .filter(Boolean);
+    }
+
+    return [trimmed];
+  }
+
+  return [];
+}
+
+function dedupeIdentities(identities) {
+  const seen = new Set();
+  return identities.filter((item) => {
+    const key = item.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 // Helper to normalize identity values
 function normalizeIdentity(identity) {
   if (!identity) return "";
-  
-  const trimmed = identity.trim();
-  
-  // If it's already in our mapping, return as-is
+
+  const trimmed = String(identity).trim();
+
   if (IDENTITY_TO_CODE[trimmed]) {
     return trimmed;
   }
-  
-  // Try to find case-insensitive match
+
   const lowerTrimmed = trimmed.toLowerCase();
-  const matchedKey = Object.keys(IDENTITY_TO_CODE).find(key => 
-    key.toLowerCase() === lowerTrimmed
+
+  const matchedKey = Object.keys(IDENTITY_TO_CODE).find(
+    (key) => key.toLowerCase() === lowerTrimmed
   );
-  
+
   if (matchedKey) {
     return matchedKey;
   }
-  
-  // Handle value-to-label mapping from COUNTRIES constant
-  const country = COUNTRIES.find(c => c.value === trimmed);
-  if (country && IDENTITY_TO_CODE[country.label]) {
-    return country.label;
+
+  const country = COUNTRIES.find(
+    (c) =>
+      c.value === trimmed ||
+      c.value?.toLowerCase() === lowerTrimmed ||
+      c.label?.toLowerCase() === lowerTrimmed
+  );
+
+  if (country) {
+    if (IDENTITY_TO_CODE[country.label]) return country.label;
+    if (IDENTITY_TO_CODE[country.value]) return country.value;
   }
-  
-  // Return original if no match found
+
   return trimmed;
 }
 
 // Helper to get display name for tooltip
 function getDisplayName(identity) {
   if (!identity) return "";
-  
+
   const normalized = normalizeIdentity(identity);
-  
-  // Convert slugs to readable names with better mapping
-  if (normalized.includes('-') || normalized.includes(' ')) {
-    // Special cases for common Pacific countries (handle both hyphens and spaces)
-    const specialCases = {
-      'new-zealand': 'New Zealand',
-      'new zealand': 'New Zealand',
-      'new-zealand-maori': 'New Zealand',
-      'new zealand maori': 'New Zealand',
-      'new-zealand-māori': 'New Zealand',
-      'new zealand māori': 'New Zealand',
-      'french-polynesia': 'French Polynesia',
-      'french polynesia': 'French Polynesia',
-      'cook-islands': 'Cook Islands',
-      'cook islands': 'Cook Islands',
-      'papua-new-guinea': 'Papua New Guinea',
-      'papua new guinea': 'Papua New Guinea',
-      'solomon-islands': 'Solomon Islands',
-      'solomon islands': 'Solomon Islands',
-      'northern-mariana-islands': 'Northern Mariana Islands',
-      'northern mariana islands': 'Northern Mariana Islands',
-      'wallis-and-futuna': 'Wallis and Futuna',
-      'wallis and futuna': 'Wallis and Futuna',
-      'united-states': 'United States',
-      'united states': 'United States',
-      'united-kingdom': 'United Kingdom',
-      'united kingdom': 'United Kingdom',
-      'united-arab-emirates': 'United Arab Emirates',
-      'united arab emirates': 'United Arab Emirates',
-      'south-africa': 'South Africa',
-      'south africa': 'South Africa',
-      'south-korea': 'South Korea',
-      'south korea': 'South Korea',
-      'saudi-arabia': 'Saudi Arabia',
-      'saudi arabia': 'Saudi Arabia',
-      'costa-rica': 'Costa Rica',
-      'costa rica': 'Costa Rica',
-      'puerto-rico': 'Puerto Rico',
-      'puerto rico': 'Puerto Rico',
-      'sri-lanka': 'Sri Lanka',
-      'sri lanka': 'Sri Lanka',
-      'trinidad-tobago': 'Trinidad and Tobago',
-      'trinidad tobago': 'Trinidad and Tobago'
-    };
-    
-    if (specialCases[normalized]) {
-      return specialCases[normalized];
-    }
-    
-    // Default conversion for hyphens
-    if (normalized.includes('-')) {
-      return normalized
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    }
-    
-    // Default conversion for spaces (should already be readable)
-    return normalized;
+
+  const specialCases = {
+    "new-zealand": "New Zealand",
+    "new zealand": "New Zealand",
+    "new-zealand-maori": "New Zealand",
+    "new zealand maori": "New Zealand",
+    "new-zealand-māori": "New Zealand",
+    "new zealand māori": "New Zealand",
+    "french-polynesia": "French Polynesia",
+    "french polynesia": "French Polynesia",
+    "cook-islands": "Cook Islands",
+    "cook islands": "Cook Islands",
+    "papua-new-guinea": "Papua New Guinea",
+    "papua new guinea": "Papua New Guinea",
+    "solomon-islands": "Solomon Islands",
+    "solomon islands": "Solomon Islands",
+    "northern-mariana-islands": "Northern Mariana Islands",
+    "northern mariana islands": "Northern Mariana Islands",
+    "wallis-and-futuna": "Wallis and Futuna",
+    "wallis and futuna": "Wallis and Futuna",
+    "united-states": "United States",
+    "united states": "United States",
+    "united-kingdom": "United Kingdom",
+    "united kingdom": "United Kingdom",
+    "united-arab-emirates": "United Arab Emirates",
+    "united arab emirates": "United Arab Emirates",
+    "south-africa": "South Africa",
+    "south africa": "South Africa",
+    "south-korea": "South Korea",
+    "south korea": "South Korea",
+    "saudi-arabia": "Saudi Arabia",
+    "saudi arabia": "Saudi Arabia",
+  };
+
+  if (specialCases[normalized]) {
+    return specialCases[normalized];
   }
-  
+
+  if (normalized.includes("-")) {
+    return normalized
+      .split("-")
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
   return normalized;
 }
 
-export default function FlagIcon({ identity, size = 24, className = "", showTooltip = true }) {
-  if (!identity) return null;
-
-  // Handle different data formats
-  let identities = [];
-  
-  if (Array.isArray(identity)) {
-    identities = identity.filter(Boolean);
-  } else if (typeof identity === 'string') {
-    // Handle JSON strings
-    if (identity.startsWith('[') && identity.endsWith(']')) {
-      try {
-        const parsed = JSON.parse(identity);
-        identities = Array.isArray(parsed) ? parsed.filter(Boolean) : [identity];
-      } catch {
-        // Handle comma-separated strings
-        identities = identity.split(',').map(id => id.trim()).filter(Boolean);
-      }
-    } else if (identity.includes(',')) {
-      identities = identity.split(',').map(id => id.trim()).filter(Boolean);
-    } else {
-      identities = [identity];
-    }
-  }
-
-  if (identities.length === 0) return null;
-  
-  if (identities.length === 1) {
-    return (
-      <SingleFlagIcon 
-        identity={identities[0]} 
-        size={size} 
-        className={className}
-        showTooltip={showTooltip}
-      />
-    );
-  }
-  
-  // Multiple flags - show them side by side with consistent size
-  const flagSize = Math.min(size, 20);
+function Tooltip({ label, children }) {
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      {identities.slice(0, 3).map((id, index) => (
-        <SingleFlagIcon 
-          key={`${id}-${index}`} 
-          identity={id} 
-          size={flagSize}
-          showTooltip={showTooltip}
-        />
-      ))}
-      {identities.length > 3 && (
-        <span className="text-xs text-gray-500 ml-1">+{identities.length - 3}</span>
-      )}
+    <div className="group relative inline-flex items-center">
+      {children}
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-[9999] mb-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-[#0a1628] px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
+        {label}
+        <div className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 bg-[#0a1628]" />
+      </div>
     </div>
   );
 }
 
-function SingleFlagIcon({ identity, size = 24, className = "", showTooltip = true }) {
+function FlagVisual({ code, displayName, size = 24, className = "" }) {
+  const width = Math.round(size * 1.35);
+  const flagUrl = `https://purecatamphetamine.github.io/country-flag-icons/3x2/${code}.svg`;
+
+  return (
+    <>
+      <img
+        src={flagUrl}
+        alt={displayName}
+        style={{ width, height: size, objectFit: "cover" }}
+        className={`rounded-md shadow-sm ring-1 ring-black/5 ${className}`}
+        onError={(e) => {
+          const target = e.currentTarget;
+          target.style.display = "none";
+          const fallback = target.nextElementSibling;
+          if (fallback instanceof HTMLElement) {
+            fallback.style.display = "flex";
+          }
+        }}
+      />
+      <div
+        className={`hidden items-center justify-center rounded-md bg-slate-100 text-[#0d4f4f] shadow-sm ring-1 ring-black/5 ${className}`}
+        style={{ width, height: size }}
+      >
+        <Globe style={{ width: size * 0.7, height: size * 0.7 }} />
+      </div>
+    </>
+  );
+}
+
+function SingleFlagIcon({
+  identity,
+  size = 24,
+  className = "",
+  showTooltip = true,
+}) {
   if (!identity) return null;
 
   const normalizedIdentity = normalizeIdentity(identity);
   const displayName = getDisplayName(identity);
-  
-  // Check if this should be a globe
-  if (GLOBE_IDENTITIES.includes(normalizedIdentity) || GLOBE_IDENTITIES.includes(identity)) {
-    const globeElement = (
-      <Globe 
-        className={`text-[#0d4f4f] ${className}`} 
-        style={{ width: size, height: size }} 
-      />
+
+  const isGlobe =
+    GLOBE_IDENTITIES.includes(normalizedIdentity) ||
+    GLOBE_IDENTITIES.includes(identity);
+
+  if (isGlobe) {
+    const globeEl = (
+      <div
+        className={`inline-flex items-center justify-center rounded-md bg-slate-100 text-[#0d4f4f] shadow-sm ring-1 ring-black/5 ${className}`}
+        style={{ width: size, height: size }}
+      >
+        <Globe style={{ width: size * 0.7, height: size * 0.7 }} />
+      </div>
     );
-    
-    if (showTooltip) {
-      return (
-        <div className="group relative inline-block">
-          {globeElement}
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-            {displayName}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
-          </div>
-        </div>
-      );
-    }
-    
-    return globeElement;
+
+    return showTooltip ? (
+      <Tooltip label={displayName}>{globeEl}</Tooltip>
+    ) : (
+      globeEl
+    );
   }
 
-  // Get country code
   const code = IDENTITY_TO_CODE[normalizedIdentity];
-  
+
   if (!code || code === "GLOBE") {
-    const globeElement = (
-      <Globe 
-        className={`text-[#0d4f4f] ${className}`} 
-        style={{ width: size, height: size }} 
-      />
+    const fallbackEl = (
+      <div
+        className={`inline-flex items-center justify-center rounded-md bg-slate-100 text-[#0d4f4f] shadow-sm ring-1 ring-black/5 ${className}`}
+        style={{ width: size, height: size }}
+      >
+        <Globe style={{ width: size * 0.7, height: size * 0.7 }} />
+      </div>
     );
-    
-    if (showTooltip) {
-      return (
-        <div className="group relative inline-block">
-          {globeElement}
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-            {displayName || identity}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
-          </div>
-        </div>
-      );
-    }
-    
-    return globeElement;
+
+    return showTooltip ? (
+      <Tooltip label={displayName || identity}>{fallbackEl}</Tooltip>
+    ) : (
+      fallbackEl
+    );
   }
 
-  const flagUrl = `https://purecatamphetamine.github.io/country-flag-icons/3x2/${code}.svg`;
-  const flagElement = (
-    <img
-      src={flagUrl}
-      alt={displayName}
-      style={{ width: size * 1.33, height: size, objectFit: "cover" }}
-      className={`rounded-sm shadow-sm ${className}`}
-      onError={(e) => {
-        // Fallback to globe on error
-        const target = e.target;
-        if (target instanceof HTMLImageElement) {
-          target.style.display = 'none';
-          const nextElement = target.nextElementSibling;
-          if (nextElement instanceof HTMLElement) {
-            nextElement.style.display = 'block';
-          }
-        }
-      }}
+  const flagEl = (
+    <FlagVisual
+      code={code}
+      displayName={displayName}
+      size={size}
+      className={className}
     />
   );
 
-  if (showTooltip) {
-    return (
-      <div className="group relative inline-block">
-        {flagElement}
-        <Globe 
-          className={`text-[#0d4f4f] ${className}`} 
-          style={{ width: size, height: size, display: 'none' }} 
-        />
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-          {displayName}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
-        </div>
-      </div>
-    );
-  }
+  return showTooltip ? <Tooltip label={displayName}>{flagEl}</Tooltip> : flagEl;
+}
+
+export default function FlagIcon({
+  identity,
+  size = 24,
+  className = "",
+  showTooltip = true,
+  maxFlags = 3,
+}) {
+  const identities = dedupeIdentities(parseIdentities(identity));
+
+  if (!identities.length) return null;
 
   return (
-    <>
-      {flagElement}
-      <Globe 
-        className={`text-[#0d4f4f] ${className}`} 
-        style={{ width: size, height: size, display: 'none' }} 
-      />
-    </>
+    <div className={`flex items-center gap-2 ${className}`}>
+      {identities.slice(0, maxFlags).map((item, index) => (
+        <SingleFlagIcon
+          key={`${item}-${index}`}
+          identity={item}
+          size={size}
+          showTooltip={showTooltip}
+        />
+      ))}
+
+      {identities.length > maxFlags && (
+        <span className="text-xs text-gray-500">+{identities.length - maxFlags}</span>
+      )}
+    </div>
   );
 }
