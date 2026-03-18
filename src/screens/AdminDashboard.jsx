@@ -20,6 +20,7 @@ import {
   XCircle,
   AlertTriangle,
   Eye,
+  MessageSquare,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
@@ -98,6 +99,71 @@ const emptyBusinessForm = {
   banner_file: null,
   mobile_banner_file: null,
 };
+
+// Helper function to format language codes to readable names
+function formatLanguageName(languageCode) {
+  const languageMap = {
+    'english': 'English',
+    'french': 'French',
+    'spanish': 'Spanish',
+    'chinese': 'Chinese',
+    'japanese': 'Japanese',
+    'korean': 'Korean',
+    'german': 'German',
+    'italian': 'Italian',
+    'portuguese': 'Portuguese',
+    'russian': 'Russian',
+    'arabic': 'Arabic',
+    'hindi': 'Hindi',
+    'french-polynesia': 'French Polynesian',
+    'cook-islands': 'Cook Islands',
+    'maori': 'Māori',
+    'samoan': 'Samoan',
+    'tongan': 'Tongan',
+    'fijian': 'Fijian',
+    'tok-pisin': 'Tok Pisin',
+    'pidgin': 'Pidgin',
+    'te-reo-maori': 'Te Reo Māori',
+    'uvean': 'Uvean',
+    'tahitian': 'Tahitian',
+    'rotuman': 'Rotuman'
+  };
+  
+  return languageMap[languageCode.toLowerCase()] || 
+         languageCode.charAt(0).toUpperCase() + languageCode.slice(1).toLowerCase();
+}
+
+// Helper function to format languages display
+function formatLanguages(languages) {
+  if (!languages) return '';
+  
+  // Handle different input formats
+  let languageArray;
+  if (Array.isArray(languages)) {
+    languageArray = languages;
+  } else if (typeof languages === 'string') {
+    // Handle string representations like '["french-polynesia","english"]'
+    try {
+      const parsed = JSON.parse(languages);
+      languageArray = Array.isArray(parsed) ? parsed : [languages];
+    } catch {
+      // Handle comma-separated strings like 'french-polynesia,english'
+      languageArray = languages.split(',').map(lang => lang.trim()).filter(Boolean);
+    }
+  } else {
+    return '';
+  }
+  
+  if (languageArray.length === 0) return '';
+  
+  const formattedLanguages = languageArray.map(lang => formatLanguageName(lang));
+  
+  if (formattedLanguages.length <= 2) {
+    return formattedLanguages.join(' & ');
+  }
+  
+  return `${formattedLanguages.slice(0, 2).join(' & ')} +${formattedLanguages.length - 2} more`;
+}
 
 function getBadgeStyles(type) {
   const styles = {
@@ -1386,7 +1452,20 @@ export default function AdminDashboard() {
                                       {getCountryDisplayName(b.country)} ·{" "}
                                       {getIndustryDisplayName(b.industry) || "No industry"}
                                     </div>
-                                    <div className="text-xs text-gray-400">
+                                    {b.cultural_identity && (
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        Cultural: {b.cultural_identity}
+                                      </div>
+                                    )}
+                                    {b.languages_spoken && (
+                                      <div className="mt-2">
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#00c4cc]">
+                                          <MessageSquare className="w-3 h-3 flex-shrink-0" />
+                                          {formatLanguages(b.languages_spoken)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div className="text-xs text-gray-400 mt-1">
                                       Submitted {b.created_date ? new Date(b.created_date).toLocaleDateString() : "—"}
                                     </div>
                                   </td>

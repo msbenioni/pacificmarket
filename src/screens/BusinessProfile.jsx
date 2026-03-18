@@ -4,26 +4,27 @@ import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { 
-  getBusinessTier, 
-  getBusinessCountryDisplay,
-  getBusinessIndustryDisplay
-} from "@/lib/business/helpers";
-import { getLogoUrl } from '@/utils/bannerUtils';
-import {
+  MapPin, 
+  Mail, 
+  Phone, 
+  Globe, 
+  Clock, 
+  MessageCircle,
   CheckCircle,
-  Globe,
-  MapPin,
+  Star,
+  Shield,
+  Users,
+  Calendar,
+  Briefcase,
   Instagram,
   Facebook,
-  Star,
   ArrowLeft,
   ExternalLink,
-  MessageCircle,
-  Briefcase,
 } from "lucide-react";
+import { getLogoUrl } from '@/utils/bannerUtils';
 import ReactMarkdown from "react-markdown";
-
 import FlagIcon from "@/components/shared/FlagIcon";
+import { BUSINESS_STATUS, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import ContactModal from "@/components/profile/ContactModal";
 import BusinessGallery from "@/components/profile/BusinessGallery";
 import ProductsServices from "@/components/profile/ProductsServices";
@@ -78,7 +79,7 @@ export default function BusinessProfile() {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
       
-      const tier = getBusinessTier(biz);
+      const tier = biz.subscription_tier || 'vaka';
 
       if (tier === "mana" || tier === "moana") {
         try {
@@ -145,9 +146,9 @@ export default function BusinessProfile() {
     );
   }
 
-  const countryLabel = getBusinessCountryDisplay(business);
-  const industryLabel = getBusinessIndustryDisplay(business);
-  const tier = getBusinessTier(business);
+  const countryLabel = business.country || '';
+  const industryLabel = business.industry || '';
+  const tier = business.subscription_tier || 'vaka';
 
   const socials = [
     { 
@@ -327,29 +328,42 @@ export default function BusinessProfile() {
             )}
 
             {/* Languages */}
-            {business.languages_spoken?.length > 0 && (
-              <div className="mt-5 pt-5 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#0a1628] mb-3">
-                  <img
-                    src="/language_spoken.png"
-                    alt="Languages spoken"
-                    className="w-6 h-6 sm:w-7 sm:h-7"
-                  />
-                  Languages spoken
-                </div>
+            {(() => {
+              if (!business.languages_spoken) return null;
+              
+              let languagesArray;
+              if (Array.isArray(business.languages_spoken)) {
+                languagesArray = business.languages_spoken;
+              } else if (typeof business.languages_spoken === 'string') {
+                languagesArray = business.languages_spoken.split(',').map(lang => lang.trim()).filter(Boolean);
+              } else {
+                languagesArray = [];
+              }
+              
+              return languagesArray.length > 0 && (
+                <div className="mt-5 pt-5 border-t border-gray-100">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-[#0a1628] mb-3">
+                    <img
+                      src="/language_spoken.png"
+                      alt="Languages spoken"
+                      className="w-6 h-6 sm:w-7 sm:h-7"
+                    />
+                    Languages spoken
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {business.languages_spoken.map((language) => (
-                    <span
-                      key={language}
-                      className="bg-[#0a1628]/5 text-[#0a1628] text-xs px-3 py-1.5 rounded-full"
-                    >
-                      {language}
-                    </span>
-                  ))}
+                  <div className="flex flex-wrap gap-2">
+                    {languagesArray.map((language, index) => (
+                      <span
+                        key={index}
+                        className="bg-[#0a1628]/5 text-[#0a1628] text-xs px-3 py-1.5 rounded-full"
+                      >
+                        {language}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Socials */}
             {allSocials.length > 0 && (

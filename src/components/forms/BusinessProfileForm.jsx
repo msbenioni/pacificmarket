@@ -5,15 +5,10 @@ import {
   Building2,
   ImageIcon,
   MapPin,
-  Settings,
-  TrendingUp,
-  AlertCircle,
   Lightbulb,
   Share2,
-  FileText,
   Phone,
 } from "lucide-react";
-import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
@@ -25,7 +20,7 @@ import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import CommunitySection from "./FormSections/CommunitySection";
 import SocialMediaSection from "./FormSections/SocialMediaSection";
 import ContactDetailsSection from "./FormSections/ContactDetailsSection";
-import { OptionCard, inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection, badgeCls, cardCls, buttonCls, textXs, textSm, textBase } from "./shared/FormComponents";
+import { inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection } from "./shared/FormComponents";
 
 // Form Sections Configuration
 const SECTIONS = [

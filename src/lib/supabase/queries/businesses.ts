@@ -40,6 +40,8 @@ const BUSINESS_PUBLIC_FIELDS = `
   claimed_by,
   is_homepage_featured,
   subscription_tier,
+  cultural_identity,
+  languages_spoken,
   owner_user_id,
   created_by,
   source,

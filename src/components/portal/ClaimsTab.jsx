@@ -1,5 +1,5 @@
 import { CheckCircle } from "lucide-react";
-import { BUTTON_STYLES, CARD_STYLES } from "@/constants/portalUI";
+import { CARD_STYLES } from "@/constants/portalUI";
 import CancelClaimButton from "@/components/claims/CancelClaimButton";
 
 export default function ClaimsTab({ 

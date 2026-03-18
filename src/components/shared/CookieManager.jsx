@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Cookie, Settings } from "lucide-react";
+import { Cookie } from "lucide-react";
 
 export default function CookieManager() {
   const [preferences, setPreferences] = useState({

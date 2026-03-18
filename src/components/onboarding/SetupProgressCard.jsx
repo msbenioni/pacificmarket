@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
 import { useOnboardingStatus } from "../../hooks/useOnboardingStatus";
-import { onboardingUI, colors } from "./onboardingUI";
+import { onboardingUI } from "./onboardingUI";
 
 /**
  * Premium Setup Progress Card

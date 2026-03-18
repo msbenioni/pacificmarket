@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Sparkles, ShieldCheck, UserCircle2, ChevronDown } from "lucide-react";
-import { CARD_STYLES } from "@/constants/portalUI";
+import { Sparkles, UserCircle2, ChevronDown } from "lucide-react";
 import ProfileSettingsAccordion from "@/components/onboarding/ProfileSettingsAccordion";
 
 // Premium accordion component (matching InvoiceGenerator style)

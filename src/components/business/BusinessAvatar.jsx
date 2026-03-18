@@ -1,6 +1,6 @@
 import React from 'react';
 import { Building2 } from 'lucide-react';
-import { getBusinessWebsite, getBusinessTier, hasPremiumFeatures } from '@/lib/business/helpers';
+import { hasPremiumFeatures } from '@/lib/business/helpers';
 import { isVerifiedBusiness, canAppearOnHomepage } from '@/lib/business/rules';
 import { hasLogo, getLogoUrl } from '@/utils/bannerUtils';
 

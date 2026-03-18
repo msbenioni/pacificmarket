@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Building2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import BusinessProfileForm from "../forms/BusinessProfileForm";
-import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 export default function AddBusinessCard({ 
   onAddSuccess, 

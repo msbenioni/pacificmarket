@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
 export default function ClaimDeleteButton({ claimId, onClose }) {

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { X, Mail, Phone, CheckCircle } from "lucide-react";
-import { ModalWrapper, ModalHeader, ModalContent, ModalFooter, MODAL_SIZES } from "@/components/shared/ModalWrapper";
+import { Mail, Phone, CheckCircle } from "lucide-react";
+import { ModalWrapper, ModalHeader, ModalContent, MODAL_SIZES } from "@/components/shared/ModalWrapper";
 
 export default function ContactModal({ business, onClose }) {
   const [email, setEmail] = useState("");

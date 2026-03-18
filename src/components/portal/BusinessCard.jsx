@@ -5,12 +5,9 @@ import Link from "next/link";
 import {
   CheckCircle,
   ChevronDown,
-  Building2,
   Eye,
   Trash2,
   AlertTriangle,
-  BarChart3,
-  Settings2,
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { getLogoUrl } from '@/utils/bannerUtils';

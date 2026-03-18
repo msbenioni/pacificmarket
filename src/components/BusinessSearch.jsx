@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { AlertCircle, Search, CheckCircle, MapPin, Briefcase } from "lucide-react";
 import { BUSINESS_STATUS, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 

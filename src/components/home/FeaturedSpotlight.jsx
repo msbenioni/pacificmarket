@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
-import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video } from "lucide-react";
+import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, MessageSquare } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
 
@@ -77,10 +77,87 @@ function FeaturedBadge({ tier }) {
   return null;
 }
 
+// Helper function to format language codes to readable names
+function formatLanguageName(languageCode) {
+  const languageMap = {
+    'english': 'English',
+    'french': 'French',
+    'spanish': 'Spanish',
+    'chinese': 'Chinese',
+    'japanese': 'Japanese',
+    'korean': 'Korean',
+    'german': 'German',
+    'italian': 'Italian',
+    'portuguese': 'Portuguese',
+    'russian': 'Russian',
+    'arabic': 'Arabic',
+    'hindi': 'Hindi',
+    'french-polynesia': 'French Polynesian',
+    'cook-islands': 'Cook Islands',
+    'maori': 'Māori',
+    'samoan': 'Samoan',
+    'tongan': 'Tongan',
+    'fijian': 'Fijian',
+    'tok-pisin': 'Tok Pisin',
+    'pidgin': 'Pidgin',
+    'te-reo-maori': 'Te Reo Māori',
+    'uvean': 'Uvean',
+    'tahitian': 'Tahitian',
+    'rotuman': 'Rotuman'
+  };
+  
+  return languageMap[languageCode.toLowerCase()] || 
+         languageCode.charAt(0).toUpperCase() + languageCode.slice(1).toLowerCase();
+}
+
+// Helper function to format languages display
+function formatLanguages(languages) {
+  if (!languages) return '';
+  
+  // Handle different input formats
+  let languageArray;
+  if (Array.isArray(languages)) {
+    languageArray = languages;
+  } else if (typeof languages === 'string') {
+    // Handle string representations like '["french-polynesia","english"]'
+    try {
+      const parsed = JSON.parse(languages);
+      languageArray = Array.isArray(parsed) ? parsed : [languages];
+    } catch {
+      // Handle comma-separated strings like 'french-polynesia,english'
+      languageArray = languages.split(',').map(lang => lang.trim()).filter(Boolean);
+    }
+  } else {
+    return '';
+  }
+  
+  if (languageArray.length === 0) return '';
+  
+  const formattedLanguages = languageArray.map(lang => formatLanguageName(lang));
+  
+  if (formattedLanguages.length <= 2) {
+    return formattedLanguages.join(' & ');
+  }
+  
+  return `${formattedLanguages.slice(0, 2).join(' & ')} +${formattedLanguages.length - 2} more`;
+}
+
 function BusinessMiniCard({ b, active, onSelect }) {
-  const languages = b.languages_spoken?.length > 0
-    ? b.languages_spoken.join(", ")
-    : null;
+  // Safe languages handling
+  const languages = (() => {
+    if (!b.languages_spoken) return null;
+    
+    if (Array.isArray(b.languages_spoken)) {
+      return b.languages_spoken.length > 0 ? formatLanguages(b.languages_spoken) : null;
+    }
+    
+    if (typeof b.languages_spoken === 'string') {
+      const parsed = b.languages_spoken.split(',').map(lang => lang.trim()).filter(Boolean);
+      return parsed.length > 0 ? formatLanguages(parsed) : null;
+    }
+    
+    return null;
+  })();
 
   return (
     <button
@@ -138,11 +215,23 @@ function BusinessMiniCard({ b, active, onSelect }) {
           </span>
         </div>
 
-        {/* Languages */}
-        {languages && (
-          <div className="text-xs text-slate-400 mb-2 flex items-center gap-1">
-            <img src="/language_spoken.png" alt="Languages spoken" className="w-[36px] h-[36px]" /> {languages}
+        {/* Cultural Identity & Languages - Simplified Design */}
+        {b.cultural_identity && (
+          <div className="group relative inline-flex items-center justify-center rounded-full border border-[#0d4f4f]/20 bg-gradient-to-r from-[#0d4f4f]/5 to-[#0a1628]/5 p-1 text-[#0d4f4f] shadow-sm cursor-help mb-2">
+            <FlagIcon identity={b.cultural_identity} size={10} />
+            {/* Tooltip on hover */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#0a1628] text-white text-[9px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+              {b.cultural_identity}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#0a1628] rotate-45 -mt-1"></div>
+            </div>
           </div>
+        )}
+        
+        {languages && (
+          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#00c4cc] mb-2">
+            <MessageSquare className="w-3 h-3 flex-shrink-0" />
+            {languages}
+          </span>
         )}
 
         {/* Tagline - flex-grow to push footer down */}

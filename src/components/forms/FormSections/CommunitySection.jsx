@@ -1,4 +1,3 @@
-import { COMMUNITY_IMPACT_AREAS } from "@/constants/unifiedConstants";
 import { OptionCard } from "../shared/FormComponents";
 
 export default function CommunitySection({ 

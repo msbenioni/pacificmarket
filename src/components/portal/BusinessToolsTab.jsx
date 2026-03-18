@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Star, ChevronRight, FileText, QrCode, Mail } from "lucide-react";
 import { BUTTON_STYLES, CARD_STYLES } from "@/constants/portalUI";
-import { COMPONENT_STYLES, DESIGN_TOKENS } from "@/constants/designSystem";
+import { COMPONENT_STYLES } from "@/constants/designSystem";
 import { BUSINESS_TOOLS_CONFIG } from "@/constants/businessCardConfig";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { createPageUrl } from "@/utils";

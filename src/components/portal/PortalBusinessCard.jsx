@@ -11,7 +11,6 @@ import {
   Users,
   Upload,
   ImagePlus,
-  Building2,
   Sparkles,
   Eye,
 } from "lucide-react";

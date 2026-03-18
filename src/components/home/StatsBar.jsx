@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
-import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import { Building2, Globe, CheckCircle, LayoutGrid } from "lucide-react";
 
 export default function StatsBar() {
