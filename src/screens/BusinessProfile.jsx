@@ -226,8 +226,8 @@ export default function BusinessProfile() {
           )}
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[320px] items-center justify-center px-4 pb-8 sm:min-h-[420px] sm:px-6 sm:pb-10 lg:min-h-[520px] lg:px-8 lg:pb-14">
-          <div className="w-full max-w-4xl text-center">
+        <div className="relative z-10 mx-auto flex min-h-[320px] items-start justify-center px-4 pb-8 pt-8 sm:min-h-[420px] sm:px-6 sm:pb-10 sm:pt-12 lg:min-h-[520px] lg:px-8 lg:pb-14 lg:pt-16">
+          <div className="w-full max-w-4xl text-center mt-4 sm:mt-6 lg:mt-8">
             <div className="rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
             <div className="flex flex-col items-center gap-4 sm:gap-5">
               <div className="hidden h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md sm:flex lg:h-20 lg:w-20">

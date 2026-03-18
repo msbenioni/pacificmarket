@@ -19,6 +19,7 @@ import {
   Shield,
   XCircle,
   AlertTriangle,
+  Eye,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
@@ -1363,22 +1364,14 @@ export default function AdminDashboard() {
                                   <td className="px-4 py-4">
                                     <div className="flex items-center gap-3">
                                       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                                        {b.logo_url ? (
-                                          <img
-                                            src={b.logo_url}
-                                            alt=""
-                                            className="h-full w-full object-cover"
-                                            onError={(e) => {
-                                              e.currentTarget.src = "/pm_logo.png";
-                                            }}
-                                          />
-                                        ) : (
-                                          <img
-                                            src="/pm_logo.png"
-                                            alt="Pacific Discovery Network"
-                                            className="h-full w-full object-cover"
-                                          />
-                                        )}
+                                        <img
+                                          src={getLogoUrl(b)}
+                                          alt=""
+                                          className="h-full w-full object-cover"
+                                          onError={(e) => {
+                                            e.currentTarget.src = getLogoUrl(b);
+                                          }}
+                                        />
                                       </div>
 
                                       <div>
@@ -1419,6 +1412,17 @@ export default function AdminDashboard() {
 
                                   <td className="px-4 py-4">
                                     <div className="flex items-center justify-end gap-2">
+                                      <button
+                                        onClick={() => {
+                                          const businessHandle = b.business_handle || b.id;
+                                          window.open(`/BusinessProfile?handle=${businessHandle}`, '_blank');
+                                        }}
+                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${secondaryButtonCls}`}
+                                      >
+                                        <Eye className="h-3 w-3" />
+                                        View
+                                      </button>
+
                                       {b.status === BUSINESS_STATUS.PENDING && (
                                         <>
                                           <button

@@ -4,6 +4,7 @@ import { deleteBusiness, updateBusiness, createBusiness } from "@/lib/supabase/q
 import { sanitizeBusinessPayload, validateBusinessData } from "@/utils/dataTransformers";
 import { filterEmptyValues } from "@/utils/businessDataTransformer";
 import { generateBusinessLogo, generateBusinessBanner, generateMobileBanner, svgDataUrlToFile } from "@/utils/businessImageGenerator";
+import { getLogoUrl } from "@/utils/bannerUtils";
 import { createPageUrl } from "@/utils";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
@@ -412,7 +413,7 @@ export function useBusinessOperations(refetchPortalData) {
         // Use static Pacific banner instead of generating one
         businessDataForCreate.generated_banner_url = "/pacific_logo_banner.png";
         businessDataForCreate.generated_mobile_banner_url = "/pacific_logo_banner.png";
-        businessDataForCreate.generated_logo_url = "/pm_logo.png";
+        businessDataForCreate.generated_logo_url = getLogoUrl({ business_name: businessData.businessesData.name || 'New Business' });
         
       } else {
         // For Mana/Moana plans, use uploaded files or generate if missing

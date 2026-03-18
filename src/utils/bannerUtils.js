@@ -56,15 +56,16 @@ export function getLogoUrl(business) {
   }
   
   // Second priority: generated logo with initials (for Vaka plan or no uploads)
-  if (!business?.logo_url && business?.business_name) {
+  if (business?.business_name) {
     const logoDataUrl = generateBusinessLogo(business.business_name);
     if (logoDataUrl) {
       return logoDataUrl;
     }
   }
   
-  // Final fallback: default PM logo
-  return "/pm_logo.png";
+  // Final fallback: generate logo with default initials "PD"
+  const logoDataUrl = generateBusinessLogo("PD");
+  return logoDataUrl;
 }
 
 /**
