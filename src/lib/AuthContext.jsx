@@ -34,25 +34,66 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       setIsLoadingAuth(true);
       setAuthError(null);
-      const { data, error } = await supabase.auth.getUser();
-      if (!isMounted) return;
-      if (error) {
-        setAuthError({ type: 'auth_required', message: error.message });
+
+      try {
+        const { data, error } = await supabase.auth.getUser();
+
+        if (!isMounted) return;
+
+        if (error) {
+          setAuthError({ type: 'auth_required', message: error.message });
+          setUser(null);
+          setIsAuthenticated(false);
+        } else {
+          setUser(data?.user ?? null);
+          setIsAuthenticated(Boolean(data?.user));
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        setAuthError({ type: 'auth_error', message: 'Failed to load user session.' });
         setUser(null);
         setIsAuthenticated(false);
-      } else {
-        setUser(data?.user ?? null);
-        setIsAuthenticated(Boolean(data?.user));
+      } finally {
+        if (isMounted) setIsLoadingAuth(false);
       }
-      setIsLoadingAuth(false);
     };
 
     loadUser();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
+      
       setUser(session?.user ?? null);
       setIsAuthenticated(Boolean(session?.user));
+
+      // Call onboarding endpoint for newly confirmed users (deduped per session)
+      if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
+        const onboardingKey = `onboarding-confirmed-${session.user.id}`;
+        
+        // Only trigger once per browser session
+        if (typeof window !== 'undefined' && !sessionStorage.getItem(onboardingKey)) {
+          sessionStorage.setItem(onboardingKey, "true");
+          
+          try {
+            // Get the session token for auth
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
+            
+            if (currentSession?.access_token) {
+              await fetch('/api/onboarding/confirmed', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${currentSession.access_token}`,
+                },
+                body: JSON.stringify({ userId: session.user.id }),
+              });
+            }
+          } catch (error) {
+            console.error('Failed to trigger onboarding:', error);
+            // Don't throw error to avoid breaking the auth flow
+          }
+        }
+      }
     });
 
     return () => {
@@ -67,6 +108,10 @@ export const AuthProvider = ({ children }) => {
     
     if (supabase) {
       supabase.auth.signOut();
+    }
+    
+    if (shouldRedirect && typeof window !== 'undefined') {
+      window.location.href = '/login';
     }
   };
 

@@ -3,9 +3,24 @@ import { createPageUrl } from "@/utils";
 
 // Create SMTP transporter using Google Workspace
 const createTransporter = () => {
+  const required = [
+    "SMTP_HOST",
+    "SMTP_PORT", 
+    "SMTP_USER",
+    "SMTP_PASS",
+    "SMTP_FROM_EMAIL",
+    "SMTP_FROM_NAME",
+  ];
+
+  for (const key of required) {
+    if (!process.env[key]) {
+      throw new Error(`Missing required SMTP env var: ${key}`);
+    }
+  }
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT),
+    port: Number(process.env.SMTP_PORT),
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
       user: process.env.SMTP_USER,
@@ -26,6 +41,12 @@ export const NOTIFICATION_TYPES = {
   CLAIM_SUBMITTED: "claim_submitted",
   CLAIM_APPROVED: "claim_approved",
   CLAIM_REJECTED: "claim_rejected",
+  USER_CREATED: "user_created",
+
+  WELCOME_CONFIRMED: "welcome_confirmed",
+  REMINDER_NO_BUSINESS: "reminder_no_business",
+  ADMIN_BUSINESS_PENDING_APPROVAL: "admin_business_pending_approval",
+  ADMIN_CLAIM_PENDING_APPROVAL: "admin_claim_pending_approval",
 };
 
 const getAdminUrl = () =>
@@ -293,6 +314,107 @@ const getEmailTemplate = (type, data) => {
         ctaHref: getAdminUrl(),
       }),
     },
+
+    [NOTIFICATION_TYPES.USER_CREATED]: {
+      subject: `New user registered: ${data.userName}`,
+      html: baseEmailShell({
+        accent: "#00c4cc",
+        title: "New user account created",
+        intro: `A new user has registered an account on Pacific Discovery Network.`,
+        detailsHtml: `
+          <p style="margin: 0 0 10px 0;"><strong>User:</strong> ${data.userName}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${data.userEmail}</p>
+          <p style="margin: 0 0 10px 0;"><strong>User ID:</strong> ${data.userId}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Registration date:</strong> ${new Date().toLocaleDateString()}</p>
+          <p style="margin: 0;"><strong>Registration time:</strong> ${new Date().toLocaleTimeString()}</p>
+        `,
+        bodyHtml: `
+          Welcome new users to the platform and monitor account activity to ensure a trusted and secure business discovery network.
+        `,
+        ctaText: "View admin dashboard",
+        ctaHref: getAdminUrl(),
+      }),
+    },
+
+    [NOTIFICATION_TYPES.WELCOME_CONFIRMED]: {
+      subject: `Welcome to Pacific Discovery Network`,
+      html: baseEmailShell({
+        accent: "#00c4cc",
+        title: "Welcome to Pacific Discovery Network",
+        intro: `Thank you for joining Pacific Discovery Network. Your account is now confirmed and ready to use.`,
+        bodyHtml: `
+          <p style="margin: 0 0 12px 0;">You can now log in and start building your presence.</p>
+          <p style="margin: 0 0 12px 0;">Next steps:</p>
+          <ul style="padding-left: 20px; margin: 0 0 12px 0;">
+            <li>Claim your business if it already exists in the network</li>
+            <li>Add your business if it is not yet listed</li>
+          </ul>
+          <p style="margin: 0;">If you need help at any point, just reply to this email and we can assist.</p>
+        `,
+        ctaText: "Log in now",
+        ctaHref: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+      }),
+    },
+
+    [NOTIFICATION_TYPES.REMINDER_NO_BUSINESS]: {
+      subject: `Need help adding or claiming your business?`,
+      html: baseEmailShell({
+        accent: "#f59e0b",
+        title: "Complete your business setup",
+        intro: `We noticed you have not yet claimed or added a business on Pacific Discovery Network.`,
+        bodyHtml: `
+          <p style="margin: 0 0 12px 0;">To get the most from your account, your next step is to either:</p>
+          <ul style="padding-left: 20px; margin: 0 0 12px 0;">
+            <li>Claim an existing business listing</li>
+            <li>Add a new business to the network</li>
+          </ul>
+          <p style="margin: 0;">If you have had any problems with this process, reply to this email and we will help you.</p>
+        `,
+        ctaText: "Log in and continue",
+        ctaHref: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+      }),
+    },
+
+    [NOTIFICATION_TYPES.ADMIN_BUSINESS_PENDING_APPROVAL]: {
+      subject: `New business awaiting approval: ${data.businessName}`,
+      html: baseEmailShell({
+        accent: "#f59e0b",
+        title: "New business awaiting approval",
+        intro: `A new business has been added to Pacific Discovery Network and requires review.`,
+        detailsHtml: `
+          <p style="margin: 0 0 10px 0;"><strong>Business:</strong> ${data.businessName}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Added by:</strong> ${data.addedBy}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Business ID:</strong> ${data.businessId}</p>
+          <p style="margin: 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+        `,
+        bodyHtml: `
+          Please review this business to ensure it meets the quality standards before it appears in the discovery network.
+        `,
+        ctaText: "Review business",
+        ctaHref: getAdminUrl(),
+      }),
+    },
+
+    [NOTIFICATION_TYPES.ADMIN_CLAIM_PENDING_APPROVAL]: {
+      subject: `New claim awaiting approval: ${data.businessName}`,
+      html: baseEmailShell({
+        accent: "#f59e0b",
+        title: "New business claim awaiting approval",
+        intro: `A new ownership claim has been submitted and requires review.`,
+        detailsHtml: `
+          <p style="margin: 0 0 10px 0;"><strong>Business:</strong> ${data.businessName}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Claimant:</strong> ${data.claimantName}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${data.claimantEmail}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Claim ID:</strong> ${data.claimId}</p>
+          <p style="margin: 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+        `,
+        bodyHtml: `
+          Please review this ownership claim to verify the authenticity before approving the transfer.
+        `,
+        ctaText: "Review claim",
+        ctaHref: getAdminUrl(),
+      }),
+    },
   };
 
   return templates[type];
@@ -308,7 +430,7 @@ export const sendNotification = async (type, data, recipients = null) => {
     }
 
     const transporter = createTransporter();
-    const toEmails = recipients || [process.env.SMTP_FROM_EMAIL];
+    const toEmails = recipients || [process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_FROM_EMAIL];
 
     const emailPromises = toEmails.map((email) =>
       transporter.sendMail({
@@ -316,6 +438,7 @@ export const sendNotification = async (type, data, recipients = null) => {
         to: email,
         subject: template.subject,
         html: template.html,
+        text: template.subject, // Basic text fallback
       })
     );
 
@@ -404,4 +527,36 @@ export const notifyClaimRejected = (businessData, claimantData, reason) =>
     claimantName: claimantData.name,
     claimantEmail: claimantData.email,
     reason,
+  });
+
+export const notifyUserCreated = (userData) =>
+  sendNotification(NOTIFICATION_TYPES.USER_CREATED, {
+    userName: userData.name || userData.email,
+    userEmail: userData.email,
+    userId: userData.id,
+  });
+
+export const notifyWelcomeConfirmed = (userData) =>
+  sendNotification(NOTIFICATION_TYPES.WELCOME_CONFIRMED, {
+    email: userData.email,
+  }, [userData.email]);
+
+export const notifyReminderNoBusiness = (userData) =>
+  sendNotification(NOTIFICATION_TYPES.REMINDER_NO_BUSINESS, {
+    email: userData.email,
+  }, [userData.email]);
+
+export const notifyAdminBusinessPendingApproval = (businessData, userData) =>
+  sendNotification(NOTIFICATION_TYPES.ADMIN_BUSINESS_PENDING_APPROVAL, {
+    businessName: businessData.name,
+    addedBy: userData.email,
+    businessId: businessData.id,
+  });
+
+export const notifyAdminClaimPendingApproval = (businessData, claimData) =>
+  sendNotification(NOTIFICATION_TYPES.ADMIN_CLAIM_PENDING_APPROVAL, {
+    businessName: businessData.name,
+    claimantName: claimData.name || claimData.email,
+    claimantEmail: claimData.email,
+    claimId: claimData.id,
   });
