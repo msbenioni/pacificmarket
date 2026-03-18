@@ -48,6 +48,7 @@ export function getBusinessInitial(business: Business | null): string {
  * Get business logo URL
  */
 export function getBusinessLogoUrl(business: Business | null): string | null {
+  if (!business) return null;
   return getLogoUrl(business);
 }
 
@@ -55,6 +56,7 @@ export function getBusinessLogoUrl(business: Business | null): string | null {
  * Get business banner URL
  */
 export function getBusinessBannerUrl(business: Business | null): string | null {
+  if (!business) return null;
   return getBannerUrl(business);
 }
 
