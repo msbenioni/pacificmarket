@@ -137,7 +137,9 @@ export default function ProfileSettings() {
   const [newAdminPassword, setNewAdminPassword] = useState("");
   const [addingAdmin, setAddingAdmin] = useState(false);
 
-  const [saving, setSaving] = useState(false);
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
   const { toast } = useToast();
 
   const isStep2Complete =
@@ -280,7 +282,7 @@ export default function ProfileSettings() {
   };
 
   const updateProfile = async () => {
-    setSaving(true);
+    setSavingAccount(true);
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
@@ -340,7 +342,7 @@ export default function ProfileSettings() {
         variant: "error",
       });
     } finally {
-      setSaving(false);
+      setSavingAccount(false);
     }
   };
 
@@ -354,7 +356,7 @@ export default function ProfileSettings() {
       return;
     }
 
-    setSaving(true);
+    setSavingPassword(true);
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
@@ -371,6 +373,7 @@ export default function ProfileSettings() {
           description: "Current password is incorrect.",
           variant: "error",
         });
+        setSavingPassword(false);
         return;
       }
 
@@ -404,7 +407,7 @@ export default function ProfileSettings() {
         variant: "error",
       });
     } finally {
-      setSaving(false);
+      setSavingPassword(false);
     }
   };
 
@@ -539,7 +542,7 @@ export default function ProfileSettings() {
   };
 
   const updateProfileFoundation = async () => {
-    setSaving(true);
+    setSavingProfile(true);
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
@@ -581,7 +584,7 @@ export default function ProfileSettings() {
         variant: "error",
       });
     } finally {
-      setSaving(false);
+      setSavingProfile(false);
     }
   };
 
@@ -735,11 +738,11 @@ export default function ProfileSettings() {
 
                   <button
                     onClick={updateProfile}
-                    disabled={saving}
+                    disabled={savingAccount}
                     className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
-                    {saving ? "Saving..." : "Save Changes"}
+                    {savingAccount ? "Saving..." : "Save Changes"}
                   </button>
                 </div>
               </InsightsAccordionSection>
@@ -857,11 +860,11 @@ export default function ProfileSettings() {
                   <div className="space-y-2">
                     <button
                       onClick={updateProfileFoundation}
-                      disabled={saving || !isStep2Complete}
+                      disabled={savingProfile || !isStep2Complete}
                       className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Save className="w-4 h-4" />
-                      {saving ? "Saving..." : "Save Profile Foundation"}
+                      {savingProfile ? "Saving..." : "Save Profile Foundation"}
                     </button>
 
                     {!isStep2Complete && (
@@ -979,11 +982,11 @@ export default function ProfileSettings() {
 
                   <button
                     onClick={updatePassword}
-                    disabled={saving}
+                    disabled={savingPassword}
                     className="flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
-                    {saving ? "Updating..." : "Update Password"}
+                    {savingPassword ? "Updating..." : "Update Password"}
                   </button>
                 </div>
               </InsightsAccordionSection>
