@@ -57,6 +57,24 @@ export async function POST(request) {
           const newTier = session.metadata?.tier || SUBSCRIPTION_TIER.MANA;
           const previousTier = SUBSCRIPTION_TIER.VAKA; // Free tier
           
+          // Auto-set homepage featured for Moana tier
+          const updateData = {
+            subscription_tier: newTier,
+            updated_at: new Date().toISOString()
+          };
+          
+          // Set is_homepage_featured = true for Moana tier
+          if (newTier === SUBSCRIPTION_TIER.MOANA) {
+            updateData.is_homepage_featured = true;
+            console.log(`Auto-featured business ${business.id} on homepage due to Moana upgrade`);
+          }
+          
+          // Update business with new tier and homepage featured status
+          await supabase
+            .from('businesses')
+            .update(updateData)
+            .eq('id', business.id);
+          
           // Send notification if tier changed
           if (newTier !== previousTier) {
             await notifyPlanUpgraded(business, user, previousTier, newTier);
@@ -133,6 +151,24 @@ export async function POST(request) {
           // Send notification if tier changed
           if (newTier !== previousTier) {
             await notifyPlanUpgraded(business, user, previousTier, newTier);
+            
+            // Auto-set homepage featured for Moana tier
+            const updateData = {
+              subscription_tier: newTier,
+              updated_at: new Date().toISOString()
+            };
+            
+            // Set is_homepage_featured = true for Moana tier
+            if (newTier === SUBSCRIPTION_TIER.MOANA) {
+              updateData.is_homepage_featured = true;
+              console.log(`Auto-featured business ${business.id} on homepage due to Moana upgrade`);
+            }
+            
+            // Update business with new tier and homepage featured status
+            await supabase
+              .from('businesses')
+              .update(updateData)
+              .eq('id', business.id);
             
             // Create or update subscription record
             await supabase
