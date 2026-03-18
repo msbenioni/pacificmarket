@@ -7,7 +7,7 @@ import { createPageUrl } from "@/utils";
 import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, Speech } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
-import { COUNTRIES } from "@/constants/unifiedConstants";
+import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import { getBusinessLanguagesSpoken } from "@/utils/businessCulturalHelpers";
 
 const WINDOW_SIZE = 4;
