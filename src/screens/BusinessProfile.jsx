@@ -8,7 +8,7 @@ import {
   getBusinessCountryDisplay,
   getBusinessIndustryDisplay
 } from "@/lib/business/helpers";
-import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
+import { getLogoUrl } from '@/utils/bannerUtils';
 import {
   CheckCircle,
   Globe,
@@ -52,7 +52,6 @@ export default function BusinessProfile() {
         const identifier = businessId || businessHandle;
         
         if (!identifier) {
-          console.error("No business ID or handle found in URL");
           setLoading(false);
           return;
         }
@@ -66,7 +65,6 @@ export default function BusinessProfile() {
         
         setLoading(false);
       } catch (error) {
-        console.error("Error loading profile data:", error);
         setLoading(false);
       }
     };
@@ -203,94 +201,124 @@ export default function BusinessProfile() {
     <div className="min-h-screen bg-[#f8f9fc]">
       {showContact && <ContactModal business={business} onClose={() => setShowContact(false)} />}
 
-      {/* Banner */}
-      <div className="relative h-[220px] sm:h-[280px] lg:h-[400px] overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-        <img src={getBannerUrl(business)} alt="" className="w-full h-full object-contain" />
-        <div className="absolute inset-0 bg-black/10" />
-      </div>
+      {/* Premium Hero */}
+      <div className="relative min-h-[320px] overflow-hidden bg-[#03131f] sm:min-h-[420px] lg:min-h-[520px]">
+        <img
+          src="/pacific_logo_banner.png"
+          alt="Pacific Discovery Network banner"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
 
-      <div className="relative flex justify-center px-4 sm:px-6 lg:px-8 -mt-10 sm:-mt-12 pb-16">
-        <div className="w-full max-w-3xl">
-          {/* Main profile card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 mb-6">
-            {/* Header */}
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border-2 border-white shadow-md flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] flex items-center justify-center">
-                <img src={getLogoUrl(business)} alt="" className="w-full h-full object-cover" />
+        {/* Tier and Verified badges on hero background bottom right */}
+        <div className="absolute bottom-8 right-8 flex flex-wrap items-center gap-2 z-20">
+          {(tier === "featured_plus" || tier === "moana") && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#c9a84c]/50 bg-[#c9a84c]/30 px-3 py-1 text-xs font-semibold text-[#f5df9a] backdrop-blur-sm">
+              <Star className="h-3.5 w-3.5" />
+              Moana
+            </span>
+          )}
+
+          {business.is_verified && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#00c4cc]/50 bg-[#00c4cc]/30 px-3 py-1 text-xs font-semibold text-[#baf7f9] backdrop-blur-sm">
+              <CheckCircle className="h-3.5 w-3.5" />
+              Verified
+            </span>
+          )}
+        </div>
+
+        <div className="relative z-10 mx-auto flex min-h-[320px] items-center justify-center px-4 pb-8 sm:min-h-[420px] sm:px-6 sm:pb-10 lg:min-h-[520px] lg:px-8 lg:pb-14">
+          <div className="w-full max-w-4xl text-center">
+            <div className="rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
+            <div className="flex flex-col items-center gap-4 sm:gap-5">
+              <div className="hidden h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md sm:flex lg:h-20 lg:w-20">
+                <img
+                  src={getLogoUrl(business)}
+                  alt={`${business.business_name} logo`}
+                  className="h-full w-full object-cover"
+                />
               </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-start gap-2 mb-2">
-                  <h1 className="text-lg sm:text-xl font-bold leading-tight text-[#0a1628] break-words">
-                    {business.business_name}
-                  </h1>
+              <div className="min-w-0 flex-1 text-center">
+                <h1 className="max-w-4xl text-[2.2rem] font-bold leading-[0.95] tracking-[-0.04em] text-white sm:text-[3.2rem] lg:text-[4.75rem]">
+                  {business.business_name}
+                </h1>
 
-                  {(tier === "featured_plus" || tier === "moana") && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#c9a84c]/15 px-2.5 py-1 text-xs font-semibold text-[#9b7a1b] border border-[#c9a84c]/20">
-                      <Star className="w-3 h-3" />
-                      Moana
-                    </span>
-                  )}
+                {shortText && (
+                  <p className="mt-4 max-w-3xl text-sm leading-7 text-[#f5df9a] sm:text-base lg:text-[1.05rem]">
+                    {shortText}
+                  </p>
+                )}
 
-                  {business.is_verified && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#00c4cc]/10 px-2.5 py-1 text-xs font-semibold text-[#0d4f4f] border border-[#00c4cc]/20">
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      Verified
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
                   {(business.city || countryLabel) && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
-                      <MapPin className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
+                      <MapPin className="h-3.5 w-3.5" />
                       {business.city ? `${business.city}, ` : ""}
                       {countryLabel}
                     </span>
                   )}
 
                   {industryLabel && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
-                      <Briefcase className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
+                      <Briefcase className="h-3.5 w-3.5" />
                       {industryLabel}
                     </span>
                   )}
 
                   {business.cultural_identity && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
                       <FlagIcon identity={business.cultural_identity} size={14} />
                       {business.cultural_identity}
                     </span>
                   )}
                 </div>
+
+                {(business.business_email || business.business_phone) && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={() => setShowContact(true)}
+                    className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-xl bg-[#00c9cc] hover:bg-[#00aab0] px-5 py-3 text-sm font-semibold text-white transition-colors"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Contact Business
+                  </button>
+                </div>
+              )}  
               </div>
             </div>
+          </div>
+        </div>
+        </div>
+      </div>
 
-            {/* Actions */}
-            {(business.business_email || business.business_phone) && (
-              <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => setShowContact(true)}
-                  className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-4 py-3 text-sm font-semibold text-white hover:bg-[#0a3d3d] transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  Contact Us
-                </button>
-              </div>
-            )}
-
-            {/* Short description */}
-            {shortText && (
-              <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-                <div className="text-[#0a1628] text-sm leading-7 font-medium prose prose-sm max-w-none prose-p:my-0 prose-strong:text-[#0a1628] prose-ul:pl-5 prose-li:my-1">
-                  <ReactMarkdown>{formatMarkdown(shortText)}</ReactMarkdown>
+      <div className="relative flex justify-center px-4 sm:px-6 lg:px-8 -mt-10 sm:-mt-12 pb-16">
+        <div className="w-full max-w-3xl">
+          {/* Main profile card */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
+            {/* Business banner at top - always show */}
+            <div className="relative h-48 w-full">
+              {(business.banner_url || business.mobile_banner_url) ? (
+                <>
+                  <img
+                    src={business.mobile_banner_url || business.banner_url}
+                    alt={`${business.business_name} banner`}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                </>
+              ) : (
+                <div className="w-full h-full bg-[#0d4f4f] flex items-center justify-center">
+                  <h3 className="text-white font-bold text-center px-4 drop-shadow-lg text-lg">
+                    {business.business_name || "Business Name"}
+                  </h3>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
+            <div className="p-5 sm:p-6">
             {/* Full description */}
             {fullText && (
-              <div className="mt-5 pt-5 border-t border-gray-100">
+              <div className="pt-5 border-t border-gray-100">
                 <h2 className="text-sm font-semibold text-[#0a1628] mb-3">About</h2>
                 <div className="text-gray-600 text-sm leading-7 prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-[#0a1628] prose-strong:text-[#0a1628] prose-ul:pl-5 prose-ul:my-3 prose-li:my-2 prose-p:my-3">
                   <ReactMarkdown>{formatMarkdown(fullText)}</ReactMarkdown>
@@ -388,6 +416,7 @@ export default function BusinessProfile() {
             <ArrowLeft className="w-4 h-4" />
             Back to Pacific Businesses
           </Link>
+          </div>
         </div>
       </div>
     </div>

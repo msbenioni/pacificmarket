@@ -1,135 +1,96 @@
 /**
- * Banner utilities - shared logic for banner selection and display
- * Single source of truth for banner hierarchy across all components
- * Automatic fallbacks: uploaded → generated → default placeholders
+ * Banner utilities - prioritizes user uploads for business cards
+ * Single source of truth for banner selection and display
+ * Uses uploaded banners for cards, static banner with text overlay for defaults
  */
 
+import { generateBusinessLogo } from "@/utils/businessImageGenerator.js";
+
 /**
- * Get banner URL with proper hierarchy (mobile first, then desktop fallback, then generated fallbacks, then automatic fallback)
+ * Get banner URL for business cards (homepage, featured spotlight)
+ * Prioritizes user-uploaded banners over static banner
  * @param {Object} business - Business object containing banner URLs
- * @returns {string} Banner URL (never null - always has fallback)
+ * @returns {string} Banner URL (user upload first, then static fallback)
  */
 export function getBannerUrl(business) {
   return (
     business?.mobile_banner_url || 
     business?.banner_url || 
     business?.cover_image_url || 
-    business?.generated_mobile_banner_url ||
-    business?.generated_banner_url ||
-    "/pm_logo_longbanner.png"
+    "/pacific_logo_banner.png" // static fallback for default banner
   );
 }
 
 /**
- * Get logo URL with proper hierarchy (uploaded → generated → automatic fallback)
- * @param {Object} business - Business object containing logo URL
- * @returns {string} Logo URL (never null - always has fallback)
+ * Check if business has uploaded banner (not the default)
+ * @param {Object} business - Business object
+ * @returns {boolean} True if business has uploaded banner
  */
-export function getLogoUrl(business) {
-  return business?.logo_url || business?.generated_logo_url || "/pm_logo.png";
+export function hasUploadedBanner(business) {
+  return !!(
+    business?.mobile_banner_url || 
+    business?.banner_url || 
+    business?.cover_image_url
+  );
 }
 
 /**
- * Get desktop banner URL with proper hierarchy (uploaded → generated → automatic fallback)
+ * Get hero banner URL - always returns the static Pacific Market banner
+ * @param {Object} business - Business object (not used in hero system)
+ * @returns {string} Static banner URL
+ */
+export function getHeroBannerUrl(business) {
+  return "/pacific_logo_banner.png";
+}
+
+/**
+ * Get logo URL with proper hierarchy (uploaded → generated → automatic fallback)
+ * For business cards, prioritizes uploaded logo, then generated logo for Vaka/no uploads
+ * @param {Object} business - Business object containing logo URL and business name
+ * @returns {string} Logo URL (uploaded first, then generated for Vaka/no uploads, then fallback)
+ */
+export function getLogoUrl(business) {
+  // First priority: uploaded logo (for Mana/Moana or any business with custom logo)
+  if (business?.logo_url) {
+    return business.logo_url;
+  }
+  
+  // Second priority: generated logo with initials (for Vaka plan or no uploads)
+  if (!business?.logo_url && business?.business_name) {
+    const logoDataUrl = generateBusinessLogo(business.business_name);
+    if (logoDataUrl) {
+      return logoDataUrl;
+    }
+  }
+  
+  // Final fallback: default PM logo
+  return "/pm_logo.png";
+}
+
+/**
+ * Get desktop banner URL for business cards (prioritizes uploads)
  * @param {Object} business - Business object containing banner URLs
- * @returns {string} Desktop banner URL (never null - always has fallback)
+ * @returns {string} Desktop banner URL (user upload first, then static fallback)
  */
 export function getDesktopBannerUrl(business) {
   return (
     business?.banner_url || 
     business?.cover_image_url || 
-    business?.generated_banner_url ||
-    "/pm_logo_longbanner.png"
+    "/pacific_logo_banner.png"
   );
 }
 
 /**
- * Get mobile banner URL with proper hierarchy (uploaded → generated → automatic fallback)
+ * Get mobile banner URL for business cards (prioritizes uploads)
  * @param {Object} business - Business object containing banner URLs
- * @returns {string} Mobile banner URL (never null - always has fallback)
+ * @returns {string} Mobile banner URL (user upload first, then static fallback)
  */
 export function getMobileBannerUrl(business) {
   return (
     business?.mobile_banner_url || 
-    business?.generated_mobile_banner_url ||
-    "/pm_logo_longbanner.png"
-  );
-}
-
-/**
- * Check if business has any banner available (uploaded or generated)
- * @param {Object} business - Business object
- * @returns {boolean} True if business has any banner
- */
-export function hasBanner(business) {
-  return !!(
-    business?.mobile_banner_url || 
-    business?.banner_url || 
-    business?.cover_image_url ||
-    business?.generated_mobile_banner_url ||
-    business?.generated_banner_url
-  );
-}
-
-/**
- * Check if business has mobile banner specifically (uploaded or generated)
- * @param {Object} business - Business object
- * @returns {boolean} True if business has mobile banner
- */
-export function hasMobileBanner(business) {
-  return !!(business?.mobile_banner_url || business?.generated_mobile_banner_url);
-}
-
-/**
- * Check if business has desktop banner specifically (uploaded or generated)
- * @param {Object} business - Business object
- * @returns {boolean} True if business has desktop banner
- */
-export function hasDesktopBanner(business) {
-  return !!(
     business?.banner_url || 
     business?.cover_image_url || 
-    business?.generated_banner_url
-  );
-}
-
-/**
- * Check if business has logo (uploaded or generated)
- * @param {Object} business - Business object
- * @returns {boolean} True if business has logo
- */
-export function hasLogo(business) {
-  return !!(business?.logo_url || business?.generated_logo_url);
-}
-
-/**
- * Get banner type for display purposes (checks uploaded first, then generated)
- * @param {Object} business - Business object
- * @returns {string} 'mobile', 'desktop', or 'none'
- */
-export function getBannerType(business) {
-  if (business?.mobile_banner_url || business?.generated_mobile_banner_url) return 'mobile';
-  if (business?.banner_url || business?.cover_image_url || business?.generated_banner_url) return 'desktop';
-  return 'none';
-}
-
-/**
- * Render banner image with proper hierarchy and automatic fallback
- * @param {Object} business - Business object
- * @param {Object} props - Additional img props (className, alt, etc.)
- * @returns {JSX.Element} Image element with automatic fallback
- */
-export function renderBanner(business, props = {}) {
-  const bannerUrl = getBannerUrl(business);
-  
-  return (
-    <img
-      src={bannerUrl}
-      alt={props.alt || "Business banner"}
-      className={props.className || ""}
-      style={props.style || {}}
-      loading={props.loading || "lazy"}
-    />
+    "/pacific_logo_banner.png"
   );
 }
 
@@ -143,19 +104,6 @@ export function hasUploadedLogo(business) {
 }
 
 /**
- * Check if business has uploaded banner (not generated)
- * @param {Object} business - Business object
- * @returns {boolean} True if business has any uploaded banner
- */
-export function hasUploadedBanner(business) {
-  return !!(
-    business?.mobile_banner_url || 
-    business?.banner_url || 
-    business?.cover_image_url
-  );
-}
-
-/**
  * Check if business has any uploaded branding (not generated)
  * @param {Object} business - Business object
  * @returns {boolean} True if business has any uploaded branding
@@ -165,17 +113,37 @@ export function hasUploadedBranding(business) {
 }
 
 /**
- * Check if business is using generated fallback branding
+ * Render banner image for business cards with teal background and white text
  * @param {Object} business - Business object
- * @returns {boolean} True if business is using generated branding
+ * @param {Object} props - Additional img props (className, alt, etc.)
+ * @returns {JSX.Element} Teal background with business name or uploaded banner
  */
-export function isUsingGeneratedBranding(business) {
-  return (
-    !hasUploadedLogo(business) && !!business?.generated_logo_url ||
-    !hasUploadedBanner(business) && !!(
-      business?.generated_logo_url ||
-      business?.generated_banner_url ||
-      business?.generated_mobile_banner_url
-    )
-  );
+export function renderBanner(business, props = {}) {
+  const bannerUrl = getBannerUrl(business);
+  const hasCustomBanner = hasUploadedBanner(business);
+  
+  if (hasCustomBanner) {
+    // Show uploaded banner as-is
+    return (
+      <img
+        src={bannerUrl}
+        alt={props.alt || "Business banner"}
+        className={props.className || ""}
+        style={props.style || {}}
+        loading={props.loading || "lazy"}
+      />
+    );
+  } else {
+    // Show teal background with centered white business name text
+    return (
+      <div className={`relative ${props.className || ""}`} style={props.style || {}}>
+        <div className="w-full h-full bg-[#0d4f4f] flex items-center justify-center">
+          <h3 className="text-white font-bold text-center px-4 drop-shadow-lg" 
+              style={{ fontSize: props.className?.includes('sm:') ? '1.25rem' : '0.875rem', lineHeight: '1.2' }}>
+            {business?.business_name || "Business Name"}
+          </h3>
+        </div>
+      </div>
+    );
+  }
 }

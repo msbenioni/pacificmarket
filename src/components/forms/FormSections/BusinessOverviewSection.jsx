@@ -17,7 +17,7 @@ export default function BusinessOverviewSection({
           onChange={(e) => handleInputChange("founder_story", e.target.value)}
           className={textareaCls}
           placeholder="Share your journey and what inspired you to start this business..."
-          rows={3}
+          rows={8}
         />
       </div>
 

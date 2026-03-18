@@ -405,31 +405,15 @@ export function useBusinessOperations(refetchPortalData) {
       const subscriptionTier = businessData.businessesData.subscription_tier || SUBSCRIPTION_TIER.VAKA;
       const canUploadImages = subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
       
-      // For Vaka plan, ignore any uploaded files and generate generic images
+      // For Vaka plan, ignore any uploaded files and use static Pacific banner
       if (!canUploadImages) {
-        console.log(`Vaka plan detected - generating generic images for ${businessData.businessesData.name || 'New Business'}`);
+        console.log(`Vaka plan detected - using static Pacific banner for ${businessData.businessesData.name || 'New Business'}`);
         
-        // Generate generic logo
-        const businessName = businessData.businessesData.name || 'New Business';
-        const logoDataUrl = generateBusinessLogo(businessName);
-        if (logoDataUrl) {
-          const logoFile = await svgDataUrlToFile(logoDataUrl, `${businessData.businessesData.business_handle || 'business'}-logo`, 'logo');
-          businessData.files = { ...businessData.files, logo_file: logoFile };
-        }
+        // Use static Pacific banner instead of generating one
+        businessDataForCreate.generated_banner_url = "/pacific_logo_banner.png";
+        businessDataForCreate.generated_mobile_banner_url = "/pacific_logo_banner.png";
+        businessDataForCreate.generated_logo_url = "/pm_logo.png";
         
-        // Generate generic banner
-        const bannerDataUrl = generateBusinessBanner(businessName);
-        if (bannerDataUrl) {
-          const bannerFile = await svgDataUrlToFile(bannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-banner`, 'banner');
-          businessData.files = { ...businessData.files, banner_file: bannerFile };
-        }
-        
-        // Generate generic mobile banner
-        const mobileBannerDataUrl = generateMobileBanner(businessName);
-        if (mobileBannerDataUrl) {
-          const mobileBannerFile = await svgDataUrlToFile(mobileBannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-mobile-banner`, 'mobile');
-          businessData.files = { ...businessData.files, mobile_banner_file: mobileBannerFile };
-        }
       } else {
         // For Mana/Moana plans, use uploaded files or generate if missing
         if (!businessData.files?.logo_file) {
@@ -480,6 +464,9 @@ export function useBusinessOperations(refetchPortalData) {
         const fileName = `logo-${Date.now()}.${fileExt}`;
         const filePath = `logos/${fileName}`;
 
+        const { getSupabase } = await import("@/lib/supabase/client");
+        const supabase = getSupabase();
+        
         const { error: uploadError } = await supabase.storage
           .from('admin-listings')
           .upload(filePath, file);
@@ -513,6 +500,9 @@ export function useBusinessOperations(refetchPortalData) {
         const fileName = `banner-${Date.now()}.${fileExt}`;
         const filePath = `banners/${fileName}`;
 
+        const { getSupabase } = await import("@/lib/supabase/client");
+        const supabase = getSupabase();
+        
         const { error: uploadError } = await supabase.storage
           .from('admin-listings')
           .upload(filePath, file);
@@ -546,6 +536,9 @@ export function useBusinessOperations(refetchPortalData) {
         const fileName = `mobile-banner-${Date.now()}.${fileExt}`;
         const filePath = `mobile-banners/${fileName}`;
 
+        const { getSupabase } = await import("@/lib/supabase/client");
+        const supabase = getSupabase();
+        
         const { error: uploadError } = await supabase.storage
           .from('admin-listings')
           .upload(filePath, file);
@@ -593,34 +586,11 @@ export function useBusinessOperations(refetchPortalData) {
 
       console.log("Business created successfully:", newBusiness);
 
-      // Generate starter branding for Vaka plans
-      if (!canUploadImages && newBusiness?.id) {
-        try {
-          console.log("Generating starter branding for Vaka business:", newBusiness.id);
-          
-          const brandingResponse = await fetch("/api/branding/starter", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ businessId: newBusiness.id }),
-          });
-
-          if (brandingResponse.ok) {
-            const brandingResult = await brandingResponse.json();
-            console.log("Starter branding generated:", brandingResult);
-          } else {
-            console.warn("Failed to generate starter branding:", await brandingResponse.text());
-          }
-        } catch (brandingError) {
-          console.error("Error generating starter branding:", brandingError);
-          // Don't fail the whole business creation if branding fails
-        }
-      }
-
       await refetchPortalData();
       
       // Customize success message based on subscription tier
       const successMessage = !canUploadImages 
-        ? "Business created! Starter branding has been generated for your Vaka plan. Upgrade to Mana or Moana to upload custom images."
+        ? "Business created! Your Vaka plan includes basic listing features. Upgrade to Mana or Moana to unlock custom branding and advanced features."
         : "Business created! Your business has been submitted for review and will appear in pending status.";
       
       toast({

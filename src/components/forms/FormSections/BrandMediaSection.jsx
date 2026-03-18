@@ -18,24 +18,21 @@ export default function BrandMediaSection({
 
   const canUploadImages = isManaOrMoana;
 
-  const displayLogoUrl =
-    form.logo_url || form.generated_logo_url || "";
+  const displayLogoUrl = form.logo_url || "";
 
-  const displayDesktopBannerUrl =
-    form.banner_url || form.generated_banner_url || "";
+  const displayDesktopBannerUrl = form.banner_url || "";
 
-  const displayMobileBannerUrl =
-    form.mobile_banner_url || form.generated_mobile_banner_url || "";
+  const displayMobileBannerUrl = form.mobile_banner_url || "";
 
-  const displayCardBannerUrl =
+  const displayCardBannerUrl = form.mobile_banner_url || form.banner_url || "";
+
+  const hasAnyBanner =
     form.mobile_banner_url ||
     form.banner_url ||
-    form.generated_mobile_banner_url ||
-    form.generated_banner_url ||
     "";
 
   const hasAnyBranding =
-    !!displayLogoUrl || !!displayDesktopBannerUrl || !!displayMobileBannerUrl;
+    hasAnyBanner || form.logo_url;
 
   return (
     <div className="space-y-6">
@@ -226,7 +223,6 @@ export default function BrandMediaSection({
           <UploadCard
             label="Logo"
             imageUrl={form.logo_url}
-            fallbackUrl={form.generated_logo_url}
             inputId={logoInputId}
             onFileChange={(e) => handleFileUpload(e, "logo")}
             onRemove={() => removeImage("logo")}
@@ -238,7 +234,6 @@ export default function BrandMediaSection({
             <UploadCard
               label="Desktop banner"
               imageUrl={form.banner_url}
-              fallbackUrl={form.generated_banner_url}
               inputId={bannerInputId}
               onFileChange={(e) => handleFileUpload(e, "banner")}
               onRemove={() => removeImage("banner")}
@@ -249,7 +244,6 @@ export default function BrandMediaSection({
             <UploadCard
               label="Mobile banner"
               imageUrl={form.mobile_banner_url}
-              fallbackUrl={form.generated_mobile_banner_url}
               inputId={mobileBannerInputId}
               onFileChange={(e) => handleFileUpload(e, "mobile_banner")}
               onRemove={() => removeImage("mobile_banner")}
@@ -263,90 +257,92 @@ export default function BrandMediaSection({
       {/* Brand Preview */}
       {hasAnyBranding && (
         <div className="space-y-4">
-          <div>
+          <div className="text-center">
             <h4 className="font-semibold text-slate-900">Brand preview</h4>
             <p className="text-sm text-slate-500">
               See how your branding appears across the platform.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* Business Card Preview */}
-            <div>
-              <h5 className="mb-2 text-sm font-medium text-slate-700">
-                Business card
-              </h5>
-              <div className="max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
-                  {displayCardBannerUrl ? (
-                    <img
-                      src={displayCardBannerUrl}
-                      alt="Business card preview"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : null}
-                </div>
-                <div className="p-4">
-                  <div className="text-xs text-slate-500">
-                    Industry • Location
-                  </div>
-                  <div className="mt-1 text-xs text-slate-600">
-                    Brief business description...
-                  </div>
-                </div>
-              </div>
-              <p className="mt-1 text-xs text-slate-500">
-                Uses mobile banner first, then desktop fallback.
-              </p>
-            </div>
-
-            {/* Homepage Featured Preview */}
-            <div>
-              <h5 className="mb-2 text-sm font-medium text-slate-700">
-                Homepage featured
-              </h5>
-              <div className="max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="relative h-40 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]">
-                  {displayCardBannerUrl ? (
-                    <img
-                      src={displayCardBannerUrl}
-                      alt="Homepage featured preview"
-                      className="absolute inset-0 h-full w-full object-cover"
-                      style={{ objectPosition: "center top" }}
-                    />
-                  ) : null}
-                </div>
-
-                <div className="bg-white p-4">
-                  <div className="flex items-center gap-2">
-                    {displayLogoUrl ? (
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-4xl w-full">
+              {/* Business Card Preview */}
+              <div>
+                <h5 className="mb-2 text-sm font-medium text-slate-700">
+                  Business card
+                </h5>
+                <div className="max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
+                    {displayCardBannerUrl ? (
                       <img
-                        src={displayLogoUrl}
-                        alt="Business logo"
-                        className="h-8 w-8 rounded-lg border border-slate-200 object-cover"
+                        src={displayCardBannerUrl}
+                        alt="Business card preview"
+                        className="h-full w-full object-cover"
                       />
-                    ) : (
-                      <div className="h-8 w-8 rounded-lg border border-slate-200 bg-slate-200" />
-                    )}
-
-                    <div className="flex-1">
-                      <h6 className="text-sm font-semibold text-slate-900">
-                        Business Name
-                      </h6>
-                      <p className="text-xs text-slate-500">
-                        Industry • Location
-                      </p>
+                    ) : null}
+                  </div>
+                  <div className="p-4">
+                    <div className="text-xs text-slate-500">
+                      {form.industry ? form.industry : "Industry"} • {form.city ? form.city : "Location"}
+                    </div>
+                    <div className="mt-1 text-xs text-slate-600">
+                      {form.tagline || form.description || "Brief business description..."}
                     </div>
                   </div>
-
-                  <p className="mt-2 line-clamp-2 text-xs text-slate-600">
-                    Brief business description for featured spotlight...
-                  </p>
                 </div>
+                <p className="mt-1 text-xs text-slate-500">
+                  Uses mobile banner first, then desktop fallback.
+                </p>
               </div>
-              <p className="mt-1 text-xs text-slate-500">
-                Uses mobile banner first, then desktop fallback.
-              </p>
+
+              {/* Homepage Featured Preview */}
+              <div>
+                <h5 className="mb-2 text-sm font-medium text-slate-700">
+                  Homepage featured
+                </h5>
+                <div className="max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <div className="relative h-40 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]">
+                    {displayCardBannerUrl ? (
+                      <img
+                        src={displayCardBannerUrl}
+                        alt="Homepage featured preview"
+                        className="absolute inset-0 h-full w-full object-cover"
+                        style={{ objectPosition: "center top" }}
+                      />
+                    ) : null}
+                  </div>
+
+                  <div className="bg-white p-4">
+                    <div className="flex items-center gap-2">
+                      {displayLogoUrl ? (
+                        <img
+                          src={displayLogoUrl}
+                          alt="Business logo"
+                          className="h-8 w-8 rounded-lg border border-slate-200 object-cover"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-lg border border-slate-200 bg-slate-200" />
+                      )}
+
+                      <div className="flex-1">
+                        <h6 className="text-sm font-semibold text-slate-900">
+                          {form.business_name || "Business Name"}
+                        </h6>
+                        <p className="text-xs text-slate-500">
+                          {form.industry ? form.industry : "Industry"} • {form.city ? form.city : "Location"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="mt-2 line-clamp-2 text-xs text-slate-600">
+                      {form.tagline || form.description || "Brief business description for featured spotlight..."}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-1 text-xs text-slate-500">
+                  Uses mobile banner first, then desktop fallback.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -380,15 +376,14 @@ export default function BrandMediaSection({
 function UploadCard({
   label,
   imageUrl,
-  fallbackUrl,
   inputId,
   onFileChange,
   onRemove,
   helpText,
   imageClassName = "h-20 w-20 rounded-xl object-cover",
 }) {
-  const displayUrl = imageUrl || fallbackUrl || "";
-  const isUsingFallback = !imageUrl && !!fallbackUrl;
+  const displayUrl = imageUrl || "";
+  const isUsingFallback = !imageUrl;
 
   return (
     <div>
