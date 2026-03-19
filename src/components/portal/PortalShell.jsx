@@ -7,6 +7,7 @@ export default function PortalShell({ children }) {
         <div className="absolute top-40 right-[-120px] h-[520px] w-[520px] rounded-full bg-[#c9a84c]/10 blur-3xl" />
       </div>
 
+      {/* Main Content */}
       <div className="relative">{children}</div>
     </div>
   );
