@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Eye, Play } from "lucide-react";
-import PresentationViewer from "@/components/admin/PresentationViewer";
+import PresentationViewer from "@/components/admindashboard/PresentationViewer";
 import { investorOverviewDeck } from "@/lib/presentations/investorOverviewDeck";
 import { internalFounderAlignmentDeck } from "@/lib/presentations/decks/internal-founder-alignment";
 import { subscriberGrowthPlanDeck } from "@/lib/presentations/decks/subscriber-growth-plan";
