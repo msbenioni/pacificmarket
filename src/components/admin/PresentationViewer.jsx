@@ -298,9 +298,10 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 text-center text-white overflow-y-auto ${
+            className={`absolute inset-0 flex flex-col items-center ${slide.id === 'tracker-columns' ? 'justify-start' : 'justify-center'} bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 ${slide.id === 'tracker-columns' ? 'pt-96' : 'pt-64'} text-center text-white overflow-y-auto ${
               isVisible ? "block" : "hidden"
             }`}
+            style={slide.id === 'tracker-columns' ? { paddingTop: '4rem' } : {}}
           >
             <div className="mx-auto max-w-6xl">
               {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
@@ -312,7 +313,7 @@ export default function PresentationViewer({
                   <thead>
                     <tr className="bg-blue-600 text-white">
                       {slide.table.headers.map((header, idx) => (
-                        <th key={idx} className="p-4 text-left font-semibold">
+                        <th key={idx} className="p-4 text-center font-semibold">
                           {header}
                         </th>
                       ))}
@@ -322,7 +323,7 @@ export default function PresentationViewer({
                     {slide.table.rows.map((row, rowIdx) => (
                       <tr key={rowIdx} className={rowIdx % 2 === 0 ? "bg-white/10" : "bg-white/5"}>
                         {row.map((cell, cellIdx) => (
-                          <td key={cellIdx} className="border-t border-white/20 p-4">
+                          <td key={cellIdx} className="border-t border-white/20 p-4 text-center">
                             {cell}
                           </td>
                         ))}
@@ -439,7 +440,7 @@ export default function PresentationViewer({
                       {slide.table.rows.map((row, rowIdx) => (
                         <tr key={rowIdx} className={rowIdx % 2 === 0 ? "bg-white/10" : "bg-white/5"}>
                           {row.map((cell, cellIdx) => (
-                            <td key={cellIdx} className="border-t border-white/20 p-4 font-semibold">
+                            <td key={cellIdx} className="border-t border-white/20 p-4 font-semibold text-left">
                               {cell}
                             </td>
                           ))}

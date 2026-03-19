@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Eye, Play } from "lucide-react";
 import PresentationViewer from "@/components/admin/PresentationViewer";
 import { investorOverviewDeck } from "@/lib/presentations/investorOverviewDeck";
+import { internalFounderAlignmentDeck } from "@/lib/presentations/decks/internal-founder-alignment";
+import { subscriberGrowthPlanDeck } from "@/lib/presentations/decks/subscriber-growth-plan";
+import { studentOutreachPlaybookDeck } from "@/lib/presentations/decks/student-outreach-playbook";
+import { studentOutreachOperationsDeck } from "@/lib/presentations/decks/student-outreach-operations";
 
 export default function PresentationsPage() {
   const [selectedDeck, setSelectedDeck] = useState(null);
@@ -23,6 +27,50 @@ export default function PresentationsPage() {
       lastUpdated: "March 2026",
       slideCount: investorOverviewDeck.slides.length,
       deck: investorOverviewDeck,
+    },
+    {
+      id: "internal-founder-alignment",
+      title: "Internal Founder Alignment",
+      description: "Internal strategy deck for founder and co-founder alignment on mission, vision, and execution priorities",
+      audience: "Internal",
+      status: "live",
+      slug: "internal-founder-alignment",
+      lastUpdated: "March 2026",
+      slideCount: internalFounderAlignmentDeck.slides.length,
+      deck: internalFounderAlignmentDeck,
+    },
+    {
+      id: "subscriber-growth-plan",
+      title: "1,000 Subscriber Growth Plan",
+      description: "Internal execution deck for reaching 1,000 paying subscribers with validated acquisition channels",
+      audience: "Internal",
+      status: "live",
+      slug: "subscriber-growth-plan",
+      lastUpdated: "March 2026",
+      slideCount: subscriberGrowthPlanDeck.slides.length,
+      deck: subscriberGrowthPlanDeck,
+    },
+    {
+      id: "student-outreach-playbook",
+      title: "Student Outreach Playbook",
+      description: "Internal training deck for student-supported business discovery and outreach operations",
+      audience: "Internal",
+      status: "live",
+      slug: "student-outreach-playbook",
+      lastUpdated: "March 2026",
+      slideCount: studentOutreachPlaybookDeck.slides.length,
+      deck: studentOutreachPlaybookDeck,
+    },
+    {
+      id: "student-outreach-operations",
+      title: "Student Outreach & Listing Operations",
+      description: "Internal operations deck for business discovery, admin listings, and claim workflows",
+      audience: "Internal",
+      status: "live",
+      slug: "student-outreach-operations",
+      lastUpdated: "March 2026",
+      slideCount: studentOutreachOperationsDeck.slides.length,
+      deck: studentOutreachOperationsDeck,
     },
   ];
 
@@ -56,8 +104,8 @@ export default function PresentationsPage() {
               </svg>
             </div>
             <div className="text-left">
-              <h1 className="text-4xl font-bold text-white">Investor Presentations</h1>
-              <p className="text-blue-200 text-lg mt-1">Professional presentation decks for strategic partnerships</p>
+              <h1 className="text-4xl font-bold text-white">Presentation Library</h1>
+              <p className="text-blue-200 text-lg mt-1">Professional presentation decks for investors, internal strategy, and operations</p>
             </div>
           </div>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-emerald-500 mx-auto rounded-full"></div>
