@@ -36,11 +36,17 @@ import {
   getTierDisplayName,
 } from "@/constants/unifiedConstants";
 import { getLogoUrl } from '@/utils/bannerUtils';
+import { investorOverviewDeck } from "@/lib/presentations/investorOverviewDeck";
+import { internalFounderAlignmentDeck } from "@/lib/presentations/decks/internal-founder-alignment";
+import { subscriberGrowthPlanDeck } from "@/lib/presentations/decks/subscriber-growth-plan";
+import { studentOutreachPlaybookDeck } from "@/lib/presentations/decks/student-outreach-playbook";
+import { studentOutreachOperationsDeck } from "@/lib/presentations/decks/student-outreach-operations";
 
 const TABS = [
   { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
   { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
   { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
+  { id: "presentations", label: "Presentations", icon: Presentation, color: "text-purple-600" },
 ];
 
 const buttonCls = "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all";
@@ -176,6 +182,136 @@ function getBadgeStyles(type) {
     premium: "border-purple-200 bg-purple-50 text-purple-700",
   };
   return styles[type] || styles.neutral;
+}
+
+function PresentationsTab() {
+  const router = useRouter();
+  
+  const presentations = [
+    {
+      id: "investor-overview",
+      title: "Investor Overview",
+      description: "Complete investor presentation for Pacific Discovery Network",
+      audience: "Investors",
+      status: "live",
+      lastUpdated: "March 2026",
+      slideCount: investorOverviewDeck.slides.length,
+      deck: investorOverviewDeck,
+    },
+    {
+      id: "internal-founder-alignment",
+      title: "Internal Founder Alignment",
+      description: "Internal strategy deck for founder and co-founder alignment on mission, vision, and execution priorities",
+      audience: "Internal",
+      status: "live",
+      lastUpdated: "March 2026",
+      slideCount: internalFounderAlignmentDeck.slides.length,
+      deck: internalFounderAlignmentDeck,
+    },
+    {
+      id: "subscriber-growth-plan",
+      title: "1,000 Subscriber Growth Plan",
+      description: "Internal execution deck for reaching 1,000 paying subscribers with validated acquisition channels",
+      audience: "Internal",
+      status: "live",
+      lastUpdated: "March 2026",
+      slideCount: subscriberGrowthPlanDeck.slides.length,
+      deck: subscriberGrowthPlanDeck,
+    },
+    {
+      id: "student-outreach-playbook",
+      title: "Student Outreach Playbook",
+      description: "Internal training deck for student-supported business discovery and outreach operations",
+      audience: "Internal",
+      status: "live",
+      lastUpdated: "March 2026",
+      slideCount: studentOutreachPlaybookDeck.slides.length,
+      deck: studentOutreachPlaybookDeck,
+    },
+    {
+      id: "student-outreach-operations",
+      title: "Student Outreach & Listing Operations",
+      description: "Internal operations deck for business discovery, admin listings, and claim workflows",
+      audience: "Internal",
+      status: "live",
+      lastUpdated: "March 2026",
+      slideCount: studentOutreachOperationsDeck.slides.length,
+      deck: studentOutreachOperationsDeck,
+    },
+  ];
+
+  const handleViewPresentation = (deck) => {
+    router.push(`/AdminDashboard/presentations?deck=${deck.id}`);
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="border-b border-gray-200 bg-gray-50">
+          <tr>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              Presentation
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              Description
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              Audience
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              Slides
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              Status
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              Updated
+            </th>
+            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {presentations.map((presentation) => (
+            <tr key={presentation.id} className="hover:bg-gray-50">
+              <td className="px-4 py-4">
+                <div>
+                  <div className="font-medium text-[#0a1628]">{presentation.title}</div>
+                </div>
+              </td>
+              <td className="px-4 py-4">
+                <div className="text-sm text-gray-600 max-w-md truncate">{presentation.description}</div>
+              </td>
+              <td className="px-4 py-4">
+                <div className="text-sm text-gray-600">{presentation.audience}</div>
+              </td>
+              <td className="px-4 py-4">
+                <div className="text-sm text-gray-600">{presentation.slideCount}</div>
+              </td>
+              <td className="px-4 py-4">
+                <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                  {presentation.status}
+                </span>
+              </td>
+              <td className="px-4 py-4">
+                <div className="text-sm text-gray-600">{presentation.lastUpdated}</div>
+              </td>
+              <td className="px-4 py-4 text-right">
+                <button
+                  onClick={() => handleViewPresentation(presentation)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  View
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 async function checkIsAdmin(user) {
@@ -1228,14 +1364,6 @@ export default function AdminDashboard() {
                         )}
                       </button>
                     ))}
-                    <div className="border-l border-gray-300 mx-1" />
-                    <button
-                      onClick={() => router.push("/AdminDashboard/presentations")}
-                      className="inline-flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white bg-[#0d4f4f] hover:bg-[#1a6b6b] transition-colors"
-                    >
-                      <Presentation className="h-4 w-4" />
-                      Presentations
-                    </button>
                   </div>
                 </div>
 
@@ -1378,7 +1506,11 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {activeTab !== "claims" && (
+              {activeTab === "presentations" && (
+                <PresentationsTab />
+              )}
+
+              {activeTab !== "claims" && activeTab !== "presentations" && (
                 <div className="space-y-3">
                   {filteredData.length === 0 ? (
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">

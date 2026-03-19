@@ -9,6 +9,7 @@ import {
   Download,
   Maximize2,
   Minimize2,
+  ArrowLeft,
 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -617,7 +618,7 @@ export default function PresentationViewer({
                   </p>
                   <p>
                     <a
-                      href={`https://${slide.contact.website}`}
+                      href={slide.contact.website}
                       className="text-blue-300 hover:text-white"
                       target="_blank"
                       rel="noreferrer"
@@ -633,9 +634,7 @@ export default function PresentationViewer({
           </div>
         );
     }
-
-    return null;
-  };
+  }
 
   return (
     <div className="flex h-screen flex-col bg-gray-100">
