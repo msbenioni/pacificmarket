@@ -47,28 +47,31 @@
 | Field | Form Section | Data Type | Required | Public | Notes |
 |-------|--------------|-----------|----------|--------|-------|
 | **id** | - | UUID | Auto | ❌ | Primary key |
-| **name** | CoreInfo | TEXT | ✅ | ✅ | Business name |
+| **business_name** | CoreInfo | TEXT | ✅ | ✅ | Business name |
 | **business_handle** | CoreInfo | TEXT | ✅ | ✅ | Unique identifier |
 | **tagline** | CoreInfo | TEXT | ❌ | ✅ | Short description |
 | **description** | CoreInfo | TEXT | ❌ | ✅ | Full description |
 | **logo_url** | BrandMedia | TEXT | ❌ | ✅ | Business logo |
 | **banner_url** | BrandMedia | TEXT | ❌ | ✅ | Desktop banner |
 | **mobile_banner_url** | BrandMedia | TEXT | ❌ | ✅ | Mobile banner |
-| **business_owner** | CoreInfo | TEXT | ❌ | ❌ | Owner name (private) |
-| **business_owner_email** | CoreInfo | TEXT | ❌ | ❌ | Owner email (private) |
-| **additional_owner_emails** | CoreInfo | TEXT[] | ❌ | ❌ | Multiple owners (private) |
-| **contact_email** | CoreInfo | TEXT | ❌ | ✅ | Public contact email |
-| **contact_phone** | CoreInfo | TEXT | ❌ | ✅ | Public contact phone |
-| **contact_website** | CoreInfo | TEXT | ❌ | ✅ | Website URL |
-| **business_hours** | CoreInfo | TEXT | ❌ | ✅ | Operating hours |
+| **business_contact_person** | ContactDetails | TEXT | ❌ | ❌ | Contact person (private) |
+| **business_email** | ContactDetails | TEXT | ❌ | ✅ | Business email |
+| **business_phone** | ContactDetails | TEXT | ❌ | ✅ | Business phone |
+| **business_website** | ContactDetails | TEXT | ❌ | ✅ | Website URL |
+| **business_hours** | ContactDetails | TEXT | ❌ | ✅ | Operating hours |
+| **address** | Location | TEXT | ❌ | ❌ | Street address |
+| **suburb** | Location | TEXT | ❌ | ❌ | Suburb/Area |
+| **city** | Location | TEXT | ❌ | ✅ | Business city |
+| **state_region** | Location | TEXT | ❌ | ❌ | State/Region |
+| **postal_code** | Location | TEXT | ❌ | ❌ | Postal code |
 | **country** | Location | TEXT | ✅ | ✅ | Business location |
 | **industry** | Location | TEXT | ✅ | ✅ | Business industry |
-| **city** | Location | TEXT | ❌ | ✅ | Business city |
 | **year_started** | Overview | TEXT | ❌ | ✅ | Founding year |
 | **business_structure** | Overview | TEXT | ❌ | ✅ | Legal structure |
 | **team_size_band** | Overview | TEXT | ❌ | ✅ | Team size category |
 | **revenue_band** | Overview | TEXT | ❌ | ✅ | Revenue category |
-| **business_registered** | Overview | BOOLEAN | ❌ | ❌ | Registration status |
+| **is_business_registered** | Overview | BOOLEAN | ❌ | ❌ | Registration status |
+| **role** | CoreInfo | TEXT | ❌ | ❌ | User role in business |
 | **status** | - | TEXT | Auto | ✅ | Business status |
 | **is_verified** | - | BOOLEAN | Auto | ✅ | Verification status |
 | **is_claimed** | - | BOOLEAN | Auto | ✅ | Claim status |
@@ -138,13 +141,12 @@
 
 | Form Section | Target Table(s) | Field Count | Notes |
 |--------------|-----------------|-------------|-------|
-| **CoreInfo** | businesses | 10 | Core business identity and contact |
-| **BrandMedia** | businesses | 3 | Visual assets |
-| **Location** | businesses | 3 | Geographic information |
-| **Overview** | businesses + business_insights | 6 | Business details and stage |
-| **Financial** | - | 1 | Only financial_challenges (no DB storage) |
-| **Challenges** | business_insights | 2 | Business challenges |
-| **Growth** | businesses | 2 | Goals and trade status |
+| **CoreInfo** | businesses | 4 | Core business identity (name, handle, tagline, description) |
+| **ContactDetails** | businesses | 5 | Business contact information |
+| **Location** | businesses | 6 | Full address and location details |
+| **BrandMedia** | businesses | 3 | Visual assets (logo, banners) |
+| **BusinessOverview** | businesses + business_insights | 5 | Business details and stage |
+| **Challenges** | business_insights | 1 | Business challenges |
 | **Community** | founder_insights | 6 | Founder-specific data |
 
 ### **✅ Data Transformation Flow**
@@ -152,7 +154,7 @@
 ```javascript
 // Input: Form Data Object
 const formData = {
-  name: "Business Name",
+  business_name: "Business Name",
   business_handle: "business-name",
   // ... all form fields
 };
@@ -162,7 +164,7 @@ const { businessesData, businessInsightsData } = transformBusinessFormData(formD
 
 // Output: Split Data for Database
 businessesData = {
-  name: "Business Name",
+  business_name: "Business Name",
   business_handle: "business-name",
   // ... businesses table fields
 };
@@ -182,7 +184,7 @@ businessInsightsData = {
 
 | Field | Source | Display Location |
 |-------|--------|------------------|
-| **name** | businesses.name | Profile title |
+| **business_name** | businesses.business_name | Profile title |
 | **logo_url** | businesses.logo_url | Profile image |
 | **tagline** | businesses.tagline | Subtitle |
 | **description** | businesses.description | Full description |
@@ -195,9 +197,9 @@ businessInsightsData = {
 
 | Field | Source | Condition | Display Location |
 |-------|--------|-----------|------------------|
-| **contact_email** | businesses.contact_email | If provided | Contact button |
-| **contact_phone** | businesses.contact_phone | If provided | Contact button |
-| **contact_website** | businesses.contact_website | If provided | Website link |
+| **business_email** | businesses.business_email | If provided | Contact button |
+| **business_phone** | businesses.business_phone | If provided | Contact button |
+| **business_website** | businesses.business_website | If provided | Website link |
 | **business_hours** | businesses.business_hours | If provided | Hours section |
 | **team_size_band** | businesses.team_size_band | If provided | Details section |
 | **revenue_band** | businesses.revenue_band | If provided | Details section |
@@ -207,8 +209,12 @@ businessInsightsData = {
 
 | Field | Source | Reason |
 |-------|--------|--------|
-| **business_owner_email** | businesses | Privacy |
-| **additional_owner_emails** | businesses | Privacy |
+| **business_contact_person** | businesses | Privacy |
+| **address** | businesses | Privacy |
+| **suburb** | businesses | Privacy |
+| **state_region** | businesses | Privacy |
+| **postal_code** | businesses | Privacy |
+| **role** | businesses | Privacy |
 | **private_business_phone** | business_insights | Privacy |
 | **private_business_email** | business_insights | Privacy |
 | **top_challenges_array** | business_insights | Internal |
@@ -266,7 +272,7 @@ UI Render
 
 | Field | Validation | Error Message |
 |-------|-------------|---------------|
-| **name** | Not empty | Business name is required |
+| **business_name** | Not empty | Business name is required |
 | **business_handle** | Not empty, unique, format | Business handle is required |
 | **country** | Not empty | Country is required |
 | **industry** | Not empty | Industry is required |
@@ -276,23 +282,45 @@ UI Render
 | Field | Format | Example |
 |-------|--------|---------|
 | **business_handle** | /^[a-z0-9-]+$/ | "my-business-123" |
-| **contact_email** | Email format | "user@example.com" |
-| **contact_website** | URL format | "https://example.com" |
+| **business_email** | Email format | "user@example.com" |
+| **business_website** | URL format | "https://example.com" |
 
 ### **✅ Array Validation**
 
 | Field | Max Items | Validation |
 |-------|-----------|------------|
 | **top_challenges_array** | 5 | Maximum 5 challenges |
-| **additional_owner_emails** | 5 | Maximum 5 emails |
 
 ---
 
 ## 🎯 **Recent Changes**
 
-### **✅ Fields Removed (March 2026)**
+### **✅ Field Name Standardization (March 2026)**
 
-**From business_insights table:**
+**Businesses table field renames:**
+- `name` → `business_name`
+- `contact_email` → `business_email`
+- `contact_phone` → `business_phone`
+- `contact_website` → `business_website`
+- `business_registered` → `is_business_registered`
+
+**New fields added:**
+- `business_contact_person` - Contact person name
+- `address` - Street address
+- `suburb` - Suburb/Area
+- `state_region` - State/Region
+- `postal_code` - Postal code
+- `role` - User role in business
+
+**Fields removed:**
+- `business_owner` - Moved to `business_contact_person`
+- `business_owner_email` - Removed for privacy
+- `additional_owner_emails` - Removed for simplicity
+- `languages_spoken` - Removed
+- `cultural_identity` - Removed
+- `sales_channels` - Removed
+
+### **✅ Fields Removed from business_insights (March 2026)**
 - expansion_plans
 - support_needed_next_array
 - current_support_sources_array
@@ -305,18 +333,15 @@ UI Render
 - community_impact_areas_array
 - industry (duplicate)
 
-**From forms:**
-- All financial fields from FinancialOverviewSection
-- Support fields from ChallengesSection
-- Growth fields from GrowthSection
-- Community impact fields from CommunitySection
-
 ### **✅ Impact**
 
+- **Consistent naming** - All business fields now use `business_` prefix
+- **Better privacy** - Private contact fields properly separated
+- **Complete addresses** - Full address support with all components
 - **Database size reduced** - 11 fields removed from business_insights
 - **Form complexity reduced** - Fewer fields to fill out
 - **Performance improved** - Smaller data payloads
-- **User experience enhanced** - Simpler forms
+- **User experience enhanced** - Simpler, more intuitive forms
 
 ---
 

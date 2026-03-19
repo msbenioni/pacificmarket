@@ -53,14 +53,12 @@ The Pacific Discovery Network platform uses a clean, optimized database architec
 
 | Category | Fields | Count |
 |----------|--------|-------|
-| **Core Identity** | name, business_handle, tagline, description | 4 |
+| **Core Identity** | business_name, business_handle, tagline, description, role | 5 |
 | **Visual Assets** | logo_url, banner_url, mobile_banner_url | 3 |
-| **Contact Info** | contact_email, contact_phone, contact_website, business_hours | 4 |
-| **Location** | country, industry, city | 3 |
-| **Business Details** | year_started, business_structure, team_size_band, revenue_band | 4 |
-| **Registration** | business_registered | 1 |
+| **Contact Info** | business_email, business_phone, business_website, business_hours, business_contact_person | 5 |
+| **Location** | address, suburb, city, state_region, postal_code, country, industry | 7 |
+| **Business Details** | year_started, business_structure, team_size_band, revenue_band, is_business_registered | 5 |
 | **Status** | status, is_verified, is_claimed, is_homepage_featured | 4 |
-| **Owner Info** | business_owner, business_owner_email, additional_owner_emails | 3 |
 | **System** | owner_user_id, created_by, source, profile_completeness, referral_code | 5 |
 
 ### **📈 Business Insights Table**
@@ -99,13 +97,12 @@ The Pacific Discovery Network platform uses a clean, optimized database architec
 
 | Form Section | Target Table | Fields |
 |--------------|--------------|--------|
-| **CoreInfo** | businesses | name, business_handle, tagline, description, business_owner, business_owner_email, additional_owner_emails |
+| **CoreInfo** | businesses | business_name, business_handle, tagline, description, role |
+| **ContactDetails** | businesses | business_contact_person, business_email, business_phone, business_website, business_hours |
+| **Location** | businesses | address, suburb, city, state_region, postal_code, country, industry |
 | **BrandMedia** | businesses | logo_url, banner_url, mobile_banner_url |
-| **Location** | businesses | country, industry, city |
-| **Overview** | businesses + business_insights | year_started, business_structure, team_size_band, revenue_band, business_registered, business_stage |
-| **Financial** | - | Removed (streamlined) |
+| **BusinessOverview** | businesses + business_insights | year_started, business_structure, team_size_band, revenue_band, is_business_registered, business_stage |
 | **Challenges** | business_insights | top_challenges_array |
-| **Growth** | businesses | import_export_status |
 | **Community** | founder_insights | collaboration_interest, mentorship_offering, open_to_future_contact |
 
 ### **✅ Data Flow**
