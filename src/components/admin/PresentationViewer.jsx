@@ -160,31 +160,31 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col justify-center bg-white p-12 text-gray-900 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 text-center text-white ${
               isVisible ? "block" : "hidden"
             }`}
           >
             <div className="mx-auto max-w-6xl">
-              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-600">{slide.eyebrow}</p>}
+              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
               <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
-              {slide.subtitle && <p className="mb-8 max-w-4xl text-xl text-gray-600">{slide.subtitle}</p>}
+              {slide.subtitle && <p className="mb-12 text-xl text-blue-100">{slide.subtitle}</p>}
 
               {slide.stats && (
                 <div className="mb-8 grid grid-cols-3 gap-8">
                   {slide.stats.map((stat, idx) => (
-                    <div key={idx} className="text-center">
-                      <div className="mb-2 text-5xl font-bold text-blue-600">{stat.value}</div>
-                      <div className="text-gray-600">{stat.label}</div>
+                    <div key={idx} className="rounded-lg bg-white/10 p-6 backdrop-blur-sm text-center">
+                      <div className="mb-2 text-5xl font-bold text-blue-300">{stat.value}</div>
+                      <div className="text-blue-200">{stat.label}</div>
                     </div>
                   ))}
                 </div>
               )}
 
               {slide.bullets && (
-                <ul className="mb-6 space-y-3">
+                <ul className="mb-8 space-y-3 text-lg">
                   {slide.bullets.map((bullet, idx) => (
                     <li key={idx} className="flex items-start">
-                      <span className="mr-3 text-blue-600">•</span>
+                      <span className="mr-3 text-blue-300">•</span>
                       <span>{bullet}</span>
                     </li>
                   ))}
@@ -192,7 +192,7 @@ export default function PresentationViewer({
               )}
 
               {slide.closingLine && (
-                <p className="mt-8 rounded-lg bg-blue-50 p-4 text-lg font-medium text-gray-700">
+                <p className="mt-8 rounded-lg bg-white/10 p-4 text-center text-xl font-medium text-blue-100 backdrop-blur-sm">
                   {slide.closingLine}
                 </p>
               )}
@@ -204,25 +204,25 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col justify-center bg-white p-12 text-gray-900 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 text-center text-white ${
               isVisible ? "block" : "hidden"
             }`}
           >
             <div className="mx-auto max-w-6xl">
-              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-600">{slide.eyebrow}</p>}
+              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
               <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
 
-              {slide.subtitle && <p className="mb-8 max-w-4xl text-xl text-gray-600">{slide.subtitle}</p>}
+              {slide.subtitle && <p className="mb-12 text-xl text-blue-100">{slide.subtitle}</p>}
 
               {slide.sections ? (
                 <div className="mb-8 grid grid-cols-3 gap-8">
                   {slide.sections.map((section, idx) => (
-                    <div key={idx}>
-                      <h3 className="mb-4 text-xl font-semibold text-blue-600">{section.title}</h3>
+                    <div key={idx} className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
+                      <h3 className="mb-4 text-xl font-semibold text-blue-300">{section.title}</h3>
                       <ul className="space-y-2">
                         {section.items.map((item, itemIdx) => (
                           <li key={itemIdx} className="flex items-start text-sm">
-                            <span className="mr-2 text-blue-600">•</span>
+                            <span className="mr-2 text-blue-300">•</span>
                             <span>{item}</span>
                           </li>
                         ))}
@@ -231,10 +231,10 @@ export default function PresentationViewer({
                   ))}
                 </div>
               ) : (
-                <ul className="mb-8 space-y-4">
+                <ul className="mb-8 space-y-4 text-lg">
                   {slide.bullets?.map((bullet, idx) => (
-                    <li key={idx} className="flex items-start text-lg">
-                      <span className="mr-3 text-xl text-blue-600">•</span>
+                    <li key={idx} className="flex items-start">
+                      <span className="mr-3 text-xl text-blue-300">•</span>
                       <span>{bullet}</span>
                     </li>
                   ))}
@@ -242,13 +242,13 @@ export default function PresentationViewer({
               )}
 
               {slide.techStack && (
-                <div className="mt-8 rounded-lg bg-gray-100 p-4">
-                  <p className="font-mono text-sm">{slide.techStack}</p>
+                <div className="mt-8 rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+                  <p className="font-mono text-sm text-blue-200">{slide.techStack}</p>
                 </div>
               )}
 
               {slide.closingLine && (
-                <p className="mt-8 rounded-lg bg-blue-50 p-4 text-lg font-medium text-gray-700">
+                <p className="mt-8 rounded-lg bg-white/10 p-4 text-center text-xl font-medium text-blue-100 backdrop-blur-sm">
                   {slide.closingLine}
                 </p>
               )}
@@ -260,23 +260,23 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col justify-center bg-white p-12 text-gray-900 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 text-center text-white ${
               isVisible ? "block" : "hidden"
             }`}
           >
             <div className="mx-auto max-w-6xl">
-              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-600">{slide.eyebrow}</p>}
+              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
               <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
-              {slide.subtitle && <p className="mb-8 max-w-4xl text-xl text-gray-600">{slide.subtitle}</p>}
+              {slide.subtitle && <p className="mb-12 text-xl text-blue-100">{slide.subtitle}</p>}
 
               <div className="mb-8 grid grid-cols-3 gap-8">
                 {slide.columns.map((column, idx) => (
-                  <div key={idx} className="rounded-lg bg-blue-50 p-6">
-                    <h3 className="mb-4 text-xl font-semibold text-blue-600">{column.title}</h3>
+                  <div key={idx} className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
+                    <h3 className="mb-4 text-xl font-semibold text-blue-300">{column.title}</h3>
                     <ul className="space-y-2">
                       {column.items.map((item, itemIdx) => (
                         <li key={itemIdx} className="flex items-start text-sm">
-                          <span className="mr-2 text-blue-600">•</span>
+                          <span className="mr-2 text-blue-300">•</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -286,7 +286,7 @@ export default function PresentationViewer({
               </div>
 
               {slide.closingLine && (
-                <p className="mt-8 rounded-lg bg-blue-50 p-4 text-lg font-medium text-gray-700">
+                <p className="mt-8 rounded-lg bg-white/10 p-4 text-center text-xl font-medium text-blue-100 backdrop-blur-sm">
                   {slide.closingLine}
                 </p>
               )}
@@ -298,14 +298,14 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col justify-center bg-white p-12 text-gray-900 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 text-center text-white overflow-y-auto ${
               isVisible ? "block" : "hidden"
             }`}
           >
             <div className="mx-auto max-w-6xl">
-              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-600">{slide.eyebrow}</p>}
+              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
               <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
-              {slide.subtitle && <p className="mb-8 max-w-4xl text-xl text-gray-600">{slide.subtitle}</p>}
+              {slide.subtitle && <p className="mb-12 text-xl text-blue-100">{slide.subtitle}</p>}
 
               <div className="mb-8">
                 <table className="w-full border-collapse">
@@ -320,9 +320,9 @@ export default function PresentationViewer({
                   </thead>
                   <tbody>
                     {slide.table.rows.map((row, rowIdx) => (
-                      <tr key={rowIdx} className={rowIdx % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                      <tr key={rowIdx} className={rowIdx % 2 === 0 ? "bg-white/10" : "bg-white/5"}>
                         {row.map((cell, cellIdx) => (
-                          <td key={cellIdx} className="border-t border-gray-200 p-4">
+                          <td key={cellIdx} className="border-t border-white/20 p-4">
                             {cell}
                           </td>
                         ))}
@@ -333,10 +333,10 @@ export default function PresentationViewer({
               </div>
 
               {slide.bullets && (
-                <ul className="mb-6 space-y-3">
+                <ul className="mb-8 space-y-3 text-lg">
                   {slide.bullets.map((bullet, idx) => (
                     <li key={idx} className="flex items-start">
-                      <span className="mr-3 text-blue-600">•</span>
+                      <span className="mr-3 text-blue-300">•</span>
                       <span>{bullet}</span>
                     </li>
                   ))}
@@ -344,7 +344,7 @@ export default function PresentationViewer({
               )}
 
               {slide.closingLine && (
-                <p className="mt-8 rounded-lg bg-blue-50 p-4 text-lg font-medium text-gray-700">
+                <p className="mt-8 rounded-lg bg-white/10 p-4 text-center text-xl font-medium text-blue-100 backdrop-blur-sm">
                   {slide.closingLine}
                 </p>
               )}
@@ -356,29 +356,29 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col justify-center bg-white p-12 text-gray-900 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 text-center text-white ${
               isVisible ? "block" : "hidden"
             }`}
           >
             <div className="mx-auto max-w-6xl">
-              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-600">{slide.eyebrow}</p>}
+              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
               <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
-              {slide.subtitle && <p className="mb-8 max-w-4xl text-xl text-gray-600">{slide.subtitle}</p>}
+              {slide.subtitle && <p className="mb-12 text-xl text-blue-100">{slide.subtitle}</p>}
 
               <div className="mb-8 grid grid-cols-3 gap-8">
                 {slide.tiers.map((tier, idx) => (
                   <div
                     key={idx}
-                    className={`rounded-lg border-2 p-6 ${
-                      idx === 1 ? "border-blue-600 bg-blue-50" : "border-gray-200 bg-white"
+                    className={`rounded-lg border-2 p-6 backdrop-blur-sm ${
+                      idx === 1 ? "border-blue-400 bg-blue-600/20" : "border-white/20 bg-white/10"
                     }`}
                   >
                     <h3 className="mb-2 text-2xl font-bold">{tier.name}</h3>
-                    <div className="mb-4 text-3xl font-bold text-blue-600">{tier.price}</div>
+                    <div className="mb-4 text-3xl font-bold text-blue-300">{tier.price}</div>
                     <ul className="space-y-2">
                       {tier.features.map((feature, featureIdx) => (
                         <li key={featureIdx} className="flex items-start text-sm">
-                          <span className="mr-2 text-blue-600">✓</span>
+                          <span className="mr-2 text-blue-300">✓</span>
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -389,11 +389,11 @@ export default function PresentationViewer({
 
               {slide.futureRevenue && (
                 <div className="mb-8">
-                  <h4 className="mb-3 text-lg font-semibold text-blue-600">Future Revenue Layers</h4>
+                  <h4 className="mb-3 text-lg font-semibold text-blue-300">Future Revenue Layers</h4>
                   <div className="grid grid-cols-2 gap-4">
                     {slide.futureRevenue.map((item, idx) => (
                       <div key={idx} className="flex items-center text-sm">
-                        <span className="mr-2 text-blue-600">•</span>
+                        <span className="mr-2 text-blue-300">•</span>
                         <span>{item}</span>
                       </div>
                     ))}
@@ -402,7 +402,7 @@ export default function PresentationViewer({
               )}
 
               {slide.closingLine && (
-                <p className="mt-8 rounded-lg bg-blue-50 p-4 text-lg font-medium text-gray-700">
+                <p className="mt-8 rounded-lg bg-white/10 p-4 text-center text-xl font-medium text-blue-100 backdrop-blur-sm">
                   {slide.closingLine}
                 </p>
               )}
@@ -414,14 +414,14 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col justify-center bg-white p-12 text-gray-900 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 text-center text-white overflow-y-auto ${
               isVisible ? "block" : "hidden"
             }`}
           >
             <div className="mx-auto max-w-6xl">
-              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-600">{slide.eyebrow}</p>}
+              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
               <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
-              {slide.subtitle && <p className="mb-8 max-w-4xl text-xl text-gray-600">{slide.subtitle}</p>}
+              {slide.subtitle && <p className="mb-12 text-xl text-blue-100">{slide.subtitle}</p>}
 
               <div className="mb-8 grid grid-cols-3 gap-8">
                 <div className="col-span-2">
@@ -437,9 +437,9 @@ export default function PresentationViewer({
                     </thead>
                     <tbody>
                       {slide.table.rows.map((row, rowIdx) => (
-                        <tr key={rowIdx} className={rowIdx % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                        <tr key={rowIdx} className={rowIdx % 2 === 0 ? "bg-white/10" : "bg-white/5"}>
                           {row.map((cell, cellIdx) => (
-                            <td key={cellIdx} className="border-t border-gray-200 p-4 font-semibold">
+                            <td key={cellIdx} className="border-t border-white/20 p-4 font-semibold">
                               {cell}
                             </td>
                           ))}
@@ -451,16 +451,16 @@ export default function PresentationViewer({
 
                 <div className="space-y-4">
                   {slide.sideStats.map((stat, idx) => (
-                    <div key={idx} className="rounded-lg bg-blue-50 p-4">
-                      <div className="text-sm text-gray-600">{stat.label}</div>
-                      <div className="text-xl font-bold text-blue-600">{stat.value}</div>
+                    <div key={idx} className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+                      <div className="text-sm text-blue-200">{stat.label}</div>
+                      <div className="text-xl font-bold text-blue-300">{stat.value}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {slide.closingLine && (
-                <p className="mt-8 rounded-lg bg-blue-50 p-4 text-lg font-medium text-gray-700">
+                <p className="mt-8 rounded-lg bg-white/10 p-4 text-center text-xl font-medium text-blue-100 backdrop-blur-sm">
                   {slide.closingLine}
                 </p>
               )}
@@ -472,38 +472,38 @@ export default function PresentationViewer({
         return (
           <div
             id={slideId}
-            className={`absolute inset-0 flex flex-col justify-center bg-white p-12 text-gray-900 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-blue-700 p-12 pt-64 text-center text-white overflow-y-auto ${
               isVisible ? "block" : "hidden"
             }`}
           >
             <div className="mx-auto max-w-6xl">
-              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-600">{slide.eyebrow}</p>}
+              {slide.eyebrow && <p className="mb-2 font-semibold text-blue-300">{slide.eyebrow}</p>}
               <h2 className="mb-4 text-4xl font-bold">{slide.title}</h2>
-              <div className="mb-8 text-3xl font-bold text-blue-600">{slide.ask}</div>
+              <div className="mb-12 text-3xl font-bold text-blue-300">{slide.ask}</div>
 
               <div className="mb-8 grid grid-cols-2 gap-8">
                 <div className="space-y-6">
                   {slide.allocations.map((allocation, idx) => (
-                    <div key={idx} className="border-l-4 border-blue-600 pl-4">
+                    <div key={idx} className="border-l-4 border-blue-400 pl-4">
                       <div className="mb-2 flex items-center justify-between">
                         <h4 className="text-lg font-semibold">{allocation.category}</h4>
                         <div className="text-right">
-                          <div className="text-xl font-bold text-blue-600">{allocation.percentage}%</div>
-                          <div className="text-sm text-gray-600">{allocation.amount}</div>
+                          <div className="text-xl font-bold text-blue-300">{allocation.percentage}%</div>
+                          <div className="text-sm text-blue-200">{allocation.amount}</div>
                         </div>
                       </div>
 
-                      <div className="mb-3 h-3 w-full rounded-full bg-gray-200">
+                      <div className="mb-3 h-3 w-full rounded-full bg-white/20">
                         <div
-                          className="h-3 rounded-full bg-blue-600"
+                          className="h-3 rounded-full bg-blue-400"
                           style={{ width: `${allocation.percentage}%` }}
                         />
                       </div>
 
-                      <ul className="space-y-1 text-sm text-gray-600">
+                      <ul className="space-y-1 text-sm text-blue-200">
                         {allocation.items.map((item, itemIdx) => (
                           <li key={itemIdx} className="flex items-start">
-                            <span className="mr-2 text-blue-600">•</span>
+                            <span className="mr-2 text-blue-300">•</span>
                             <span>{item}</span>
                           </li>
                         ))}
@@ -512,8 +512,8 @@ export default function PresentationViewer({
                   ))}
                 </div>
 
-                <div className="rounded-lg bg-blue-50 p-6">
-                  <h4 className="mb-4 text-lg font-semibold text-blue-600">Investment Summary</h4>
+                <div className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
+                  <h4 className="mb-4 text-lg font-semibold text-blue-300">Investment Summary</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span>Total Raise:</span>
@@ -536,7 +536,7 @@ export default function PresentationViewer({
               </div>
 
               {slide.closingLine && (
-                <p className="mt-8 rounded-lg bg-blue-50 p-4 text-lg font-medium text-gray-700">
+                <p className="mt-8 rounded-lg bg-white/10 p-4 text-center text-xl font-medium text-blue-100 backdrop-blur-sm">
                   {slide.closingLine}
                 </p>
               )}
@@ -670,7 +670,11 @@ export default function PresentationViewer({
       </div>
 
       <div className="relative flex-1 overflow-hidden">
-        <div className="absolute inset-0 bg-black">{slides.map((slide, index) => renderSlide(slide, index))}</div>
+        <div className="absolute inset-x-0 top-0 bottom-0 bg-black">{slides.map((slide, index) => (
+          <div key={index}>
+            {renderSlide(slide, index)}
+          </div>
+        ))}</div>
 
         <div className="pointer-events-none absolute inset-0">
           <div className="pointer-events-auto absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-6">

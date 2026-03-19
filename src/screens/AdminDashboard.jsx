@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   Eye,
   Speech,
+  Presentation,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
@@ -1227,6 +1228,14 @@ export default function AdminDashboard() {
                         )}
                       </button>
                     ))}
+                    <div className="border-l border-gray-300 mx-1" />
+                    <button
+                      onClick={() => router.push("/AdminDashboard/presentations")}
+                      className="inline-flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white bg-[#0d4f4f] hover:bg-[#1a6b6b] transition-colors"
+                    >
+                      <Presentation className="h-4 w-4" />
+                      Presentations
+                    </button>
                   </div>
                 </div>
 
