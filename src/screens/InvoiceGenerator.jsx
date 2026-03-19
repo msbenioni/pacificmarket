@@ -9,6 +9,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
+
 // Premium accordion component (defined at module scope to prevent remounting)
 function InvoiceAccordionSection({
   id,
