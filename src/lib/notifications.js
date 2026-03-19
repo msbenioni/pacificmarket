@@ -50,7 +50,7 @@ export const NOTIFICATION_TYPES = {
 };
 
 const getAdminUrl = () =>
-  `${process.env.NEXT_PUBLIC_SITE_URL}${createPageUrl("AdminDashboard")}`;
+  `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pacificdiscoverynetwork.com'}${createPageUrl("AdminDashboard")}`;
 
 const getCurrentYear = () => new Date().getFullYear();
 
@@ -352,7 +352,7 @@ const getEmailTemplate = (type, data) => {
           <p style="margin: 0;">If you need help at any point, just reply to this email and we can assist.</p>
         `,
         ctaText: "Log in now",
-        ctaHref: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+        ctaHref: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pacificdiscoverynetwork.com'}/BusinessLogin`,
       }),
     },
 
@@ -371,7 +371,7 @@ const getEmailTemplate = (type, data) => {
           <p style="margin: 0;">If you have had any problems with this process, reply to this email and we will help you.</p>
         `,
         ctaText: "Log in and continue",
-        ctaHref: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+        ctaHref: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pacificdiscoverynetwork.com'}/BusinessLogin`,
       }),
     },
 
