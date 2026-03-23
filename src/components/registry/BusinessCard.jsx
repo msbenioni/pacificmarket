@@ -75,7 +75,7 @@ export default function BusinessCard({ business, view = "grid" }) {
 
         <div className="mt-3 space-y-1.5">
           {description && (
-            <p className="text-[12px] leading-4 text-slate-500 line-clamp-2">
+            <p className="text-[12px] leading-4 font-semibold text-[#0d4f4f] line-clamp-2">
               {description}
             </p>
           )}
@@ -95,9 +95,9 @@ export default function BusinessCard({ business, view = "grid" }) {
           )}
 
           {culturalData.culturalIdentitiesRaw.length > 0 && (
-            <div className="flex items-center gap-1 mt-0.5">
+            <div className="flex items-center gap-1.5 mt-0.5">
               {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
-                <FlagIcon key={index} identity={identity} size={14} />
+                <FlagIcon key={index} identity={identity} size={22} />
               ))}
               {culturalData.culturalIdentitiesRaw.length > 3 && (
                 <span className="text-[9px] text-gray-500 ml-1">
@@ -108,7 +108,7 @@ export default function BusinessCard({ business, view = "grid" }) {
           )}
         </div>
 
-        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">
           <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-medium text-slate-600">
             {industryLabel}
           </span>
@@ -152,7 +152,7 @@ export default function BusinessCard({ business, view = "grid" }) {
 
         <div className="mt-4 space-y-2">
           {description && (
-            <p className="text-[13px] leading-5 text-slate-500 line-clamp-2">
+            <p className="text-[13px] leading-5 font-semibold text-[#0d4f4f] line-clamp-2">
               {description}
             </p>
           )}
@@ -172,9 +172,9 @@ export default function BusinessCard({ business, view = "grid" }) {
           )}
 
           {culturalData.culturalIdentitiesRaw.length > 0 && (
-            <div className="flex items-center gap-1 mt-1">
+            <div className="flex items-center gap-2 mt-1">
               {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
-                <FlagIcon key={index} identity={identity} size={16} />
+                <FlagIcon key={index} identity={identity} size={24} />
               ))}
               {culturalData.culturalIdentitiesRaw.length > 3 && (
                 <span className="text-[10px] text-gray-500 ml-1">
@@ -185,7 +185,7 @@ export default function BusinessCard({ business, view = "grid" }) {
           )}
         </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">
           <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-600">
             {industryLabel}
           </span>
