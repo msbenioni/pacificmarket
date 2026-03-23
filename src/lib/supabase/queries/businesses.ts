@@ -96,19 +96,26 @@ async function enrichBusinessesWithProfileFallback(businesses: any[]): Promise<a
 
     // Enrich each business with fallback data
     return businesses.map(business => {
-      // Prefer owner profile, fallback to claimed_by profile
-      const profileId = business?.owner_user_id || business?.claimed_by;
-      const profile = profileId ? profileMap.get(profileId) : null;
+      // Mirror single-fetch logic: prefer owner profile, fallback to claimed_by profile
+      let profile = null;
+      
+      // First try owner profile
+      if (business?.owner_user_id) {
+        profile = profileMap.get(business.owner_user_id);
+      }
+      
+      // Fallback to claimed_by profile if owner not found
+      if (!profile && business?.claimed_by) {
+        profile = profileMap.get(business.claimed_by);
+      }
 
       if (profile) {
-        // Apply fallbacks only if business fields are empty/null
+        // Preserve both business and profile data separately for profile-first resolution
         const enrichedBusiness = {
           ...business,
-          cultural_identity: business.cultural_identity || (profile as any).cultural_identity,
-          languages_spoken: business.languages_spoken || (profile as any).languages_spoken,
-          _profile_fallback: {
-            cultural_identity: !business.cultural_identity && (profile as any).cultural_identity,
-            languages_spoken: !business.languages_spoken && (profile as any).languages_spoken,
+          _profile_data: {
+            cultural_identity: (profile as any).cultural_identity,
+            languages_spoken: (profile as any).languages_spoken,
             profile_id: (profile as any).id
           }
         };
@@ -244,14 +251,12 @@ export async function getBusinessById(id: string) {
         // Prefer owner profile, fallback to claimed_by profile
         const profile = profiles.find((p: any) => p.id === business.owner_user_id) || profiles[0];
         
-        // Apply profile fallbacks only if business fields are empty/null
+        // Preserve both business and profile data separately for profile-first resolution
         business = {
           ...business,
-          cultural_identity: business.cultural_identity || profile.cultural_identity,
-          languages_spoken: business.languages_spoken || profile.languages_spoken,
-          _profile_fallback: {
-            cultural_identity: !business.cultural_identity && profile.cultural_identity,
-            languages_spoken: !business.languages_spoken && profile.languages_spoken,
+          _profile_data: {
+            cultural_identity: profile.cultural_identity,
+            languages_spoken: profile.languages_spoken,
             profile_id: profile.id
           }
         };
@@ -397,12 +402,17 @@ export async function searchBusinesses(query: string, options: {
   const supabase = getSupabase();
   const { limit = 50, status } = options;
 
-  const { data, error } = await supabase
+  let queryBuilder = supabase
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
-    .eq('status', status)
-    .or(`name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%`)
-    .limit(limit);
+    .or(`name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%`);
+
+  // Apply status filter only if status array is provided and not empty
+  if (status && status.length > 0) {
+    queryBuilder = queryBuilder.in('status', status);
+  }
+
+  const { data, error } = await queryBuilder.limit(limit);
 
   if (error) {
     console.error('Search businesses query error:', error);

@@ -22,7 +22,7 @@
 ```bash
 # Clone repository
 git clone [repository-url]
-cd pacific-market
+cd pacific-discovery-network
 
 # Install dependencies
 npm install

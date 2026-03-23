@@ -28,39 +28,40 @@ export function getBusinessCulturalData(business, userProfile = null) {
     };
   }
 
-  // Determine source of truth: business-level first, then profile fallback
-  let culturalSource = 'business';
-  let languagesSource = 'business';
+  // PROFILE-FIRST precedence: profile first, then business, then none
+  let culturalSource = 'none';
+  let languagesSource = 'none';
   
   let culturalRaw = [];
   let languagesRaw = [];
   
-  // Check if business already has profile fallback data merged
-  if (business?._profile_fallback) {
-    // Business already has fallback data applied
+  // Helper function to check if a value is non-empty
+  const hasValue = (value) => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    if (Array.isArray(value)) return value.length > 0;
+    return false;
+  };
+  
+  // Check if business has merged profile data available
+  const profileData = business?._profile_data || userProfile;
+  
+  // PROFILE-FIRST: Cultural identity resolution
+  if (hasValue(profileData?.cultural_identity)) {
+    culturalRaw = normalizeCulturalIdentity(profileData.cultural_identity);
+    culturalSource = 'profile';
+  } else if (hasValue(business?.cultural_identity)) {
     culturalRaw = normalizeCulturalIdentity(business.cultural_identity);
+    culturalSource = 'business';
+  }
+  
+  // PROFILE-FIRST: Languages resolution
+  if (hasValue(profileData?.languages_spoken)) {
+    languagesRaw = normalizeLanguagesSpoken(profileData.languages_spoken);
+    languagesSource = 'profile';
+  } else if (hasValue(business?.languages_spoken)) {
     languagesRaw = normalizeLanguagesSpoken(business.languages_spoken);
-    culturalSource = business._profile_fallback.cultural_identity ? 'profile' : 'business';
-    languagesSource = business._profile_fallback.languages_spoken ? 'profile' : 'business';
-  } else {
-    // Manual fallback logic for when profile data isn't pre-merged
-    // Cultural identity resolution
-    if (business?.cultural_identity && business.cultural_identity !== null) {
-      culturalRaw = normalizeCulturalIdentity(business.cultural_identity);
-      culturalSource = 'business';
-    } else if (userProfile?.cultural_identity && userProfile.cultural_identity !== null) {
-      culturalRaw = normalizeCulturalIdentity(userProfile.cultural_identity);
-      culturalSource = 'profile';
-    }
-    
-    // Languages resolution
-    if (business?.languages_spoken && business.languages_spoken !== null) {
-      languagesRaw = normalizeLanguagesSpoken(business.languages_spoken);
-      languagesSource = 'business';
-    } else if (userProfile?.languages_spoken && userProfile.languages_spoken !== null) {
-      languagesRaw = normalizeLanguagesSpoken(userProfile.languages_spoken);
-      languagesSource = 'profile';
-    }
+    languagesSource = 'business';
   }
   
   // Apply display labels with fallback to raw values if no label found

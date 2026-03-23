@@ -13,7 +13,7 @@
 ### **1. Clone Repository**
 ```bash
 git clone [repository-url]
-cd pacific-market
+cd pacific-discovery-network
 ```
 
 ### **2. Install Dependencies**

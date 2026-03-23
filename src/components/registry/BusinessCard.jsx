@@ -62,54 +62,48 @@ export default function BusinessCard({ business, view = "grid" }) {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-start gap-2">
-              <h3 className="text-[15px] font-semibold leading-5 text-[#0a1628] transition-colors group-hover:text-[#0d4f4f] break-words">
+              <h3 className="text-[14px] font-semibold leading-5 text-[#0a1628] transition-colors group-hover:text-[#0d4f4f] break-words line-clamp-2">
                 {business.business_name}
               </h3>
 
               {business.is_verified && (
-                <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00c4cc]" />
+                <CheckCircle className="mt-0.5 h-[14px] w-[14px] flex-shrink-0 text-[#00c4cc]" />
               )}
             </div>
-
-            {culturalData.culturalIdentitiesRaw.length > 0 && (
-              <div className="mt-2">
-                {culturalData.culturalIdentitiesRaw.length === 1 ? (
-                  <FlagIcon identity={culturalData.culturalIdentitiesRaw[0]} size={24} />
-                ) : (
-                  <div className="flex items-center gap-1">
-                    {culturalData.culturalIdentitiesRaw.slice(0, 2).map((identity, index) => (
-                      <FlagIcon key={index} identity={identity} size={20} />
-                    ))}
-                    {culturalData.culturalIdentitiesRaw.length > 2 && (
-                      <span className="text-xs text-gray-500 ml-1">
-                        +{culturalData.culturalIdentitiesRaw.length - 2}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-3 space-y-1.5">
           {description && (
-            <p className="text-sm leading-6 text-slate-500 line-clamp-2">
+            <p className="text-[12px] leading-4 text-slate-500 line-clamp-2">
               {description}
             </p>
           )}
 
           {metaLine && (
-            <div className="mt-3 flex items-center gap-1.5 text-sm text-slate-500">
-              <MapPin className="h-4 w-4 flex-shrink-0" />
+            <div className="flex items-center gap-1 text-[11px] text-slate-500">
+              <MapPin className="h-3 w-3 flex-shrink-0" />
               <span className="truncate">{metaLine}</span>
             </div>
           )}
 
           {readableLanguages && (
-            <div className="mt-2 flex items-start gap-1.5 text-sm text-[#0d4f4f]">
-              <Speech className="mt-0.5 h-4 w-4 flex-shrink-0" />
-              <span className="leading-5">{readableLanguages}</span>
+            <div className="flex items-start gap-1 text-[11px] text-[#0d4f4f]">
+              <Speech className="mt-0.5 h-3 w-3 flex-shrink-0" />
+              <span className="leading-3">{readableLanguages}</span>
+            </div>
+          )}
+
+          {culturalData.culturalIdentitiesRaw.length > 0 && (
+            <div className="flex items-center gap-1 mt-0.5">
+              {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
+                <FlagIcon key={index} identity={identity} size={14} />
+              ))}
+              {culturalData.culturalIdentitiesRaw.length > 3 && (
+                <span className="text-[9px] text-gray-500 ml-1">
+                  +{culturalData.culturalIdentitiesRaw.length - 3}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -133,9 +127,9 @@ export default function BusinessCard({ business, view = "grid" }) {
       href={href}
       className="group flex flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-[#0d4f4f]/20 hover:shadow-[0_22px_50px_rgba(10,22,40,0.10)]"
     >
-      <div className="flex flex-1 flex-col px-5 pt-5 pb-4">
-        <div className="flex items-start gap-4">
-          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] shadow-sm">
+      <div className="flex flex-1 flex-col px-4 pt-4 pb-3.5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f] shadow-sm">
             <img
               src={getLogoUrl(business)}
               alt=""
@@ -145,54 +139,48 @@ export default function BusinessCard({ business, view = "grid" }) {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-start gap-2">
-              <h3 className="text-[17px] font-semibold leading-6 text-[#0a1628] transition-colors group-hover:text-[#0d4f4f] break-words">
+              <h3 className="text-[16px] font-semibold leading-5 text-[#0a1628] transition-colors group-hover:text-[#0d4f4f] break-words line-clamp-2">
                 {business.business_name}
               </h3>
 
               {business.is_verified && (
-                <CheckCircle className="mt-1 h-[18px] w-[18px] flex-shrink-0 text-[#00c4cc]" />
+                <CheckCircle className="mt-0.5 h-[16px] w-[16px] flex-shrink-0 text-[#00c4cc]" />
               )}
             </div>
-
-            {culturalData.culturalIdentitiesRaw.length > 0 && (
-              <div className="mt-2">
-                {culturalData.culturalIdentitiesRaw.length === 1 ? (
-                  <FlagIcon identity={culturalData.culturalIdentitiesRaw[0]} size={24} />
-                ) : (
-                  <div className="flex items-center gap-1">
-                    {culturalData.culturalIdentitiesRaw.slice(0, 2).map((identity, index) => (
-                      <FlagIcon key={index} identity={identity} size={20} />
-                    ))}
-                    {culturalData.culturalIdentitiesRaw.length > 2 && (
-                      <span className="text-xs text-gray-500 ml-1">
-                        +{culturalData.culturalIdentitiesRaw.length - 2}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-2">
           {description && (
-            <p className="text-[15px] leading-7 text-slate-500 line-clamp-2">
+            <p className="text-[13px] leading-5 text-slate-500 line-clamp-2">
               {description}
             </p>
           )}
 
           {metaLine && (
-            <div className="flex items-center gap-2 text-[15px] text-slate-500">
-              <MapPin className="h-4.5 w-4.5 flex-shrink-0" />
+            <div className="flex items-center gap-1.5 text-[12px] text-slate-500">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
               <span className="truncate">{metaLine}</span>
             </div>
           )}
 
           {readableLanguages && (
-            <div className="flex items-start gap-2 text-[15px] text-[#0d4f4f]">
-              <Speech className="mt-1 h-4.5 w-4.5 flex-shrink-0" />
-              <span className="leading-6">{readableLanguages}</span>
+            <div className="flex items-start gap-1.5 text-[12px] text-[#0d4f4f]">
+              <Speech className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+              <span className="leading-4">{readableLanguages}</span>
+            </div>
+          )}
+
+          {culturalData.culturalIdentitiesRaw.length > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
+                <FlagIcon key={index} identity={identity} size={16} />
+              ))}
+              {culturalData.culturalIdentitiesRaw.length > 3 && (
+                <span className="text-[10px] text-gray-500 ml-1">
+                  +{culturalData.culturalIdentitiesRaw.length - 3}
+                </span>
+              )}
             </div>
           )}
         </div>

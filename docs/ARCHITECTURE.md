@@ -44,7 +44,7 @@
 ### **✅ Application Structure**
 
 ```
-pacific-market/
+pacific-discovery-network/
 ├── src/
 │   ├── app/                    # Next.js App Router pages
 │   ├── components/             # React components
