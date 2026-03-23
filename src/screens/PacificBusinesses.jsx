@@ -4,6 +4,7 @@ import { LayoutGrid, List, SlidersHorizontal, X, Search } from "lucide-react";
 import BusinessCard from "../components/registry/BusinessCard";
 import RegistryFilters from "../components/registry/RegistryFilters";
 import HeroStandard from "../components/shared/HeroStandard";
+import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
@@ -49,13 +50,23 @@ export default function PacificBusinesses() {
 
   const filtered = useMemo(() => {
     let result = businesses.filter((b) => {
-      if (
-        filters.search &&
-        !b.business_name?.toLowerCase().includes(filters.search.toLowerCase()) &&
-        !b.description?.toLowerCase().includes(filters.search.toLowerCase()) &&
-        !b.cultural_identity?.toLowerCase().includes(filters.search.toLowerCase())
-      )
-        return false;
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        const businessMatch = b.business_name?.toLowerCase().includes(searchLower);
+        const descriptionMatch = b.description?.toLowerCase().includes(searchLower);
+        
+        // Safe cultural identity search using resolved helper data
+        const culturalData = getBusinessCulturalData(b);
+        const culturalMatches = culturalData.culturalIdentitiesDisplay.some(identity => 
+          identity.toLowerCase().includes(searchLower)
+        ) || culturalData.languagesDisplay.some(lang => 
+          lang.toLowerCase().includes(searchLower)
+        );
+        
+        if (!businessMatch && !descriptionMatch && !culturalMatches) {
+          return false;
+        }
+      }
       if (filters.country && b.country !== filters.country) return false;
       if (filters.industry && b.industry !== filters.industry) return false;
       return true;

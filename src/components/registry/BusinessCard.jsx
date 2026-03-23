@@ -3,7 +3,7 @@ import { createPageUrl } from "@/utils";
 import { CheckCircle, ArrowUpRight, MapPin, Speech } from "lucide-react";
 import { INDUSTRIES, COUNTRIES } from "@/constants/unifiedConstants";
 import { getLogoUrl } from "@/utils/bannerUtils";
-import { getBusinessCulturalIdentity, getBusinessLanguagesSpoken } from "@/utils/businessCulturalHelpers";
+import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
 import FlagIcon from "../shared/FlagIcon";
 
 function getIndustryLabel(value) {
@@ -16,90 +16,20 @@ function getCountryLabel(value) {
   return match?.label || value || "";
 }
 
-function formatLanguageName(languageCode) {
-  if (!languageCode) return "";
-
-  const languageMap = {
-    english: "English",
-    french: "French",
-    spanish: "Spanish",
-    chinese: "Chinese",
-    japanese: "Japanese",
-    korean: "Korean",
-    german: "German",
-    italian: "Italian",
-    portuguese: "Portuguese",
-    russian: "Russian",
-    arabic: "Arabic",
-    hindi: "Hindi",
-    maori: "Māori",
-    "te-reo-maori": "Te Reo Māori",
-    samoan: "Samoan",
-    tongan: "Tongan",
-    fijian: "Fijian",
-    tahitian: "Tahitian",
-    uvean: "Uvean",
-    rotuman: "Rotuman",
-    "tok-pisin": "Tok Pisin",
-    pidgin: "Pidgin",
-    bislama: "Bislama",
-    niuean: "Niuean",
-    cookislandsmaori: "Cook Islands Māori",
-    "cook-islands-maori": "Cook Islands Māori",
-    rarotongan: "Rarotongan",
-    paumotu: "Pa'umotu",
-    marquesan: "Marquesan",
-  };
-
-  const normalized = String(languageCode).trim().toLowerCase();
-
-  return (
-    languageMap[normalized] ||
-    normalized
-      .replace(/[[\]"]/g, "")
-      .split(/[-_, ]+/)
-      .filter(Boolean)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
-  );
-}
-
-function normaliseLanguages(languages) {
-  if (!languages) return [];
-
-  if (Array.isArray(languages)) {
-    return languages.filter(Boolean);
+function formatDisplayList(items, options = {}) {
+  const { max = 3, separator = ", ", finalSeparator = " & " } = options;
+  if (!items || !items.length) return "";
+  
+  const unique = [...new Set(items)].filter(Boolean);
+  if (unique.length === 0) return "";
+  
+  if (unique.length === 1) return unique[0];
+  if (unique.length === 2) return unique.join(finalSeparator);
+  if (unique.length <= max) {
+    return unique.slice(0, -1).join(separator) + finalSeparator + unique[unique.length - 1];
   }
-
-  if (typeof languages === "string") {
-    const trimmed = languages.trim();
-
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    } catch {
-      return trimmed
-        .replace(/^\[|\]$/g, "")
-        .split(",")
-        .map((lang) => lang.replace(/"/g, "").trim())
-        .filter(Boolean);
-    }
-  }
-
-  return [];
-}
-
-function formatLanguages(languages) {
-  const languageArray = normaliseLanguages(languages);
-  if (!languageArray.length) return "";
-
-  const formatted = [...new Set(languageArray.map(formatLanguageName))];
-
-  if (formatted.length === 1) return formatted[0];
-  if (formatted.length === 2) return formatted.join(" & ");
-  if (formatted.length === 3) return `${formatted[0]}, ${formatted[1]} & ${formatted[2]}`;
-
-  return `${formatted[0]}, ${formatted[1]} +${formatted.length - 2} more`;
+  
+  return unique.slice(0, max - 1).join(separator) + finalSeparator + unique[max - 1] + ` +${unique.length - max} more`;
 }
 
 export default function BusinessCard({ business, view = "grid" }) {
@@ -112,9 +42,8 @@ export default function BusinessCard({ business, view = "grid" }) {
   const metaLine = [business.city, countryLabel].filter(Boolean).join(", ");
   const description = business.tagline || business.description || "";
 
-  const culturalIdentity = getBusinessCulturalIdentity(business);
-  const languagesSpoken = getBusinessLanguagesSpoken(business);
-  const readableLanguages = formatLanguages(languagesSpoken);
+  const culturalData = getBusinessCulturalData(business);
+  const readableLanguages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
 
   if (view === "list") {
     return (
@@ -142,9 +71,22 @@ export default function BusinessCard({ business, view = "grid" }) {
               )}
             </div>
 
-            {culturalIdentity && (
+            {culturalData.culturalIdentitiesRaw.length > 0 && (
               <div className="mt-2">
-                <FlagIcon identity={culturalIdentity} size={24} />
+                {culturalData.culturalIdentitiesRaw.length === 1 ? (
+                  <FlagIcon identity={culturalData.culturalIdentitiesRaw[0]} size={24} />
+                ) : (
+                  <div className="flex items-center gap-1">
+                    {culturalData.culturalIdentitiesRaw.slice(0, 2).map((identity, index) => (
+                      <FlagIcon key={index} identity={identity} size={20} />
+                    ))}
+                    {culturalData.culturalIdentitiesRaw.length > 2 && (
+                      <span className="text-xs text-gray-500 ml-1">
+                        +{culturalData.culturalIdentitiesRaw.length - 2}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -212,9 +154,22 @@ export default function BusinessCard({ business, view = "grid" }) {
               )}
             </div>
 
-            {culturalIdentity && (
+            {culturalData.culturalIdentitiesRaw.length > 0 && (
               <div className="mt-2">
-                <FlagIcon identity={culturalIdentity} size={24} />
+                {culturalData.culturalIdentitiesRaw.length === 1 ? (
+                  <FlagIcon identity={culturalData.culturalIdentitiesRaw[0]} size={24} />
+                ) : (
+                  <div className="flex items-center gap-1">
+                    {culturalData.culturalIdentitiesRaw.slice(0, 2).map((identity, index) => (
+                      <FlagIcon key={index} identity={identity} size={20} />
+                    ))}
+                    {culturalData.culturalIdentitiesRaw.length > 2 && (
+                      <span className="text-xs text-gray-500 ml-1">
+                        +{culturalData.culturalIdentitiesRaw.length - 2}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

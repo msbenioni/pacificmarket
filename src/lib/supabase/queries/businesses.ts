@@ -61,6 +61,70 @@ const BUSINESS_PUBLIC_FIELDS = `
 `;
 
 /**
+ * Enrich an array of businesses with profile fallback data
+ * Used by both single and multi-business queries for consistency
+ */
+async function enrichBusinessesWithProfileFallback(businesses: any[]): Promise<any[]> {
+  if (!businesses || businesses.length === 0) return businesses;
+
+  // Collect all unique profile IDs from owner_user_id and claimed_by
+  const profileIds = new Set<string>();
+  businesses.forEach(business => {
+    if (business?.owner_user_id) profileIds.add(business.owner_user_id);
+    if (business?.claimed_by && business.claimed_by !== business?.owner_user_id) {
+      profileIds.add(business.claimed_by);
+    }
+  });
+
+  if (profileIds.size === 0) return businesses;
+
+  try {
+    // Import getSupabase dynamically
+    const { getSupabase } = await import('../client');
+    const supabase = getSupabase();
+
+    // Batch fetch all needed profiles
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, cultural_identity, languages_spoken')
+      .in('id', Array.from(profileIds));
+
+    if (!profiles || profiles.length === 0) return businesses;
+
+    // Create profile lookup map
+    const profileMap = new Map(profiles.map((p: any) => [p.id, p]));
+
+    // Enrich each business with fallback data
+    return businesses.map(business => {
+      // Prefer owner profile, fallback to claimed_by profile
+      const profileId = business?.owner_user_id || business?.claimed_by;
+      const profile = profileId ? profileMap.get(profileId) : null;
+
+      if (profile) {
+        // Apply fallbacks only if business fields are empty/null
+        const enrichedBusiness = {
+          ...business,
+          cultural_identity: business.cultural_identity || (profile as any).cultural_identity,
+          languages_spoken: business.languages_spoken || (profile as any).languages_spoken,
+          _profile_fallback: {
+            cultural_identity: !business.cultural_identity && (profile as any).cultural_identity,
+            languages_spoken: !business.languages_spoken && (profile as any).languages_spoken,
+            profile_id: (profile as any).id
+          }
+        };
+
+        return enrichedBusiness;
+      }
+
+      return business;
+    });
+  } catch (error: any) {
+    console.warn('Could not enrich businesses with profile fallbacks:', error?.message || error);
+    return businesses; // Return original businesses if enrichment fails
+  }
+}
+
+/**
  * Get active businesses for public registry
  */
 export async function getPublicBusinesses(options: {
@@ -73,12 +137,21 @@ export async function getPublicBusinesses(options: {
   const supabase = getSupabase();
   const { limit = 100, orderBy = 'created_at', orderDirection = 'desc' } = options;
 
-  return supabase
+  const { data: businesses, error } = await supabase
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
     .eq('status', 'active')
     .order(orderBy, { ascending: orderDirection === 'asc' })
     .limit(limit);
+
+  if (error) {
+    console.error('Public businesses query error:', error);
+    return { data: null, error };
+  }
+
+  // Enrich with profile fallbacks for consistency with single business fetch
+  const enrichedBusinesses = await enrichBusinessesWithProfileFallback(businesses || []);
+  return { data: enrichedBusinesses, error: null };
 }
 
 /**
@@ -93,13 +166,22 @@ export async function getHomepageBusinesses(options: {
   const supabase = getSupabase();
   const { limit = 12, orderBy = 'updated_at' } = options;
 
-  return supabase
+  const { data: businesses, error } = await supabase
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
     .eq('status', 'active')
     .eq('visibility_tier', 'homepage')
     .order(orderBy, { ascending: false })
     .limit(limit);
+
+  if (error) {
+    console.error('Homepage businesses query error:', error);
+    return { data: null, error };
+  }
+
+  // Enrich with profile fallbacks for consistency with single business fetch
+  const enrichedBusinesses = await enrichBusinessesWithProfileFallback(businesses || []);
+  return { data: enrichedBusinesses, error: null };
 }
 
 /**
@@ -112,6 +194,8 @@ export async function getBusinessById(id: string) {
 
   // Check if the ID looks like a UUID (8-4-4-4-12 format with hyphens)
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  
+  let business: any;
   
   if (isUUID) {
     // Query by UUID - all data now in businesses table
@@ -126,7 +210,7 @@ export async function getBusinessById(id: string) {
       throw new Error(`Failed to fetch business: ${error.message}`);
     }
 
-    return data;
+    business = data;
   } else {
     // Query by business handle - all data now in businesses table
     const { data, error } = await supabase
@@ -140,8 +224,45 @@ export async function getBusinessById(id: string) {
       throw new Error(`Failed to fetch business: ${error.message}`);
     }
 
-    return data;
+    business = data;
   }
+
+  // If business exists and has owner, fetch profile for cultural/language fallbacks
+  // Use both owner_user_id and claimed_by as potential profile sources
+  const profileIds = [];
+  if (business?.owner_user_id) profileIds.push(business.owner_user_id);
+  if (business?.claimed_by && business.claimed_by !== business?.owner_user_id) profileIds.push(business.claimed_by);
+  
+  if (profileIds.length > 0) {
+    try {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, cultural_identity, languages_spoken')
+        .in('id', profileIds);
+
+      if (profiles && profiles.length > 0) {
+        // Prefer owner profile, fallback to claimed_by profile
+        const profile = profiles.find((p: any) => p.id === business.owner_user_id) || profiles[0];
+        
+        // Apply profile fallbacks only if business fields are empty/null
+        business = {
+          ...business,
+          cultural_identity: business.cultural_identity || profile.cultural_identity,
+          languages_spoken: business.languages_spoken || profile.languages_spoken,
+          _profile_fallback: {
+            cultural_identity: !business.cultural_identity && profile.cultural_identity,
+            languages_spoken: !business.languages_spoken && profile.languages_spoken,
+            profile_id: profile.id
+          }
+        };
+      }
+    } catch (profileError: any) {
+      // Profile fetch should not break business fetch
+      console.warn('Could not fetch profile for cultural fallbacks:', profileError?.message || profileError);
+    }
+  }
+
+  return business;
 }
 
 /**
@@ -165,7 +286,14 @@ export async function getUserBusinesses(userId: string, options: {
     query = query.in('status', includeStatus);
   }
 
-  return query.order('created_at', { ascending: false });
+  const { data, error } = await query.order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('User businesses query error:', error);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
 }
 
 /**
@@ -188,9 +316,16 @@ export async function getAdminBusinesses(options: {
     query = query.in('status', status);
   }
 
-  return query
+  const { data, error } = await query
     .order('created_at', { ascending: false })
     .limit(limit);
+
+  if (error) {
+    console.error('Admin businesses query error:', error);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
 }
 
 /**
@@ -218,12 +353,16 @@ export async function updateBusiness(id: string, updates: BusinessUpdate) {
 export async function createBusiness(business: BusinessCreate) {
   // Import getSupabase dynamically
   const { getSupabase } = await import('../client');
+  const { inheritProfileData } = await import('../../../utils/businessDataTransformer');
   const supabase = getSupabase();
+
+  // Inherit cultural data from user profile if not explicitly set
+  const businessData = await inheritProfileData(business, business.owner_user_id);
 
   return supabase
     .from('businesses')
     .insert({
-      ...business,
+      ...businessData,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       created_date: new Date().toISOString().split('T')[0]
@@ -258,12 +397,19 @@ export async function searchBusinesses(query: string, options: {
   const supabase = getSupabase();
   const { limit = 50, status } = options;
 
-  return supabase
+  const { data, error } = await supabase
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
     .eq('status', status)
     .or(`name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%`)
     .limit(limit);
+
+  if (error) {
+    console.error('Search businesses query error:', error);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
 }
 
 /**
@@ -277,13 +423,20 @@ export async function getBusinessesByIndustry(industry: string, options: {
   const supabase = getSupabase();
   const { limit = 100 } = options;
 
-  return supabase
+  const { data, error } = await supabase
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
     .eq('status', 'active')
     .eq('industry', industry)
     .order('created_at', { ascending: false })
     .limit(limit);
+
+  if (error) {
+    console.error('Businesses by industry query error:', error);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
 }
 
 /**
@@ -297,11 +450,18 @@ export async function getBusinessesByCountry(country: string, options: {
   const supabase = getSupabase();
   const { limit = 100 } = options;
 
-  return supabase
+  const { data, error } = await supabase
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
     .eq('status', 'active')
     .eq('country', country)
     .order('created_at', { ascending: false })
     .limit(limit);
+
+  if (error) {
+    console.error('Businesses by country query error:', error);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
 }

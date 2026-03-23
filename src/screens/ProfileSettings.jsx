@@ -168,7 +168,11 @@ export default function ProfileSettings() {
           return;
         }
 
-        const { data: profileData, error: profileError } = await supabase
+        let profileData = null;
+        let profileError = null;
+
+        // Try to get existing profile
+        const { data: existingProfile, error: fetchError } = await supabase
           .from("profiles")
           .select(
             "role, display_name, private_email, city, country, cultural_identity, languages_spoken, private_phone"
@@ -176,14 +180,43 @@ export default function ProfileSettings() {
           .eq("id", user.id)
           .single();
 
-        if (profileError) {
-          console.error("Profile data error:", {
-            message: profileError.message,
-            details: profileError.details,
-            hint: profileError.hint,
-            code: profileError.code,
-            fullError: profileError,
-          });
+        if (fetchError) {
+          // If profile doesn't exist, create one
+          if (fetchError.code === 'PGRST116') {
+            console.log("Profile not found, creating new profile for user:", user.id);
+            const { data: newProfile, error: createError } = await supabase
+              .from("profiles")
+              .insert({
+                id: user.id,
+                private_email: user.email,
+                display_name: user.user_metadata?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0],
+                role: "owner",
+                status: "active"
+              })
+              .select(
+                "role, display_name, private_email, city, country, cultural_identity, languages_spoken, private_phone"
+              )
+              .single();
+            
+            if (createError) {
+              console.error("Error creating profile:", createError);
+              profileError = createError;
+            } else {
+              profileData = newProfile;
+              console.log("Profile created successfully:", profileData);
+            }
+          } else {
+            console.error("Profile data error:", {
+              message: fetchError.message,
+              details: fetchError.details,
+              hint: fetchError.hint,
+              code: fetchError.code,
+              fullError: fetchError,
+            });
+            profileError = fetchError;
+          }
+        } else {
+          profileData = existingProfile;
         }
 
         let parsedCulturalIdentity = [];

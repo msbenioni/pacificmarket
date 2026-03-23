@@ -92,6 +92,37 @@ export const filterEmptyValues = (data) => {
 };
 
 /**
+ * Inherit cultural data from user profile if not explicitly set
+ */
+export const inheritProfileData = async (businessData, userId) => {
+  try {
+    const { getSupabase } = await import('../lib/supabase/client');
+    const supabase = getSupabase();
+    
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('cultural_identity, languages_spoken')
+      .eq('id', userId)
+      .single();
+    
+    if (profile) {
+      // Only inherit if business doesn't already have these values
+      const inheritedData = {
+        ...businessData,
+        cultural_identity: businessData.cultural_identity || profile.cultural_identity,
+        languages_spoken: businessData.languages_spoken || profile.languages_spoken,
+      };
+      
+      return inheritedData;
+    }
+  } catch (error) {
+    console.warn('Could not fetch profile for inheritance:', error);
+  }
+  
+  return businessData;
+};
+
+/**
  * Sanitize data for specific database tables
  */
 export const sanitizeForBusinessesTable = (data) => {
@@ -108,6 +139,8 @@ export const sanitizeForBusinessesTable = (data) => {
     'role',
     // Social media
     'social_links',
+    // Cultural and language data
+    'cultural_identity', 'languages_spoken',
     // Founder insights fields
     'founder_story', 'age_range', 'gender', 'collaboration_interest', 
     'mentorship_offering', 'open_to_future_contact', 'business_acquisition_interest'

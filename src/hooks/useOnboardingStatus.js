@@ -49,19 +49,52 @@ export function useOnboardingStatus() {
         throw businessesError;
       }
 
-      const [profileResult, claimsResult] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userData.id)
-          .single(),
-        supabase
-          .from('claim_requests')
-          .select('*')
-          .eq('user_id', userData.id),
-      ]);
+      // Handle profile fetch with auto-creation if missing
+      let profileResult = { data: null, error: null };
+      
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userData.id)
+        .single();
 
-      if (profileResult.error && profileResult.error.code !== 'PGRST116') {
+      if (fetchError) {
+        // If profile doesn't exist, create one
+        if (fetchError.code === 'PGRST116') {
+          console.log("Profile not found in onboarding, creating new profile for user:", userData.id);
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userData.id,
+              private_email: userData.email,
+              display_name: userData.user_metadata?.display_name || userData.user_metadata?.full_name || userData.email?.split('@')[0],
+              role: "owner",
+              status: "active"
+            })
+            .select('*')
+            .single();
+          
+          if (createError) {
+            console.error("Error creating profile in onboarding:", createError);
+            profileResult.error = createError;
+          } else {
+            profileResult.data = newProfile;
+            console.log("Profile created successfully in onboarding:", newProfile);
+          }
+        } else {
+          console.error("Profile fetch error in onboarding:", fetchError);
+          profileResult.error = fetchError;
+        }
+      } else {
+        profileResult.data = existingProfile;
+      }
+
+      const claimsResult = await supabase
+        .from('claim_requests')
+        .select('*')
+        .eq('user_id', userData.id);
+
+      if (profileResult.error) {
         throw profileResult.error;
       }
 

@@ -24,10 +24,12 @@ import {
 import { getLogoUrl } from '@/utils/bannerUtils';
 import ReactMarkdown from "react-markdown";
 import FlagIcon from "@/components/shared/FlagIcon";
+import BusinessBanner from "@/components/shared/BusinessBanner";
 import { BUSINESS_STATUS, SUBSCRIPTION_TIER, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import ContactModal from "@/components/profile/ContactModal";
 import BusinessGallery from "@/components/profile/BusinessGallery";
 import ProductsServices from "@/components/profile/ProductsServices";
+import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
 
 export default function BusinessProfile() {
   const router = useRouter();
@@ -281,12 +283,19 @@ export default function BusinessProfile() {
                     )}
                   </div>
 
-                  {business.cultural_identity && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
-                      <FlagIcon identity={business.cultural_identity} size={14} />
-                      {business.cultural_identity}
-                    </span>
-                  )}
+                  {(() => {
+                    const culturalData = getBusinessCulturalData(business);
+                    return culturalData.culturalIdentitiesDisplay.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {culturalData.culturalIdentitiesDisplay.map((identity, index) => (
+                          <span key={index} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
+                            <FlagIcon identity={identity} size={14} />
+                            {identity}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {(business.business_email || business.business_phone) && (
@@ -312,24 +321,7 @@ export default function BusinessProfile() {
           {/* Main profile card */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
             {/* Business banner at top - always show */}
-            <div className={`relative w-full ${(business.banner_url || business.mobile_banner_url) ? 'h-48' : 'h-20 sm:h-24 lg:h-28'}`}>
-              {(business.banner_url || business.mobile_banner_url) ? (
-                <>
-                  <img
-                    src={business.mobile_banner_url || business.banner_url}
-                    alt={`${business.business_name} banner`}
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </>
-              ) : (
-                <div className="w-full h-full bg-[#0d4f4f] flex items-center justify-center">
-                  <h1 className="text-base sm:text-lg lg:text-xl font-bold text-white drop-shadow-lg px-4 text-center">
-                    {business.business_name || "Business Name"}
-                  </h1>
-                </div>
-              )}
-            </div>
+            <BusinessBanner business={business} />
 
             <div className="p-5 sm:p-6">
             {/* Full description */}
@@ -344,35 +336,18 @@ export default function BusinessProfile() {
 
             {/* Languages */}
             {(() => {
-              if (!business.languages_spoken) return null;
-              
-              let languagesArray;
-              if (Array.isArray(business.languages_spoken)) {
-                languagesArray = business.languages_spoken;
-              } else if (typeof business.languages_spoken === 'string') {
-                languagesArray = business.languages_spoken.split(',').map(lang => lang.trim()).filter(Boolean);
-              } else {
-                languagesArray = [];
-              }
-              
-              return languagesArray.length > 0 && (
+              const culturalData = getBusinessCulturalData(business);
+              return culturalData.languagesDisplay.length > 0 && (
                 <div className="mt-5 pt-5 border-t border-gray-100">
-                  <div className="flex items-center gap-2 text-sm sm:text-base lg:text-lg font-semibold text-[#0a1628] mb-3">
-                    <img
-                      src="/language_spoken.png"
-                      alt="Languages spoken"
-                      className="w-6 h-6 sm:w-7 sm:h-7"
-                    />
-                    Languages spoken
-                  </div>
-
+                  <h3 className="text-sm font-semibold text-[#0a1628] mb-3">Languages</h3>
                   <div className="flex flex-wrap gap-2">
-                    {languagesArray.map((language, index) => (
+                    {culturalData.languagesDisplay.map((lang, index) => (
                       <span
                         key={index}
-                        className="bg-[#0a1628]/5 text-[#0a1628] text-xs sm:text-sm lg:text-base px-3 py-1.5 rounded-full"
+                        className="inline-flex items-center gap-1 rounded-full border border-[#00c4cc]/20 bg-[#00c4cc]/10 px-3 py-1.5 text-xs font-medium text-[#00c4cc]"
                       >
-                        {language}
+                        <Globe className="h-3 w-3" />
+                        {lang}
                       </span>
                     ))}
                   </div>
