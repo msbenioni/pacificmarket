@@ -134,9 +134,15 @@ export default function BusinessProfileForm({
     logo_url: "",
     banner_url: "",
     mobile_banner_url: "",
+    logo_preview_url: "",
+    banner_preview_url: "",
+    mobile_banner_preview_url: "",
     logo_file: null,
     banner_file: null,
     mobile_banner_file: null,
+    logo_remove: false,
+    banner_remove: false,
+    mobile_banner_remove: false,
     
     // Business Overview
     year_started: null,
@@ -235,7 +241,7 @@ export default function BusinessProfileForm({
       if (type === "logo") {
         setForm((prev) => ({
           ...prev,
-          logo_url: tempUrl,
+          logo_preview_url: tempUrl,
           logo_file: file,
         }));
       }
@@ -243,7 +249,7 @@ export default function BusinessProfileForm({
       if (type === "banner") {
         setForm((prev) => ({
           ...prev,
-          banner_url: tempUrl,
+          banner_preview_url: tempUrl,
           banner_file: file,
         }));
       }
@@ -251,7 +257,7 @@ export default function BusinessProfileForm({
       if (type === "mobile_banner") {
         setForm((prev) => ({
           ...prev,
-          mobile_banner_url: tempUrl,
+          mobile_banner_preview_url: tempUrl,
           mobile_banner_file: file,
         }));
       }
@@ -264,24 +270,27 @@ export default function BusinessProfileForm({
     if (type === "logo") {
       setForm((prev) => ({
         ...prev,
-        logo_url: "",
+        logo_preview_url: "",
         logo_file: null,
+        logo_remove: true, // Mark for removal on save
       }));
     }
 
     if (type === "banner") {
       setForm((prev) => ({
         ...prev,
-        banner_url: "",
+        banner_preview_url: "",
         banner_file: null,
+        banner_remove: true, // Mark for removal on save
       }));
     }
 
     if (type === "mobile_banner") {
       setForm((prev) => ({
         ...prev,
-        mobile_banner_url: "",
+        mobile_banner_preview_url: "",
         mobile_banner_file: null,
+        mobile_banner_remove: true, // Mark for removal on save
       }));
     }
   };
@@ -294,7 +303,19 @@ export default function BusinessProfileForm({
     try {
       const { businessesData, businessInsightsData } = transformBusinessFormData(form);
       
-      await onSave({
+      console.log("🎨 BusinessProfileForm save:", {
+        businessId,
+        hasFiles: !!(form.logo_file || form.banner_file || form.mobile_banner_file),
+        hasRemovals: !!(form.logo_remove || form.banner_remove || form.mobile_banner_remove),
+        businessesDataKeys: Object.keys(businessesData),
+        previewUrls: {
+          logo_preview_url: form.logo_preview_url,
+          banner_preview_url: form.banner_preview_url,
+          mobile_banner_preview_url: form.mobile_banner_preview_url
+        }
+      });
+      
+      const saveResult = await onSave({
         businessId,
         businessesData,
         businessInsightsData,
@@ -303,7 +324,36 @@ export default function BusinessProfileForm({
           banner_file: form.banner_file,
           mobile_banner_file: form.mobile_banner_file,
         },
+        removals: {
+          logo_remove: form.logo_remove,
+          banner_remove: form.banner_remove,
+          mobile_banner_remove: form.mobile_banner_remove,
+        },
       });
+
+      // Reset form state after successful save to reconcile with saved data
+      if (saveResult && typeof saveResult === 'object') {
+        console.log("🔄 Reconciling form state with saved data:", saveResult);
+        
+        setForm(prev => ({
+          ...prev,
+          // Update persisted URLs from save result
+          logo_url: saveResult.logo_url || prev.logo_url,
+          banner_url: saveResult.banner_url || prev.banner_url,
+          mobile_banner_url: saveResult.mobile_banner_url || prev.mobile_banner_url,
+          // Clear preview state and files
+          logo_preview_url: "",
+          banner_preview_url: "",
+          mobile_banner_preview_url: "",
+          logo_file: null,
+          banner_file: null,
+          mobile_banner_file: null,
+          // Clear removal flags
+          logo_remove: false,
+          banner_remove: false,
+          mobile_banner_remove: false,
+        }));
+      }
 
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);

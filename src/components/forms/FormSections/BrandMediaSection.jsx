@@ -18,21 +18,22 @@ export default function BrandMediaSection({
 
   const canUploadImages = isManaOrMoana;
 
-  const displayLogoUrl = form.logo_url || "";
+  const displayLogoUrl = form.logo_preview_url || form.logo_url || "";
 
-  const displayDesktopBannerUrl = form.banner_url || "";
+  const displayDesktopBannerUrl = form.banner_preview_url || form.banner_url || "";
 
-  const displayMobileBannerUrl = form.mobile_banner_url || "";
+  const displayMobileBannerUrl = form.mobile_banner_preview_url || form.mobile_banner_url || "";
 
-  const displayCardBannerUrl = form.mobile_banner_url || form.banner_url || "";
+  const displayCardBannerUrl = form.mobile_banner_preview_url || form.mobile_banner_url || form.banner_preview_url || form.banner_url || "";
 
   const hasAnyBanner =
+    form.mobile_banner_preview_url ||
     form.mobile_banner_url ||
-    form.banner_url ||
-    "";
+    form.banner_preview_url ||
+    form.banner_url || "";
 
   const hasAnyBranding =
-    hasAnyBanner || form.logo_url;
+    hasAnyBanner || form.logo_preview_url || form.logo_url;
 
   return (
     <div className="space-y-6">
@@ -222,7 +223,10 @@ export default function BrandMediaSection({
           {/* Logo Upload */}
           <UploadCard
             label="Logo"
-            imageUrl={form.logo_url}
+            displayUrl={displayLogoUrl}
+            persistedUrl={form.logo_url}
+            previewUrl={form.logo_preview_url}
+            hasUnsavedFile={!!form.logo_file}
             inputId={logoInputId}
             onFileChange={(e) => handleFileUpload(e, "logo")}
             onRemove={() => removeImage("logo")}
@@ -233,7 +237,10 @@ export default function BrandMediaSection({
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <UploadCard
               label="Desktop banner"
-              imageUrl={form.banner_url}
+              displayUrl={displayDesktopBannerUrl}
+              persistedUrl={form.banner_url}
+              previewUrl={form.banner_preview_url}
+              hasUnsavedFile={!!form.banner_file}
               inputId={bannerInputId}
               onFileChange={(e) => handleFileUpload(e, "banner")}
               onRemove={() => removeImage("banner")}
@@ -243,7 +250,10 @@ export default function BrandMediaSection({
 
             <UploadCard
               label="Mobile banner"
-              imageUrl={form.mobile_banner_url}
+              displayUrl={displayMobileBannerUrl}
+              persistedUrl={form.mobile_banner_url}
+              previewUrl={form.mobile_banner_preview_url}
+              hasUnsavedFile={!!form.mobile_banner_file}
               inputId={mobileBannerInputId}
               onFileChange={(e) => handleFileUpload(e, "mobile_banner")}
               onRemove={() => removeImage("mobile_banner")}
@@ -375,15 +385,67 @@ export default function BrandMediaSection({
 
 function UploadCard({
   label,
-  imageUrl,
+  displayUrl,
+  persistedUrl,
+  previewUrl,
+  hasUnsavedFile,
   inputId,
   onFileChange,
   onRemove,
   helpText,
   imageClassName = "h-20 w-20 rounded-xl object-cover",
 }) {
-  const displayUrl = imageUrl || "";
-  const isUsingFallback = !imageUrl;
+  // Determine status and styling
+  const getStatusInfo = () => {
+    if (hasUnsavedFile) {
+      return {
+        label: "Selected locally — save required",
+        tone: "amber",
+        canRemove: true
+      };
+    }
+    
+    if (persistedUrl && persistedUrl.startsWith('blob:')) {
+      return {
+        label: "Local preview only",
+        tone: "amber", 
+        canRemove: true
+      };
+    }
+    
+    if (persistedUrl && persistedUrl.startsWith('http')) {
+      return {
+        label: "Saved image",
+        tone: "green",
+        canRemove: true
+      };
+    }
+    
+    if (displayUrl && displayUrl.startsWith('http')) {
+      return {
+        label: "Using fallback branding",
+        tone: "slate",
+        canRemove: false
+      };
+    }
+    
+    return {
+      label: "No image uploaded",
+      tone: "slate",
+      canRemove: false
+    };
+  };
+
+  const statusInfo = getStatusInfo();
+  const hasImage = !!displayUrl;
+
+  const getStatusColor = (tone) => {
+    switch (tone) {
+      case 'amber': return 'text-amber-700 bg-amber-50 border-amber-200';
+      case 'green': return 'text-green-700 bg-green-50 border-green-200';
+      default: return 'text-slate-600 bg-slate-50 border-slate-200';
+    }
+  };
 
   return (
     <div>
@@ -392,14 +454,14 @@ function UploadCard({
       </div>
 
       <div className="space-y-3">
-        {displayUrl ? (
+        {hasImage ? (
           <div className="relative inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
             <img
               src={displayUrl}
               alt={label}
               className={imageClassName}
             />
-            {imageUrl && (
+            {statusInfo.canRemove && (
               <button
                 type="button"
                 onClick={onRemove}
@@ -430,22 +492,20 @@ function UploadCard({
           className="hidden"
         />
 
-        {displayUrl && (
-          <div className="space-y-1">
-            {isUsingFallback ? (
-              <p className="text-xs text-slate-500">
-                Using starter branding until you upload your own image.
-              </p>
-            ) : (
-              <p className="text-xs text-slate-500">{helpText}</p>
-            )}
+        {hasImage && (
+          <div className="space-y-2">
+            {/* Status Badge */}
+            <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusColor(statusInfo.tone)}`}>
+              {statusInfo.label}
+            </div>
 
+            {/* Upload/Replace Button */}
             <label
               htmlFor={inputId}
               className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               <Upload className="h-4 w-4" />
-              {imageUrl ? `Replace ${label.toLowerCase()}` : `Upload ${label.toLowerCase()}`}
+              {hasImage ? `Replace ${label.toLowerCase()}` : `Upload ${label.toLowerCase()}`}
             </label>
           </div>
         )}

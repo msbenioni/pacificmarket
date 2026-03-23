@@ -228,13 +228,44 @@ export function ClaimAddBusinessModal({
         files = {},
       } = payload;
 
-      const clean = pickAllowedBusinessFields(businessesData);
+      let clean = pickAllowedBusinessFields(businessesData);
 
       console.log("Submitting business data:", {
         original: payload,
         cleaned: clean,
+        files: files,
         userId: userRes.user.id,
       });
+
+      // Use centralized branding save orchestration
+      const tempBusinessId = `temp_${userRes.user.id}_${Date.now()}`;
+      const { prepareBusinessBrandingPayload } = await import("../../utils/brandingUploadUtils");
+      
+      try {
+        clean = await prepareBusinessBrandingPayload({
+          supabase,
+          businessId: tempBusinessId,
+          businessesData: clean,
+          files,
+          removals: {} // No removals for new business creation
+        });
+        
+        console.log("📤 New business branding prepared:", {
+          logo_url: clean.logo_url ? 'URL present' : 'null/empty',
+          banner_url: clean.banner_url ? 'URL present' : 'null/empty',
+          mobile_banner_url: clean.mobile_banner_url ? 'URL present' : 'null/empty'
+        });
+        
+      } catch (uploadError) {
+        console.error("❌ Branding preparation failed:", uploadError);
+        // Continue without uploaded files, but ensure no blob URLs
+        clean = {
+          ...clean,
+          logo_url: null,
+          banner_url: null,
+          mobile_banner_url: null
+        };
+      }
 
       const { error, data } = await supabase
         .from("businesses")

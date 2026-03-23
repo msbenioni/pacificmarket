@@ -102,9 +102,15 @@ const emptyBusinessForm = {
   logo_url: "",
   banner_url: "",
   mobile_banner_url: "",
+  logo_preview_url: "",
+  banner_preview_url: "",
+  mobile_banner_preview_url: "",
   logo_file: null,
   banner_file: null,
   mobile_banner_file: null,
+  logo_remove: false,
+  banner_remove: false,
+  mobile_banner_remove: false,
 };
 
 // Helper function to format language codes to readable names
@@ -795,89 +801,25 @@ export default function AdminDashboard() {
         businessId,
         businessesData = {},
         files = {},
+        removals = {},
       } = payload;
 
       if (!businessId) {
         throw new Error("Missing business id for update.");
       }
 
-      let updatedData = {
-        ...businessesData,
-      };
+      // Use centralized branding save orchestration
+      const { prepareBusinessBrandingPayload } = await import("../utils/brandingUploadUtils");
+      const finalPayload = await prepareBusinessBrandingPayload({
+        supabase,
+        businessId,
+        businessesData,
+        files,
+        removals
+      });
 
-      if (files.logo_file) {
-        try {
-          const file = files.logo_file;
-          const filePath = `logos/${businessId}-${Date.now()}-${file.name}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("admin-listings")
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: logoPublicUrlData } = supabase.storage
-            .from("admin-listings")
-            .getPublicUrl(filePath);
-
-          if (logoPublicUrlData?.publicUrl) {
-            updatedData.logo_url = logoPublicUrlData.publicUrl;
-          }
-        } catch (uploadError) {
-          toast.error("Failed to upload logo. Using existing logo URL.");
-        }
-      }
-
-      if (files.banner_file) {
-        try {
-          const file = files.banner_file;
-          const filePath = `banners/${businessId}-${Date.now()}-${file.name}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("admin-listings")
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: bannerPublicUrlData } = supabase.storage
-            .from("admin-listings")
-            .getPublicUrl(filePath);
-
-          if (bannerPublicUrlData?.publicUrl) {
-            updatedData.banner_url = bannerPublicUrlData.publicUrl;
-          }
-        } catch (uploadError) {
-          toast.error("Failed to upload banner. Using existing banner URL.");
-        }
-      }
-
-      if (files.mobile_banner_file) {
-        try {
-          const file = files.mobile_banner_file;
-          const filePath = `mobile-banners/${businessId}-${Date.now()}-${file.name}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("admin-listings")
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: mobileBannerPublicUrlData } = supabase.storage
-            .from("admin-listings")
-            .getPublicUrl(filePath);
-
-          if (mobileBannerPublicUrlData?.publicUrl) {
-            updatedData.mobile_banner_url = mobileBannerPublicUrlData.publicUrl;
-          }
-        } catch (uploadError) {
-          toast.error("Failed to upload mobile banner. Using existing mobile banner URL.");
-        }
-      }
-
-      const finalPayload = {
-        ...updatedData,
-        updated_at: new Date().toISOString(),
-      };
+      // Add update timestamp
+      finalPayload.updated_at = new Date().toISOString();
 
       const { data, error } = await supabase
         .from("businesses")
@@ -911,6 +853,7 @@ export default function AdminDashboard() {
       const {
         businessesData = {},
         files = {},
+        removals = {},
       } = payload;
 
       let businessData = {
@@ -922,81 +865,20 @@ export default function AdminDashboard() {
         updated_at: new Date().toISOString(),
       };
 
-      if (files.logo_file) {
-        try {
-          const file = files.logo_file;
-          const filePath = `logos/new-${Date.now()}-${file.name}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("admin-listings")
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: logoPublicUrlData } = supabase.storage
-            .from("admin-listings")
-            .getPublicUrl(filePath);
-
-          if (logoPublicUrlData?.publicUrl) {
-            businessData.logo_url = logoPublicUrlData.publicUrl;
-          }
-        } catch (uploadError) {
-          console.error("Error uploading logo:", uploadError);
-          toast.error("Failed to upload logo.");
-        }
-      }
-
-      if (files.banner_file) {
-        try {
-          const file = files.banner_file;
-          const filePath = `banners/new-${Date.now()}-${file.name}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("admin-listings")
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: bannerPublicUrlData } = supabase.storage
-            .from("admin-listings")
-            .getPublicUrl(filePath);
-
-          if (bannerPublicUrlData?.publicUrl) {
-            businessData.banner_url = bannerPublicUrlData.publicUrl;
-          }
-        } catch (uploadError) {
-          console.error("Error uploading banner:", uploadError);
-          toast.error("Failed to upload banner.");
-        }
-      }
-
-      if (files.mobile_banner_file) {
-        try {
-          const file = files.mobile_banner_file;
-          const filePath = `mobile-banners/new-${Date.now()}-${file.name}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("admin-listings")
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          const { data: mobileBannerPublicUrlData } = supabase.storage
-            .from("admin-listings")
-            .getPublicUrl(filePath);
-
-          if (mobileBannerPublicUrlData?.publicUrl) {
-            businessData.mobile_banner_url = mobileBannerPublicUrlData.publicUrl;
-          }
-        } catch (uploadError) {
-          console.error("Error uploading mobile banner:", uploadError);
-          toast.error("Failed to upload mobile banner.");
-        }
-      }
+      // Use centralized branding save orchestration
+      const tempBusinessId = `new-${Date.now()}`;
+      const { prepareBusinessBrandingPayload } = await import("../utils/brandingUploadUtils");
+      const finalBusinessData = await prepareBusinessBrandingPayload({
+        supabase,
+        businessId: tempBusinessId,
+        businessesData: businessData,
+        files,
+        removals
+      });
 
       const { data, error } = await supabase
         .from("businesses")
-        .insert(businessData)
+        .insert(finalBusinessData)
         .select(`
           id, business_name, business_handle, description, industry, country, city,
           status, visibility_tier, is_verified, is_claimed, business_email, business_website,
