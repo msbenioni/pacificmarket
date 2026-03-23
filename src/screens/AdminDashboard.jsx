@@ -6,12 +6,9 @@ import { useAuth } from "@/lib/AuthContext";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
 import toast from "react-hot-toast";
 import {
-  ChevronRight,
-  ChevronUp,
   Search,
   Filter,
   Download,
-  X,
   Plus,
   Building2,
   CheckCircle,
@@ -35,7 +32,7 @@ import {
   getIndustryDisplayName,
   getTierDisplayName,
 } from "@/constants/unifiedConstants";
-import { getLogoUrl } from '@/utils/bannerUtils';
+import { getLogoUrl } from "@/utils/bannerUtils";
 import { investorOverviewDeck } from "@/lib/presentations/investorOverviewDeck";
 import { internalFounderAlignmentDeck } from "@/lib/presentations/decks/internal-founder-alignment";
 import { subscriberGrowthPlanDeck } from "@/lib/presentations/decks/subscriber-growth-plan";
@@ -43,13 +40,31 @@ import { studentOutreachPlaybookDeck } from "@/lib/presentations/decks/student-o
 import { studentOutreachOperationsDeck } from "@/lib/presentations/decks/student-outreach-operations";
 
 const TABS = [
-  { id: "active", label: "Active", icon: CheckCircle, color: "text-green-600", status: BUSINESS_STATUS.ACTIVE },
-  { id: "pending", label: "Pending", icon: Clock, color: "text-yellow-600", status: BUSINESS_STATUS.PENDING },
+  {
+    id: "active",
+    label: "Active",
+    icon: CheckCircle,
+    color: "text-green-600",
+    status: BUSINESS_STATUS.ACTIVE,
+  },
+  {
+    id: "pending",
+    label: "Pending",
+    icon: Clock,
+    color: "text-yellow-600",
+    status: BUSINESS_STATUS.PENDING,
+  },
   { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
-  { id: "presentations", label: "Presentations", icon: Presentation, color: "text-purple-600" },
+  {
+    id: "presentations",
+    label: "Presentations",
+    icon: Presentation,
+    color: "text-purple-600",
+  },
 ];
 
-const buttonCls = "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all";
+const buttonCls =
+  "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all";
 const primaryButtonCls = `${buttonCls} bg-[#0a1628] text-white hover:bg-[#122040]`;
 const secondaryButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
 const mobileButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
@@ -113,69 +128,73 @@ const emptyBusinessForm = {
   mobile_banner_remove: false,
 };
 
-// Helper function to format language codes to readable names
 function formatLanguageName(languageCode) {
   const languageMap = {
-    'english': 'English',
-    'french': 'French',
-    'spanish': 'Spanish',
-    'chinese': 'Chinese',
-    'japanese': 'Japanese',
-    'korean': 'Korean',
-    'german': 'German',
-    'italian': 'Italian',
-    'portuguese': 'Portuguese',
-    'russian': 'Russian',
-    'arabic': 'Arabic',
-    'hindi': 'Hindi',
-    'french-polynesia': 'French Polynesian',
-    'cook-islands': 'Cook Islands',
-    'maori': 'Māori',
-    'samoan': 'Samoan',
-    'tongan': 'Tongan',
-    'fijian': 'Fijian',
-    'tok-pisin': 'Tok Pisin',
-    'pidgin': 'Pidgin',
-    'te-reo-maori': 'Te Reo Māori',
-    'uvean': 'Uvean',
-    'tahitian': 'Tahitian',
-    'rotuman': 'Rotuman'
+    english: "English",
+    french: "French",
+    spanish: "Spanish",
+    chinese: "Chinese",
+    japanese: "Japanese",
+    korean: "Korean",
+    german: "German",
+    italian: "Italian",
+    portuguese: "Portuguese",
+    russian: "Russian",
+    arabic: "Arabic",
+    hindi: "Hindi",
+    "french-polynesia": "French Polynesian",
+    "cook-islands": "Cook Islands",
+    maori: "Māori",
+    samoan: "Samoan",
+    tongan: "Tongan",
+    fijian: "Fijian",
+    "tok-pisin": "Tok Pisin",
+    pidgin: "Pidgin",
+    "te-reo-maori": "Te Reo Māori",
+    uvean: "Uvean",
+    tahitian: "Tahitian",
+    rotuman: "Rotuman",
   };
-  
-  return languageMap[languageCode.toLowerCase()] || 
-         languageCode.charAt(0).toUpperCase() + languageCode.slice(1).toLowerCase();
+
+  return (
+    languageMap[languageCode.toLowerCase()] ||
+    languageCode.charAt(0).toUpperCase() + languageCode.slice(1).toLowerCase()
+  );
 }
 
-// Helper function to format languages display
 function formatLanguages(languages) {
-  if (!languages) return '';
-  
-  // Handle different input formats
+  if (!languages) return "";
+
   let languageArray;
   if (Array.isArray(languages)) {
     languageArray = languages;
-  } else if (typeof languages === 'string') {
-    // Handle string representations like '["french-polynesia","english"]'
+  } else if (typeof languages === "string") {
     try {
       const parsed = JSON.parse(languages);
       languageArray = Array.isArray(parsed) ? parsed : [languages];
     } catch {
-      // Handle comma-separated strings like 'french-polynesia,english'
-      languageArray = languages.split(',').map(lang => lang.trim()).filter(Boolean);
+      languageArray = languages
+        .split(",")
+        .map((lang) => lang.trim())
+        .filter(Boolean);
     }
   } else {
-    return '';
+    return "";
   }
-  
-  if (languageArray.length === 0) return '';
-  
-  const formattedLanguages = languageArray.map(lang => formatLanguageName(lang));
-  
+
+  if (languageArray.length === 0) return "";
+
+  const formattedLanguages = languageArray.map((lang) =>
+    formatLanguageName(lang)
+  );
+
   if (formattedLanguages.length <= 2) {
-    return formattedLanguages.join(' & ');
+    return formattedLanguages.join(" & ");
   }
-  
-  return `${formattedLanguages.slice(0, 2).join(' & ')} +${formattedLanguages.length - 2} more`;
+
+  return `${formattedLanguages.slice(0, 2).join(" & ")} +${
+    formattedLanguages.length - 2
+  } more`;
 }
 
 function getBadgeStyles(type) {
@@ -192,7 +211,7 @@ function getBadgeStyles(type) {
 
 function PresentationsTab() {
   const router = useRouter();
-  
+
   const presentations = [
     {
       id: "investor-overview",
@@ -207,7 +226,8 @@ function PresentationsTab() {
     {
       id: "internal-founder-alignment",
       title: "Internal Founder Alignment",
-      description: "Internal strategy deck for founder and co-founder alignment on mission, vision, and execution priorities",
+      description:
+        "Internal strategy deck for founder and co-founder alignment on mission, vision, and execution priorities",
       audience: "Internal",
       status: "live",
       lastUpdated: "March 2026",
@@ -217,7 +237,8 @@ function PresentationsTab() {
     {
       id: "subscriber-growth-plan",
       title: "1,000 Subscriber Growth Plan",
-      description: "Internal execution deck for reaching 1,000 paying subscribers with validated acquisition channels",
+      description:
+        "Internal execution deck for reaching 1,000 paying subscribers with validated acquisition channels",
       audience: "Internal",
       status: "live",
       lastUpdated: "March 2026",
@@ -227,7 +248,8 @@ function PresentationsTab() {
     {
       id: "student-outreach-playbook",
       title: "Student Outreach Playbook",
-      description: "Internal training deck for student-supported business discovery and outreach operations",
+      description:
+        "Internal training deck for student-supported business discovery and outreach operations",
       audience: "Internal",
       status: "live",
       lastUpdated: "March 2026",
@@ -237,7 +259,8 @@ function PresentationsTab() {
     {
       id: "student-outreach-operations",
       title: "Student Outreach & Listing Operations",
-      description: "Internal operations deck for business discovery, admin listings, and claim workflows",
+      description:
+        "Internal operations deck for business discovery, admin listings, and claim workflows",
       audience: "Internal",
       status: "live",
       lastUpdated: "March 2026",
@@ -278,22 +301,29 @@ function PresentationsTab() {
             </th>
           </tr>
         </thead>
+
         <tbody className="divide-y divide-gray-200">
           {presentations.map((presentation) => (
             <tr key={presentation.id} className="hover:bg-gray-50">
               <td className="px-4 py-4">
-                <div>
-                  <div className="font-medium text-[#0a1628]">{presentation.title}</div>
+                <div className="font-medium text-[#0a1628]">
+                  {presentation.title}
                 </div>
               </td>
               <td className="px-4 py-4">
-                <div className="text-sm text-gray-600 max-w-md truncate">{presentation.description}</div>
+                <div className="max-w-md truncate text-sm text-gray-600">
+                  {presentation.description}
+                </div>
               </td>
               <td className="px-4 py-4">
-                <div className="text-sm text-gray-600">{presentation.audience}</div>
+                <div className="text-sm text-gray-600">
+                  {presentation.audience}
+                </div>
               </td>
               <td className="px-4 py-4">
-                <div className="text-sm text-gray-600">{presentation.slideCount}</div>
+                <div className="text-sm text-gray-600">
+                  {presentation.slideCount}
+                </div>
               </td>
               <td className="px-4 py-4">
                 <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
@@ -301,7 +331,9 @@ function PresentationsTab() {
                 </span>
               </td>
               <td className="px-4 py-4">
-                <div className="text-sm text-gray-600">{presentation.lastUpdated}</div>
+                <div className="text-sm text-gray-600">
+                  {presentation.lastUpdated}
+                </div>
               </td>
               <td className="px-4 py-4 text-right">
                 <button
@@ -327,7 +359,11 @@ async function checkIsAdmin(user) {
     const { getSupabase } = await import("@/lib/supabase/client");
     const supabase = getSupabase();
 
-    const { data, error } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
     if (error || !data) {
       console.error("Error checking admin role:", error);
@@ -361,11 +397,7 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          <img
-            src={getLogoUrl(business)}
-            alt=""
-            className="h-full w-full object-cover"
-          />
+          <img src={getLogoUrl(business)} alt="" className="h-full w-full object-cover" />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -373,7 +405,9 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
             <h3 className="break-words text-sm font-semibold text-[#0a1628]">
               {business?.business_name || "Unknown Business"}
             </h3>
-            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusBadge.style}`}>
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusBadge.style}`}
+            >
               {statusBadge.text}
             </span>
           </div>
@@ -381,20 +415,25 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
           <p className="mt-1 text-xs text-gray-500">
             {business?.country || "Unknown"} · {business?.industry || "Unknown"}
           </p>
+
           <div className="mt-2 space-y-1">
             <p className="text-xs text-gray-600">
-              <span className="font-medium">Business Email:</span> {claim.business_email || "Not provided"}
+              <span className="font-medium">Business Email:</span>{" "}
+              {claim.business_email || "Not provided"}
             </p>
             {claim.business_phone && (
               <p className="text-xs text-gray-600">
-                <span className="font-medium">Business Phone:</span> {claim.business_phone}
+                <span className="font-medium">Business Phone:</span>{" "}
+                {claim.business_phone}
               </p>
             )}
             <p className="text-xs text-gray-600">
-              <span className="font-medium">Role:</span> {claim.role || "Not specified"}
+              <span className="font-medium">Role:</span>{" "}
+              {claim.role || "Not specified"}
             </p>
             <p className="text-xs text-gray-600">
-              <span className="font-medium">Claim Type:</span> {claim.claim_type || "Standard request"}
+              <span className="font-medium">Claim Type:</span>{" "}
+              {claim.claim_type || "Standard request"}
             </p>
             {claim.message && (
               <p className="text-xs text-gray-600">
@@ -402,10 +441,13 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
               </p>
             )}
           </div>
+
           <p className="mt-2 text-xs text-gray-400">
             Requested{" "}
             {claim.created_at || claim.created_date
-              ? new Date(claim.created_at || claim.created_date).toLocaleDateString()
+              ? new Date(
+                  claim.created_at || claim.created_date
+                ).toLocaleDateString()
               : "—"}
           </p>
         </div>
@@ -416,14 +458,18 @@ function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
           <>
             <button
               onClick={onApprove}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("success")}`}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
+                "success"
+              )}`}
             >
               <CheckCircle className="h-3.5 w-3.5" />
               Approve
             </button>
             <button
               onClick={onDeny}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
+                "danger"
+              )}`}
             >
               <XCircle className="h-3.5 w-3.5" />
               Deny
@@ -439,7 +485,6 @@ function AdminBusinessMobileCard({
   business,
   isEditing,
   draftBusiness,
-  setDraftBusiness,
   onApprove,
   onReject,
   onEdit,
@@ -452,32 +497,46 @@ function AdminBusinessMobileCard({
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          <img
-            src={getLogoUrl(business)}
-            alt=""
-            className="h-full w-full object-cover"
-          />
+          <img src={getLogoUrl(business)} alt="" className="h-full w-full object-cover" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="break-words text-sm font-semibold text-[#0a1628]">{business.business_name}</h3>
-            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("neutral")}`}>
-              {getTierDisplayName(business.subscription_tier) || business.subscription_tier || "vaka"}
+            <h3 className="break-words text-sm font-semibold text-[#0a1628]">
+              {business.business_name}
+            </h3>
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles(
+                "neutral"
+              )}`}
+            >
+              {getTierDisplayName(business.subscription_tier) ||
+                business.subscription_tier ||
+                "vaka"}
             </span>
             {business.is_verified && (
-              <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles("success")}`}>
+              <span
+                className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles(
+                  "success"
+                )}`}
+              >
                 Verified
               </span>
             )}
           </div>
 
           <p className="mt-1 text-xs text-gray-500">
-            {getCountryDisplayName(business.country)} · {getIndustryDisplayName(business.industry) || "No industry"}
+            {getCountryDisplayName(business.country)} ·{" "}
+            {getIndustryDisplayName(business.industry) || "No industry"}
           </p>
-          <p className="mt-1 break-all text-xs text-gray-500">{business.business_email || "No email"}</p>
+          <p className="mt-1 break-all text-xs text-gray-500">
+            {business.business_email || "No email"}
+          </p>
           <p className="mt-1 text-xs text-gray-400">
-            Submitted {business.created_date ? new Date(business.created_date).toLocaleDateString() : "—"}
+            Submitted{" "}
+            {business.created_date
+              ? new Date(business.created_date).toLocaleDateString()
+              : "—"}
           </p>
         </div>
       </div>
@@ -487,14 +546,18 @@ function AdminBusinessMobileCard({
           <>
             <button
               onClick={onApprove}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("success")}`}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
+                "success"
+              )}`}
             >
               <CheckCircle className="h-3.5 w-3.5" />
               Approve
             </button>
             <button
               onClick={onReject}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
+              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
+                "danger"
+              )}`}
             >
               <XCircle className="h-3.5 w-3.5" />
               Deny
@@ -511,7 +574,9 @@ function AdminBusinessMobileCard({
 
         <button
           onClick={onDelete}
-          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles("danger")}`}
+          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
+            "danger"
+          )}`}
         >
           Delete
         </button>
@@ -574,7 +639,10 @@ export default function AdminDashboard() {
       const supabase = getSupabase();
 
       const [businessesRes, claimsRes] = await Promise.all([
-        getAdminBusinesses({ limit: 500, status: ["active", "pending", "rejected"] }),
+        getAdminBusinesses({
+          limit: 500,
+          status: ["active", "pending", "rejected"],
+        }),
         supabase
           .from("claim_requests")
           .select(`
@@ -587,8 +655,12 @@ export default function AdminDashboard() {
           .limit(100),
       ]);
 
-      if (businessesRes.error) throw new Error(`Businesses query failed: ${businessesRes.error.message}`);
-      if (claimsRes.error) throw new Error(`Claims query failed: ${claimsRes.error.message}`);
+      if (businessesRes.error) {
+        throw new Error(`Businesses query failed: ${businessesRes.error.message}`);
+      }
+      if (claimsRes.error) {
+        throw new Error(`Claims query failed: ${claimsRes.error.message}`);
+      }
 
       setBusinesses(businessesRes.data || []);
       setClaims(claimsRes.data || []);
@@ -655,8 +727,12 @@ export default function AdminDashboard() {
 
   const updateStatus = async (business, newStatus) => {
     try {
-      console.log("Updating business status:", { businessId: business.id, currentStatus: business.status, newStatus });
-      
+      console.log("💾 Updating business status:", {
+        businessId: business.id,
+        currentStatus: business.status,
+        newStatus,
+      });
+
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
@@ -665,7 +741,10 @@ export default function AdminDashboard() {
         updated_at: new Date().toISOString(),
       };
 
-      if (business.status === BUSINESS_STATUS.PENDING && newStatus === BUSINESS_STATUS.ACTIVE) {
+      if (
+        business.status === BUSINESS_STATUS.PENDING &&
+        newStatus === BUSINESS_STATUS.ACTIVE
+      ) {
         updateData.is_claimed = true;
         updateData.is_verified = true;
         updateData.claimed_at = new Date().toISOString();
@@ -676,17 +755,21 @@ export default function AdminDashboard() {
         .from("businesses")
         .update(updateData)
         .eq("id", business.id)
-        .select(); // Return the updated data
+        .select()
+        .single();
 
-      console.log("Database update result:", { data, error });
+      console.log("💾 Business status update returned row:", data);
 
       if (error) throw error;
+      if (!data) {
+        throw new Error("Status update completed but no updated row was returned.");
+      }
 
-      setBusinesses((prev) => prev.map((b) => (b.id === business.id ? { ...b, ...updateData } : b)));
-      
-      // Refresh admin data to ensure consistency
+      setBusinesses((prev) =>
+        prev.map((b) => (b.id === business.id ? { ...b, ...data } : b))
+      );
+
       await loadAdminData();
-      
       toast.success(`Business status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -696,8 +779,13 @@ export default function AdminDashboard() {
 
   const updateClaim = async (claim, newStatus) => {
     try {
-      console.log("Updating claim status:", { claimId: claim.id, businessId: claim.business_id, currentStatus: claim.status, newStatus });
-      
+      console.log("Updating claim status:", {
+        claimId: claim.id,
+        businessId: claim.business_id,
+        currentStatus: claim.status,
+        newStatus,
+      });
+
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
@@ -709,28 +797,32 @@ export default function AdminDashboard() {
           reviewed_by: user?.id,
         })
         .eq("id", claim.id)
-        .select(); // Return updated data
+        .select();
 
       console.log("Claim update result:", { data, error });
 
       if (error) throw error;
 
-      // Remove the claim from local state if it's no longer pending
       if (newStatus !== "pending") {
         setClaims((prev) => prev.filter((c) => c.id !== claim.id));
       } else {
-        setClaims((prev) => prev.map((c) => (c.id === claim.id ? { ...c, status: newStatus } : c)));
+        setClaims((prev) =>
+          prev.map((c) => (c.id === claim.id ? { ...c, status: newStatus } : c))
+        );
       }
 
       if (newStatus === "approved") {
         const matchedBusiness = businesses.find((b) => b.id === claim.business_id);
         if (matchedBusiness) {
-          console.log("Approving claim - updating business ownership:", matchedBusiness.id, matchedBusiness.business_name);
-          
-          // Update business with ownership information from claim
+          console.log(
+            "Approving claim - updating business ownership:",
+            matchedBusiness.id,
+            matchedBusiness.business_name
+          );
+
           const { getSupabase } = await import("@/lib/supabase/client");
           const supabase = getSupabase();
-          
+
           const { error: ownershipError } = await supabase
             .from("businesses")
             .update({
@@ -754,9 +846,7 @@ export default function AdminDashboard() {
         }
       }
 
-      // Refresh admin data to show updated statuses
       await loadAdminData();
-
       toast.success(`Claim status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating claim:", error);
@@ -808,18 +898,32 @@ export default function AdminDashboard() {
         throw new Error("Missing business id for update.");
       }
 
-      // Use centralized branding save orchestration
-      const { prepareBusinessBrandingPayload } = await import("../utils/brandingUploadUtils");
+      console.log("💾 saveBusiness input:", {
+        businessId,
+        businessesData,
+        filesPresent: {
+          logo_file: !!files.logo_file,
+          banner_file: !!files.banner_file,
+          mobile_banner_file: !!files.mobile_banner_file,
+        },
+        removals,
+      });
+
+      const { prepareBusinessBrandingPayload } = await import(
+        "../utils/brandingUploadUtils"
+      );
+
       const finalPayload = await prepareBusinessBrandingPayload({
         supabase,
         businessId,
         businessesData,
         files,
-        removals
+        removals,
       });
 
-      // Add update timestamp
       finalPayload.updated_at = new Date().toISOString();
+
+      console.log("💾 saveBusiness finalPayload:", finalPayload);
 
       const { data, error } = await supabase
         .from("businesses")
@@ -828,16 +932,29 @@ export default function AdminDashboard() {
         .select()
         .single();
 
+      console.log("💾 saveBusiness returned row:", data);
+
       if (error) throw error;
+      if (!data) {
+        throw new Error("Update completed but no updated business row was returned.");
+      }
 
       setBusinesses((prev) =>
         prev.map((b) => (b.id === businessId ? { ...b, ...data } : b))
       );
 
+      if (editingBusinessId === businessId) {
+        setDraftBusiness((prev) => (prev ? { ...prev, ...data } : prev));
+      }
+
       cancelEditingBusiness();
       toast.success("The business has been successfully updated.");
+
+      return data;
     } catch (error) {
-      toast.error("Unable to update the business.");
+      console.error("❌ saveBusiness failed:", error);
+      toast.error(error?.message || "Unable to update the business.");
+      throw error;
     } finally {
       setSavingEdit(false);
     }
@@ -860,41 +977,79 @@ export default function AdminDashboard() {
         ...businessesData,
         status: BUSINESS_STATUS.ACTIVE,
         is_verified: true,
-        is_claimed: true, // Admin-created businesses should be marked as claimed
+        is_claimed: true,
         created_date: new Date().toISOString().split("T")[0],
         updated_at: new Date().toISOString(),
       };
 
-      // Use centralized branding save orchestration
+      console.log("💾 createVerifiedBusiness input:", {
+        businessesData: businessData,
+        filesPresent: {
+          logo_file: !!files.logo_file,
+          banner_file: !!files.banner_file,
+          mobile_banner_file: !!files.mobile_banner_file,
+        },
+        removals,
+      });
+
       const tempBusinessId = `new-${Date.now()}`;
-      const { prepareBusinessBrandingPayload } = await import("../utils/brandingUploadUtils");
+      const { prepareBusinessBrandingPayload } = await import(
+        "../utils/brandingUploadUtils"
+      );
+
       const finalBusinessData = await prepareBusinessBrandingPayload({
         supabase,
         businessId: tempBusinessId,
         businessesData: businessData,
         files,
-        removals
+        removals,
       });
+
+      console.log("💾 createVerifiedBusiness finalPayload:", finalBusinessData);
 
       const { data, error } = await supabase
         .from("businesses")
         .insert(finalBusinessData)
         .select(`
-          id, business_name, business_handle, description, industry, country, city,
-          status, visibility_tier, is_verified, is_claimed, business_email, business_website,
-          logo_url, banner_url, owner_user_id, created_date, updated_at, subscription_tier
+          id,
+          business_name,
+          business_handle,
+          description,
+          industry,
+          country,
+          city,
+          status,
+          visibility_tier,
+          is_verified,
+          is_claimed,
+          business_email,
+          business_website,
+          logo_url,
+          banner_url,
+          mobile_banner_url,
+          owner_user_id,
+          created_date,
+          updated_at,
+          subscription_tier
         `)
         .single();
 
+      console.log("💾 createVerifiedBusiness returned row:", data);
+
       if (error) throw error;
+      if (!data) {
+        throw new Error("Insert completed but no business row was returned.");
+      }
 
       setBusinesses((prev) => [data, ...prev]);
       resetCreateForm();
-
       toast.success("The listing was created and automatically is_verified.");
+
+      return data;
     } catch (error) {
       console.error("Error creating business:", error);
       toast.error(error?.message || "Unable to create the listing.");
+      throw error;
     } finally {
       setSavingCreate(false);
     }
@@ -936,7 +1091,11 @@ export default function AdminDashboard() {
         <div className="text-center">
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent" />
           <h2 className="mb-2 text-xl font-bold text-[#0a1628]">
-            {authLoading ? "Restoring Session" : checkingAdmin ? "Checking Access" : "Loading Dashboard"}
+            {authLoading
+              ? "Restoring Session"
+              : checkingAdmin
+              ? "Checking Access"
+              : "Loading Dashboard"}
           </h2>
           <p className="text-sm text-gray-500">
             {authLoading
@@ -955,8 +1114,12 @@ export default function AdminDashboard() {
       <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc] px-4">
         <div className="max-w-sm rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
           <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-red-400" />
-          <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Authentication Required</h2>
-          <p className="mb-6 text-sm text-gray-500">Please sign in to access this page.</p>
+          <h2 className="mb-2 text-xl font-bold text-[#0a1628]">
+            Authentication Required
+          </h2>
+          <p className="mb-6 text-sm text-gray-500">
+            Please sign in to access this page.
+          </p>
           <button
             onClick={() => router.push("/BusinessLogin")}
             className="inline-flex items-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1a6b6b]"
@@ -989,7 +1152,9 @@ export default function AdminDashboard() {
   }
 
   const statusTab = TABS.find((tab) => tab.id === activeTab && tab.status);
-  const filtered = statusTab ? businesses.filter((b) => b.status === statusTab.status) : [];
+  const filtered = statusTab
+    ? businesses.filter((b) => b.status === statusTab.status)
+    : [];
 
   const getFilteredData = () => {
     let data = filtered;
@@ -1041,7 +1206,9 @@ export default function AdminDashboard() {
   const filteredData = getFilteredData();
   const filteredClaimsData = getFilteredClaims();
 
-  const pendingCount = businesses.filter((b) => b.status === BUSINESS_STATUS.PENDING).length;
+  const pendingCount = businesses.filter(
+    (b) => b.status === BUSINESS_STATUS.PENDING
+  ).length;
   const pendingClaimsCount = claims.filter((c) => c.status === "pending").length;
 
   const executiveStats = [
@@ -1111,7 +1278,9 @@ export default function AdminDashboard() {
                     <Filter className="h-4 w-4" />
                     Filters
                     {activeFilterCount > 0 && (
-                      <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[11px]">{activeFilterCount}</span>
+                      <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[11px]">
+                        {activeFilterCount}
+                      </span>
                     )}
                   </button>
 
@@ -1133,7 +1302,9 @@ export default function AdminDashboard() {
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
                     <select
                       value={filters.country}
-                      onChange={(e) => setFilters((prev) => ({ ...prev, country: e.target.value }))}
+                      onChange={(e) =>
+                        setFilters((prev) => ({ ...prev, country: e.target.value }))
+                      }
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Countries</option>
@@ -1146,7 +1317,9 @@ export default function AdminDashboard() {
 
                     <select
                       value={filters.industry}
-                      onChange={(e) => setFilters((prev) => ({ ...prev, industry: e.target.value }))}
+                      onChange={(e) =>
+                        setFilters((prev) => ({ ...prev, industry: e.target.value }))
+                      }
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Industries</option>
@@ -1159,7 +1332,9 @@ export default function AdminDashboard() {
 
                     <select
                       value={filters.tier}
-                      onChange={(e) => setFilters((prev) => ({ ...prev, tier: e.target.value }))}
+                      onChange={(e) =>
+                        setFilters((prev) => ({ ...prev, tier: e.target.value }))
+                      }
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Tiers</option>
@@ -1170,7 +1345,12 @@ export default function AdminDashboard() {
 
                     <select
                       value={filters.is_verified}
-                      onChange={(e) => setFilters((prev) => ({ ...prev, is_verified: e.target.value }))}
+                      onChange={(e) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          is_verified: e.target.value,
+                        }))
+                      }
                       className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
                     >
                       <option value="">All Verification</option>
@@ -1232,7 +1412,11 @@ export default function AdminDashboard() {
                             : "text-gray-600 hover:text-[#0a1628]"
                         }`}
                       >
-                        <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? "text-[#0d4f4f]" : ""}`} />
+                        <tab.icon
+                          className={`h-4 w-4 ${
+                            activeTab === tab.id ? "text-[#0d4f4f]" : ""
+                          }`}
+                        />
                         {tab.label}
                         {tab.id === "pending" && pendingCount > 0 && (
                           <span className="rounded-full bg-yellow-500 px-1.5 py-0.5 text-[11px] text-white">
@@ -1268,7 +1452,9 @@ export default function AdminDashboard() {
                     <>
                       <div className="space-y-3 lg:hidden">
                         {filteredClaimsData.map((claim) => {
-                          const business = businesses.find((b) => b.id === claim.business_id);
+                          const business = businesses.find(
+                            (b) => b.id === claim.business_id
+                          );
                           return (
                             <ClaimMobileCard
                               key={claim.id}
@@ -1283,7 +1469,9 @@ export default function AdminDashboard() {
 
                       <div className="hidden space-y-3 lg:block">
                         {filteredClaimsData.map((claim) => {
-                          const business = businesses.find((b) => b.id === claim.business_id);
+                          const business = businesses.find(
+                            (b) => b.id === claim.business_id
+                          );
                           return (
                             <div
                               key={claim.id}
@@ -1315,12 +1503,19 @@ export default function AdminDashboard() {
                                       }`}
                                     >
                                       {claim.status
-                                        ? claim.status.charAt(0).toUpperCase() + claim.status.slice(1)
+                                        ? claim.status.charAt(0).toUpperCase() +
+                                          claim.status.slice(1)
                                         : "Unknown"}
                                     </span>
                                     {business && (
-                                      <span className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles("neutral")}`}>
-                                        {getTierDisplayName(business.subscription_tier) ||
+                                      <span
+                                        className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles(
+                                          "neutral"
+                                        )}`}
+                                      >
+                                        {getTierDisplayName(
+                                          business.subscription_tier
+                                        ) ||
                                           business.subscription_tier ||
                                           "vaka"}
                                       </span>
@@ -1328,34 +1523,44 @@ export default function AdminDashboard() {
                                   </div>
 
                                   <p className="text-xs text-gray-500">
-                                    {business?.country || "Unknown"} · {business?.industry || "Unknown"} ·{" "}
+                                    {business?.country || "Unknown"} ·{" "}
+                                    {business?.industry || "Unknown"} ·{" "}
                                     {claim.business_email}
                                   </p>
+
                                   <div className="mt-2 space-y-1">
                                     <p className="text-xs text-gray-600">
-                                      <span className="font-medium">Contact:</span> {claim.business_email || "Not provided"}
+                                      <span className="font-medium">Contact:</span>{" "}
+                                      {claim.business_email || "Not provided"}
                                     </p>
                                     {claim.business_phone && (
                                       <p className="text-xs text-gray-600">
-                                        <span className="font-medium">Phone:</span> {claim.business_phone}
+                                        <span className="font-medium">Phone:</span>{" "}
+                                        {claim.business_phone}
                                       </p>
                                     )}
                                     <p className="text-xs text-gray-600">
-                                      <span className="font-medium">Role:</span> {claim.role || "Not specified"}
+                                      <span className="font-medium">Role:</span>{" "}
+                                      {claim.role || "Not specified"}
                                     </p>
                                     <p className="text-xs text-gray-600">
-                                      <span className="font-medium">Claim Type:</span> {claim.claim_type || "Standard request"}
+                                      <span className="font-medium">Claim Type:</span>{" "}
+                                      {claim.claim_type || "Standard request"}
                                     </p>
                                     {claim.message && (
                                       <p className="text-xs text-gray-600">
-                                        <span className="font-medium">Message:</span> {claim.message}
+                                        <span className="font-medium">Message:</span>{" "}
+                                        {claim.message}
                                       </p>
                                     )}
                                   </div>
+
                                   <p className="mt-1 text-xs text-gray-400">
                                     Requested{" "}
                                     {claim.created_at || claim.created_date
-                                      ? new Date(claim.created_at || claim.created_date).toLocaleDateString()
+                                      ? new Date(
+                                          claim.created_at || claim.created_date
+                                        ).toLocaleDateString()
                                       : "—"}
                                   </p>
                                 </div>
@@ -1365,15 +1570,21 @@ export default function AdminDashboard() {
                                     <>
                                       <button
                                         onClick={() => updateClaim(claim, "approved")}
-                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles("success")}`}
+                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
+                                          "success"
+                                        )}`}
                                       >
-                                        <CheckCircle className="h-3 w-3" /> Approve
+                                        <CheckCircle className="h-3 w-3" />
+                                        Approve
                                       </button>
                                       <button
                                         onClick={() => updateClaim(claim, "rejected")}
-                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles("danger")}`}
+                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
+                                          "danger"
+                                        )}`}
                                       >
-                                        <XCircle className="h-3 w-3" /> Reject
+                                        <XCircle className="h-3 w-3" />
+                                        Reject
                                       </button>
                                     </>
                                   )}
@@ -1388,16 +1599,16 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {activeTab === "presentations" && (
-                <PresentationsTab />
-              )}
+              {activeTab === "presentations" && <PresentationsTab />}
 
               {activeTab !== "claims" && activeTab !== "presentations" && (
                 <div className="space-y-3">
                   {filteredData.length === 0 ? (
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">
                       <Building2 className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-                      <p className="text-sm text-gray-500">No {activeTab} businesses found.</p>
+                      <p className="text-sm text-gray-500">
+                        No {activeTab} businesses found.
+                      </p>
                     </div>
                   ) : (
                     <>
@@ -1407,10 +1618,15 @@ export default function AdminDashboard() {
                             key={business.id}
                             business={business}
                             isEditing={editingBusinessId === business.id}
-                            draftBusiness={editingBusinessId === business.id ? draftBusiness : null}
-                            setDraftBusiness={setDraftBusiness}
-                            onApprove={() => updateStatus(business, BUSINESS_STATUS.ACTIVE)}
-                            onReject={() => updateStatus(business, BUSINESS_STATUS.REJECTED)}
+                            draftBusiness={
+                              editingBusinessId === business.id ? draftBusiness : null
+                            }
+                            onApprove={() =>
+                              updateStatus(business, BUSINESS_STATUS.ACTIVE)
+                            }
+                            onReject={() =>
+                              updateStatus(business, BUSINESS_STATUS.REJECTED)
+                            }
                             onEdit={() => {
                               if (editingBusinessId === business.id) {
                                 cancelEditingBusiness();
@@ -1464,8 +1680,12 @@ export default function AdminDashboard() {
                                       </div>
 
                                       <div>
-                                        <div className="font-medium text-[#0a1628]">{b.business_name}</div>
-                                        <div className="text-xs text-gray-500">{b.business_email || "No email"}</div>
+                                        <div className="font-medium text-[#0a1628]">
+                                          {b.business_name}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                          {b.business_email || "No email"}
+                                        </div>
                                       </div>
                                     </div>
                                   </td>
@@ -1473,23 +1693,30 @@ export default function AdminDashboard() {
                                   <td className="px-4 py-4">
                                     <div className="text-sm text-gray-600">
                                       {getCountryDisplayName(b.country)} ·{" "}
-                                      {getIndustryDisplayName(b.industry) || "No industry"}
+                                      {getIndustryDisplayName(b.industry) ||
+                                        "No industry"}
                                     </div>
+
                                     {b.cultural_identity && (
-                                      <div className="text-xs text-gray-500 mt-1">
+                                      <div className="mt-1 text-xs text-gray-500">
                                         Cultural: {b.cultural_identity}
                                       </div>
                                     )}
+
                                     {b.languages_spoken && (
                                       <div className="mt-2">
                                         <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#00c4cc]">
-                                          <Speech className="w-3 h-3 flex-shrink-0" />
+                                          <Speech className="h-3 w-3 flex-shrink-0" />
                                           {formatLanguages(b.languages_spoken)}
                                         </span>
                                       </div>
                                     )}
-                                    <div className="text-xs text-gray-400 mt-1">
-                                      Submitted {b.created_date ? new Date(b.created_date).toLocaleDateString() : "—"}
+
+                                    <div className="mt-1 text-xs text-gray-400">
+                                      Submitted{" "}
+                                      {b.created_date
+                                        ? new Date(b.created_date).toLocaleDateString()
+                                        : "—"}
                                     </div>
                                   </td>
 
@@ -1500,11 +1727,15 @@ export default function AdminDashboard() {
                                           b.is_verified ? "premium" : "neutral"
                                         )}`}
                                       >
-                                        {getTierDisplayName(b.subscription_tier) || b.subscription_tier || "vaka"}
+                                        {getTierDisplayName(b.subscription_tier) ||
+                                          b.subscription_tier ||
+                                          "vaka"}
                                       </span>
                                       {b.is_verified && (
                                         <span
-                                          className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles("success")}`}
+                                          className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(
+                                            "success"
+                                          )}`}
                                         >
                                           Verified
                                         </span>
@@ -1517,7 +1748,10 @@ export default function AdminDashboard() {
                                       <button
                                         onClick={() => {
                                           const businessHandle = b.business_handle || b.id;
-                                          window.open(`/BusinessProfile?handle=${businessHandle}`, '_blank');
+                                          window.open(
+                                            `/BusinessProfile?handle=${businessHandle}`,
+                                            "_blank"
+                                          );
                                         }}
                                         className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${secondaryButtonCls}`}
                                       >
@@ -1528,16 +1762,24 @@ export default function AdminDashboard() {
                                       {b.status === BUSINESS_STATUS.PENDING && (
                                         <>
                                           <button
-                                            onClick={() => updateStatus(b, BUSINESS_STATUS.ACTIVE)}
-                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("success")}`}
+                                            onClick={() =>
+                                              updateStatus(b, BUSINESS_STATUS.ACTIVE)
+                                            }
+                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                              "success"
+                                            )}`}
                                           >
                                             <CheckCircle className="h-3 w-3" />
                                             Approve
                                           </button>
 
                                           <button
-                                            onClick={() => updateStatus(b, BUSINESS_STATUS.REJECTED)}
-                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("danger")}`}
+                                            onClick={() =>
+                                              updateStatus(b, BUSINESS_STATUS.REJECTED)
+                                            }
+                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                              "danger"
+                                            )}`}
                                           >
                                             <XCircle className="h-3 w-3" />
                                             Deny
@@ -1561,7 +1803,9 @@ export default function AdminDashboard() {
 
                                       <button
                                         onClick={() => deleteBusiness(b.id)}
-                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles("danger")}`}
+                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                          "danger"
+                                        )}`}
                                       >
                                         Delete
                                       </button>

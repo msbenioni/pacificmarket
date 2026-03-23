@@ -127,7 +127,12 @@ export const prepareBusinessBrandingPayload = async ({
 }) => {
   console.log("🎨 Preparing branding payload:", {
     businessId,
-    hasFiles: Object.keys(files).filter(key => files[key]).length,
+    incomingBrandingFields: {
+      logo_url: businessesData.logo_url,
+      banner_url: businessesData.banner_url,
+      mobile_banner_url: businessesData.mobile_banner_url
+    },
+    filesPresent: Object.keys(files).filter(key => files[key]),
     removals: Object.keys(removals).filter(key => removals[key])
   });
 
@@ -135,15 +140,24 @@ export const prepareBusinessBrandingPayload = async ({
     // Step 1: Sanitize incoming payload to remove any blob URLs
     let sanitizedData = stripTransientImageUrls(businessesData);
     
+    console.log("🧹 Sanitized incoming data:", {
+      logo_url: sanitizedData.logo_url ? 'URL present' : 'null/empty',
+      banner_url: sanitizedData.banner_url ? 'URL present' : 'null/empty',
+      mobile_banner_url: sanitizedData.mobile_banner_url ? 'URL present' : 'null/empty'
+    });
+    
     // Step 2: Handle removal flags
     if (removals.logo_remove) {
       sanitizedData.logo_url = null;
+      console.log("🗑️ Logo marked for removal");
     }
     if (removals.banner_remove) {
       sanitizedData.banner_url = null;
+      console.log("🗑️ Banner marked for removal");
     }
     if (removals.mobile_banner_remove) {
       sanitizedData.mobile_banner_url = null;
+      console.log("🗑️ Mobile banner marked for removal");
     }
     
     // Step 3: Upload new files if present
@@ -151,6 +165,12 @@ export const prepareBusinessBrandingPayload = async ({
     const hasFiles = files.logo_file || files.banner_file || files.mobile_banner_file;
     
     if (hasFiles) {
+      console.log("📤 Starting file uploads:", {
+        logo: !!files.logo_file,
+        banner: !!files.banner_file,
+        mobile_banner: !!files.mobile_banner_file
+      });
+      
       uploadedUrls = await uploadBusinessBrandingFiles({
         supabase,
         businessId,
@@ -158,6 +178,22 @@ export const prepareBusinessBrandingPayload = async ({
       });
       
       console.log("📤 Upload results:", uploadedUrls);
+      
+      // Validate that files uploaded successfully
+      const uploadValidationErrors = [];
+      if (files.logo_file && !uploadedUrls.logo_url) {
+        uploadValidationErrors.push("Logo file was provided but no URL was returned from upload");
+      }
+      if (files.banner_file && !uploadedUrls.banner_url) {
+        uploadValidationErrors.push("Banner file was provided but no URL was returned from upload");
+      }
+      if (files.mobile_banner_file && !uploadedUrls.mobile_banner_url) {
+        uploadValidationErrors.push("Mobile banner file was provided but no URL was returned from upload");
+      }
+      
+      if (uploadValidationErrors.length > 0) {
+        throw new Error(`Upload validation failed: ${uploadValidationErrors.join(', ')}`);
+      }
     }
     
     // Step 4: Merge uploaded URLs into final payload

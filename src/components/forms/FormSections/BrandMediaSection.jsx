@@ -227,6 +227,9 @@ export default function BrandMediaSection({
             persistedUrl={form.logo_url}
             previewUrl={form.logo_preview_url}
             hasUnsavedFile={!!form.logo_file}
+            isMarkedForRemoval={form.logo_remove}
+            isFallback={displayLogoUrl?.startsWith('/') && !form.logo_url}
+            hasPersistedImage={!!form.logo_url && form.logo_url.startsWith('http')}
             inputId={logoInputId}
             onFileChange={(e) => handleFileUpload(e, "logo")}
             onRemove={() => removeImage("logo")}
@@ -241,6 +244,9 @@ export default function BrandMediaSection({
               persistedUrl={form.banner_url}
               previewUrl={form.banner_preview_url}
               hasUnsavedFile={!!form.banner_file}
+              isMarkedForRemoval={form.banner_remove}
+              isFallback={displayDesktopBannerUrl?.startsWith('/') && !form.banner_url}
+              hasPersistedImage={!!form.banner_url && form.banner_url.startsWith('http')}
               inputId={bannerInputId}
               onFileChange={(e) => handleFileUpload(e, "banner")}
               onRemove={() => removeImage("banner")}
@@ -254,6 +260,9 @@ export default function BrandMediaSection({
               persistedUrl={form.mobile_banner_url}
               previewUrl={form.mobile_banner_preview_url}
               hasUnsavedFile={!!form.mobile_banner_file}
+              isMarkedForRemoval={form.mobile_banner_remove}
+              isFallback={displayMobileBannerUrl?.startsWith('/') && !form.mobile_banner_url}
+              hasPersistedImage={!!form.mobile_banner_url && form.mobile_banner_url.startsWith('http')}
               inputId={mobileBannerInputId}
               onFileChange={(e) => handleFileUpload(e, "mobile_banner")}
               onRemove={() => removeImage("mobile_banner")}
@@ -389,14 +398,26 @@ function UploadCard({
   persistedUrl,
   previewUrl,
   hasUnsavedFile,
+  isMarkedForRemoval = false,
+  isFallback = false,
+  hasPersistedImage = false,
   inputId,
   onFileChange,
   onRemove,
   helpText,
   imageClassName = "h-20 w-20 rounded-xl object-cover",
 }) {
-  // Determine status and styling
+  // Determine status from explicit state, not URL guessing
   const getStatusInfo = () => {
+    // Priority order: removal > local unsaved > persisted > fallback > none
+    if (isMarkedForRemoval) {
+      return {
+        label: "Marked for removal — save required",
+        tone: "amber",
+        canRemove: true
+      };
+    }
+    
     if (hasUnsavedFile) {
       return {
         label: "Selected locally — save required",
@@ -405,15 +426,7 @@ function UploadCard({
       };
     }
     
-    if (persistedUrl && persistedUrl.startsWith('blob:')) {
-      return {
-        label: "Local preview only",
-        tone: "amber", 
-        canRemove: true
-      };
-    }
-    
-    if (persistedUrl && persistedUrl.startsWith('http')) {
+    if (hasPersistedImage) {
       return {
         label: "Saved image",
         tone: "green",
@@ -421,7 +434,7 @@ function UploadCard({
       };
     }
     
-    if (displayUrl && displayUrl.startsWith('http')) {
+    if (isFallback) {
       return {
         label: "Using fallback branding",
         tone: "slate",

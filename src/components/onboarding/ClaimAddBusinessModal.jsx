@@ -284,7 +284,14 @@ export function ClaimAddBusinessModal({
         throw error;
       }
 
-      console.log("Business created successfully:", data);
+      console.log("💾 ClaimAddBusinessModal DB returned row:", {
+        id: data[0].id,
+        brandingFields: {
+          logo_url: data[0].logo_url,
+          banner_url: data[0].banner_url,
+          mobile_banner_url: data[0].mobile_banner_url
+        }
+      });
 
       // Handle referral if present
       if (data && data[0]) {
