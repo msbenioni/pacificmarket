@@ -48,7 +48,7 @@ const ALLOWED_BUSINESS_FIELDS = [
   "business_contact_person",
   "logo_url",
   "banner_url",
-  "mobile_banner_url"
+  "mobile_banner_url",
 ];
 
 function pickAllowedBusinessFields(input) {
@@ -58,7 +58,6 @@ function pickAllowedBusinessFields(input) {
       out[key] = input[key];
     }
   }
-
   return out;
 }
 
@@ -70,7 +69,7 @@ function pickAllowedBusinessFields(input) {
  * - onClose: () => void
  * - defaultView?: "choice" | "claim" | "add"
  * - onClaimSelected?: (business) => void
- * - onAddSelected?: () => void
+ * - onAddSelected?: (savedRow) => void
  */
 export function ClaimAddBusinessModal({
   isOpen,
@@ -80,11 +79,10 @@ export function ClaimAddBusinessModal({
   onAddSelected,
 }) {
   const { toast } = useToast();
+
   const [view, setView] = useState(defaultView);
   const [submitting, setSubmitting] = useState(false);
   const [pickedBusiness, setPickedBusiness] = useState(null);
-  const [formControls, setFormControls] = useState(null);
-  const [claimDetails, setClaimDetails] = useState(null);
   const [claimSearchTerm, setClaimSearchTerm] = useState("");
 
   useEffect(() => {
@@ -131,9 +129,6 @@ export function ClaimAddBusinessModal({
 
   if (!isOpen) return null;
 
-  const btnPrimary =
-    "inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-5 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] transition disabled:opacity-50";
-
   const btnSecondary =
     "inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-[#0a1628] hover:bg-gray-50 transition";
 
@@ -142,6 +137,7 @@ export function ClaimAddBusinessModal({
 
   const handleClaimDetailsSubmit = async (details) => {
     setSubmitting(true);
+
     try {
       const { getSupabase } = await import("../../lib/supabase/client");
       const supabase = getSupabase();
@@ -152,7 +148,7 @@ export function ClaimAddBusinessModal({
 
       if (!pickedBusiness?.id) throw new Error("No business selected");
 
-      const { data: existingClaim } = await supabase
+      const { data: existingClaim, error: existingClaimError } = await supabase
         .from("claim_requests")
         .select("id,status")
         .eq("business_id", pickedBusiness.id)
@@ -160,11 +156,14 @@ export function ClaimAddBusinessModal({
         .in("status", ["pending", "under_review"])
         .maybeSingle();
 
+      if (existingClaimError) throw existingClaimError;
+
       if (existingClaim) {
         toast({
           title: "Claim Already Exists",
-          description: "You already have a pending claim for this business. We'll notify you once it's reviewed.",
-          variant: "default"
+          description:
+            "You already have a pending claim for this business. We'll notify you once it's reviewed.",
+          variant: "default",
         });
         return;
       }
@@ -177,7 +176,7 @@ export function ClaimAddBusinessModal({
         business_phone: details.business_phone || null,
         role: details.role || "owner",
         message: details.message || null,
-        claim_type: "request"
+        claim_type: "request",
       };
 
       const { data: inserted, error: insertErr } = await supabase
@@ -190,8 +189,9 @@ export function ClaimAddBusinessModal({
 
       toast({
         title: "Claim Submitted",
-        description: "Claim request submitted successfully! We'll review it and notify you once it's processed.",
-        variant: "success"
+        description:
+          "Claim request submitted successfully! We'll review it and notify you once it's processed.",
+        variant: "success",
       });
 
       onClaimSelected?.(inserted);
@@ -201,7 +201,7 @@ export function ClaimAddBusinessModal({
       toast({
         title: "Submission Failed",
         description: "Failed to submit claim request. Please try again.",
-        variant: "error"
+        variant: "error",
       });
     } finally {
       setSubmitting(false);
@@ -215,6 +215,7 @@ export function ClaimAddBusinessModal({
 
   const handleBusinessSubmit = async (payload) => {
     setSubmitting(true);
+
     try {
       const { getSupabase } = await import("../../lib/supabase/client");
       const supabase = getSupabase();
@@ -226,143 +227,156 @@ export function ClaimAddBusinessModal({
       const {
         businessesData = {},
         files = {},
-      } = payload;
+        removals = {},
+      } = payload || {};
 
       let clean = pickAllowedBusinessFields(businessesData);
 
       console.log("Submitting business data:", {
-        original: payload,
         cleaned: clean,
-        files: files,
+        files,
+        removals,
         userId: userRes.user.id,
       });
 
-      // Use centralized branding save orchestration
       const tempBusinessId = `temp_${userRes.user.id}_${Date.now()}`;
-      const { prepareBusinessBrandingPayload } = await import("../../utils/brandingUploadUtils");
-      
+      const { prepareBusinessBrandingPayload } = await import(
+        "../../utils/brandingUploadUtils"
+      );
+
       try {
         clean = await prepareBusinessBrandingPayload({
           supabase,
           businessId: tempBusinessId,
           businessesData: clean,
           files,
-          removals: {} // No removals for new business creation
+          removals,
         });
-        
+
         console.log("📤 New business branding prepared:", {
-          logo_url: clean.logo_url ? 'URL present' : 'null/empty',
-          banner_url: clean.banner_url ? 'URL present' : 'null/empty',
-          mobile_banner_url: clean.mobile_banner_url ? 'URL present' : 'null/empty'
+          logo_url: clean.logo_url ? "URL present" : "null/empty",
+          banner_url: clean.banner_url ? "URL present" : "null/empty",
+          mobile_banner_url: clean.mobile_banner_url ? "URL present" : "null/empty",
         });
-        
       } catch (uploadError) {
         console.error("❌ Branding preparation failed:", uploadError);
-        // Continue without uploaded files, but ensure no blob URLs
+
         clean = {
           ...clean,
           logo_url: null,
           banner_url: null,
-          mobile_banner_url: null
+          mobile_banner_url: null,
         };
       }
 
-      const { error, data } = await supabase
-        .from("businesses")
-        .insert({
-          ...clean,
-          owner_user_id: userRes.user.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          status: "pending",
-          visibility_tier: "none",
-        })
-        .select();
+      const insertPayload = {
+        ...clean,
+        owner_user_id: userRes.user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        status: "pending",
+        visibility_tier: "none",
+      };
 
-      if (error) {
-        console.error("Database insert error:", error);
-        throw error;
+      const { data: savedRow, error: insertError } = await supabase
+        .from("businesses")
+        .insert(insertPayload)
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Database insert error:", insertError);
+        throw insertError;
       }
 
       console.log("💾 ClaimAddBusinessModal DB returned row:", {
-        id: data[0].id,
+        id: savedRow.id,
         brandingFields: {
-          logo_url: data[0].logo_url,
-          banner_url: data[0].banner_url,
-          mobile_banner_url: data[0].mobile_banner_url
-        }
+          logo_url: savedRow.logo_url,
+          banner_url: savedRow.banner_url,
+          mobile_banner_url: savedRow.mobile_banner_url,
+        },
       });
 
-      // Handle referral if present
-      if (data && data[0]) {
-        try {
-          const { createReferralIfPresent } = await import("../../utils/referrals");
-          const referralCode = userRes.user?.user_metadata?.referral_code;
-          
-          if (referralCode) {
-            await createReferralIfPresent(referralCode, data[0].id);
-            console.log('Referral processed for business:', data[0].id);
-          }
-        } catch (referralError) {
-          console.error('Error processing referral:', referralError);
-          // Don't fail the business creation if referral processing fails
+      try {
+        const { createReferralIfPresent } = await import("../../utils/referrals");
+        const referralCode = userRes.user?.user_metadata?.referral_code;
+
+        if (referralCode) {
+          await createReferralIfPresent(referralCode, savedRow.id);
+          console.log("Referral processed for business:", savedRow.id);
         }
+      } catch (referralError) {
+        console.error("Error processing referral:", referralError);
       }
 
-      // Send notification for business addition
-      if (data && data[0]) {
-        try {
-          await fetch('/api/notifications/business-added', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              businessId: data[0].id,
-              userId: userRes.user.id
-            })
-          });
-        } catch (notifError) {
-          console.error('Failed to send business added notification:', notifError);
-          // Don't fail the business creation if notification fails
-        }
-
-        // Create an approved claim request for the new business owner
-        try {
-          const { error: claimError } = await supabase
-            .from("claim_requests")
-            .insert({
-              business_id: data[0].id,
-              user_id: userRes.user.id,
-              status: "approved",
-              business_email: clean.business_email || userRes.user.email,
-              business_phone: clean.business_phone || null,
-              role: "owner",
-              created_at: new Date().toISOString(),
-              reviewed_at: new Date().toISOString(),
-              reviewed_by: userRes.user.id, // Self-approved for new business creation
-              claim_type: "direct"
-            });
-
-          if (claimError) {
-            console.error("Failed to create claim request for new business:", claimError);
-            // Don't fail the business creation if claim request fails
-          } else {
-            console.log("Created approved claim request for new business:", data[0].id);
-          }
-        } catch (claimError) {
-          console.error("Error creating claim request for new business:", claimError);
-          // Don't fail the business creation if claim request fails
-        }
+      try {
+        await fetch("/api/notifications/business-added", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            businessId: savedRow.id,
+            userId: userRes.user.id,
+          }),
+        });
+      } catch (notifError) {
+        console.error("Failed to send business added notification:", notifError);
       }
 
-      onAddSelected?.();
+      try {
+        const { error: claimError } = await supabase.from("claim_requests").insert({
+          business_id: savedRow.id,
+          user_id: userRes.user.id,
+          status: "approved",
+          business_email: clean.business_email || userRes.user.email,
+          business_phone: clean.business_phone || null,
+          role: "owner",
+          created_at: new Date().toISOString(),
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: userRes.user.id,
+          claim_type: "direct",
+        });
+
+        if (claimError) {
+          console.error(
+            "Failed to create claim request for new business:",
+            claimError
+          );
+        } else {
+          console.log(
+            "Created approved claim request for new business:",
+            savedRow.id
+          );
+        }
+      } catch (claimError) {
+        console.error(
+          "Error creating claim request for new business:",
+          claimError
+        );
+      }
+
+      toast({
+        title: "Business Added",
+        description:
+          "Your business was created successfully and is now pending review.",
+        variant: "success",
+      });
+
+      onAddSelected?.(savedRow);
       onClose();
+
+      // Critical: return the actual saved row so BusinessProfileForm can reconcile correctly
+      return savedRow;
     } catch (error) {
       console.error("Business submission error:", error);
       toast({
         title: "Business Creation Failed",
-        description: `Failed to create business: ${error.message || "Unknown error occurred. Please try again."}`,
-        variant: "error"
+        description: `Failed to create business: ${
+          error.message || "Unknown error occurred. Please try again."
+        }`,
+        variant: "error",
       });
+      throw error;
     } finally {
       setSubmitting(false);
     }
@@ -370,10 +384,13 @@ export function ClaimAddBusinessModal({
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose} className={modalClass}>
-      <ModalHeader title={header.title} subtitle={header.subtitle} onClose={onClose} />
+      <ModalHeader
+        title={header.title}
+        subtitle={header.subtitle}
+        onClose={onClose}
+      />
 
       <ModalContent>
-        {/* Brand strip */}
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#00c4cc]" />
@@ -400,12 +417,12 @@ export function ClaimAddBusinessModal({
             <button
               type="button"
               onClick={() => setView("claim")}
-              className="w-full rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 text-left transition hover:border-[#0d4f4f]/40 hover:bg-[#0d4f4f]/[0.03]"
+              className="w-full rounded-2xl border border-gray-200 bg-white p-4 text-left transition hover:border-[#0d4f4f]/40 hover:bg-[#0d4f4f]/[0.03] sm:p-5"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#0d4f4f]/10 flex-shrink-0">
+                    <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-[#0d4f4f]/10">
                       <Search className="h-5 w-5 text-[#0d4f4f]" />
                     </div>
                     <h4 className="text-base font-bold text-[#0a1628]">
@@ -414,7 +431,8 @@ export function ClaimAddBusinessModal({
                   </div>
 
                   <p className="mt-3 text-sm leading-6 text-gray-600">
-                    If your business is already on Pacific Discovery Network, claim it to manage details and upgrades.
+                    If your business is already on Pacific Discovery Network,
+                    claim it to manage details and upgrades.
                   </p>
                 </div>
 
@@ -427,7 +445,7 @@ export function ClaimAddBusinessModal({
             <button
               type="button"
               onClick={() => setView("add")}
-              className="w-full rounded-2xl border border-[#0a1628] bg-[#0a1628] p-4 sm:p-5 text-left transition hover:bg-[#122040]"
+              className="w-full rounded-2xl border border-[#0a1628] bg-[#0a1628] p-4 text-left transition hover:bg-[#122040] sm:p-5"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
@@ -436,7 +454,8 @@ export function ClaimAddBusinessModal({
                   </h4>
 
                   <p className="mt-3 text-sm leading-6 text-white/80">
-                    Create a new listing and represent your people, your country, and your work.
+                    Create a new listing and represent your people, your
+                    country, and your work.
                   </p>
                 </div>
 
@@ -447,10 +466,13 @@ export function ClaimAddBusinessModal({
             </button>
 
             <div className="mt-4 rounded-2xl border border-[#c9a84c]/30 bg-[#c9a84c]/10 p-4">
-              <p className="text-sm font-semibold text-[#0a1628]">Why it matters</p>
+              <p className="text-sm font-semibold text-[#0a1628]">
+                Why it matters
+              </p>
               <p className="mt-1 text-sm leading-6 text-gray-700">
-                Every listing strengthens Pacific visibility and makes it easier for people to discover,
-                support, and invest in Pacific enterprise.
+                Every listing strengthens Pacific visibility and makes it easier
+                for people to discover, support, and invest in Pacific
+                enterprise.
               </p>
             </div>
           </div>
@@ -460,7 +482,8 @@ export function ClaimAddBusinessModal({
           <div className="space-y-4">
             <div className="rounded-2xl border border-gray-100 bg-[#f8f9fc] p-4 sm:p-5">
               <p className="text-sm leading-6 text-gray-700">
-                Start typing your business name. Select the right match to request ownership.
+                Start typing your business name. Select the right match to
+                request ownership.
               </p>
 
               <div className="mt-4">
@@ -486,7 +509,7 @@ export function ClaimAddBusinessModal({
                     Selected Business
                   </p>
 
-                  <p className="mt-1 text-base font-bold text-[#0a1628] break-words">
+                  <p className="mt-1 break-words text-base font-bold text-[#0a1628]">
                     {pickedBusiness?.business_name}
                   </p>
 
@@ -534,14 +557,14 @@ export function ClaimAddBusinessModal({
       </ModalContent>
 
       {view !== "add" && (
-        <ModalFooter className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+        <ModalFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
           {view === "choice" ? (
             <>
               <button type="button" onClick={onClose} className={btnSecondary}>
                 Close
               </button>
 
-              <div className="text-xs text-gray-500 text-center sm:text-right">
+              <div className="text-center text-xs text-gray-500 sm:text-right">
                 Tip: Claim if you already exist. Add if you're new.
               </div>
             </>
