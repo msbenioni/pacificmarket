@@ -116,6 +116,7 @@ export default function BusinessCard({
   savingEdit,
   insightsSubmitting,
   tierInfo,
+  isEditing,
   onEdit,
   onCancel,
   onDraftChange,
@@ -254,7 +255,7 @@ export default function BusinessCard({
               <BusinessProfileForm
                 title={`Edit ${business.business_name}`}
                 businessId={business.id}
-                initialData={draftBusiness || business}
+                initialData={isEditing ? (draftBusiness || business) : business}
                 onSave={onSave}
                 onCancel={onCancel}
                 saving={savingEdit}
