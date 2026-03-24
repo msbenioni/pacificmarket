@@ -5,6 +5,7 @@
  */
 
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
+import { generateBusinessLogo } from "@/utils/businessImageGenerator";
 
 const getFirstDisplayableMediaUrl = (...candidates) => {
   for (const candidate of candidates) {
@@ -54,14 +55,22 @@ export function getHeroBannerUrl(business) {
 }
 
 /**
- * Get logo URL with proper hierarchy (saved business logo → controlled static fallback)
+ * Get logo URL with proper hierarchy (saved business logo → generated logo → fallback)
  * @param {Object} business - Business object containing logo URL and business name
- * @returns {string} Logo URL (saved URL first, then static fallback)
+ * @returns {string} Logo URL (saved URL first, then generated, then static fallback)
  */
 export function getLogoUrl(business) {
   // First priority: saved/persisted logo URL.
   if (isPersistentMediaUrl(business?.logo_url, { allowRootRelative: true })) {
     return business.logo_url;
+  }
+
+  // Second priority: generated logo from business name
+  if (business?.business_name) {
+    const generatedLogo = generateBusinessLogo(business.business_name);
+    if (generatedLogo) {
+      return generatedLogo;
+    }
   }
 
   // Final fallback: controlled static asset.
