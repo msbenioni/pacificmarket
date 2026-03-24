@@ -190,13 +190,6 @@ export function getBusinessActions(business, user, isEditing = false) {
       label: "Add Owner",
       handler: "handleAddOwner",
       style: "iconSecondary",
-    },
-    {
-      key: "logo",
-      label: "Logo",
-      handler: "handleLogoUpload",
-      style: "iconSecondary",
-      isLabel: true,
     }
   );
   

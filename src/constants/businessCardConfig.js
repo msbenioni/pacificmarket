@@ -2,7 +2,6 @@ import {
   Edit,
   Trash2,
   Users,
-  Upload,
   Search,
   Plus,
 } from "lucide-react";
@@ -31,14 +30,6 @@ export const BUSINESS_CARD_ACTIONS = [
     handler: "handleAddOwner",
     style: "iconSecondary",
     condition: () => true, // Always available
-  },
-  {
-    key: "logo",
-    label: "Logo",
-    icon: Upload,
-    handler: "handleLogoUpload",
-    style: "iconSecondary",
-    isLabel: true, // This is a label element, not button
   },
 ];
 

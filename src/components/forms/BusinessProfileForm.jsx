@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Building2,
   ImageIcon,
@@ -10,6 +10,7 @@ import {
   Phone,
 } from "lucide-react";
 import { transformBusinessFormData } from "@/utils/businessDataTransformer";
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 // Import section components
@@ -68,31 +69,6 @@ const SECTIONS = [
   },
 ];
 
-// Section Fields Mapping
-const SECTION_FIELDS = {
-  core: ["business_name", "business_handle", "tagline", "description", "role"],
-  contact: ["business_contact_person", "business_email", "business_phone", "business_website", "business_hours"],
-  location: ["country", "city", "address", "suburb", "state_region", "postal_code", "industry"],
-  overview: [
-    "year_started",
-    "business_stage",
-    "business_structure",
-    "team_size_band",
-    "is_business_registered",
-    "founder_story",
-    "age_range",
-    "gender",
-  ],
-  community: [
-    "collaboration_interest",
-    "mentorship_offering",
-    "open_to_future_contact",
-    "business_acquisition_interest",
-  ],
-  social: ["social_links"],
-  brand: ["logo_url", "banner_url", "mobile_banner_url"],
-};
-
 export default function BusinessProfileForm({
   title = "Business Profile",
   businessId,
@@ -134,9 +110,6 @@ export default function BusinessProfileForm({
     logo_url: "",
     banner_url: "",
     mobile_banner_url: "",
-    logo_preview_url: "",
-    banner_preview_url: "",
-    mobile_banner_preview_url: "",
     logo_file: null,
     banner_file: null,
     mobile_banner_file: null,
@@ -178,6 +151,7 @@ export default function BusinessProfileForm({
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errors, setErrors] = useState({ submit: undefined });
+  const saveSuccessTimeoutRef = useRef(null);
 
   // Initialize form with existing data
   useEffect(() => {
@@ -200,6 +174,13 @@ export default function BusinessProfileForm({
     }
   }, [initialData]);
 
+  // Sync subscriptionTier prop to form state when it changes (only if not already set by initialData)
+  useEffect(() => {
+    if (!initialData?.subscription_tier && form.subscription_tier !== subscriptionTier) {
+      setForm((prev) => ({ ...prev, subscription_tier: subscriptionTier }));
+    }
+  }, [subscriptionTier, initialData?.subscription_tier, form.subscription_tier]);
+
   // Section Management
   const toggleSection = (sectionKey) => {
     setExpandedSections((prev) => {
@@ -212,6 +193,15 @@ export default function BusinessProfileForm({
       return next;
     });
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveSuccessTimeoutRef.current) {
+        clearTimeout(saveSuccessTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Form Handlers
   const handleInputChange = (field, value) => {
@@ -236,29 +226,27 @@ export default function BusinessProfileForm({
     if (!file) return;
 
     try {
-      const tempUrl = URL.createObjectURL(file);
-
       if (type === "logo") {
         setForm((prev) => ({
           ...prev,
-          logo_preview_url: tempUrl,
           logo_file: file,
+          logo_remove: false,
         }));
       }
 
       if (type === "banner") {
         setForm((prev) => ({
           ...prev,
-          banner_preview_url: tempUrl,
           banner_file: file,
+          banner_remove: false,
         }));
       }
 
       if (type === "mobile_banner") {
         setForm((prev) => ({
           ...prev,
-          mobile_banner_preview_url: tempUrl,
           mobile_banner_file: file,
+          mobile_banner_remove: false,
         }));
       }
     } catch (error) {
@@ -267,26 +255,21 @@ export default function BusinessProfileForm({
   };
 
   const removeImage = (type) => {
-    console.log("🗑️ removeImage called for:", type);
-    
     if (type === "logo") {
       setForm((prev) => {
-        // If there's a local file/preview, just clear it and revert to saved
-        if (prev.logo_file || prev.logo_preview_url) {
-          console.log("🗑️ Removing local logo preview, reverting to saved");
+        // If there's a local file, clear it and keep persisted image.
+        if (prev.logo_file) {
           return {
             ...prev,
-            logo_preview_url: "",
             logo_file: null,
             logo_remove: false, // Don't remove persisted image
           };
         }
-        // If there's a persisted image, mark it for removal
-        if (prev.logo_url && prev.logo_url.startsWith('http')) {
-          console.log("🗑️ Marking persisted logo for removal");
+        // If there's a persisted image, mark it for removal.
+        // Starter root-relative assets are not treated as removable persisted media.
+        if (isPersistentMediaUrl(prev.logo_url, { allowRootRelative: false })) {
           return {
             ...prev,
-            logo_preview_url: "",
             logo_file: null,
             logo_remove: true,
           };
@@ -298,22 +281,19 @@ export default function BusinessProfileForm({
 
     if (type === "banner") {
       setForm((prev) => {
-        // If there's a local file/preview, just clear it and revert to saved
-        if (prev.banner_file || prev.banner_preview_url) {
-          console.log("🗑️ Removing local banner preview, reverting to saved");
+        // If there's a local file, clear it and keep persisted image.
+        if (prev.banner_file) {
           return {
             ...prev,
-            banner_preview_url: "",
             banner_file: null,
             banner_remove: false, // Don't remove persisted image
           };
         }
-        // If there's a persisted image, mark it for removal
-        if (prev.banner_url && prev.banner_url.startsWith('http')) {
-          console.log("🗑️ Marking persisted banner for removal");
+        // If there's a persisted image, mark it for removal.
+        // Starter root-relative assets are not treated as removable persisted media.
+        if (isPersistentMediaUrl(prev.banner_url, { allowRootRelative: false })) {
           return {
             ...prev,
-            banner_preview_url: "",
             banner_file: null,
             banner_remove: true,
           };
@@ -325,22 +305,19 @@ export default function BusinessProfileForm({
 
     if (type === "mobile_banner") {
       setForm((prev) => {
-        // If there's a local file/preview, just clear it and revert to saved
-        if (prev.mobile_banner_file || prev.mobile_banner_preview_url) {
-          console.log("🗑️ Removing local mobile banner preview, reverting to saved");
+        // If there's a local file, clear it and keep persisted image.
+        if (prev.mobile_banner_file) {
           return {
             ...prev,
-            mobile_banner_preview_url: "",
             mobile_banner_file: null,
             mobile_banner_remove: false, // Don't remove persisted image
           };
         }
-        // If there's a persisted image, mark it for removal
-        if (prev.mobile_banner_url && prev.mobile_banner_url.startsWith('http')) {
-          console.log("🗑️ Marking persisted mobile banner for removal");
+        // If there's a persisted image, mark it for removal.
+        // Starter root-relative assets are not treated as removable persisted media.
+        if (isPersistentMediaUrl(prev.mobile_banner_url, { allowRootRelative: false })) {
           return {
             ...prev,
-            mobile_banner_preview_url: "",
             mobile_banner_file: null,
             mobile_banner_remove: true,
           };
@@ -353,25 +330,13 @@ export default function BusinessProfileForm({
 
   // Helper to reconcile form state with saved business data
   const reconcileSavedBusiness = (savedBusiness) => {
-    console.log("🔄 reconcileSavedBusiness called with:", {
-      id: savedBusiness.id,
-      brandingFields: {
-        logo_url: savedBusiness.logo_url,
-        banner_url: savedBusiness.banner_url,
-        mobile_banner_url: savedBusiness.mobile_banner_url
-      }
-    });
-
     setForm(prev => ({
       ...prev,
       // Update persisted URLs from saved row
       logo_url: savedBusiness.logo_url || "",
       banner_url: savedBusiness.banner_url || "",
       mobile_banner_url: savedBusiness.mobile_banner_url || "",
-      // Clear preview state and files
-      logo_preview_url: "",
-      banner_preview_url: "",
-      mobile_banner_preview_url: "",
+      // Clear local files
       logo_file: null,
       banner_file: null,
       mobile_banner_file: null,
@@ -388,105 +353,37 @@ export default function BusinessProfileForm({
       ...(savedBusiness.business_phone && { business_phone: savedBusiness.business_phone }),
       ...(savedBusiness.business_hours && { business_hours: savedBusiness.business_hours }),
     }));
-
-    console.log("✅ Form state reconciled successfully");
   };
 
-  // Save Handlers
-  const saveSection = async (sectionData) => {
-    setSubmitting(true);
-    setErrors({ submit: undefined });
+  const validateUploadedMediaPersistence = (saveResult) => {
+    const validationErrors = [];
 
-    try {
-      const { businessesData, businessInsightsData } = transformBusinessFormData(form);
-      
-      console.log("🎨 BusinessProfileForm save:", {
-        businessId,
-        hasFiles: !!(form.logo_file || form.banner_file || form.mobile_banner_file),
-        hasRemovals: !!(form.logo_remove || form.banner_remove || form.mobile_banner_remove),
-        businessesDataKeys: Object.keys(businessesData),
-        previewUrls: {
-          logo_preview_url: form.logo_preview_url,
-          banner_preview_url: form.banner_preview_url,
-          mobile_banner_preview_url: form.mobile_banner_preview_url
-        }
-      });
-      
-      const saveResult = await onSave({
-        businessId,
-        businessesData,
-        businessInsightsData,
-        files: {
-          logo_file: form.logo_file,
-          banner_file: form.banner_file,
-          mobile_banner_file: form.mobile_banner_file,
-        },
-        removals: {
-          logo_remove: form.logo_remove,
-          banner_remove: form.banner_remove,
-          mobile_banner_remove: form.mobile_banner_remove,
-        },
-      });
+    if (form.logo_file && form.logo_file instanceof File && !saveResult.logo_url) {
+      validationErrors.push("Logo upload did not persist correctly. Please try again.");
+    }
+    if (form.banner_file && form.banner_file instanceof File && !saveResult.banner_url) {
+      validationErrors.push("Banner upload did not persist correctly. Please try again.");
+    }
+    if (
+      form.mobile_banner_file &&
+      form.mobile_banner_file instanceof File &&
+      !saveResult.mobile_banner_url
+    ) {
+      validationErrors.push("Mobile banner upload did not persist correctly. Please try again.");
+    }
 
-      // Validate save result and reconcile form state
-      if (!saveResult || typeof saveResult !== 'object') {
-        throw new Error("Save completed but no updated record was returned. Please refresh and verify.");
-      }
-
-      console.log("🔄 Reconciling form state with saved data:", saveResult);
-      
-      // Validate that uploaded files persisted correctly
-      const validationErrors = [];
-      if (form.logo_file && !saveResult.logo_url) {
-        validationErrors.push("Logo upload did not persist correctly. Please try again.");
-      }
-      if (form.banner_file && !saveResult.banner_url) {
-        validationErrors.push("Banner upload did not persist correctly. Please try again.");
-      }
-      if (form.mobile_banner_file && !saveResult.mobile_banner_url) {
-        validationErrors.push("Mobile banner upload did not persist correctly. Please try again.");
-      }
-
-      if (validationErrors.length > 0) {
-        throw new Error(validationErrors.join(" "));
-      }
-
-      // Reconcile form state with saved data
-      reconcileSavedBusiness(saveResult);
-
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2500);
-    } catch (error) {
-      console.error("Failed to save section:", error);
-      setErrors((prev) => ({
-        ...prev,
-        submit: "Failed to save section. Please try again.",
-      }));
-    } finally {
-      setSubmitting(false);
+    if (validationErrors.length > 0) {
+      throw new Error(validationErrors.join(" "));
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const performSave = async ({ saveAll = false, errorMessage }) => {
     setSubmitting(true);
     setErrors({ submit: undefined });
 
     try {
       const { businessesData, businessInsightsData } = transformBusinessFormData(form);
-      
-      console.log("🎨 BusinessProfileForm handleSubmit (saveAll):", {
-        businessId,
-        hasFiles: !!(form.logo_file || form.banner_file || form.mobile_banner_file),
-        hasRemovals: !!(form.logo_remove || form.banner_remove || form.mobile_banner_remove),
-        businessesDataKeys: Object.keys(businessesData),
-        previewUrls: {
-          logo_preview_url: form.logo_preview_url,
-          banner_preview_url: form.banner_preview_url,
-          mobile_banner_preview_url: form.mobile_banner_preview_url
-        }
-      });
-      
+
       const saveResult = await onSave({
         businessId,
         businessesData,
@@ -501,7 +398,7 @@ export default function BusinessProfileForm({
           banner_remove: form.banner_remove,
           mobile_banner_remove: form.mobile_banner_remove,
         },
-        saveAll: true,
+        saveAll,
       });
 
       // Validate save result and reconcile form state
@@ -509,38 +406,41 @@ export default function BusinessProfileForm({
         throw new Error("Save completed but no updated record was returned. Please refresh and verify.");
       }
 
-      console.log("🔄 Reconciling form state with saved data (saveAll):", saveResult);
-      
-      // Validate that uploaded files persisted correctly
-      const validationErrors = [];
-      if (form.logo_file && !saveResult.logo_url) {
-        validationErrors.push("Logo upload did not persist correctly. Please try again.");
-      }
-      if (form.banner_file && !saveResult.banner_url) {
-        validationErrors.push("Banner upload did not persist correctly. Please try again.");
-      }
-      if (form.mobile_banner_file && !saveResult.mobile_banner_url) {
-        validationErrors.push("Mobile banner upload did not persist correctly. Please try again.");
-      }
-
-      if (validationErrors.length > 0) {
-        throw new Error(validationErrors.join(" "));
-      }
+      validateUploadedMediaPersistence(saveResult);
 
       // Reconcile form state with saved data
       reconcileSavedBusiness(saveResult);
 
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2500);
+      if (saveSuccessTimeoutRef.current) {
+        clearTimeout(saveSuccessTimeoutRef.current);
+      }
+      saveSuccessTimeoutRef.current = setTimeout(() => setSaveSuccess(false), 2500);
     } catch (error) {
       console.error("Failed to save business profile:", error);
       setErrors((prev) => ({
         ...prev,
-        submit: "Failed to save business profile. Please try again.",
+        submit: errorMessage,
       }));
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Save Handlers
+  const saveSection = async () => {
+    await performSave({
+      saveAll: false,
+      errorMessage: "Failed to save section. Please try again.",
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await performSave({
+      saveAll: true,
+      errorMessage: "Failed to save business profile. Please try again.",
+    });
   };
 
   const logoInputId = `${mode}-logo-upload-${businessId || "new"}`;
@@ -656,7 +556,7 @@ export default function BusinessProfileForm({
               icon={section.icon}
               isOpen={expandedSections.has(section.key)}
               onToggle={() => toggleSection(section.key)}
-              onSaveSection={() => saveSection(form)}
+              onSaveSection={saveSection}
               saving={submitting}
               formData={form}
               errors={errors}

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -10,7 +11,7 @@ import { subscriberGrowthPlanDeck } from "@/lib/presentations/decks/subscriber-g
 import { studentOutreachPlaybookDeck } from "@/lib/presentations/decks/student-outreach-playbook";
 import { studentOutreachOperationsDeck } from "@/lib/presentations/decks/student-outreach-operations";
 
-export default function PresentationPage() {
+function PresentationPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const deckId = searchParams.get("deck");
@@ -48,5 +49,20 @@ export default function PresentationPage() {
     <div className="min-h-screen bg-gray-900">
       <PresentationViewer deck={deck} onBack={() => router.push("/AdminDashboard?tab=presentations")} />
     </div>
+  );
+}
+
+export default function PresentationPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-900">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-white"></div>
+          <p className="mt-2 text-sm text-gray-400">Loading presentation...</p>
+        </div>
+      </div>
+    }>
+      <PresentationPageContent />
+    </Suspense>
   );
 }

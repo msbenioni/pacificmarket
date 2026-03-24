@@ -1,4 +1,99 @@
-import { getSupabase } from '../lib/supabase/client';
+import {
+  generateBusinessLogo,
+  generateBusinessBanner,
+  generateMobileBanner,
+  svgDataUrlToFile,
+} from "@/utils/businessImageGenerator";
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
+
+const MEDIA_BUCKET = "admin-listings";
+
+const MEDIA_SLOTS = {
+  logo_url: { fileKey: "logo_file", folder: "logos" },
+  banner_url: { fileKey: "banner_file", folder: "banners" },
+  mobile_banner_url: { fileKey: "mobile_banner_file", folder: "mobile-banners" },
+};
+
+export const BUSINESS_MEDIA_FIELDS = Object.keys(MEDIA_SLOTS);
+
+const sanitizePathSegment = (value = "business") =>
+  String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "") || "business";
+
+const inferFileExtension = (file) => {
+  if (file?.name && file.name.includes(".")) {
+    return file.name.split(".").pop().toLowerCase();
+  }
+
+  if (file?.type === "image/svg+xml") return "svg";
+  if (file?.type === "image/webp") return "webp";
+  if (file?.type === "image/png") return "png";
+  if (file?.type === "image/jpeg") return "jpg";
+  return "bin";
+};
+
+export const sanitizeBusinessMediaPayload = (
+  payload = {},
+  { allowRootRelative = false } = {}
+) => {
+  const sanitized = { ...payload };
+
+  BUSINESS_MEDIA_FIELDS.forEach((field) => {
+    const value = sanitized[field];
+
+    if (value === undefined) {
+      return;
+    }
+
+    // Preserve explicit null for removal operations.
+    if (value === null) {
+      return;
+    }
+
+    if (!isPersistentMediaUrl(value, { allowRootRelative })) {
+      delete sanitized[field];
+    }
+  });
+
+  return sanitized;
+};
+
+export const uploadBusinessMediaFile = async ({ supabase, businessId, field, file }) => {
+  const slot = MEDIA_SLOTS[field];
+
+  if (!slot) {
+    throw new Error(`Unknown media field: ${field}`);
+  }
+
+  const businessSegment = sanitizePathSegment(businessId);
+  const extension = inferFileExtension(file);
+  const filePath = `${slot.folder}/${businessSegment}-${Date.now()}.${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .upload(filePath, file, {
+      upsert: true,
+      cacheControl: "3600",
+      contentType: file?.type,
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from(MEDIA_BUCKET)
+    .getPublicUrl(filePath);
+
+  if (!publicUrlData?.publicUrl) {
+    throw new Error(`Failed to get public URL for ${field}`);
+  }
+
+  return publicUrlData.publicUrl;
+};
 
 /**
  * Upload business branding files to Supabase Storage
@@ -13,68 +108,22 @@ import { getSupabase } from '../lib/supabase/client';
  */
 export const uploadBusinessBrandingFiles = async ({ supabase, businessId, files }) => {
   const uploadedUrls = {};
-  
+
   try {
-    // Upload logo if provided
-    if (files.logo_file) {
-      const file = files.logo_file;
-      const filePath = `logos/${businessId}-${Date.now()}-${file.name}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("admin-listings")
-        .upload(filePath, file);
-      
-      if (uploadError) throw uploadError;
-      
-      const { data: publicUrlData } = supabase.storage
-        .from("admin-listings")
-        .getPublicUrl(filePath);
-      
-      if (publicUrlData?.publicUrl) {
-        uploadedUrls.logo_url = publicUrlData.publicUrl;
+    for (const [field, config] of Object.entries(MEDIA_SLOTS)) {
+      const file = files?.[config.fileKey];
+      if (!file) {
+        continue;
       }
+
+      uploadedUrls[field] = await uploadBusinessMediaFile({
+        supabase,
+        businessId,
+        field,
+        file,
+      });
     }
-    
-    // Upload banner if provided
-    if (files.banner_file) {
-      const file = files.banner_file;
-      const filePath = `banners/${businessId}-${Date.now()}-${file.name}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("admin-listings")
-        .upload(filePath, file);
-      
-      if (uploadError) throw uploadError;
-      
-      const { data: publicUrlData } = supabase.storage
-        .from("admin-listings")
-        .getPublicUrl(filePath);
-      
-      if (publicUrlData?.publicUrl) {
-        uploadedUrls.banner_url = publicUrlData.publicUrl;
-      }
-    }
-    
-    // Upload mobile banner if provided
-    if (files.mobile_banner_file) {
-      const file = files.mobile_banner_file;
-      const filePath = `mobile-banners/${businessId}-${Date.now()}-${file.name}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("admin-listings")
-        .upload(filePath, file);
-      
-      if (uploadError) throw uploadError;
-      
-      const { data: publicUrlData } = supabase.storage
-        .from("admin-listings")
-        .getPublicUrl(filePath);
-      
-      if (publicUrlData?.publicUrl) {
-        uploadedUrls.mobile_banner_url = publicUrlData.publicUrl;
-      }
-    }
-    
+
     return uploadedUrls;
   } catch (error) {
     console.error("Error uploading branding files:", error);
@@ -83,25 +132,58 @@ export const uploadBusinessBrandingFiles = async ({ supabase, businessId, files 
 };
 
 /**
- * Remove blob URLs from payload to prevent them from being saved to database
- * @param {Object} payload - The payload to sanitize
- * @returns {Object} Sanitized payload with blob URLs removed
+ * Generate and upload default branding assets for any missing media fields.
+ * Returns only the URLs that were generated/uploaded in this call.
  */
-export const stripTransientImageUrls = (payload) => {
-  const sanitized = { ...payload };
-  
-  // Remove blob URLs from branding fields
-  if (sanitized.logo_url && sanitized.logo_url.startsWith('blob:')) {
-    sanitized.logo_url = '';
+export const generateAndUploadDefaultBusinessAssets = async ({
+  supabase,
+  businessId,
+  businessName,
+  businessHandle,
+  currentMedia = /** @type {{ logo_url?: string | null; banner_url?: string | null; mobile_banner_url?: string | null }} */ ({}),
+}) => {
+  const existing = sanitizeBusinessMediaPayload({ ...currentMedia });
+  const explicitlyRemoved = {
+    logo_url: currentMedia?.logo_url === null,
+    banner_url: currentMedia?.banner_url === null,
+    mobile_banner_url: currentMedia?.mobile_banner_url === null,
+  };
+  const filesToUpload = {};
+  const safeHandle = sanitizePathSegment(businessHandle || businessName || businessId);
+
+  if (!existing.logo_url && !explicitlyRemoved.logo_url) {
+    const logoDataUrl = generateBusinessLogo(businessName || "Business");
+    if (logoDataUrl) {
+      filesToUpload.logo_file = await svgDataUrlToFile(logoDataUrl, `${safeHandle}-logo`);
+    }
   }
-  if (sanitized.banner_url && sanitized.banner_url.startsWith('blob:')) {
-    sanitized.banner_url = '';
+
+  if (!existing.banner_url && !explicitlyRemoved.banner_url) {
+    const bannerDataUrl = generateBusinessBanner(businessName || "Business");
+    if (bannerDataUrl) {
+      filesToUpload.banner_file = await svgDataUrlToFile(bannerDataUrl, `${safeHandle}-banner`);
+    }
   }
-  if (sanitized.mobile_banner_url && sanitized.mobile_banner_url.startsWith('blob:')) {
-    sanitized.mobile_banner_url = '';
+
+  if (!existing.mobile_banner_url && !explicitlyRemoved.mobile_banner_url) {
+    const mobileBannerDataUrl = generateMobileBanner(businessName || "Business");
+    if (mobileBannerDataUrl) {
+      filesToUpload.mobile_banner_file = await svgDataUrlToFile(
+        mobileBannerDataUrl,
+        `${safeHandle}-mobile-banner`
+      );
+    }
   }
-  
-  return sanitized;
+
+  if (!filesToUpload.logo_file && !filesToUpload.banner_file && !filesToUpload.mobile_banner_file) {
+    return {};
+  }
+
+  return uploadBusinessBrandingFiles({
+    supabase,
+    businessId,
+    files: filesToUpload,
+  });
 };
 
 /**
@@ -123,7 +205,7 @@ export const prepareBusinessBrandingPayload = async ({
   businessId, 
   businessesData, 
   files = {}, 
-  removals = {} 
+  removals = /** @type {{ logo_remove?: boolean; banner_remove?: boolean; mobile_banner_remove?: boolean }} */ ({})
 }) => {
   console.log("🎨 Preparing branding payload:", {
     businessId,
@@ -137,13 +219,26 @@ export const prepareBusinessBrandingPayload = async ({
   });
 
   try {
-    // Step 1: Sanitize incoming payload to remove any blob URLs
-    let sanitizedData = stripTransientImageUrls(businessesData);
+    // Step 1: Start with incoming payload and sanitize media fields defensively.
+    let sanitizedData = { ...businessesData };
+    const sanitizedMedia = sanitizeBusinessMediaPayload({
+      logo_url: sanitizedData.logo_url,
+      banner_url: sanitizedData.banner_url,
+      mobile_banner_url: sanitizedData.mobile_banner_url,
+    });
+
+    delete sanitizedData.logo_url;
+    delete sanitizedData.banner_url;
+    delete sanitizedData.mobile_banner_url;
+    sanitizedData = {
+      ...sanitizedData,
+      ...sanitizedMedia,
+    };
     
     console.log("🧹 Sanitized incoming data:", {
-      logo_url: sanitizedData.logo_url ? 'URL present' : 'null/empty',
-      banner_url: sanitizedData.banner_url ? 'URL present' : 'null/empty',
-      mobile_banner_url: sanitizedData.mobile_banner_url ? 'URL present' : 'null/empty'
+      logo_url: sanitizedData.logo_url ? 'URL present' : 'omitted/empty',
+      banner_url: sanitizedData.banner_url ? 'URL present' : 'omitted/empty',
+      mobile_banner_url: sanitizedData.mobile_banner_url ? 'URL present' : 'omitted/empty'
     });
     
     // Step 2: Handle removal flags
@@ -197,13 +292,16 @@ export const prepareBusinessBrandingPayload = async ({
     }
     
     // Step 4: Merge uploaded URLs into final payload
+    // PRECEDENCE: Uploaded files win over removal flags for the same field in the same save operation.
+    // This means if a user uploads a new logo file and also has logo_remove: true in the same payload,
+    // the uploaded file URL will be saved (upload takes precedence over removal).
     const finalPayload = {
       ...sanitizedData,
       ...uploadedUrls
     };
     
-    // Step 5: Final safety check - ensure no blob URLs remain
-    const safePayload = stripTransientImageUrls(finalPayload);
+    // Step 5: Final safety check - ensure no blob/transient URLs remain
+    const safePayload = sanitizeBusinessMediaPayload(finalPayload);
     
     console.log("✅ Final safe payload prepared:", {
       logo_url: safePayload.logo_url ? 'URL present' : 'null/empty',

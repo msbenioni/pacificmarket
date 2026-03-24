@@ -364,13 +364,24 @@ export async function createBusiness(business: BusinessCreate) {
   // Inherit cultural data from user profile if not explicitly set
   const businessData = await inheritProfileData(business, business.owner_user_id);
 
+  const businessWithTimestamps = businessData as BusinessCreate & {
+    created_at?: string;
+    updated_at?: string;
+    created_date?: string | null;
+  };
+  const now = new Date();
+  const created_at = businessWithTimestamps.created_at ?? now.toISOString();
+  const updated_at = businessWithTimestamps.updated_at ?? now.toISOString();
+  const created_date =
+    businessWithTimestamps.created_date ?? now.toISOString().split('T')[0];
+
   return supabase
     .from('businesses')
     .insert({
       ...businessData,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      created_date: new Date().toISOString().split('T')[0]
+      created_at,
+      updated_at,
+      created_date
     })
     .select(BUSINESS_PUBLIC_FIELDS)
     .single();

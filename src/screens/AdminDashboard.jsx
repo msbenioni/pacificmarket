@@ -6,24 +6,35 @@ import { useAuth } from "@/lib/AuthContext";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
 import toast from "react-hot-toast";
 import {
-  Search,
-  Filter,
-  Download,
-  Plus,
+  AlertTriangle,
   Building2,
   CheckCircle,
-  Clock,
-  Shield,
-  XCircle,
-  AlertTriangle,
   Eye,
+  Shield,
   Speech,
-  Presentation,
+  XCircle,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
 import HeroStandard from "../components/shared/HeroStandard";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
+import AdminBusinessMobileCard from "@/components/admin/AdminBusinessMobileCard";
+import AdminFiltersBar from "@/components/admin/AdminFiltersBar";
+import AdminTabsBar from "@/components/admin/AdminTabsBar";
+import ClaimMobileCard from "@/components/admin/ClaimMobileCard";
+import PresentationsTab from "@/components/admin/PresentationsTab";
+import {
+  formatLanguages,
+  getBadgeStyles,
+} from "@/components/admin/helpers/adminFormatting";
+import {
+  TABS,
+  emptyBusinessForm,
+  filterButtonCls,
+  mobileButtonCls,
+  primaryButtonCls,
+  secondaryButtonCls,
+} from "@/components/admin/constants/adminDashboardConstants";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import {
   COUNTRIES,
@@ -33,324 +44,7 @@ import {
   getTierDisplayName,
 } from "@/constants/unifiedConstants";
 import { getLogoUrl } from "@/utils/bannerUtils";
-import { investorOverviewDeck } from "@/lib/presentations/investorOverviewDeck";
-import { internalFounderAlignmentDeck } from "@/lib/presentations/decks/internal-founder-alignment";
-import { subscriberGrowthPlanDeck } from "@/lib/presentations/decks/subscriber-growth-plan";
-import { studentOutreachPlaybookDeck } from "@/lib/presentations/decks/student-outreach-playbook";
-import { studentOutreachOperationsDeck } from "@/lib/presentations/decks/student-outreach-operations";
-
-const TABS = [
-  {
-    id: "active",
-    label: "Active",
-    icon: CheckCircle,
-    color: "text-green-600",
-    status: BUSINESS_STATUS.ACTIVE,
-  },
-  {
-    id: "pending",
-    label: "Pending",
-    icon: Clock,
-    color: "text-yellow-600",
-    status: BUSINESS_STATUS.PENDING,
-  },
-  { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
-  {
-    id: "presentations",
-    label: "Presentations",
-    icon: Presentation,
-    color: "text-purple-600",
-  },
-];
-
-const buttonCls =
-  "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all";
-const primaryButtonCls = `${buttonCls} bg-[#0a1628] text-white hover:bg-[#122040]`;
-const secondaryButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
-const mobileButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
-const filterButtonCls = `${buttonCls} border border-gray-200 bg-white text-[#0a1628] hover:bg-gray-50`;
-
-/** @type {Record<string, any>} */
-const emptyBusinessForm = {
-  business_name: "",
-  business_handle: "",
-  description: "",
-  tagline: "",
-  role: "",
-  business_contact_person: "",
-  business_email: "",
-  business_phone: "",
-  business_website: "",
-  business_hours: "",
-  country: "",
-  city: "",
-  address: "",
-  suburb: "",
-  state_region: "",
-  postal_code: "",
-  industry: "",
-  year_started: null,
-  business_stage: "",
-  business_structure: "",
-  is_business_registered: false,
-  subscription_tier: "vaka",
-  status: BUSINESS_STATUS.PENDING,
-  team_size_band: "",
-  founder_story: "",
-  age_range: "",
-  gender: "",
-  collaboration_interest: false,
-  mentorship_offering: false,
-  open_to_future_contact: false,
-  business_acquisition_interest: false,
-  social_links: {
-    facebook: "",
-    instagram: "",
-    twitter: "",
-    linkedin: "",
-    youtube: "",
-    tiktok: "",
-  },
-  is_verified: false,
-  is_claimed: false,
-  is_homepage_featured: false,
-  logo_url: "",
-  banner_url: "",
-  mobile_banner_url: "",
-  logo_preview_url: "",
-  banner_preview_url: "",
-  mobile_banner_preview_url: "",
-  logo_file: null,
-  banner_file: null,
-  mobile_banner_file: null,
-  logo_remove: false,
-  banner_remove: false,
-  mobile_banner_remove: false,
-};
-
-function formatLanguageName(languageCode) {
-  const languageMap = {
-    english: "English",
-    french: "French",
-    spanish: "Spanish",
-    chinese: "Chinese",
-    japanese: "Japanese",
-    korean: "Korean",
-    german: "German",
-    italian: "Italian",
-    portuguese: "Portuguese",
-    russian: "Russian",
-    arabic: "Arabic",
-    hindi: "Hindi",
-    "french-polynesia": "French Polynesian",
-    "cook-islands": "Cook Islands",
-    maori: "Māori",
-    samoan: "Samoan",
-    tongan: "Tongan",
-    fijian: "Fijian",
-    "tok-pisin": "Tok Pisin",
-    pidgin: "Pidgin",
-    "te-reo-maori": "Te Reo Māori",
-    uvean: "Uvean",
-    tahitian: "Tahitian",
-    rotuman: "Rotuman",
-  };
-
-  return (
-    languageMap[languageCode.toLowerCase()] ||
-    languageCode.charAt(0).toUpperCase() + languageCode.slice(1).toLowerCase()
-  );
-}
-
-function formatLanguages(languages) {
-  if (!languages) return "";
-
-  let languageArray;
-  if (Array.isArray(languages)) {
-    languageArray = languages;
-  } else if (typeof languages === "string") {
-    try {
-      const parsed = JSON.parse(languages);
-      languageArray = Array.isArray(parsed) ? parsed : [languages];
-    } catch {
-      languageArray = languages
-        .split(",")
-        .map((lang) => lang.trim())
-        .filter(Boolean);
-    }
-  } else {
-    return "";
-  }
-
-  if (languageArray.length === 0) return "";
-
-  const formattedLanguages = languageArray.map((lang) =>
-    formatLanguageName(lang)
-  );
-
-  if (formattedLanguages.length <= 2) {
-    return formattedLanguages.join(" & ");
-  }
-
-  return `${formattedLanguages.slice(0, 2).join(" & ")} +${
-    formattedLanguages.length - 2
-  } more`;
-}
-
-function getBadgeStyles(type) {
-  const styles = {
-    success: "border-green-200 bg-green-50 text-green-700",
-    danger: "border-red-200 bg-red-50 text-red-700",
-    warning: "border-yellow-200 bg-yellow-50 text-yellow-700",
-    info: "border-blue-200 bg-blue-50 text-blue-700",
-    neutral: "border-gray-200 bg-gray-50 text-gray-700",
-    premium: "border-purple-200 bg-purple-50 text-purple-700",
-  };
-  return styles[type] || styles.neutral;
-}
-
-function PresentationsTab() {
-  const router = useRouter();
-
-  const presentations = [
-    {
-      id: "investor-overview",
-      title: "Investor Overview",
-      description: "Complete investor presentation for Pacific Discovery Network",
-      audience: "Investors",
-      status: "live",
-      lastUpdated: "March 2026",
-      slideCount: investorOverviewDeck.slides.length,
-      deck: investorOverviewDeck,
-    },
-    {
-      id: "internal-founder-alignment",
-      title: "Internal Founder Alignment",
-      description:
-        "Internal strategy deck for founder and co-founder alignment on mission, vision, and execution priorities",
-      audience: "Internal",
-      status: "live",
-      lastUpdated: "March 2026",
-      slideCount: internalFounderAlignmentDeck.slides.length,
-      deck: internalFounderAlignmentDeck,
-    },
-    {
-      id: "subscriber-growth-plan",
-      title: "1,000 Subscriber Growth Plan",
-      description:
-        "Internal execution deck for reaching 1,000 paying subscribers with validated acquisition channels",
-      audience: "Internal",
-      status: "live",
-      lastUpdated: "March 2026",
-      slideCount: subscriberGrowthPlanDeck.slides.length,
-      deck: subscriberGrowthPlanDeck,
-    },
-    {
-      id: "student-outreach-playbook",
-      title: "Student Outreach Playbook",
-      description:
-        "Internal training deck for student-supported business discovery and outreach operations",
-      audience: "Internal",
-      status: "live",
-      lastUpdated: "March 2026",
-      slideCount: studentOutreachPlaybookDeck.slides.length,
-      deck: studentOutreachPlaybookDeck,
-    },
-    {
-      id: "student-outreach-operations",
-      title: "Student Outreach & Listing Operations",
-      description:
-        "Internal operations deck for business discovery, admin listings, and claim workflows",
-      audience: "Internal",
-      status: "live",
-      lastUpdated: "March 2026",
-      slideCount: studentOutreachOperationsDeck.slides.length,
-      deck: studentOutreachOperationsDeck,
-    },
-  ];
-
-  const handleViewPresentation = (deck) => {
-    router.push(`/AdminDashboard/presentations?deck=${deck.id}`);
-  };
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="border-b border-gray-200 bg-gray-50">
-          <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Presentation
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Description
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Audience
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Slides
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Status
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-              Updated
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-              Actions
-            </th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-gray-200">
-          {presentations.map((presentation) => (
-            <tr key={presentation.id} className="hover:bg-gray-50">
-              <td className="px-4 py-4">
-                <div className="font-medium text-[#0a1628]">
-                  {presentation.title}
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <div className="max-w-md truncate text-sm text-gray-600">
-                  {presentation.description}
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <div className="text-sm text-gray-600">
-                  {presentation.audience}
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <div className="text-sm text-gray-600">
-                  {presentation.slideCount}
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                  {presentation.status}
-                </span>
-              </td>
-              <td className="px-4 py-4">
-                <div className="text-sm text-gray-600">
-                  {presentation.lastUpdated}
-                </div>
-              </td>
-              <td className="px-4 py-4 text-right">
-                <button
-                  onClick={() => handleViewPresentation(presentation)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                  View
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
 
 async function checkIsAdmin(user) {
   if (!user) return false;
@@ -375,229 +69,6 @@ async function checkIsAdmin(user) {
     console.error("Error checking admin role:", error);
     return false;
   }
-}
-
-function ClaimMobileCard({ claim, business, onApprove, onDeny }) {
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "approved":
-        return { text: "Approved", style: getBadgeStyles("success") };
-      case "rejected":
-        return { text: "Rejected", style: getBadgeStyles("danger") };
-      case "pending":
-        return { text: "Pending", style: getBadgeStyles("warning") };
-      default:
-        return { text: status || "Unknown", style: getBadgeStyles("neutral") };
-    }
-  };
-
-  const statusBadge = getStatusBadge(claim.status);
-
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          <img src={getLogoUrl(business)} alt="" className="h-full w-full object-cover" />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="break-words text-sm font-semibold text-[#0a1628]">
-              {business?.business_name || "Unknown Business"}
-            </h3>
-            <span
-              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusBadge.style}`}
-            >
-              {statusBadge.text}
-            </span>
-          </div>
-
-          <p className="mt-1 text-xs text-gray-500">
-            {business?.country || "Unknown"} · {business?.industry || "Unknown"}
-          </p>
-
-          <div className="mt-2 space-y-1">
-            <p className="text-xs text-gray-600">
-              <span className="font-medium">Business Email:</span>{" "}
-              {claim.business_email || "Not provided"}
-            </p>
-            {claim.business_phone && (
-              <p className="text-xs text-gray-600">
-                <span className="font-medium">Business Phone:</span>{" "}
-                {claim.business_phone}
-              </p>
-            )}
-            <p className="text-xs text-gray-600">
-              <span className="font-medium">Role:</span>{" "}
-              {claim.role || "Not specified"}
-            </p>
-            <p className="text-xs text-gray-600">
-              <span className="font-medium">Claim Type:</span>{" "}
-              {claim.claim_type || "Standard request"}
-            </p>
-            {claim.message && (
-              <p className="text-xs text-gray-600">
-                <span className="font-medium">Message:</span> {claim.message}
-              </p>
-            )}
-          </div>
-
-          <p className="mt-2 text-xs text-gray-400">
-            Requested{" "}
-            {claim.created_at || claim.created_date
-              ? new Date(
-                  claim.created_at || claim.created_date
-                ).toLocaleDateString()
-              : "—"}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {claim.status === "pending" && (
-          <>
-            <button
-              onClick={onApprove}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
-                "success"
-              )}`}
-            >
-              <CheckCircle className="h-3.5 w-3.5" />
-              Approve
-            </button>
-            <button
-              onClick={onDeny}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
-                "danger"
-              )}`}
-            >
-              <XCircle className="h-3.5 w-3.5" />
-              Deny
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function AdminBusinessMobileCard({
-  business,
-  isEditing,
-  draftBusiness,
-  onApprove,
-  onReject,
-  onEdit,
-  onDelete,
-  onSave,
-  onCancel,
-  savingEdit,
-}) {
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-          <img src={getLogoUrl(business)} alt="" className="h-full w-full object-cover" />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="break-words text-sm font-semibold text-[#0a1628]">
-              {business.business_name}
-            </h3>
-            <span
-              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles(
-                "neutral"
-              )}`}
-            >
-              {getTierDisplayName(business.subscription_tier) ||
-                business.subscription_tier ||
-                "vaka"}
-            </span>
-            {business.is_verified && (
-              <span
-                className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles(
-                  "success"
-                )}`}
-              >
-                Verified
-              </span>
-            )}
-          </div>
-
-          <p className="mt-1 text-xs text-gray-500">
-            {getCountryDisplayName(business.country)} ·{" "}
-            {getIndustryDisplayName(business.industry) || "No industry"}
-          </p>
-          <p className="mt-1 break-all text-xs text-gray-500">
-            {business.business_email || "No email"}
-          </p>
-          <p className="mt-1 text-xs text-gray-400">
-            Submitted{" "}
-            {business.created_date
-              ? new Date(business.created_date).toLocaleDateString()
-              : "—"}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {business.status === BUSINESS_STATUS.PENDING && (
-          <>
-            <button
-              onClick={onApprove}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
-                "success"
-              )}`}
-            >
-              <CheckCircle className="h-3.5 w-3.5" />
-              Approve
-            </button>
-            <button
-              onClick={onReject}
-              className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
-                "danger"
-              )}`}
-            >
-              <XCircle className="h-3.5 w-3.5" />
-              Deny
-            </button>
-          </>
-        )}
-
-        <button
-          onClick={onEdit}
-          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${secondaryButtonCls}`}
-        >
-          {isEditing ? "Close" : "Edit"}
-        </button>
-
-        <button
-          onClick={onDelete}
-          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
-            "danger"
-          )}`}
-        >
-          Delete
-        </button>
-      </div>
-
-      {isEditing && draftBusiness && (
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <BusinessProfileForm
-            title={`Edit ${business.business_name}`}
-            businessId={business.id}
-            initialData={draftBusiness}
-            onSave={onSave}
-            onCancel={onCancel}
-            saving={savingEdit}
-            mode="edit"
-            showAdminFields={true}
-          />
-        </div>
-      )}
-    </div>
-  );
 }
 
 export default function AdminDashboard() {
@@ -727,7 +198,7 @@ export default function AdminDashboard() {
 
   const updateStatus = async (business, newStatus) => {
     try {
-      console.log("💾 Updating business status:", {
+      console.log("Updating business status:", {
         businessId: business.id,
         currentStatus: business.status,
         newStatus,
@@ -758,7 +229,7 @@ export default function AdminDashboard() {
         .select()
         .single();
 
-      console.log("💾 Business status update returned row:", data);
+      console.log("Business status update returned row:", data);
 
       if (error) throw error;
       if (!data) {
@@ -898,7 +369,7 @@ export default function AdminDashboard() {
         throw new Error("Missing business id for update.");
       }
 
-      console.log("💾 saveBusiness input:", {
+      console.log("saveBusiness input:", {
         businessId,
         businessesData,
         filesPresent: {
@@ -923,7 +394,7 @@ export default function AdminDashboard() {
 
       finalPayload.updated_at = new Date().toISOString();
 
-      console.log("💾 saveBusiness finalPayload:", finalPayload);
+      console.log("saveBusiness finalPayload:", finalPayload);
 
       const { data, error } = await supabase
         .from("businesses")
@@ -932,7 +403,7 @@ export default function AdminDashboard() {
         .select()
         .single();
 
-      console.log("💾 saveBusiness returned row:", data);
+      console.log("saveBusiness returned row:", data);
 
       if (error) throw error;
       if (!data) {
@@ -952,7 +423,7 @@ export default function AdminDashboard() {
 
       return data;
     } catch (error) {
-      console.error("❌ saveBusiness failed:", error);
+      console.error("saveBusiness failed:", error);
       toast.error(error?.message || "Unable to update the business.");
       throw error;
     } finally {
@@ -982,7 +453,7 @@ export default function AdminDashboard() {
         updated_at: new Date().toISOString(),
       };
 
-      console.log("💾 createVerifiedBusiness input:", {
+      console.log("createVerifiedBusiness input:", {
         businessesData: businessData,
         filesPresent: {
           logo_file: !!files.logo_file,
@@ -992,51 +463,88 @@ export default function AdminDashboard() {
         removals,
       });
 
-      const tempBusinessId = `new-${Date.now()}`;
-      const { prepareBusinessBrandingPayload } = await import(
-        "../utils/brandingUploadUtils"
-      );
-
-      const finalBusinessData = await prepareBusinessBrandingPayload({
+      const data = await createBusinessWithBranding({
         supabase,
-        businessId: tempBusinessId,
         businessesData: businessData,
         files,
         removals,
+        allowCustomBranding: true,
+        createRow: async (payloadToCreate) => {
+          const { data: createdRow, error } = await supabase
+            .from("businesses")
+            .insert(payloadToCreate)
+            .select(`
+              id,
+              business_name,
+              business_handle,
+              description,
+              industry,
+              country,
+              city,
+              status,
+              visibility_tier,
+              is_verified,
+              is_claimed,
+              business_email,
+              business_website,
+              logo_url,
+              banner_url,
+              mobile_banner_url,
+              owner_user_id,
+              created_date,
+              updated_at,
+              subscription_tier
+            `)
+            .single();
+
+          if (error) {
+            throw error;
+          }
+
+          return createdRow;
+        },
+        updateRow: async (businessId, brandingPayload) => {
+          const { data: updatedRow, error } = await supabase
+            .from("businesses")
+            .update({
+              ...brandingPayload,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", businessId)
+            .select(`
+              id,
+              business_name,
+              business_handle,
+              description,
+              industry,
+              country,
+              city,
+              status,
+              visibility_tier,
+              is_verified,
+              is_claimed,
+              business_email,
+              business_website,
+              logo_url,
+              banner_url,
+              mobile_banner_url,
+              owner_user_id,
+              created_date,
+              updated_at,
+              subscription_tier
+            `)
+            .single();
+
+          if (error) {
+            throw error;
+          }
+
+          return updatedRow;
+        },
       });
 
-      console.log("💾 createVerifiedBusiness finalPayload:", finalBusinessData);
+      console.log("createVerifiedBusiness returned row:", data);
 
-      const { data, error } = await supabase
-        .from("businesses")
-        .insert(finalBusinessData)
-        .select(`
-          id,
-          business_name,
-          business_handle,
-          description,
-          industry,
-          country,
-          city,
-          status,
-          visibility_tier,
-          is_verified,
-          is_claimed,
-          business_email,
-          business_website,
-          logo_url,
-          banner_url,
-          mobile_banner_url,
-          owner_user_id,
-          created_date,
-          updated_at,
-          subscription_tier
-        `)
-        .single();
-
-      console.log("💾 createVerifiedBusiness returned row:", data);
-
-      if (error) throw error;
       if (!data) {
         throw new Error("Insert completed but no business row was returned.");
       }
@@ -1250,134 +758,26 @@ export default function AdminDashboard() {
 
       <div className="min-h-screen bg-[#f8f9fc]">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="w-full lg:max-w-md">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search businesses..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="min-h-[44px] w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-[#0d4f4f] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className={
-                      showFilters
-                        ? `${mobileButtonCls} bg-[#0d4f4f] text-white hover:bg-[#1a6b6b]`
-                        : filterButtonCls
-                    }
-                  >
-                    <Filter className="h-4 w-4" />
-                    Filters
-                    {activeFilterCount > 0 && (
-                      <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[11px]">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowCreateForm((prev) => !prev);
-                      cancelEditingBusiness();
-                    }}
-                    className={primaryButtonCls}
-                  >
-                    <Plus className="h-4 w-4" />
-                    {showCreateForm ? "Close Create" : "Create Listing"}
-                  </button>
-                </div>
-              </div>
-
-              {showFilters && (
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-                    <select
-                      value={filters.country}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, country: e.target.value }))
-                      }
-                      className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-                    >
-                      <option value="">All Countries</option>
-                      {COUNTRIES.map((country) => (
-                        <option key={`country-${country.value}`} value={country.value}>
-                          {country.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={filters.industry}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, industry: e.target.value }))
-                      }
-                      className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-                    >
-                      <option value="">All Industries</option>
-                      {INDUSTRIES.map((industry) => (
-                        <option key={`industry-${industry.value}`} value={industry.value}>
-                          {industry.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={filters.tier}
-                      onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, tier: e.target.value }))
-                      }
-                      className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-                    >
-                      <option value="">All Tiers</option>
-                      <option value="vaka">Vaka</option>
-                      <option value="mana">Mana</option>
-                      <option value="moana">Moana</option>
-                    </select>
-
-                    <select
-                      value={filters.is_verified}
-                      onChange={(e) =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          is_verified: e.target.value,
-                        }))
-                      }
-                      className="min-h-[44px] rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-[#0d4f4f] focus:outline-none"
-                    >
-                      <option value="">All Verification</option>
-                      <option value="true">Verified</option>
-                      <option value="false">Not Verified</option>
-                    </select>
-                  </div>
-
-                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                    <button
-                      onClick={() =>
-                        setFilters({
-                          country: "",
-                          industry: "",
-                          tier: "",
-                          is_verified: "",
-                        })
-                      }
-                      className={secondaryButtonCls}
-                    >
-                      Clear Filters
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <AdminFiltersBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+            activeFilterCount={activeFilterCount}
+            filters={filters}
+            setFilters={setFilters}
+            onToggleCreate={() => {
+              setShowCreateForm((prev) => !prev);
+              cancelEditingBusiness();
+            }}
+            showCreateForm={showCreateForm}
+            COUNTRIES={COUNTRIES}
+            INDUSTRIES={INDUSTRIES}
+            primaryButtonCls={primaryButtonCls}
+            secondaryButtonCls={secondaryButtonCls}
+            mobileButtonCls={mobileButtonCls}
+            filterButtonCls={filterButtonCls}
+          />
 
           {showCreateForm && (
             <div className="mb-6">
@@ -1395,50 +795,16 @@ export default function AdminDashboard() {
           )}
 
           <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="border-b border-gray-200 p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="overflow-x-auto">
-                  <div className="flex min-w-max gap-1 rounded-xl bg-gray-50 p-1">
-                    {TABS.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          setActiveTab(tab.id);
-                          cancelEditingBusiness();
-                        }}
-                        className={`inline-flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                          activeTab === tab.id
-                            ? "bg-white text-[#0a1628] shadow-sm"
-                            : "text-gray-600 hover:text-[#0a1628]"
-                        }`}
-                      >
-                        <tab.icon
-                          className={`h-4 w-4 ${
-                            activeTab === tab.id ? "text-[#0d4f4f]" : ""
-                          }`}
-                        />
-                        {tab.label}
-                        {tab.id === "pending" && pendingCount > 0 && (
-                          <span className="rounded-full bg-yellow-500 px-1.5 py-0.5 text-[11px] text-white">
-                            {pendingCount}
-                          </span>
-                        )}
-                        {tab.id === "claims" && pendingClaimsCount > 0 && (
-                          <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-[11px] text-white">
-                            {pendingClaimsCount}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <button onClick={exportCSV} className={secondaryButtonCls}>
-                  <Download className="h-4 w-4" />
-                  Export CSV
-                </button>
-              </div>
-            </div>
+            <AdminTabsBar
+              tabs={TABS}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              pendingCount={pendingCount}
+              pendingClaimsCount={pendingClaimsCount}
+              onExport={exportCSV}
+              onResetEditing={cancelEditingBusiness}
+              secondaryButtonCls={secondaryButtonCls}
+            />
 
             <div className="p-4">
               {activeTab === "claims" && (

@@ -12,7 +12,7 @@ export const createSupabaseBrowserClient = () =>
         persistSession: true,
         detectSessionInUrl: true,
         autoRefreshToken: true,
-        debug: process.env.NODE_ENV === 'development',
+        debug: false,
       }
     };
     

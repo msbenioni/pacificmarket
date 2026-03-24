@@ -1,65 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Building2 } from "lucide-react";
+import { Plus, Building2, Crown } from "lucide-react";
 import { shouldShowUpgradePrompt } from "@/utils/businessHelpers";
 import { createPageUrl } from "@/utils";
 import BusinessCard from "./BusinessCard";
 import AddBusinessCard from "./AddBusinessCard";
 import EmptyState from "./EmptyState";
-import UpgradePrompt from "./UpgradePrompt";
 
 export default function BusinessesTab({
   businesses,
   user,
-  profiles,
   onboardingStatus,
   editingBusinessId,
   draftBusiness,
   savingEdit,
   insightsSubmitting,
-  insightsStarted,
   tierInfo,
   checkoutLoading,
   onBusinessAction,
   onClaimAddAction,
   onUpgradeClick,
+  showAddBusiness,
+  onAddBusinessSuccess,
+  onAddBusinessCancel,
+  onShowAddBusiness,
 }) {
-  const [showAddBusiness, setShowAddBusiness] = useState(false);
-  const handleBusinessCardAction = (action, businessId, data) => {
-    switch (action) {
-      case "edit":
-        onBusinessAction("edit", businessId);
-        break;
-      case "cancel":
-        onBusinessAction("cancel", businessId);
-        break;
-      case "save":
-        onBusinessAction("save", businessId, data);
-        break;
-      case "draftChange":
-        onBusinessAction("draftChange", businessId, data);
-        break;
-      case "delete":
-        onBusinessAction("delete", businessId);
-        break;
-      case "addOwner":
-        onBusinessAction("addOwner", businessId);
-        break;
-      case "logoUpload":
-        onBusinessAction("logoUpload", businessId, data);
-        break;
-      case "bannerUpload":
-        onBusinessAction("bannerUpload", businessId, data);
-        break;
-      case "insightsSubmit":
-        onBusinessAction("insightsSubmit", businessId, data);
-        break;
-      default:
-        console.warn(`Unknown business action: ${action}`);
-    }
-  };
-
   const handleEmptyStateAction = (action) => {
     switch (action) {
       case "completeProfile":
@@ -70,21 +35,11 @@ export default function BusinessesTab({
         onClaimAddAction("claim");
         break;
       case "add":
-        setShowAddBusiness(true);
+        onShowAddBusiness();
         break;
       default:
         console.warn(`Unknown empty state action: ${action}`);
     }
-  };
-
-  const handleAddBusinessSuccess = (data) => {
-    // Handle successful business addition
-    // This will trigger a refresh of the businesses list
-    onBusinessAction("addBusiness", null, data);
-  };
-
-  const handleAddBusinessCancel = () => {
-    setShowAddBusiness(false);
   };
 
   return (
@@ -95,85 +50,89 @@ export default function BusinessesTab({
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#0d4f4f]/10 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0d4f4f] shadow-sm">
-              <Building2 className="h-3.5 w-3.5" />
+              <Building2 className="h-3 w-3" />
               My Businesses
             </div>
-
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#0a1628] sm:text-3xl">
-              Manage your registry records
-            </h2>
-
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-              Open each business to manage grouped sections like listing details, media,
-              owners, and insights in a cleaner workflow.
+            <h1 className="mt-3 text-2xl font-bold text-[#0a1628] sm:text-3xl">
+              Manage your businesses
+            </h1>
+            <p className="mt-2 text-slate-600">
+              Edit your business profiles, manage branding, and track performance.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => handleEmptyStateAction("claim")}
-              disabled={onboardingStatus.needsProfile}
-              className="inline-flex items-center justify-center rounded-xl border border-[#0d4f4f]/15 bg-white px-4 py-3 text-sm font-semibold text-[#0d4f4f] shadow-sm transition hover:border-[#0d4f4f]/30 hover:bg-[#f8fbfb] disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => onClaimAddAction("claim")}
+              className="inline-flex items-center gap-2 rounded-xl border border-[#0d4f4f] bg-[#0d4f4f] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#122040]"
             >
+              <Plus className="h-4 w-4" />
               Claim Business
             </button>
-
+            
             <button
-              onClick={() => handleEmptyStateAction("add")}
-              disabled={onboardingStatus.needsProfile}
-              className="inline-flex items-center justify-center rounded-xl bg-[#0d4f4f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a3d3d] disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={onShowAddBusiness}
+              className="inline-flex items-center gap-2 rounded-xl border border-[#0d4f4f] bg-[#0d4f4f] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#122040]"
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="h-4 w-4" />
               Add Business
             </button>
+
+            {shouldShowUpgradePrompt(businesses) && (
+              <button
+                onClick={onUpgradeClick}
+                disabled={checkoutLoading}
+                className="inline-flex items-center gap-2 rounded-xl border border-[#c9a84c] bg-[#c9a84c] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#b8973b] disabled:opacity-50"
+              >
+                <Crown className="h-4 w-4" />
+                {checkoutLoading ? "Processing..." : "Upgrade"}
+              </button>
+            )}
           </div>
         </div>
       </section>
 
-      {shouldShowUpgradePrompt(businesses) && (
-        <UpgradePrompt
-          onUpgradeClick={onUpgradeClick}
-          checkoutLoading={checkoutLoading}
-          user={user}
-        />
-      )}
+      {/* Businesses List */}
+      <div className="space-y-4">
+        {businesses.length === 0 && !showAddBusiness ? (
+          <EmptyState
+            user={user}
+            onboardingStatus={onboardingStatus}
+            onAction={handleEmptyStateAction}
+          />
+        ) : (
+          <div className="space-y-6">
+            {showAddBusiness && (
+              <AddBusinessCard
+                onAddSuccess={onAddBusinessSuccess}
+                onCancel={onAddBusinessCancel}
+                saving={savingEdit}
+                onboardingStatus={onboardingStatus}
+              />
+            )}
 
-      {businesses.length === 0 && !showAddBusiness ? (
-        <EmptyState
-          type="noBusinesses"
-          onboardingStatus={onboardingStatus}
-          onAction={handleEmptyStateAction}
-        />
-      ) : (
-        <div className="space-y-6">
-          {showAddBusiness && (
-            <AddBusinessCard
-              onAddSuccess={handleAddBusinessSuccess}
-              onCancel={handleAddBusinessCancel}
-              saving={savingEdit}
-              onboardingStatus={onboardingStatus}
-            />
-          )}
-          
-          {businesses.map((business) => (
-            <BusinessCard
-              key={business.id}
-              business={business}
-              draftBusiness={draftBusiness}
-              savingEdit={savingEdit}
-              insightsSubmitting={insightsSubmitting}
-              tierInfo={tierInfo}
-              onEdit={() => handleBusinessCardAction("edit", business.id)}
-              onCancel={() => handleBusinessCardAction("cancel", business.id)}
-              onDraftChange={(updater) => handleBusinessCardAction("draftChange", business.id, updater)}
-              onSave={(data) => handleBusinessCardAction("save", business.id, data)}
-              onDelete={() => handleBusinessCardAction("delete", business.id)}
-              onInsightsSubmit={(data) => handleBusinessCardAction("insightsSubmit", business.id, data)}
-              onUpgrade={onUpgradeClick}
-            />
-          ))}
-        </div>
-      )}
+            {businesses.map((business) => (
+              <BusinessCard
+                key={business.id}
+                business={business}
+                user={user}
+                tierInfo={tierInfo}
+                editingBusinessId={editingBusinessId}
+                draftBusiness={draftBusiness}
+                isEditing={editingBusinessId === business.id}
+                insightsSubmitting={insightsSubmitting}
+                onEdit={() => onBusinessAction("edit", business.id)}
+                onCancel={() => onBusinessAction("cancel", business.id)}
+                onSave={(data) => onBusinessAction("save", business.id, data)}
+                onDraftChange={(data) => onBusinessAction("draftChange", business.id, data)}
+                onDelete={() => onBusinessAction("delete", business.id)}
+                onInsightsSubmit={(data) => onBusinessAction("insightsSubmit", business.id, data)}
+                onUpgrade={onUpgradeClick}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

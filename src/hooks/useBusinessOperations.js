@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { deleteBusiness, updateBusiness, createBusiness } from "@/lib/supabase/queries/businesses";
+import { getSupabase } from "@/lib/supabase/client";
+import {
+  prepareBusinessBrandingPayload,
+} from "@/utils/brandingUploadUtils";
+import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
+import { deleteBusiness, createBusiness } from "@/lib/supabase/queries/businesses";
 import { sanitizeBusinessPayload, validateBusinessData } from "@/utils/dataTransformers";
-import { filterEmptyValues } from "@/utils/businessDataTransformer";
-import { generateBusinessLogo, generateBusinessBanner, generateMobileBanner, svgDataUrlToFile } from "@/utils/businessImageGenerator";
-import { getLogoUrl } from "@/utils/bannerUtils";
-import { createPageUrl } from "@/utils";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 export function useBusinessOperations(refetchPortalData) {
-  const router = useRouter();
   const { toast } = useToast();
   const [editingBusinessId, setEditingBusinessId] = useState(null);
   const [draftBusiness, setDraftBusiness] = useState(null);
@@ -23,7 +22,6 @@ export function useBusinessOperations(refetchPortalData) {
   };
 
   const updateDraftBusiness = (updatedDraft) => {
-    console.log("updateDraftBusiness called with:", updatedDraft);
     setDraftBusiness(updatedDraft);
   };
 
@@ -32,296 +30,170 @@ export function useBusinessOperations(refetchPortalData) {
     setDraftBusiness(null);
   };
 
-  const saveBusiness = async (businessData) => {
-    console.log("saveBusiness called with:", businessData);
-    
-    if (!businessData || !businessData.businessId) {
-      console.log("Early return: missing businessData or businessData.businessId");
-      return;
+  const validatePayload = ({ payload, context }) => {
+    const validation = validateBusinessData(payload);
+    if (validation.isValid) {
+      return { isValid: true };
     }
 
-    // Debug the data structure
-    console.log("Table-based data structure check:");
-    console.log("- Has businessesData:", !!businessData.businessesData);
-    console.log("- Has businessInsightsData:", !!businessData.businessInsightsData);
-    console.log("- businessesData keys:", businessData.businessesData ? Object.keys(businessData.businessesData) : 'undefined');
-    console.log("- businessInsightsData keys:", businessData.businessInsightsData ? Object.keys(businessData.businessInsightsData) : 'undefined');
+    const message = `Please check these fields: ${Object.keys(validation.errors).join(", ")}`;
+    console.error(`${context} validation errors:`, validation.errors);
+    toast({
+      title: "Validation Error",
+      description: message,
+      variant: "error",
+    });
+    return { isValid: false, message, errors: validation.errors };
+  };
+
+  const saveBusiness = async (businessData) => {
+    console.log("🎯 saveBusiness called:", {
+      businessId: businessData?.businessId,
+      hasBusinessesData: !!businessData?.businessesData,
+      hasBusinessInsightsData: !!businessData?.businessInsightsData,
+      hasFiles: !!(businessData?.files && Object.keys(businessData.files).some((key) => businessData.files[key])),
+      hasRemovals: !!(businessData?.removals && Object.values(businessData.removals).some(Boolean))
+    });
+
+    if (!businessData || !businessData.businessId) {
+      const message = "Missing businessId - cannot save business.";
+      toast({
+        title: "Save Failed",
+        description: message,
+        variant: "error",
+      });
+      throw new Error(message);
+    }
+
+    if (!businessData.businessesData) {
+      const message = "Missing businessesData - cannot save business.";
+      toast({
+        title: "Save Failed",
+        description: message,
+        variant: "error",
+      });
+      throw new Error(message);
+    }
 
     setSavingEdit(true);
+    const supabase = getSupabase();
+
     try {
-      const { getSupabase } = await import("@/lib/supabase/client");
-      const supabase = getSupabase();
+      const { businessesData, businessInsightsData = {}, files = {}, removals = {} } = businessData;
 
-      // Handle file uploads first
-      let businessesDataForUpdate = {};
-      
-      // Check subscription tier for image upload permissions
-      const subscriptionTier = draftBusiness?.subscription_tier || SUBSCRIPTION_TIER.VAKA;
-      const canUploadImages = subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
-      
-      // Extract the business data from the table-based structure
-      if (businessData.businessesData) {
-        businessesDataForUpdate = { ...businessData.businessesData };
-        delete businessesDataForUpdate.logo_file;
-        delete businessesDataForUpdate.banner_file;
-        delete businessesDataForUpdate.mobile_banner_file;
-      } else {
-        throw new Error("Invalid data structure. Expected businessesData.");
-      }
-      
-      // For Vaka plan, ignore uploaded files and keep existing images
-      if (!canUploadImages && businessData.files) {
-        console.log(`Vaka plan detected - ignoring uploaded files and keeping existing images`);
-        // Don't process any uploaded files for Vaka plan
-      } else if (canUploadImages) {
-        // For Mana/Moana plans, process uploaded files
-        
-        // Upload logo if there's a new logo file
-        if (businessData.files?.logo_file) {
-          const file = businessData.files.logo_file;
-          
-          // Validate file type (accept SVG for starter images)
-          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-          if (!allowedTypes.includes(file.type)) {
-            throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
-          }
-        
-        // Validate file size (5MB max)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
-        }
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${businessData.businessId}-logo-${Date.now()}.${fileExt}`;
-        const filePath = `logos/${fileName}`;
+      let businessesPayload = { ...businessesData };
+      delete businessesPayload.logo_file;
+      delete businessesPayload.banner_file;
+      delete businessesPayload.mobile_banner_file;
 
-        const { error: uploadError } = await supabase.storage
-          .from('admin-listings')
-          .upload(filePath, file);
+      const subscriptionTier = businessesPayload.subscription_tier || SUBSCRIPTION_TIER.VAKA;
+      const canUploadImages =
+        subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
+      const hasFileUploads = Object.keys(files).some((key) => files[key]);
 
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('admin-listings')
-          .getPublicUrl(filePath);
-
-        businessesDataForUpdate.logo_url = publicUrl;
+      if (!canUploadImages && hasFileUploads) {
+        console.log("🎨 Vaka plan detected - ignoring uploaded files.");
       }
 
-      // Upload banner if there's a new banner file
-      if (businessData.files?.banner_file) {
-        const file = businessData.files.banner_file;
-        
-        // Validate file type (accept SVG for starter images)
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
-        }
-        
-        // Validate file size (5MB max)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
-        }
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${businessData.businessId}-banner-${Date.now()}.${fileExt}`;
-        const filePath = `banners/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('admin-listings')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('admin-listings')
-          .getPublicUrl(filePath);
-
-        businessesDataForUpdate.banner_url = publicUrl;
-      }
-
-      // Upload mobile banner if there's a new mobile banner file
-      if (businessData.files?.mobile_banner_file) {
-        const file = businessData.files.mobile_banner_file;
-        
-        // Validate file type (accept SVG for starter images)
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
-        }
-        
-        // Validate file size (5MB max)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
-        }
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${businessData.businessId}-mobile-banner-${Date.now()}.${fileExt}`;
-        const filePath = `mobile-banners/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('admin-listings')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('admin-listings')
-          .getPublicUrl(filePath);
-
-        businessesDataForUpdate.mobile_banner_url = publicUrl;
-        }
-      }
-
-      // Handle business insights data if provided
-      let consolidatedBusinessData = {};
-      
-      // Use the new unified form data structure
-      if (businessData.businessesData && businessData.businessInsightsData) {
-        // New unified form structure - consolidate both data sets
-        console.log('Using table-based data structure');
-        console.log('Businesses data keys:', Object.keys(businessData.businessesData || {}));
-        console.log('Business insights data keys:', Object.keys(businessData.businessInsightsData || {}));
-        
-        // Consolidate all data into single businesses table structure
-        consolidatedBusinessData = {
-          ...businessData.businessesData,
-          ...businessData.businessInsightsData
-        };
-      } else {
-        // Error: Unsupported data structure
-        throw new Error("Invalid data structure. Expected businessesData and businessInsightsData.");
-      }
-
-      console.log('Final consolidated business data for update:', consolidatedBusinessData);
-
-      // Save all business data to businesses table
-      const sanitizedPayload = sanitizeBusinessPayload(consolidatedBusinessData);
-      console.log("Sanitized payload:", sanitizedPayload);
-      
-      console.log("Payload keys:", Object.keys(sanitizedPayload || {}));
-      console.log("Payload values:", Object.values(sanitizedPayload || {}));
-      
-      const validation = validateBusinessData(sanitizedPayload);
-      console.log("Validation result:", validation);
-
-      if (!validation.isValid) {
-        console.error("Validation errors:", validation.errors);
-        toast({
-          title: "Validation Error",
-          description: `Please check these fields: ${Object.keys(validation.errors).join(", ")}`,
-          variant: "error",
-        });
-        return;
-      }
-
-      // Check if payload is empty
-      if (!sanitizedPayload || Object.keys(sanitizedPayload).length === 0) {
-        console.error("Empty payload detected - nothing to update");
-        toast({
-          title: "No Changes Detected",
-          description: "No valid fields to update. Please make some changes before saving.",
-          variant: "error",
-        });
-        return;
-      }
-
-      console.log("Attempting to update business with:", {
-        businessId: businessData.id,
-        payloadFields: Object.keys(sanitizedPayload),
-        payloadSize: JSON.stringify(sanitizedPayload).length
+      const brandingPayload = await prepareBusinessBrandingPayload({
+        supabase,
+        businessId: businessData.businessId,
+        businessesData: businessesPayload,
+        files: canUploadImages ? files : {},
+        removals,
       });
 
-      let businessError = null;
-      let updateResult = null;
-      
-      try {
-        const result = await supabase
-          .from("businesses")
-          .update(sanitizedPayload)
-          .eq("id", businessData.businessId);
-        
-        updateResult = result;
-        businessError = result.error;
-        
-        console.log("Supabase result:", {
-          data: result.data,
-          error: result.error,
-          status: result.status,
-          statusText: result.statusText,
-          body: result.body
-        });
-      } catch (supabaseError) {
-        console.error("Supabase operation threw exception:", supabaseError);
-        businessError = supabaseError;
+      console.log("🗄️ Branding payload prepared:", {
+        logo_url: brandingPayload.logo_url ? "URL present" : "null/empty",
+        banner_url: brandingPayload.banner_url ? "URL present" : "null/empty",
+        mobile_banner_url: brandingPayload.mobile_banner_url ? "URL present" : "null/empty",
+      });
+
+      const consolidatedPayload = {
+        ...brandingPayload,
+        ...businessInsightsData,
+      };
+
+      const sanitizedPayload = sanitizeBusinessPayload(consolidatedPayload);
+      const validationResult = validatePayload({ payload: sanitizedPayload, context: "Save" });
+
+      if (!validationResult.isValid) {
+        throw new Error(`Validation failed: ${validationResult.message}`);
       }
 
-      // Check for any type of error
-      // Note: status 204 with no data is SUCCESS for UPDATE operations
-      if (businessError || (updateResult?.status !== 204 && !updateResult?.data)) {
-        const errorInfo = {
-          error: businessError,
-          errorType: typeof businessError,
-          errorString: String(businessError),
-          errorKeys: businessError ? Object.keys(businessError) : [],
-          hasData: !!updateResult?.data,
-          status: updateResult?.status,
-          businessId: businessData.businessId,
-          sanitizedPayload: sanitizedPayload,
-          updateResult: updateResult
-        };
-        
-        console.error("Business update error:", errorInfo);
-        
-        // Create a meaningful error message
-        let errorMessage = "Unknown error occurred";
-        if (businessError?.message) {
-          errorMessage = businessError.message;
-        } else if (businessError && typeof businessError === 'object') {
-          errorMessage = `Database error: ${JSON.stringify(businessError)}`;
-        } else if (typeof businessError === 'string') {
-          errorMessage = businessError;
-        } else if (updateResult?.status === 204) {
-          // This is actually success, don't treat as error
-          console.log("Update successful (status 204)");
-        } else if (!updateResult?.data) {
-          errorMessage = "No data returned from database - possible permission issue";
-        }
-        
-        // Only throw error if it's actually an error (not 204 success)
-        if (updateResult?.status !== 204) {
-          throw new Error(`Failed to update business: ${errorMessage}`);
-        }
+      if (!sanitizedPayload || Object.keys(sanitizedPayload).length === 0) {
+        const message = "No valid fields to update. Please make changes before saving.";
+        toast({
+          title: "No Changes Detected",
+          description: message,
+          variant: "error",
+        });
+        throw new Error(message);
       }
+
+      console.log("🗄️ Final payload before DB update:", {
+        businessId: businessData.businessId,
+        payloadFields: Object.keys(sanitizedPayload),
+        brandingFields: {
+          logo_url: sanitizedPayload.logo_url ? "URL present" : "null/empty",
+          banner_url: sanitizedPayload.banner_url ? "URL present" : "null/empty",
+          mobile_banner_url: sanitizedPayload.mobile_banner_url ? "URL present" : "null/empty",
+        },
+      });
+
+      const { data: updatedBusiness, error: updateError } = await supabase
+        .from("businesses")
+        .update(sanitizedPayload)
+        .eq("id", businessData.businessId)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error("Business update error:", updateError);
+        throw new Error(`Failed to update business: ${updateError.message}`);
+      }
+
+      if (!updatedBusiness) {
+        throw new Error("No data returned from database update.");
+      }
+
+      console.log("💾 DB updated row:", {
+        id: updatedBusiness.id,
+        logo_url: updatedBusiness.logo_url ? "URL present" : "null/empty",
+        banner_url: updatedBusiness.banner_url ? "URL present" : "null/empty",
+        mobile_banner_url: updatedBusiness.mobile_banner_url ? "URL present" : "null/empty",
+      });
 
       await refetchPortalData();
       cancelEditingBusiness();
-      
+
       toast({
         title: "Business Updated",
         description: "Your business details have been saved successfully.",
         variant: "success",
       });
+
+      console.log("✅ Returning saved row:", {
+        id: updatedBusiness.id,
+        logo_url: updatedBusiness.logo_url ? "URL present" : "null/empty",
+        banner_url: updatedBusiness.banner_url ? "URL present" : "null/empty",
+        mobile_banner_url: updatedBusiness.mobile_banner_url ? "URL present" : "null/empty",
+      });
+
+      return updatedBusiness;
     } catch (error) {
-      // Enhanced error logging for debugging
-      const errorDetails = {
-        message: error?.message || error?.toString() || 'Unknown error',
-        details: error?.details || null,
+      const message = error?.message || error?.toString() || "Unknown error";
+      console.error("❌ Error updating business:", {
+        message,
+        businessId: businessData?.businessId,
         stack: error?.stack || null,
-        businessId: businessData?.businessId || 'No ID',
-        businessName: businessData?.name || 'No name',
-        timestamp: new Date().toISOString()
-      };
-      
-      console.error("Error updating business:", errorDetails);
+      });
       toast({
         title: "Save Failed",
-        description: `Failed to save business: ${errorDetails.message}`,
+        description: `Failed to save business: ${message}`,
         variant: "error",
       });
+      throw error;
     } finally {
       setSavingEdit(false);
     }
@@ -341,41 +213,6 @@ export function useBusinessOperations(refetchPortalData) {
     }
   };
 
-  const handleLogoUpload = async (event, businessId) => {
-    const file = event.target.files[0];
-    if (!file || !businessId) return;
-
-    try {
-      const { getSupabase } = await import("@/lib/supabase/client");
-      const supabase = getSupabase();
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${businessId}-${Date.now()}.${fileExt}`;
-      const filePath = `business-logos/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('business-assets')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('business-assets')
-        .getPublicUrl(filePath);
-
-      const { error: updateError } = await supabase
-        .from('businesses')
-        .update({ logo_url: publicUrl })
-        .eq('id', businessId);
-
-      if (updateError) throw updateError;
-
-      await refetchPortalData();
-    } catch (error) {
-      console.error("Error uploading logo:", error);
-    }
-  };
-
   const handleAddBusiness = async (businessData) => {
     console.log("handleAddBusiness called with:", businessData);
     
@@ -390,200 +227,48 @@ export function useBusinessOperations(refetchPortalData) {
     }
 
     try {
-      // Get current user to set as owner
-      const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      
+
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
         throw new Error("User not authenticated");
       }
 
-      // Handle file uploads first
-      let businessDataForCreate = { ...businessData.businessesData };
-      
-      // Check subscription tier - new businesses start on Vaka plan
-      const subscriptionTier = businessData.businessesData.subscription_tier || SUBSCRIPTION_TIER.VAKA;
-      const canUploadImages = subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
-      
-      // For Vaka plan, ignore any uploaded files and use static Pacific banner
-      if (!canUploadImages) {
-        console.log(`Vaka plan detected - using static Pacific banner for ${businessData.businessesData.name || 'New Business'}`);
-        
-        // Use static Pacific banner instead of generating one
-        businessDataForCreate.generated_banner_url = "/pacific_logo_banner.png";
-        businessDataForCreate.generated_mobile_banner_url = "/pacific_logo_banner.png";
-        businessDataForCreate.generated_logo_url = getLogoUrl({ business_name: businessData.businessesData.name || 'New Business' });
-        
-      } else {
-        // For Mana/Moana plans, use uploaded files or generate if missing
-        if (!businessData.files?.logo_file) {
-          const businessName = businessData.businessesData.name || 'New Business';
-          const logoDataUrl = generateBusinessLogo(businessName);
-          if (logoDataUrl) {
-            const logoFile = await svgDataUrlToFile(logoDataUrl, `${businessData.businessesData.business_handle || 'business'}-logo`, 'logo');
-            businessData.files = { ...businessData.files, logo_file: logoFile };
-          }
-        }
-        
-        if (!businessData.files?.banner_file) {
-          const businessName = businessData.businessesData.name || 'New Business';
-          const bannerDataUrl = generateBusinessBanner(businessName);
-          if (bannerDataUrl) {
-            const bannerFile = await svgDataUrlToFile(bannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-banner`, 'banner');
-            businessData.files = { ...businessData.files, banner_file: bannerFile };
-          }
-        }
-        
-        if (!businessData.files?.mobile_banner_file) {
-          const businessName = businessData.businessesData.name || 'New Business';
-          const mobileBannerDataUrl = generateMobileBanner(businessName);
-          if (mobileBannerDataUrl) {
-            const mobileBannerFile = await svgDataUrlToFile(mobileBannerDataUrl, `${businessData.businessesData.business_handle || 'business'}-mobile-banner`, 'mobile');
-            businessData.files = { ...businessData.files, mobile_banner_file: mobileBannerFile };
-          }
-        }
-      }
-      
-      // Upload logo if there's a new logo file
-      if (businessData.files?.logo_file) {
-        const file = businessData.files.logo_file;
-        
-        // Validate file type (accept SVG for starter images)
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
-        }
-        
-        // Validate file size (5MB max)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
-        }
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `logo-${Date.now()}.${fileExt}`;
-        const filePath = `logos/${fileName}`;
+      const { businessesData, businessInsightsData = {}, files = {}, removals = {} } = businessData;
+      const subscriptionTier = businessesData.subscription_tier || SUBSCRIPTION_TIER.VAKA;
+      const canUploadImages =
+        subscriptionTier === SUBSCRIPTION_TIER.MANA || subscriptionTier === SUBSCRIPTION_TIER.MOANA;
 
-        const { getSupabase } = await import("@/lib/supabase/client");
-        const supabase = getSupabase();
-        
-        const { error: uploadError } = await supabase.storage
-          .from('admin-listings')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('admin-listings')
-          .getPublicUrl(filePath);
-
-        businessDataForCreate.logo_url = publicUrl;
+      if (!canUploadImages && Object.keys(files).some((key) => files[key])) {
+        console.log("🎨 Vaka plan detected - ignoring custom branding uploads.");
       }
 
-      // Upload banner if there's a new banner file
-      if (businessData.files?.banner_file) {
-        const file = businessData.files.banner_file;
-        
-        // Validate file type (accept SVG for starter images)
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
-        }
-        
-        // Validate file size (5MB max)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
-        }
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `banner-${Date.now()}.${fileExt}`;
-        const filePath = `banners/${fileName}`;
-
-        const { getSupabase } = await import("@/lib/supabase/client");
-        const supabase = getSupabase();
-        
-        const { error: uploadError } = await supabase.storage
-          .from('admin-listings')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('admin-listings')
-          .getPublicUrl(filePath);
-
-        businessDataForCreate.banner_url = publicUrl;
-      }
-
-      // Upload mobile banner if there's a new mobile banner file
-      if (businessData.files?.mobile_banner_file) {
-        const file = businessData.files.mobile_banner_file;
-        
-        // Validate file type (accept SVG for starter images)
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`Unsupported file type: ${file.type}. Please use JPG, PNG, GIF, WebP, or SVG images.`);
-        }
-        
-        // Validate file size (5MB max)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          throw new Error(`File too large: ${Math.round(file.size / 1024 / 1024)}MB. Maximum size is 5MB.`);
-        }
-        
-        const fileExt = file.name.split('.').pop();
-        const fileName = `mobile-banner-${Date.now()}.${fileExt}`;
-        const filePath = `mobile-banners/${fileName}`;
-
-        const { getSupabase } = await import("@/lib/supabase/client");
-        const supabase = getSupabase();
-        
-        const { error: uploadError } = await supabase.storage
-          .from('admin-listings')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('admin-listings')
-          .getPublicUrl(filePath);
-
-        businessDataForCreate.mobile_banner_url = publicUrl;
-      }
-
-      // Consolidate all business data
-      const consolidatedBusinessData = {
-        ...businessDataForCreate,
-        ...businessData.businessInsightsData,
-        owner_user_id: user.id, // Set the current user as owner
-        status: 'pending', // New businesses start as pending
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        created_date: new Date().toISOString().split('T')[0]
+      const baseCreatePayload = {
+        ...businessesData,
+        owner_user_id: user.id,
+        status: "pending",
       };
 
-      console.log('Final business data for creation:', consolidatedBusinessData);
-
-      // Validate the data
-      const validation = validateBusinessData(consolidatedBusinessData);
-      if (!validation.isValid) {
-        console.error("Validation errors:", validation.errors);
-        toast({
-          title: "Validation Error",
-          description: `Please check these fields: ${Object.keys(validation.errors).join(", ")}`,
-          variant: "error",
-        });
+      const validationResult = validatePayload({ payload: baseCreatePayload, context: "Create" });
+      if (!validationResult.isValid) {
         return;
       }
 
-      // Create the business
-      const { data: newBusiness, error: createError } = await createBusiness(consolidatedBusinessData);
-      
-      if (createError) {
-        throw createError;
-      }
+      const newBusiness = await createBusinessWithBranding({
+        supabase,
+        businessesData: baseCreatePayload,
+        businessInsightsData,
+        files,
+        removals,
+        allowCustomBranding: canUploadImages,
+        createRow: async (payloadToCreate) => {
+          const { data, error } = await createBusiness(payloadToCreate);
+          if (error) {
+            throw error;
+          }
+          return data;
+        },
+      });
 
       console.log("Business created successfully:", newBusiness);
 
@@ -620,7 +305,6 @@ export function useBusinessOperations(refetchPortalData) {
     cancelEditingBusiness,
     saveBusiness,
     handleDeleteBusiness,
-    handleLogoUpload,
     handleAddBusiness,
   };
 }

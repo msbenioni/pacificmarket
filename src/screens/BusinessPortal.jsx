@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { createPageUrl } from "@/utils";
 import {
-  Users,
-  CheckCircle,
   AlertCircle,
   ChevronRight,
-  Trash2,
 } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroStandard from "../components/shared/HeroStandard";
@@ -29,7 +26,6 @@ import { getBusinessOwnerName } from "@/utils/businessHelpers";
 import PortalShell from "@/components/portal/PortalShell";
 import { portalUI } from "@/components/portal/portalUI";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { createBusiness } from "@/lib/supabase/queries/businesses";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 
 // New tab components
@@ -46,7 +42,6 @@ import { useBusinessOperations } from "@/hooks/useBusinessOperations";
 import { usePortalState } from "@/hooks/usePortalState";
 
 export default function BusinessPortal() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   
   // Check for claim flow parameters
@@ -76,7 +71,6 @@ export default function BusinessPortal() {
     saveBusiness,
     handleDeleteBusiness,
     handleAddBusiness,
-    handleLogoUpload,
   } = useBusinessOperations(refetchPortalData);
 
   const {
@@ -89,6 +83,8 @@ export default function BusinessPortal() {
     addingOwner,
     insightsSubmitting,
     insightsStarted,
+    showAddBusiness,
+    setShowAddBusiness,
     setClaimAddModal,
     closeClaimAddModal,
     setAddOwnerModal,
@@ -125,6 +121,23 @@ export default function BusinessPortal() {
     loading: onboardingLoading,
     refetch: refetchOnboardingStatus,
   } = useOnboardingStatus();
+
+  // Handle add business success/cancel
+  const handleAddBusinessSuccess = (createdBusiness) => {
+    // Close add-business UI
+    setShowAddBusiness(false);
+    // Refresh portal data to show the new business
+    refetchPortalData();
+    // Future: could use createdBusiness for optimistic UI updates
+  };
+
+  const handleAddBusinessCancel = () => {
+    setShowAddBusiness(false);
+  };
+
+  const handleShowAddBusiness = () => {
+    setShowAddBusiness(true);
+  };
 
   if (onboardingLoading) {
     return (
@@ -211,13 +224,11 @@ export default function BusinessPortal() {
             <BusinessesTab
               businesses={businesses}
               user={user}
-              profiles={profiles}
               onboardingStatus={onboardingStatus}
               editingBusinessId={editingBusinessId}
               draftBusiness={draftBusiness}
               savingEdit={savingEdit}
               insightsSubmitting={insightsSubmitting}
-              insightsStarted={insightsStarted}
               tierInfo={tierInfo}
               checkoutLoading={checkoutLoading}
               onBusinessAction={(action, businessId, data) => {
@@ -229,8 +240,7 @@ export default function BusinessPortal() {
                     cancelEditingBusiness();
                     break;
                   case "save":
-                    saveBusiness(data);
-                    break;
+                    return saveBusiness(data);
                   case "draftChange":
                     updateDraftBusiness(data);
                     break;
@@ -244,15 +254,16 @@ export default function BusinessPortal() {
                     // Handle new business addition
                     handleAddBusiness(data);
                     break;
-                  case "logoUpload":
-                    // Handle logo upload
-                    break;
                 }
               }}
               onClaimAddAction={(action) => {
                 setClaimAddModal(action);
               }}
               onUpgradeClick={createCheckoutSession}
+              showAddBusiness={showAddBusiness}
+              onAddBusinessSuccess={handleAddBusinessSuccess}
+              onAddBusinessCancel={handleAddBusinessCancel}
+              onShowAddBusiness={handleShowAddBusiness}
             />
           )}
 

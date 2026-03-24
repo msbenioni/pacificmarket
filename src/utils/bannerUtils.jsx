@@ -1,36 +1,46 @@
 /**
- * Banner utilities - prioritizes user uploads for business cards
- * Single source of truth for banner selection and display
- * Uses uploaded banners for cards, static banner with text overlay for defaults
+ * Banner utilities for persistent business media.
+ * Primary source of truth is saved business media URLs from storage.
+ * Static/text rendering remains as resilience fallback for missing/corrupt legacy data.
  */
 
-import { generateBusinessLogo } from "@/utils/businessImageGenerator.js";
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
+
+const getFirstDisplayableMediaUrl = (...candidates) => {
+  for (const candidate of candidates) {
+    if (isPersistentMediaUrl(candidate, { allowRootRelative: true })) {
+      return candidate;
+    }
+  }
+  return "";
+};
 
 /**
  * Get banner URL for business cards (homepage, featured spotlight)
- * Prioritizes user-uploaded banners over static banner
+ * Prioritizes saved/persisted business media over static fallback.
  * @param {Object} business - Business object containing banner URLs
- * @returns {string} Banner URL (user upload first, then static fallback)
+ * @returns {string} Banner URL (persisted URL first, then static fallback)
  */
 export function getBannerUrl(business) {
   return (
-    business?.mobile_banner_url || 
-    business?.banner_url || 
-    business?.cover_image_url || 
-    "/pacific_logo_banner.png" // static fallback for default banner
+    getFirstDisplayableMediaUrl(
+      business?.mobile_banner_url,
+      business?.banner_url,
+      business?.cover_image_url
+    ) || "/pacific_logo_banner.png"
   );
 }
 
 /**
- * Check if business has uploaded banner (not the default)
+ * Check if business has persisted banner media.
  * @param {Object} business - Business object
- * @returns {boolean} True if business has uploaded banner
+ * @returns {boolean} True if business has saved banner media
  */
-export function hasUploadedBanner(business) {
+export function hasPersistedBanner(business) {
   return !!(
-    business?.mobile_banner_url || 
-    business?.banner_url || 
-    business?.cover_image_url
+    isPersistentMediaUrl(business?.mobile_banner_url, { allowRootRelative: false }) ||
+    isPersistentMediaUrl(business?.banner_url, { allowRootRelative: false }) ||
+    isPersistentMediaUrl(business?.cover_image_url, { allowRootRelative: false })
   );
 }
 
@@ -44,87 +54,75 @@ export function getHeroBannerUrl(business) {
 }
 
 /**
- * Get logo URL with proper hierarchy (uploaded → generated → automatic fallback)
- * For business cards, prioritizes uploaded logo, then generated logo for Vaka/no uploads
+ * Get logo URL with proper hierarchy (saved business logo → controlled static fallback)
  * @param {Object} business - Business object containing logo URL and business name
- * @returns {string} Logo URL (uploaded first, then generated for Vaka/no uploads, then fallback)
+ * @returns {string} Logo URL (saved URL first, then static fallback)
  */
 export function getLogoUrl(business) {
-  // First priority: uploaded logo (for Mana/Moana or any business with custom logo)
-  if (business?.logo_url) {
+  // First priority: saved/persisted logo URL.
+  if (isPersistentMediaUrl(business?.logo_url, { allowRootRelative: true })) {
     return business.logo_url;
   }
-  
-  // Second priority: generated logo with initials (for Vaka plan or no uploads)
-  if (business?.business_name) {
-    const logoDataUrl = generateBusinessLogo(business.business_name);
-    if (logoDataUrl) {
-      return logoDataUrl;
-    }
-  }
-  
-  // Final fallback: generate logo with default initials "PD"
-  const logoDataUrl = generateBusinessLogo("PD");
-  return logoDataUrl;
+
+  // Final fallback: controlled static asset.
+  return "/pm_logo.png";
 }
 
 /**
- * Get desktop banner URL for business cards (prioritizes uploads)
+ * Get desktop banner URL for business cards (persisted-first)
  * @param {Object} business - Business object containing banner URLs
- * @returns {string} Desktop banner URL (user upload first, then static fallback)
+ * @returns {string} Desktop banner URL (saved URL first, then static fallback)
  */
 export function getDesktopBannerUrl(business) {
-  return (
-    business?.banner_url || 
-    business?.cover_image_url || 
-    "/pacific_logo_banner.png"
-  );
+  return getFirstDisplayableMediaUrl(business?.banner_url, business?.cover_image_url) || "/pacific_logo_banner.png";
 }
 
 /**
- * Get mobile banner URL for business cards (prioritizes uploads)
+ * Get mobile banner URL for business cards (persisted-first)
  * @param {Object} business - Business object containing banner URLs
- * @returns {string} Mobile banner URL (user upload first, then static fallback)
+ * @returns {string} Mobile banner URL (saved URL first, then static fallback)
  */
 export function getMobileBannerUrl(business) {
   return (
-    business?.mobile_banner_url || 
-    business?.banner_url || 
-    business?.cover_image_url || 
-    "/pacific_logo_banner.png"
+    getFirstDisplayableMediaUrl(
+      business?.mobile_banner_url,
+      business?.banner_url,
+      business?.cover_image_url
+    ) || "/pacific_logo_banner.png"
   );
 }
 
 /**
- * Check if business has uploaded logo (not generated)
+ * Check if business has a persisted logo URL.
  * @param {Object} business - Business object
- * @returns {boolean} True if business has uploaded logo
+ * @returns {boolean} True if business has saved logo media
  */
-export function hasUploadedLogo(business) {
-  return !!business?.logo_url;
+export function hasPersistedLogo(business) {
+  return isPersistentMediaUrl(business?.logo_url, { allowRootRelative: false });
 }
 
 /**
- * Check if business has any uploaded branding (not generated)
+ * Check if business has any persisted branding media.
  * @param {Object} business - Business object
- * @returns {boolean} True if business has any uploaded branding
+ * @returns {boolean} True if business has any saved branding media
  */
-export function hasUploadedBranding(business) {
-  return hasUploadedLogo(business) || hasUploadedBanner(business);
+export function hasPersistedBranding(business) {
+  return hasPersistedLogo(business) || hasPersistedBanner(business);
 }
 
 /**
- * Render banner image for business cards with teal background and white text
+ * Render banner media for cards.
+ * Uses persisted banner media when available, otherwise resilience fallback.
  * @param {Object} business - Business object
  * @param {Object} props - Additional img props (className, alt, etc.)
- * @returns {JSX.Element} Teal background with business name or uploaded banner
+ * @returns {JSX.Element} Banner image or fallback banner block
  */
 export function renderBanner(business, props = {}) {
   const bannerUrl = getBannerUrl(business);
-  const hasCustomBanner = hasUploadedBanner(business);
+  const hasCustomBanner = hasPersistedBanner(business);
   
   if (hasCustomBanner) {
-    // Show uploaded banner as-is
+    // Primary path: show persisted media from storage.
     return (
       <img
         src={bannerUrl}
@@ -135,7 +133,7 @@ export function renderBanner(business, props = {}) {
       />
     );
   } else {
-    // Show teal background with centered white business name text
+    // Resilience fallback for missing/corrupt legacy media.
     return (
       <div className={`relative ${props.className || ""}`} style={props.style || {}}>
         <div className="w-full h-full bg-[#0d4f4f] flex items-center justify-center">

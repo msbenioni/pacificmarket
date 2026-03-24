@@ -3,6 +3,7 @@
  * Consolidates all form data into the businesses table:
  * - businesses table: All business data (public + insights + founder data)
  */
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 
 export const transformBusinessFormData = (formData) => {
   // All data now goes to businesses table with new field names
@@ -14,10 +15,16 @@ export const transformBusinessFormData = (formData) => {
     description: formData.description,
     role: formData.role,
     
-    // Brand media
-    logo_url: formData.logo_url,
-    banner_url: formData.banner_url,
-    mobile_banner_url: formData.mobile_banner_url,
+    // Brand media (include only persistent URLs; omit blob/transient values)
+    ...(isPersistentMediaUrl(formData.logo_url, { allowRootRelative: false }) && {
+      logo_url: formData.logo_url,
+    }),
+    ...(isPersistentMediaUrl(formData.banner_url, { allowRootRelative: false }) && {
+      banner_url: formData.banner_url,
+    }),
+    ...(isPersistentMediaUrl(formData.mobile_banner_url, { allowRootRelative: false }) && {
+      mobile_banner_url: formData.mobile_banner_url,
+    }),
     
     // Business contact & website
     business_contact_person: formData.business_contact_person,

@@ -9,6 +9,7 @@ export function usePortalState() {
   const [claimAddDefaultView, setClaimAddDefaultView] = useState("claim");
   const [insightsSubmitting, setInsightsSubmitting] = useState(false);
   const [insightsStarted, setInsightsStarted] = useState(false);
+  const [showAddBusiness, setShowAddBusiness] = useState(false);
 
   const resetModalStates = () => {
     setShowAddOwnerModal(null);
@@ -54,6 +55,7 @@ export function usePortalState() {
     showAddOwnerModal,
     showClaimAddModal,
     claimAddDefaultView,
+    showAddBusiness,
     
     // Form states
     newOwnerForm,
@@ -73,5 +75,6 @@ export function usePortalState() {
     setAddingOwner,
     setInsightsLoading,
     setInsightsProgress,
+    setShowAddBusiness,
   };
 }

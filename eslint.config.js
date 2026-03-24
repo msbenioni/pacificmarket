@@ -16,6 +16,7 @@ export default [
       "src/components/**/*.{js,mjs,cjs,jsx}",
       "src/pages/**/*.{js,mjs,cjs,jsx}",
       "src/Layout.jsx",
+      "src/screens/**/*.{js,mjs,cjs,jsx}",
     ],
     ignores: ["src/lib/**/*", "src/components/ui/**/*"],
     ...pluginJs.configs.recommended,

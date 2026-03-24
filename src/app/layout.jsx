@@ -6,7 +6,7 @@ export const metadata = {
   title: "Pacific Discovery Network",
   description: "Pacific Discovery Network",
   icons: {
-    icon: "/pm_favicon.png",
+    icon: "/favicon.ico",
   },
 };
 

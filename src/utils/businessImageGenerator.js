@@ -1,5 +1,15 @@
 // Business Image Generator - Creates placeholder logos and banners based on business name
 
+const toSvgDataUrl = (svg) =>
+  `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+
+const safeFileBase = (name) =>
+  (name || "business")
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "") || "business";
+
 export const generateBusinessLogo = (businessName) => {
   if (!businessName) return null;
   
@@ -43,9 +53,7 @@ export const generateBusinessLogo = (businessName) => {
     </svg>
   `;
   
-  // Convert SVG to data URL
-  const svgBase64 = btoa(svg);
-  return `data:image/svg+xml;base64,${svgBase64}`;
+  return toSvgDataUrl(svg);
 };
 
 export const generateBusinessBanner = (businessName) => {
@@ -92,9 +100,7 @@ export const generateBusinessBanner = (businessName) => {
     </svg>
   `;
   
-  // Convert SVG to data URL
-  const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
-  return URL.createObjectURL(svgBlob);
+  return toSvgDataUrl(svg);
 };
 
 export const generateMobileBanner = (businessName) => {
@@ -141,92 +147,23 @@ export const generateMobileBanner = (businessName) => {
     </svg>
   `;
   
-  // Convert SVG to data URL
-  const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
-  return URL.createObjectURL(svgBlob);
+  return toSvgDataUrl(svg);
 };
 
-// Convert SVG blob URL to File object for upload (convert to PNG for storage compatibility)
-export const svgDataUrlToFile = async (dataUrl, filename, type = 'logo') => {
+// Convert SVG data URL to File object for upload
+export const svgDataUrlToFile = async (dataUrl, filename) => {
   try {
-    // Handle blob URLs (from URL.createObjectURL)
-    if (dataUrl.startsWith('blob:')) {
-      // Fetch the SVG blob
-      const response = await fetch(dataUrl);
-      const svgBlob = await response.blob();
-      
-      // Convert SVG to PNG using canvas
-      const pngBlob = await svgToPng(svgBlob, type);
-      
-      const extension = 'png';
-      return new File([pngBlob], `${filename}.${extension}`, { type: 'image/png' });
+    if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image/svg+xml')) {
+      throw new Error('Expected SVG data URL');
     }
-    
-    throw new Error('Expected blob URL, received unsupported format');
+
+    const response = await fetch(dataUrl);
+    const svgBlob = await response.blob();
+    const safeName = safeFileBase(filename);
+
+    return new File([svgBlob], `${safeName}.svg`, { type: 'image/svg+xml' });
   } catch (error) {
-    console.error('Error converting SVG blob URL to file:', error);
+    console.error('Error converting SVG data URL to file:', error);
     throw error;
   }
-};
-
-// Convert SVG blob to PNG blob
-const svgToPng = async (svgBlob, type = 'logo') => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const svgText = e.target.result;
-        
-        // Create canvas
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Set canvas dimensions based on type
-        if (type === 'logo') {
-          canvas.width = 400;
-          canvas.height = 400;
-        } else if (type === 'banner') {
-          canvas.width = 1200;
-          canvas.height = 400;
-        } else {
-          canvas.width = 800;
-          canvas.height = 600;
-        }
-        
-        // Create image from SVG
-        const img = new Image();
-        img.onload = () => {
-          // Draw white background
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
-          // Draw SVG
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
-          // Convert to PNG blob
-          canvas.toBlob((pngBlob) => {
-            resolve(pngBlob);
-          }, 'image/png');
-        };
-        
-        img.onerror = () => {
-          reject(new Error('Failed to load SVG for PNG conversion'));
-        };
-        
-        // Create blob URL from SVG text and load as image
-        const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
-        const svgUrl = URL.createObjectURL(svgBlob);
-        img.src = svgUrl;
-        
-      } catch (error) {
-        reject(error);
-      }
-    };
-    
-    reader.onerror = () => {
-      reject(new Error('Failed to read SVG blob'));
-    };
-    
-    reader.readAsText(svgBlob);
-  });
 };

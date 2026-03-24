@@ -13,6 +13,7 @@ import BusinessSearch from "@/components/BusinessSearch";
 import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, ChevronLeft } from "lucide-react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
+import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
 
 // Whitelist of allowed fields that match the exact database schema
 const ALLOWED_BUSINESS_FIELDS = [
@@ -239,37 +240,7 @@ export function ClaimAddBusinessModal({
         userId: userRes.user.id,
       });
 
-      const tempBusinessId = `temp_${userRes.user.id}_${Date.now()}`;
-      const { prepareBusinessBrandingPayload } = await import(
-        "../../utils/brandingUploadUtils"
-      );
-
-      try {
-        clean = await prepareBusinessBrandingPayload({
-          supabase,
-          businessId: tempBusinessId,
-          businessesData: clean,
-          files,
-          removals,
-        });
-
-        console.log("📤 New business branding prepared:", {
-          logo_url: clean.logo_url ? "URL present" : "null/empty",
-          banner_url: clean.banner_url ? "URL present" : "null/empty",
-          mobile_banner_url: clean.mobile_banner_url ? "URL present" : "null/empty",
-        });
-      } catch (uploadError) {
-        console.error("❌ Branding preparation failed:", uploadError);
-
-        clean = {
-          ...clean,
-          logo_url: null,
-          banner_url: null,
-          mobile_banner_url: null,
-        };
-      }
-
-      const insertPayload = {
+      const createPayload = {
         ...clean,
         owner_user_id: userRes.user.id,
         created_at: new Date().toISOString(),
@@ -278,16 +249,44 @@ export function ClaimAddBusinessModal({
         visibility_tier: "none",
       };
 
-      const { data: savedRow, error: insertError } = await supabase
-        .from("businesses")
-        .insert(insertPayload)
-        .select()
-        .single();
+      const savedRow = await createBusinessWithBranding({
+        supabase,
+        businessesData: createPayload,
+        files,
+        removals,
+        allowCustomBranding: true,
+        createRow: async (payloadToCreate) => {
+          const { data, error } = await supabase
+            .from("businesses")
+            .insert(payloadToCreate)
+            .select()
+            .single();
 
-      if (insertError) {
-        console.error("Database insert error:", insertError);
-        throw insertError;
-      }
+          if (error) {
+            console.error("Database insert error:", error);
+            throw error;
+          }
+
+          return data;
+        },
+        updateRow: async (businessId, brandingPayload) => {
+          const { data, error } = await supabase
+            .from("businesses")
+            .update({
+              ...brandingPayload,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", businessId)
+            .select()
+            .single();
+
+          if (error) {
+            throw error;
+          }
+
+          return data;
+        },
+      });
 
       console.log("💾 ClaimAddBusinessModal DB returned row:", {
         id: savedRow.id,

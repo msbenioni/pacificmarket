@@ -1,12 +1,17 @@
 /**
- * Business Banner Component - Handles responsive banner display with proper aspect ratios
+ * Business Banner Component - renders persisted banner media when available,
+ * with resilient text fallback for missing/corrupt media.
  */
 import { useState } from 'react';
+import { isPersistentMediaUrl } from '@/utils/mediaUrlUtils';
 
 export default function BusinessBanner({ business, className = "" }) {
   const [imageError, setImageError] = useState(false);
   
-  const hasBanner = (business?.banner_url || business?.mobile_banner_url) && !imageError;
+  const hasBanner =
+    (isPersistentMediaUrl(business?.banner_url, { allowRootRelative: true }) ||
+      isPersistentMediaUrl(business?.mobile_banner_url, { allowRootRelative: true })) &&
+    !imageError;
   
   // Responsive banner logic
   const getBannerProps = () => {
@@ -17,7 +22,7 @@ export default function BusinessBanner({ business, className = "" }) {
       };
     }
     
-    // For uploaded banners, use a more generous aspect ratio to reduce cropping
+    // For saved banner media, use a more generous aspect ratio to reduce cropping.
     return {
       height: 'h-32 sm:h-40 md:h-48 lg:h-56', // Taller, more flexible height
       className: 'relative bg-gray-100'
@@ -25,30 +30,35 @@ export default function BusinessBanner({ business, className = "" }) {
   };
   
   const bannerProps = getBannerProps();
-  
-  // Determine which banner to use based on screen size
-  const getBannerUrl = () => {
-    if (!hasBanner) return null;
-    
-    // On mobile, prefer mobile banner if available
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return business.mobile_banner_url || business.banner_url;
-    }
-    
-    // On desktop, prefer desktop banner
-    return business.banner_url || business.mobile_banner_url;
-  };
+
+  const mobileBanner = isPersistentMediaUrl(business?.mobile_banner_url, {
+    allowRootRelative: true,
+  })
+    ? business.mobile_banner_url
+    : null;
+
+  const desktopBanner = isPersistentMediaUrl(business?.banner_url, {
+    allowRootRelative: true,
+  })
+    ? business.banner_url
+    : null;
+
+  // Default image src: mobile-first, fallback to desktop if mobile missing
+  const defaultImgSrc = mobileBanner || desktopBanner;
   
   return (
     <div className={`relative w-full ${bannerProps.height} ${className}`}>
       {hasBanner ? (
         <>
-          <img
-            src={getBannerUrl()}
-            alt={`${business.business_name} banner`}
-            className="h-full w-full object-cover object-center"
-            onError={() => setImageError(true)}
-          />
+          <picture>
+            {desktopBanner ? <source media="(min-width: 768px)" srcSet={desktopBanner} /> : null}
+            <img
+              src={defaultImgSrc}
+              alt={`${business.business_name} banner`}
+              className="h-full w-full object-cover object-center"
+              onError={() => setImageError(true)}
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </>
       ) : (

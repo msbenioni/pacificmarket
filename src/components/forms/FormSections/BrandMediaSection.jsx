@@ -1,5 +1,7 @@
 import { Upload, X, Info, Crown } from "lucide-react";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
+import { useMediaPreview } from "@/hooks/useMediaPreview";
 
 export default function BrandMediaSection({
   form,
@@ -16,24 +18,31 @@ export default function BrandMediaSection({
     subscriptionTier === SUBSCRIPTION_TIER.MANA ||
     subscriptionTier === SUBSCRIPTION_TIER.MOANA;
 
-  const canUploadImages = isManaOrMoana;
+  // Use helper hook for each media preview
+  const logoPreviewUrl = useMediaPreview(form.logo_file, form.logo_url);
+  const bannerPreviewUrl = useMediaPreview(form.banner_file, form.banner_url);
+  const mobileBannerPreviewUrl = useMediaPreview(form.mobile_banner_file, form.mobile_banner_url);
 
-  const displayLogoUrl = form.logo_preview_url || form.logo_url || "";
+  const hasPersistedLogo = isPersistentMediaUrl(form.logo_url, {
+    allowRootRelative: false,
+  });
+  const isStarterLogo =
+    !hasPersistedLogo &&
+    isPersistentMediaUrl(form.logo_url, { allowRootRelative: true });
 
-  const displayDesktopBannerUrl = form.banner_preview_url || form.banner_url || "";
+  const hasPersistedDesktopBanner = isPersistentMediaUrl(form.banner_url, {
+    allowRootRelative: false,
+  });
+  const isStarterDesktopBanner =
+    !hasPersistedDesktopBanner &&
+    isPersistentMediaUrl(form.banner_url, { allowRootRelative: true });
 
-  const displayMobileBannerUrl = form.mobile_banner_preview_url || form.mobile_banner_url || "";
-
-  const displayCardBannerUrl = form.mobile_banner_preview_url || form.mobile_banner_url || form.banner_preview_url || form.banner_url || "";
-
-  const hasAnyBanner =
-    form.mobile_banner_preview_url ||
-    form.mobile_banner_url ||
-    form.banner_preview_url ||
-    form.banner_url || "";
-
-  const hasAnyBranding =
-    hasAnyBanner || form.logo_preview_url || form.logo_url;
+  const hasPersistedMobileBanner = isPersistentMediaUrl(form.mobile_banner_url, {
+    allowRootRelative: false,
+  });
+  const isStarterMobileBanner =
+    !hasPersistedMobileBanner &&
+    isPersistentMediaUrl(form.mobile_banner_url, { allowRootRelative: true });
 
   return (
     <div className="space-y-6">
@@ -128,10 +137,10 @@ export default function BrandMediaSection({
               <label className={labelCls}>Starter logo</label>
             </div>
 
-            {displayLogoUrl ? (
+            {logoPreviewUrl ? (
               <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                 <img
-                  src={displayLogoUrl}
+                  src={logoPreviewUrl}
                   alt="Starter logo"
                   className="h-20 w-20 rounded-xl object-cover"
                 />
@@ -155,10 +164,10 @@ export default function BrandMediaSection({
                 <label className={labelCls}>Starter desktop banner</label>
               </div>
 
-              {displayDesktopBannerUrl ? (
+              {bannerPreviewUrl ? (
                 <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                   <img
-                    src={displayDesktopBannerUrl}
+                    src={bannerPreviewUrl}
                     alt="Starter desktop banner"
                     className="h-32 w-64 rounded-xl object-cover"
                   />
@@ -179,10 +188,10 @@ export default function BrandMediaSection({
                 <label className={labelCls}>Starter mobile banner</label>
               </div>
 
-              {displayMobileBannerUrl ? (
+              {mobileBannerPreviewUrl ? (
                 <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                   <img
-                    src={displayMobileBannerUrl}
+                    src={mobileBannerPreviewUrl}
                     alt="Starter mobile banner"
                     className="h-24 w-48 rounded-xl object-cover"
                   />
@@ -223,13 +232,11 @@ export default function BrandMediaSection({
           {/* Logo Upload */}
           <UploadCard
             label="Logo"
-            displayUrl={displayLogoUrl}
-            persistedUrl={form.logo_url}
-            previewUrl={form.logo_preview_url}
+            displayUrl={logoPreviewUrl}
             hasUnsavedFile={!!form.logo_file}
             isMarkedForRemoval={form.logo_remove}
-            isFallback={displayLogoUrl?.startsWith('/') && !form.logo_url}
-            hasPersistedImage={!!form.logo_url && form.logo_url.startsWith('http')}
+            isStarterBranding={isStarterLogo}
+            hasPersistedImage={hasPersistedLogo}
             inputId={logoInputId}
             onFileChange={(e) => handleFileUpload(e, "logo")}
             onRemove={() => removeImage("logo")}
@@ -240,13 +247,11 @@ export default function BrandMediaSection({
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <UploadCard
               label="Desktop banner"
-              displayUrl={displayDesktopBannerUrl}
-              persistedUrl={form.banner_url}
-              previewUrl={form.banner_preview_url}
+              displayUrl={bannerPreviewUrl}
               hasUnsavedFile={!!form.banner_file}
               isMarkedForRemoval={form.banner_remove}
-              isFallback={displayDesktopBannerUrl?.startsWith('/') && !form.banner_url}
-              hasPersistedImage={!!form.banner_url && form.banner_url.startsWith('http')}
+              isStarterBranding={isStarterDesktopBanner}
+              hasPersistedImage={hasPersistedDesktopBanner}
               inputId={bannerInputId}
               onFileChange={(e) => handleFileUpload(e, "banner")}
               onRemove={() => removeImage("banner")}
@@ -256,135 +261,17 @@ export default function BrandMediaSection({
 
             <UploadCard
               label="Mobile banner"
-              displayUrl={displayMobileBannerUrl}
-              persistedUrl={form.mobile_banner_url}
-              previewUrl={form.mobile_banner_preview_url}
+              displayUrl={mobileBannerPreviewUrl}
               hasUnsavedFile={!!form.mobile_banner_file}
               isMarkedForRemoval={form.mobile_banner_remove}
-              isFallback={displayMobileBannerUrl?.startsWith('/') && !form.mobile_banner_url}
-              hasPersistedImage={!!form.mobile_banner_url && form.mobile_banner_url.startsWith('http')}
+              isStarterBranding={isStarterMobileBanner}
+              hasPersistedImage={hasPersistedMobileBanner}
               inputId={mobileBannerInputId}
               onFileChange={(e) => handleFileUpload(e, "mobile_banner")}
               onRemove={() => removeImage("mobile_banner")}
               helpText="400×160px recommended"
               imageClassName="h-24 w-48 rounded-xl object-cover"
             />
-          </div>
-        </div>
-      )}
-
-      {/* Brand Preview */}
-      {hasAnyBranding && (
-        <div className="space-y-4">
-          <div className="text-center">
-            <h4 className="font-semibold text-slate-900">Brand preview</h4>
-            <p className="text-sm text-slate-500">
-              See how your branding appears across the platform.
-            </p>
-          </div>
-
-          <div className="flex justify-center">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-4xl w-full">
-              {/* Business Card Preview */}
-              <div>
-                <h5 className="mb-2 text-sm font-medium text-slate-700">
-                  Business card
-                </h5>
-                <div className="max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  <div className="relative h-40 bg-gradient-to-br from-slate-100 via-slate-50 to-[#eef6f6]">
-                    {displayCardBannerUrl ? (
-                      <img
-                        src={displayCardBannerUrl}
-                        alt="Business card preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : null}
-                  </div>
-                  <div className="p-4">
-                    <div className="text-xs text-slate-500">
-                      {form.industry ? form.industry : "Industry"} • {form.city ? form.city : "Location"}
-                    </div>
-                    <div className="mt-1 text-xs text-slate-600">
-                      {form.tagline || form.description || "Brief business description..."}
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-1 text-xs text-slate-500">
-                  Uses mobile banner first, then desktop fallback.
-                </p>
-              </div>
-
-              {/* Homepage Featured Preview */}
-              <div>
-                <h5 className="mb-2 text-sm font-medium text-slate-700">
-                  Homepage featured
-                </h5>
-                <div className="max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  <div className="relative h-40 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]">
-                    {displayCardBannerUrl ? (
-                      <img
-                        src={displayCardBannerUrl}
-                        alt="Homepage featured preview"
-                        className="absolute inset-0 h-full w-full object-cover"
-                        style={{ objectPosition: "center top" }}
-                      />
-                    ) : null}
-                  </div>
-
-                  <div className="bg-white p-4">
-                    <div className="flex items-center gap-2">
-                      {displayLogoUrl ? (
-                        <img
-                          src={displayLogoUrl}
-                          alt="Business logo"
-                          className="h-8 w-8 rounded-lg border border-slate-200 object-cover"
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded-lg border border-slate-200 bg-slate-200" />
-                      )}
-
-                      <div className="flex-1">
-                        <h6 className="text-sm font-semibold text-slate-900">
-                          {form.business_name || "Business Name"}
-                        </h6>
-                        <p className="text-xs text-slate-500">
-                          {form.industry ? form.industry : "Industry"} • {form.city ? form.city : "Location"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className="mt-2 line-clamp-2 text-xs text-slate-600">
-                      {form.tagline || form.description || "Brief business description for featured spotlight..."}
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-1 text-xs text-slate-500">
-                  Uses mobile banner first, then desktop fallback.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-            <div className="flex items-start gap-3">
-              <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-              <div className="text-sm text-blue-900">
-                <p className="mb-1 font-semibold">Brand placement</p>
-                <div className="space-y-1 text-xs text-blue-800">
-                  <p>
-                    <strong>Business card:</strong> uses mobile banner first,
-                    then desktop fallback
-                  </p>
-                  <p>
-                    <strong>Homepage featured:</strong> uses mobile banner
-                    first, then desktop fallback
-                  </p>
-                  <p>
-                    <strong>Business registry:</strong> uses desktop banner
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
@@ -395,11 +282,9 @@ export default function BrandMediaSection({
 function UploadCard({
   label,
   displayUrl,
-  persistedUrl,
-  previewUrl,
   hasUnsavedFile,
   isMarkedForRemoval = false,
-  isFallback = false,
+  isStarterBranding = false,
   hasPersistedImage = false,
   inputId,
   onFileChange,
@@ -407,12 +292,15 @@ function UploadCard({
   helpText,
   imageClassName = "h-20 w-20 rounded-xl object-cover",
 }) {
-  // Determine status from explicit state, not URL guessing
+  const hasImage = !!displayUrl;
+
+  // Determine status from explicit state, matching actual visible behavior
   const getStatusInfo = () => {
-    // Priority order: removal > local unsaved > persisted > fallback > none
+    // Priority order: removal > pending replacement > persisted/starter > none
     if (isMarkedForRemoval) {
       return {
         label: "Marked for removal — save required",
+        detail: hasImage ? "Current image still showing until save" : null,
         tone: "amber",
         canRemove: true
       };
@@ -420,7 +308,12 @@ function UploadCard({
     
     if (hasUnsavedFile) {
       return {
-        label: "Selected locally — save required",
+        label: "Local preview shown — save to apply",
+        detail: hasPersistedImage 
+          ? "Will replace saved image after save"
+          : isStarterBranding
+          ? "Will replace starter branding after save"
+          : null,
         tone: "amber",
         canRemove: true
       };
@@ -429,28 +322,30 @@ function UploadCard({
     if (hasPersistedImage) {
       return {
         label: "Saved image",
+        detail: null,
         tone: "green",
         canRemove: true
       };
     }
     
-    if (isFallback) {
+    if (isStarterBranding) {
       return {
-        label: "Using fallback branding",
+        label: "Using starter branding",
+        detail: null,
         tone: "slate",
         canRemove: false
       };
     }
     
     return {
-      label: "No image uploaded",
+      label: "No saved image",
+      detail: null,
       tone: "slate",
       canRemove: false
     };
   };
 
   const statusInfo = getStatusInfo();
-  const hasImage = !!displayUrl;
 
   const getStatusColor = (tone) => {
     switch (tone) {
@@ -512,13 +407,17 @@ function UploadCard({
               {statusInfo.label}
             </div>
 
+            {statusInfo.detail ? (
+              <p className="text-xs text-slate-500">{statusInfo.detail}</p>
+            ) : null}
+
             {/* Upload/Replace Button */}
             <label
               htmlFor={inputId}
               className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               <Upload className="h-4 w-4" />
-              {hasImage ? `Replace ${label.toLowerCase()}` : `Upload ${label.toLowerCase()}`}
+              {hasImage ? `Choose new ${label.toLowerCase()}` : `Upload ${label.toLowerCase()}`}
             </label>
           </div>
         )}
