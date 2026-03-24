@@ -10,7 +10,7 @@ import { hasLogo, getLogoUrl } from '@/utils/bannerUtils';
  * Features:
  * - Fallback to building icon if no logo
  * - Verified badge for verified businesses
- * - Homepage featured indicator
+ * - Homepage visibility indicator
  * - Premium tier styling
  * - Responsive sizes
  */
@@ -86,7 +86,7 @@ export function BusinessAvatar({
           {isHomepage && (
             <div 
               className="w-full h-full rounded-full bg-[#00c4cc] border-2 border-white shadow-sm"
-              title="Homepage Featured"
+              title="Homepage Visibility"
             />
           )}
         </div>

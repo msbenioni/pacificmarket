@@ -1,6 +1,5 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
-import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { notifyPlanUpgraded } from "@/lib/notifications";
 import { SUBSCRIPTION_TIER, STRIPE_PRICE_LOOKUP_KEYS } from "@/constants/unifiedConstants";
 
@@ -13,10 +12,10 @@ const supabase = createClient(
 async function getBusinessByStripeCustomerId(customerId) {
   const { data, error } = await supabase
     .from('businesses')
-    .select('id, name, owner_user_id')
+    .select('id, business_name, owner_user_id, subscription_tier, visibility_tier, visibility_mode')
     .eq('stripe_customer_id', customerId)
     .single();
-  
+    
   return { data, error };
 }
 
@@ -55,21 +54,27 @@ export async function POST(request) {
         if (business && user) {
           // Determine tier from session metadata
           const newTier = session.metadata?.tier || SUBSCRIPTION_TIER.MANA;
-          const previousTier = SUBSCRIPTION_TIER.VAKA; // Free tier
+          const previousTier = business.subscription_tier || SUBSCRIPTION_TIER.VAKA; // Use actual current tier
           
-          // Auto-set homepage featured for Moana tier
+          // Auto-set homepage visibility for Moana tier
           const updateData = {
             subscription_tier: newTier,
             updated_at: new Date().toISOString()
           };
           
-          // Set is_homepage_featured = true for Moana tier
-          if (newTier === SUBSCRIPTION_TIER.MOANA) {
-            updateData.is_homepage_featured = true;
+          // Set homepage visibility for Moana tier (only if not manually set)
+          if (newTier === SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual') {
+            updateData.visibility_tier = 'homepage';
             console.log(`Auto-featured business ${business.id} on homepage due to Moana upgrade`);
           }
           
-          // Update business with new tier and homepage featured status
+          // Remove homepage visibility for non-Moana tier (only if auto mode)
+          if (newTier !== SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual' && business.visibility_tier === 'homepage') {
+            updateData.visibility_tier = 'pacific-businesses'; // Downgrade to Pacific Businesses only
+            console.log(`Removed homepage visibility for business ${business.id} due to tier downgrade`);
+          }
+          
+          // Update business with new tier and homepage visibility status
           await supabase
             .from('businesses')
             .update(updateData)
@@ -146,25 +151,31 @@ export async function POST(request) {
             newTier = SUBSCRIPTION_TIER.MANA; // Default fallback
           }
           
-          const previousTier = SUBSCRIPTION_TIER.VAKA; // Free tier
+          const previousTier = business.subscription_tier || SUBSCRIPTION_TIER.VAKA; // Use actual current tier
           
           // Send notification if tier changed
           if (newTier !== previousTier) {
             await notifyPlanUpgraded(business, user, previousTier, newTier);
             
-            // Auto-set homepage featured for Moana tier
+            // Auto-set homepage visibility for Moana tier
             const updateData = {
               subscription_tier: newTier,
               updated_at: new Date().toISOString()
             };
             
-            // Set is_homepage_featured = true for Moana tier
-            if (newTier === SUBSCRIPTION_TIER.MOANA) {
-              updateData.is_homepage_featured = true;
+            // Set homepage visibility for Moana tier (only if not manually set)
+            if (newTier === SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual') {
+              updateData.visibility_tier = 'homepage';
               console.log(`Auto-featured business ${business.id} on homepage due to Moana upgrade`);
             }
             
-            // Update business with new tier and homepage featured status
+            // Remove homepage visibility for non-Moana tier (only if auto mode)
+            if (newTier !== SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual' && business.visibility_tier === 'homepage') {
+              updateData.visibility_tier = 'pacific-businesses'; // Downgrade to Pacific Businesses only
+              console.log(`Removed homepage visibility for business ${business.id} due to tier downgrade`);
+            }
+            
+            // Update business with new tier and homepage visibility status
             await supabase
               .from('businesses')
               .update(updateData)

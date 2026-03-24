@@ -27,7 +27,7 @@ export default function Home() {
       try {
         const { data } = await getHomepageBusinesses({ limit: 12 });
 
-        console.log("Homepage featured businesses:", data);
+        console.log("Homepage businesses:", data);
         setFeatured(data || []);
       } catch (error) {
         console.error("Error fetching featured businesses:", error);

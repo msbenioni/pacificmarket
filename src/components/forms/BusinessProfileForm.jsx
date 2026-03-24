@@ -8,6 +8,7 @@ import {
   Lightbulb,
   Share2,
   Phone,
+  Shield,
 } from "lucide-react";
 import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
@@ -21,6 +22,7 @@ import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import CommunitySection from "./FormSections/CommunitySection";
 import SocialMediaSection from "./FormSections/SocialMediaSection";
 import ContactDetailsSection from "./FormSections/ContactDetailsSection";
+import AdminVisibilitySection from "./FormSections/AdminVisibilitySection";
 import { inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection } from "./shared/FormComponents";
 
 // Form Sections Configuration
@@ -66,6 +68,16 @@ const SECTIONS = [
     label: "Brand & Media",
     icon: ImageIcon,
     description: "Logo, banner, and visual assets",
+  },
+];
+
+// Admin-only sections (added conditionally)
+const ADMIN_SECTIONS = [
+  {
+    key: "admin",
+    label: "Admin Controls",
+    icon: Shield,
+    description: "Visibility and administrative settings",
   },
 ];
 
@@ -116,6 +128,10 @@ export default function BusinessProfileForm({
     logo_remove: false,
     banner_remove: false,
     mobile_banner_remove: false,
+    
+    // Admin & Visibility
+    visibility_tier: "none",
+    visibility_mode: "auto",
     
     // Business Overview
     year_started: null,
@@ -332,10 +348,10 @@ export default function BusinessProfileForm({
   const reconcileSavedBusiness = (savedBusiness) => {
     setForm(prev => ({
       ...prev,
-      // Update persisted URLs from saved row
-      logo_url: savedBusiness.logo_url || "",
-      banner_url: savedBusiness.banner_url || "",
-      mobile_banner_url: savedBusiness.mobile_banner_url || "",
+      // Update persisted URLs from saved row (explicit assignment)
+      logo_url: savedBusiness.logo_url ?? "",
+      banner_url: savedBusiness.banner_url ?? "",
+      mobile_banner_url: savedBusiness.mobile_banner_url ?? "",
       // Clear local files
       logo_file: null,
       banner_file: null,
@@ -344,14 +360,18 @@ export default function BusinessProfileForm({
       logo_remove: false,
       banner_remove: false,
       mobile_banner_remove: false,
-      // Merge other returned fields if present
-      ...(savedBusiness.business_name && { business_name: savedBusiness.business_name }),
-      ...(savedBusiness.description && { description: savedBusiness.description }),
-      ...(savedBusiness.tagline && { tagline: savedBusiness.tagline }),
-      ...(savedBusiness.business_email && { business_email: savedBusiness.business_email }),
-      ...(savedBusiness.business_website && { business_website: savedBusiness.business_website }),
-      ...(savedBusiness.business_phone && { business_phone: savedBusiness.business_phone }),
-      ...(savedBusiness.business_hours && { business_hours: savedBusiness.business_hours }),
+      // Explicitly reconcile other important fields
+      business_name: savedBusiness.business_name ?? prev.business_name,
+      description: savedBusiness.description ?? prev.description,
+      tagline: savedBusiness.tagline ?? prev.tagline,
+      business_email: savedBusiness.business_email ?? prev.business_email,
+      business_website: savedBusiness.business_website ?? prev.business_website,
+      business_phone: savedBusiness.business_phone ?? prev.business_phone,
+      business_hours: savedBusiness.business_hours ?? prev.business_hours,
+      // Explicitly reconcile admin visibility fields
+      visibility_tier: savedBusiness.visibility_tier ?? prev.visibility_tier,
+      visibility_mode: savedBusiness.visibility_mode ?? prev.visibility_mode,
+      subscription_tier: savedBusiness.subscription_tier ?? prev.subscription_tier,
     }));
   };
 
@@ -535,6 +555,15 @@ export default function BusinessProfileForm({
           />
         );
       
+      case "admin":
+        return (
+          <AdminVisibilitySection
+            form={form}
+            handleInputChange={handleInputChange}
+            showAdminFields={showAdminFields}
+          />
+        );
+      
       default:
         return (
           <div className="p-4">
@@ -548,7 +577,7 @@ export default function BusinessProfileForm({
     <div className="rounded-2xl bg-white overflow-hidden max-w-full">
       <form onSubmit={handleSubmit} className="p-3 sm:p-8">
         <div className="space-y-3 sm:space-y-4 overflow-x-hidden">
-          {SECTIONS.map((section) => (
+          {[...SECTIONS, ...(showAdminFields ? ADMIN_SECTIONS : [])].map((section) => (
             <FormSection
               key={section.key}
               title={section.label}

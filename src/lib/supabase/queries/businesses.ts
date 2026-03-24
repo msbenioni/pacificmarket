@@ -38,7 +38,8 @@ const BUSINESS_PUBLIC_FIELDS = `
   is_claimed,
   claimed_at,
   claimed_by,
-  is_homepage_featured,
+  visibility_tier,
+  visibility_mode,
   subscription_tier,
   cultural_identity,
   languages_spoken,
@@ -416,7 +417,7 @@ export async function searchBusinesses(query: string, options: {
   let queryBuilder = supabase
     .from('businesses')
     .select(BUSINESS_PUBLIC_FIELDS)
-    .or(`name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%`);
+    .or(`business_name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%`);
 
   // Apply status filter only if status array is provided and not empty
   if (status && status.length > 0) {

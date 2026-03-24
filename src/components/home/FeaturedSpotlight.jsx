@@ -303,7 +303,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a84c]/15 blur-3xl" />
 
         {/* Banner */}
-        <div className="relative h-[233px] overflow-hidden bg-[#0a1628]">
+        <div className="relative w-full max-w-[800px] h-[160px] overflow-hidden bg-[#0a1628]">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
           {getBannerUrl(b) && (
@@ -311,7 +311,6 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
               src={getBannerUrl(b)}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: "center top" }}
             />
           )}
         </div>

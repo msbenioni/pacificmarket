@@ -1,6 +1,6 @@
 import React from 'react';
 import { Shield, Star, CheckCircle, Home, Crown } from 'lucide-react';
-import { getBusinessTier, hasPremiumFeatures } from '@/lib/business/helpers';
+import { getBusinessTier } from '@/lib/business/helpers';
 import { isVerifiedBusiness, canAppearOnHomepage, getBusinessVisibilityTier } from '@/lib/business/rules';
 
 /**
@@ -8,7 +8,7 @@ import { isVerifiedBusiness, canAppearOnHomepage, getBusinessVisibilityTier } fr
  * 
  * Features:
  * - Verified badge
- * - Homepage featured badge
+ * - Homepage visibility badge
  * - Premium tier badges
  * - Visibility tier indicators
  * - Responsive sizing
@@ -39,7 +39,6 @@ export function BusinessBadgeGroup({
 
   const isVerified = isVerifiedBusiness(business);
   const isHomepage = canAppearOnHomepage(business);
-  const isPremium = hasPremiumFeatures(business);
   const tier = getBusinessTier(business);
   const visibilityTier = getBusinessVisibilityTier(business);
 
@@ -54,16 +53,6 @@ export function BusinessBadgeGroup({
         label: 'Verified',
         color: 'bg-green-100 text-green-700 border-green-200',
         iconColor: 'text-green-600'
-      });
-    }
-
-    if (isHomepage) {
-      badges.push({
-        id: 'homepage',
-        icon: Home,
-        label: 'Homepage',
-        color: 'bg-blue-100 text-blue-700 border-blue-200',
-        iconColor: 'text-blue-600'
       });
     }
   }
@@ -99,13 +88,13 @@ export function BusinessBadgeGroup({
         color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
         iconColor: 'text-yellow-600'
       });
-    } else if (visibilityTier === 'premium') {
+    } else if (visibilityTier === 'pacific-businesses') {
       badges.push({
-        id: 'visibility-premium',
-        icon: Star,
-        label: 'Premium',
-        color: 'bg-purple-100 text-purple-700 border-purple-200',
-        iconColor: 'text-purple-600'
+        id: 'visibility-pacific',
+        icon: Home,
+        label: 'Pacific Business',
+        color: 'bg-blue-100 text-blue-700 border-blue-200',
+        iconColor: 'text-blue-600'
       });
     }
   }

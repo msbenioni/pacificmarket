@@ -1,7 +1,9 @@
 import { Upload, X, Info, Crown } from "lucide-react";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
-import { useMediaPreview } from "@/hooks/useMediaPreview";
+import { useMediaState } from "@/hooks/useMediaState";
+import { DesktopBannerPreview, MobileBannerPreview } from "./BannerPreviews";
+import { getBannerHelpText, getBannerGuideText } from "@/constants/bannerDimensions";
 
 export default function BrandMediaSection({
   form,
@@ -18,10 +20,24 @@ export default function BrandMediaSection({
     subscriptionTier === SUBSCRIPTION_TIER.MANA ||
     subscriptionTier === SUBSCRIPTION_TIER.MOANA;
 
-  // Use helper hook for each media preview
-  const logoPreviewUrl = useMediaPreview(form.logo_file, form.logo_url);
-  const bannerPreviewUrl = useMediaPreview(form.banner_file, form.banner_url);
-  const mobileBannerPreviewUrl = useMediaPreview(form.mobile_banner_file, form.mobile_banner_url);
+  // Use helper hook for each media preview with removal support
+  const logoMediaState = useMediaState({ 
+    file: form.logo_file, 
+    persistedUrl: form.logo_url, 
+    removeFlag: form.logo_remove 
+  });
+  
+  const bannerMediaState = useMediaState({ 
+    file: form.banner_file, 
+    persistedUrl: form.banner_url, 
+    removeFlag: form.banner_remove 
+  });
+  
+  const mobileBannerMediaState = useMediaState({ 
+    file: form.mobile_banner_file, 
+    persistedUrl: form.mobile_banner_url, 
+    removeFlag: form.mobile_banner_remove 
+  });
 
   const hasPersistedLogo = isPersistentMediaUrl(form.logo_url, {
     allowRootRelative: false,
@@ -137,10 +153,10 @@ export default function BrandMediaSection({
               <label className={labelCls}>Starter logo</label>
             </div>
 
-            {logoPreviewUrl ? (
+            {logoMediaState.hasImage ? (
               <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                 <img
-                  src={logoPreviewUrl}
+                  src={logoMediaState.displayUrl}
                   alt="Starter logo"
                   className="h-20 w-20 rounded-xl object-cover"
                 />
@@ -164,10 +180,10 @@ export default function BrandMediaSection({
                 <label className={labelCls}>Starter desktop banner</label>
               </div>
 
-              {bannerPreviewUrl ? (
+              {bannerMediaState.hasImage ? (
                 <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                   <img
-                    src={bannerPreviewUrl}
+                    src={bannerMediaState.displayUrl}
                     alt="Starter desktop banner"
                     className="h-32 w-64 rounded-xl object-cover"
                   />
@@ -179,7 +195,7 @@ export default function BrandMediaSection({
               )}
 
               <p className="mt-2 text-xs text-slate-500">
-                Used in the business registry.
+                {getBannerGuideText('desktop')}. Used in the business registry.
               </p>
             </div>
 
@@ -188,10 +204,10 @@ export default function BrandMediaSection({
                 <label className={labelCls}>Starter mobile banner</label>
               </div>
 
-              {mobileBannerPreviewUrl ? (
+              {mobileBannerMediaState.hasImage ? (
                 <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                   <img
-                    src={mobileBannerPreviewUrl}
+                    src={mobileBannerMediaState.displayUrl}
                     alt="Starter mobile banner"
                     className="h-24 w-48 rounded-xl object-cover"
                   />
@@ -203,7 +219,7 @@ export default function BrandMediaSection({
               )}
 
               <p className="mt-2 text-xs text-slate-500">
-                Used for business cards and homepage features.
+                {getBannerGuideText('mobile')}. Used for business cards and homepage features.
               </p>
             </div>
           </div>
@@ -232,7 +248,8 @@ export default function BrandMediaSection({
           {/* Logo Upload */}
           <UploadCard
             label="Logo"
-            displayUrl={logoPreviewUrl}
+            businessName={form.business_name || "Business"}
+            displayUrl={logoMediaState.displayUrl}
             hasUnsavedFile={!!form.logo_file}
             isMarkedForRemoval={form.logo_remove}
             isStarterBranding={isStarterLogo}
@@ -247,7 +264,8 @@ export default function BrandMediaSection({
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <UploadCard
               label="Desktop banner"
-              displayUrl={bannerPreviewUrl}
+              businessName={form.business_name || "Business"}
+              displayUrl={bannerMediaState.displayUrl}
               hasUnsavedFile={!!form.banner_file}
               isMarkedForRemoval={form.banner_remove}
               isStarterBranding={isStarterDesktopBanner}
@@ -255,13 +273,15 @@ export default function BrandMediaSection({
               inputId={bannerInputId}
               onFileChange={(e) => handleFileUpload(e, "banner")}
               onRemove={() => removeImage("banner")}
-              helpText="1200×300px recommended"
-              imageClassName="h-32 w-64 rounded-xl object-cover"
+              helpText={getBannerHelpText('desktop')}
+              bannerType="desktop"
+              desktopBannerUrl={bannerMediaState.displayUrl}
+              mobileBannerUrl={mobileBannerMediaState.displayUrl}
             />
-
             <UploadCard
               label="Mobile banner"
-              displayUrl={mobileBannerPreviewUrl}
+              businessName={form.business_name || "Business"}
+              displayUrl={mobileBannerMediaState.displayUrl}
               hasUnsavedFile={!!form.mobile_banner_file}
               isMarkedForRemoval={form.mobile_banner_remove}
               isStarterBranding={isStarterMobileBanner}
@@ -269,8 +289,10 @@ export default function BrandMediaSection({
               inputId={mobileBannerInputId}
               onFileChange={(e) => handleFileUpload(e, "mobile_banner")}
               onRemove={() => removeImage("mobile_banner")}
-              helpText="400×160px recommended"
-              imageClassName="h-24 w-48 rounded-xl object-cover"
+              helpText={getBannerHelpText('mobile')}
+              bannerType="mobile"
+              desktopBannerUrl={bannerMediaState.displayUrl}
+              mobileBannerUrl={mobileBannerMediaState.displayUrl}
             />
           </div>
         </div>
@@ -281,6 +303,7 @@ export default function BrandMediaSection({
 
 function UploadCard({
   label,
+  businessName,
   displayUrl,
   hasUnsavedFile,
   isMarkedForRemoval = false,
@@ -291,55 +314,53 @@ function UploadCard({
   onRemove,
   helpText,
   imageClassName = "h-20 w-20 rounded-xl object-cover",
+  bannerType = null, // 'desktop' | 'mobile' | 'featured' | null
+  desktopBannerUrl = null,
+  mobileBannerUrl = null,
 }) {
-  const hasImage = !!displayUrl;
+  const hasImage = !!displayUrl && !isMarkedForRemoval;
 
   // Determine status from explicit state, matching actual visible behavior
   const getStatusInfo = () => {
     // Priority order: removal > pending replacement > persisted/starter > none
     if (isMarkedForRemoval) {
-      return {
-        label: "Marked for removal — save required",
-        detail: hasImage ? "Current image still showing until save" : null,
+      return { 
+        label: "Will be removed", 
+        detail: "Image will be removed after save", 
         tone: "amber",
-        canRemove: true
+        canRemove: false // No undo - removal is final until save
       };
     }
-    
     if (hasUnsavedFile) {
-      return {
-        label: "Local preview shown — save to apply",
-        detail: hasPersistedImage 
-          ? "Will replace saved image after save"
-          : isStarterBranding
-          ? "Will replace starter branding after save"
-          : null,
-        tone: "amber",
+      return { 
+        label: "New image ready", 
+        detail: "Save to upload new image", 
+        tone: "green",
         canRemove: true
       };
     }
     
     if (hasPersistedImage) {
-      return {
-        label: "Saved image",
-        detail: null,
+      return { 
+        label: "Current image", 
+        detail: "Saved image", 
         tone: "green",
         canRemove: true
       };
     }
     
     if (isStarterBranding) {
-      return {
-        label: "Using starter branding",
-        detail: null,
+      return { 
+        label: "Using starter branding", 
+        detail: "Default branding asset", 
         tone: "slate",
-        canRemove: false
+        canRemove: false // Starter assets not removable
       };
     }
     
-    return {
-      label: "No saved image",
-      detail: null,
+    return { 
+      label: "No image", 
+      detail: "Upload an image to get started", 
       tone: "slate",
       canRemove: false
     };
@@ -364,11 +385,26 @@ function UploadCard({
       <div className="space-y-3">
         {hasImage ? (
           <div className="relative inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-            <img
-              src={displayUrl}
-              alt={label}
-              className={imageClassName}
-            />
+            {bannerType === 'desktop' ? (
+              <DesktopBannerPreview 
+                bannerUrl={desktopBannerUrl}
+                businessName={businessName}
+                className="!h-32 !w-64"
+              />
+            ) : bannerType === 'mobile' ? (
+              <MobileBannerPreview 
+                bannerUrl={desktopBannerUrl}
+                mobileBannerUrl={mobileBannerUrl}
+                businessName={businessName}
+                className="!h-24 !w-48 !rounded-t-[12px]"
+              />
+            ) : (
+              <img
+                src={displayUrl}
+                alt={label}
+                className={imageClassName}
+              />
+            )}
             {statusInfo.canRemove && (
               <button
                 type="button"

@@ -1,0 +1,69 @@
+/**
+ * Production-matching banner preview components
+ * These mimic the exact rendering behavior of real banner components
+ */
+
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
+
+/**
+ * Desktop Banner Preview - matches BusinessBanner desktop rendering
+ */
+export function DesktopBannerPreview({ 
+  bannerUrl, 
+  businessName = "Business Name",
+  className = "" 
+}) {
+  // Use same logic as BusinessBanner: desktop banner takes priority on desktop
+  const hasBanner = isPersistentMediaUrl(bannerUrl, { allowRootRelative: true });
+
+  return (
+    <div className={`relative w-full h-32 sm:h-40 md:h-48 lg:h-56 bg-gray-100 ${className}`}>
+      {hasBanner ? (
+        <>
+          <img
+            src={bannerUrl}
+            alt={`${businessName} desktop banner`}
+            className="h-full w-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+        </>
+      ) : (
+        <div className="w-full h-full bg-[#0d4f4f] flex items-center justify-center">
+          <h1 className="text-base sm:text-lg lg:text-xl font-bold text-white drop-shadow-lg px-4 text-center">
+            {businessName}
+          </h1>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Mobile Banner Preview - matches FeaturedSpotlight mobile banner rendering
+ */
+export function MobileBannerPreview({ 
+  bannerUrl, 
+  mobileBannerUrl, 
+  businessName = "Business Name",
+  className = "" 
+}) {
+  // Use same priority logic as getBannerUrl: mobile first, then desktop
+  const displayUrl = (isPersistentMediaUrl(mobileBannerUrl, { allowRootRelative: true }) ||
+                     isPersistentMediaUrl(bannerUrl, { allowRootRelative: true }))
+    ? (mobileBannerUrl || bannerUrl)
+    : null;
+
+  return (
+    <div className={`relative w-full max-w-[800px] h-[160px] overflow-hidden rounded-t-[24px] bg-[#0d4f4f] flex-shrink-0 ${className}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
+      {displayUrl && (
+        <img
+          src={displayUrl}
+          alt={`${businessName} mobile banner`}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+    </div>
+  );
+}

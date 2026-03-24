@@ -110,11 +110,36 @@ export function useBusinessOperations(refetchPortalData) {
       });
 
       const consolidatedPayload = {
+        ...businessesPayload,
         ...brandingPayload,
         ...businessInsightsData,
       };
 
       const sanitizedPayload = sanitizeBusinessPayload(consolidatedPayload);
+      
+      // Auto-assign homepage visibility for Moana tier (only if not manually set)
+      // visibility_tier = what is shown
+      // visibility_mode = who controls it  
+      // subscription_tier = entitlement/default, not final editorial placement
+      
+      // Get current business data for safe fallback
+      const { data: currentBusiness } = await supabase
+        .from('businesses')
+        .select('subscription_tier, visibility_mode, visibility_tier')
+        .eq('id', businessData.businessId)
+        .single();
+      
+      const resultingTier = businessData.businessesData.subscription_tier ?? currentBusiness?.subscription_tier ?? SUBSCRIPTION_TIER.VAKA;
+      const resultingMode = businessData.businessesData.visibility_mode ?? currentBusiness?.visibility_mode ?? 'auto';
+      
+      if (resultingTier === SUBSCRIPTION_TIER.MOANA && resultingMode === 'auto') {
+        sanitizedPayload.visibility_tier = 'homepage';
+      } else if (resultingTier !== SUBSCRIPTION_TIER.MOANA && resultingMode === 'auto') {
+        // Non-Moana tier in auto mode should not have homepage visibility
+        sanitizedPayload.visibility_tier = 'pacific-businesses';
+      }
+      // Manual mode preserves admin-selected visibility_tier
+      
       const validationResult = validatePayload({ payload: sanitizedPayload, context: "Save" });
 
       if (!validationResult.isValid) {

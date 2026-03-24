@@ -55,12 +55,12 @@ export type Business = {
   status: string;
   is_verified: boolean;
   is_claimed: boolean;
-  is_homepage_featured: boolean;
   claimed_at: string | null;
   claimed_by: string | null;
 
   // Visibility and tiers
   visibility_tier: 'homepage' | 'pacific-businesses' | 'none';
+  visibility_mode: 'auto' | 'manual';
   subscription_tier: 'vaka' | 'mana' | 'moana';
 
   // Ownership

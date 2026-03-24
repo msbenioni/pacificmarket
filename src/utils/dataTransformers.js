@@ -18,6 +18,7 @@ export function sanitizeBusinessPayload(formData) {
     verification_source,
     logo_file,
     banner_file,
+    mobile_banner_file,
     owner_user_id,
     created_by,
     claimed_at,
@@ -63,10 +64,11 @@ export function sanitizeBusinessPayload(formData) {
     "banner_url",
     "mobile_banner_url",
     "subscription_tier",
+    "visibility_tier",
+    "visibility_mode",
     "status",
     "is_verified",
-    "is_claimed",
-    "is_homepage_featured"
+    "is_claimed"
   ];
 
   const payload = {};
@@ -85,11 +87,19 @@ export function sanitizeBusinessPayload(formData) {
     }
   });
 
-  if (filteredFields.length > 0) {
-    console.warn('Fields filtered out during sanitization:', filteredFields);
+  // Only warn about unexpected fields (not standard file/metadata fields we expect to filter)
+  const expectedFilteredFields = [
+    'logo_file', 'banner_file', 'mobile_banner_file', 'logo_remove', 'banner_remove', 'mobile_banner_remove',
+    'id', 'created_at', 'created_date', 'updated_at', 'verification_source', 'owner_user_id', 
+    'created_by', 'claimed_at', 'claimed_by', 'profile_completeness', 'referral_code', 'source'
+  ];
+  
+  const unexpectedFields = filteredFields.filter(field => !expectedFilteredFields.includes(field));
+  
+  if (unexpectedFields.length > 0) {
+    console.warn('Unexpected fields filtered out during sanitization:', unexpectedFields);
   }
 
-  console.log('Sanitized payload:', payload);
   return payload;
 }
 
