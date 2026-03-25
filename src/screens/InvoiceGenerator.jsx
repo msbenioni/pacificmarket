@@ -523,9 +523,10 @@ export default function InvoiceGenerator() {
   const beforeTaxAdjustments = invoice.adjustments
     .filter(adj => adj.apply_stage === 'before_tax')
     .reduce((sum, adj) => {
+      const adjustmentInputValue = parseFloat(adj.value) || 0;
       const value = adj.value_type === 'percent' 
-        ? subtotal * (adj.value / 100) 
-        : adj.value;
+        ? subtotal * (adjustmentInputValue / 100) 
+        : adjustmentInputValue;
       return adj.kind === 'fee' ? sum + value : sum - value;
     }, 0);
   
@@ -537,9 +538,10 @@ export default function InvoiceGenerator() {
   const afterTaxAdjustments = invoice.adjustments
     .filter(adj => adj.apply_stage === 'after_tax')
     .reduce((sum, adj) => {
+      const adjustmentInputValue = parseFloat(adj.value) || 0;
       const value = adj.value_type === 'percent' 
-        ? grossTotal * (adj.value / 100) 
-        : adj.value;
+        ? grossTotal * (adjustmentInputValue / 100) 
+        : adjustmentInputValue;
       return adj.kind === 'fee' ? sum + value : sum - value;
     }, 0);
   
@@ -951,8 +953,8 @@ export default function InvoiceGenerator() {
                             </select>
                             <input
                               type="number"
-                              value={adj.value}
-                              onChange={e => updateAdjustment(i, "value", parseFloat(e.target.value) || 0)}
+                              value={adj.value ?? ""}
+                              onChange={e => updateAdjustment(i, "value", e.target.value === "" ? "" : e.target.value)}
                               placeholder="Value"
                               className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#0d4f4f] bg-white text-[#0a1628] placeholder-gray-400"
                             />
@@ -1181,15 +1183,16 @@ export default function InvoiceGenerator() {
                       <h4 className="text-sm font-semibold text-gray-700 mb-3">Adjustments</h4>
                       <div className="space-y-1">
                         {invoice.adjustments.map((adj, i) => {
+                          const adjustmentInputValue = parseFloat(adj.value) || 0;
                           const adjustmentValue = adj.value_type === "percent"
-                            ? (adj.apply_stage === "before_tax" ? subtotal : grossTotal) * (adj.value / 100)
-                            : adj.value;
+                            ? (adj.apply_stage === "before_tax" ? subtotal : grossTotal) * (adjustmentInputValue / 100)
+                            : adjustmentInputValue;
                           const displayValue = adj.kind === "fee" ? adjustmentValue : -adjustmentValue;
 
                           return (
                             <div key={i} className="flex justify-between text-sm">
                               <span className="text-gray-600">
-                                {adj.label} ({adj.value_type === "percent" ? `${adj.value}%` : `$${adj.value}`})
+                                {adj.label} ({adj.value_type === "percent" ? `${adj.value || ""}%` : `$${adj.value || ""}`})
                               </span>
                               <span className={`font-medium ${adj.kind === "fee" ? "text-red-600" : "text-green-600"}`}>
                                 {adj.kind === "fee" ? "+" : "-"}${Math.abs(displayValue).toFixed(2)}
