@@ -5,19 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { getBusinessById } from "@/lib/supabase/queries/businesses";
-import { 
-  MapPin, 
-  Globe, 
+import {
+  MapPin,
+  Globe,
   MessageCircle,
-  CheckCircle,
-  Star,
+  Check,
   Briefcase,
   Instagram,
   Facebook,
   ArrowLeft,
   ExternalLink,
+  Linkedin,
+  Music2,
 } from "lucide-react";
-import { getLogoUrl } from '@/utils/bannerUtils';
+import { getLogoUrl } from "@/utils/bannerUtils";
 import ReactMarkdown from "react-markdown";
 import BusinessBanner from "@/components/shared/BusinessBanner";
 import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
@@ -30,49 +31,31 @@ export default function BusinessProfile() {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showContact, setShowContact] = useState(false);
-  
-  // Compute cultural data once and reuse - must be called before any conditional logic
+
   const culturalData = useBusinessCulturalData(business);
-
-  // Add diagnostics
-  useEffect(() => {
-    if (business) {
-      console.log("[BusinessProfile] cultural identities", {
-        business: business?.business_name,
-        raw: business?.cultural_identity,
-        profileData: business?._profile_data?.cultural_identity,
-      });
-    }
-  }, [business]);
-
-  const formatMarkdown = (text) =>
-    text?.replace(/\s*•\s*/g, "\n- ").replace(/\n{3,}/g, "\n\n").trim() || "";
 
   useEffect(() => {
     const loadProfileData = async () => {
       try {
-        // Get business ID from URL parameters, not pathname
         const urlParams = new URLSearchParams(window.location.search);
-        const businessId = urlParams.get('id');
-        const businessHandle = urlParams.get('handle');
-        
-        // Use handle as fallback if no ID provided
+        const businessId = urlParams.get("id");
+        const businessHandle = urlParams.get("handle");
         const identifier = businessId || businessHandle;
-        
+
         if (!identifier) {
           setLoading(false);
           return;
         }
-        
+
         const businessData = await getBusinessById(identifier);
-        
+
         if (businessData) {
           setBusiness(businessData);
-          await fetchExtras(businessData);
         }
-        
+
         setLoading(false);
       } catch (error) {
+        console.error("Error loading business profile:", error);
         setLoading(false);
       }
     };
@@ -80,20 +63,15 @@ export default function BusinessProfile() {
     loadProfileData();
   }, []);
 
-  const fetchExtras = async (biz) => {
-    try {
-      // Import here to avoid circular dependencies
-      const { getSupabase } = await import("@/lib/supabase/client");
-      const supabase = getSupabase();
-      
-      const tier = biz.subscription_tier || 'vaka';
-    } catch (error) {
-      console.error("Error fetching extras:", error);
-    }
-  };
+  const formatMarkdown = (text) =>
+    text?.replace(/\s*•\s*/g, "\n- ").replace(/\n{3,}/g, "\n\n").trim() || "";
 
   const handleClaim = () => {
-    router.push(`${createPageUrl("BusinessLogin")}?business=${business.id}&name=${encodeURIComponent(business.business_name)}`);
+    router.push(
+      `${createPageUrl("BusinessLogin")}?business=${business.id}&name=${encodeURIComponent(
+        business.business_name
+      )}`
+    );
   };
 
   if (loading) {
@@ -101,7 +79,9 @@ export default function BusinessProfile() {
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-400 text-sm">Loading Pacific Discovery Network record...</p>
+          <p className="text-gray-400 text-sm">
+            Loading Pacific Discovery Network record...
+          </p>
         </div>
       </div>
     );
@@ -139,16 +119,35 @@ export default function BusinessProfile() {
 
   const countryLabel = getCountryLabel(business.country);
   const industryLabel = getIndustryLabel(business.industry);
-  const tier = business.subscription_tier || 'vaka';
+  const tier = business.subscription_tier || "vaka";
+
+  const tierConfig = {
+    vaka: {
+      label: "Vaka",
+      className: "border-white/20 bg-white/10 text-white/85",
+    },
+    mana: {
+      label: "Mana",
+      className: "border-[#7dd3fc]/35 bg-[#7dd3fc]/12 text-[#d7f3ff]",
+    },
+    moana: {
+      label: "Moana",
+      className: "border-[#c9a84c]/45 bg-[#c9a84c]/20 text-[#f5df9a]",
+    },
+  };
+
+  const activeTier = tierConfig[tier] || tierConfig.vaka;
 
   const socials = [
-    { 
-      icon: Globe, 
-      label: "Website", 
-      value: business.business_website, 
+    {
+      icon: Globe,
+      label: "Website",
+      value: business.business_website,
       href: business.business_website?.startsWith("http")
         ? business.business_website
-        : `https://${business.business_website}`
+        : business.business_website
+          ? `https://${business.business_website}`
+          : "",
     },
     {
       icon: Instagram,
@@ -158,111 +157,117 @@ export default function BusinessProfile() {
         ? `https://instagram.com/${business.social_links.instagram.replace("@", "")}`
         : "",
     },
-    { 
-      icon: Facebook, 
-      label: "Facebook", 
-      value: business.social_links?.facebook, 
+    {
+      icon: Facebook,
+      label: "Facebook",
+      value: business.social_links?.facebook,
       href: business.social_links?.facebook?.startsWith("http")
         ? business.social_links?.facebook
-        : `https://${business.social_links?.facebook}`
+        : business.social_links?.facebook
+          ? `https://${business.social_links?.facebook}`
+          : "",
     },
-    { 
-      icon: Globe, 
-      label: "LinkedIn", 
-      value: business.social_links?.linkedin, 
+    {
+      icon: Linkedin,
+      label: "LinkedIn",
+      value: business.social_links?.linkedin,
       href: business.social_links?.linkedin?.startsWith("http")
         ? business.social_links?.linkedin
-        : `https://${business.social_links?.linkedin}`
+        : business.social_links?.linkedin
+          ? `https://${business.social_links?.linkedin}`
+          : "",
     },
-    { 
-      icon: Globe, 
-      label: "TikTok", 
-      value: business.social_links?.tiktok, 
+    {
+      icon: Music2,
+      label: "TikTok",
+      value: business.social_links?.tiktok,
       href: business.social_links?.tiktok?.startsWith("http")
         ? business.social_links?.tiktok
-        : `https://${business.social_links?.tiktok}`
+        : business.social_links?.tiktok
+          ? `https://${business.social_links?.tiktok}`
+          : "",
     },
-  ].filter((s) => s.value);
-
-  const allSocials = socials.filter(s => s.value);
+  ].filter((s) => s.value && s.href);
 
   const shortText = business.tagline || "";
   const fullText = business.description || "";
 
   return (
     <div className="min-h-screen bg-[#f8f9fc]">
-      {showContact && <ContactModal business={business} onClose={() => setShowContact(false)} />}
+      {showContact && (
+        <ContactModal business={business} onClose={() => setShowContact(false)} />
+      )}
 
-      {/* Premium Hero */}
-      <div className="relative min-h-[320px] overflow-hidden bg-[#03131f] sm:min-h-[420px] lg:min-h-[520px]">
-        {/* Use gradient background instead of static image */}
+      <div className="relative overflow-hidden bg-[#03131f]">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
-        <div className="absolute inset-0 flex items-center justify-center">
+
+        <div className="absolute inset-0 hidden sm:flex items-center justify-center">
           <div className="text-white text-center">
             <div className="font-bold text-2xl mb-2">
               {business?.business_name || "Business Profile"}
             </div>
-            <div className="text-sm opacity-80">
-              Pacific Discovery Network
-            </div>
+            <div className="text-sm opacity-80">Pacific Discovery Network</div>
           </div>
         </div>
 
-        {/* Tier and Verified badges on hero background bottom right */}
-        <div className="absolute bottom-8 right-8 flex flex-wrap items-center gap-2 z-20">
-          {(tier === "featured_plus" || tier === "moana") && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#c9a84c]/50 bg-[#c9a84c]/30 px-3 py-1 text-xs font-semibold text-[#f5df9a] backdrop-blur-sm">
-              <Star className="h-3.5 w-3.5" />
-              Moana
-            </span>
-          )}
+        <div className="hidden sm:flex absolute bottom-8 right-8 flex-wrap items-center gap-2 z-20">
+          <span
+            aria-label={`${activeTier.label} tier`}
+            title={`${activeTier.label} tier`}
+            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm ${activeTier.className}`}
+          >
+            {activeTier.label}
+          </span>
 
           {business.is_verified && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#00c4cc]/50 bg-[#00c4cc]/30 px-3 py-1 text-xs font-semibold text-[#baf7f9] backdrop-blur-sm">
-              <CheckCircle className="h-3.5 w-3.5" />
-              Verified
+            <span
+              aria-label="Verified"
+              title="Verified"
+              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#00c4cc]/45 bg-[#00c4cc]/20 text-[#baf7f9]"
+            >
+              <Check className="h-3 w-3" />
             </span>
           )}
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[280px] items-start justify-center px-3 pb-6 pt-16 sm:min-h-[420px] sm:px-6 sm:pb-10 sm:pt-8 lg:min-h-[520px] lg:px-8 lg:pb-14 lg:pt-12">
-          <div className="w-full max-w-3xl text-center mt-2 sm:mt-6 lg:mt-8">
-            <div className="rounded-[28px] border border-white/15 bg-white/10 p-2 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
-            <div className="flex flex-col items-center gap-3 sm:gap-5">
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md sm:h-16 sm:w-16 lg:h-20 lg:w-20">
-                <img
-                  src={getLogoUrl(business)}
-                  alt={`${business.business_name} logo`}
-                  className="h-full w-full object-cover"
-                />
-              </div>
+        <div className="relative z-10 mx-auto flex items-start justify-center px-3 pt-[104px] pb-8 sm:min-h-[420px] sm:px-6 sm:pt-8 sm:pb-12 lg:min-h-[520px] lg:px-8 lg:pt-12 lg:pb-16">
+          <div className="mt-1 w-full max-w-3xl text-center sm:mt-6 lg:mt-8">
+            <div className="rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
+              <div className="flex flex-col items-center gap-3 sm:gap-5">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md sm:h-16 sm:w-16 lg:h-20 lg:w-20">
+                  <img
+                    src={getLogoUrl(business)}
+                    alt={`${business.business_name} logo`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
 
-              <div className="min-w-0 flex-1 text-center">
-                <h1 className="max-w-4xl text-[2.2rem] font-bold leading-[0.95] tracking-[-0.04em] text-white sm:text-[3.2rem] lg:text-[4.75rem]">
-                  {business.business_name}
-                </h1>
+                <div className="min-w-0 flex-1 text-center">
+                  <h1 className="mx-auto max-w-[270px] text-[1.5rem] font-bold leading-[1.02] tracking-[-0.03em] text-white sm:max-w-4xl sm:text-[3.2rem] lg:text-[4.75rem]">
+                    {business.business_name}
+                  </h1>
 
-                {shortText && (
-                  <p className="mt-4 max-w-3xl text-sm leading-7 text-[#f5df9a] sm:text-base lg:text-[1.05rem]">
-                    {shortText}
-                  </p>
-                )}
+                  {shortText && (
+                    <p className="mx-auto mt-2.5 max-w-[290px] text-[12px] leading-[1.5] text-[#f5df9a] sm:mt-4 sm:max-w-3xl sm:text-base sm:leading-7 lg:text-[1.05rem]">
+                      {shortText}
+                    </p>
+                  )}
 
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-3 sm:mt-5 sm:gap-2">
-                  <div className="flex items-center justify-center gap-2 sm:flex-wrap sm:gap-2">
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:mt-5 sm:gap-3">
                     {(business.city || countryLabel) && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-2 sm:text-xs">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
                         <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         <span className="truncate max-w-[120px] sm:max-w-none">
-                          {business.city ? `${business.city}, ` : ""}{countryLabel}
+                          {business.city ? `${business.city}, ` : ""}
+                          {countryLabel}
                         </span>
                       </span>
                     )}
 
                     {industryLabel && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-2 sm:text-xs">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
                         <Briefcase className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                        <span className="truncate max-w-[100px] sm:max-w-none">
+                        <span className="truncate max-w-[150px] sm:max-w-none">
                           {industryLabel}
                         </span>
                       </span>
@@ -270,101 +275,140 @@ export default function BusinessProfile() {
                   </div>
 
                   {culturalData.culturalIdentitiesDisplay.length > 0 && (
-                    <IdentityFlagRow
-                      identities={culturalData.culturalIdentitiesDisplay}
-                      maxFlags={99}
-                      className="flex flex-wrap gap-2"
-                    />
+                    <div className="mt-3 flex justify-center sm:mt-4">
+                      <IdentityFlagRow
+                        identities={culturalData.culturalIdentitiesDisplay}
+                        maxFlags={99}
+                        className="flex flex-wrap justify-center gap-1.5 sm:gap-2"
+                      />
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:hidden">
+                    <span
+                      aria-label={`${activeTier.label} tier`}
+                      title={`${activeTier.label} tier`}
+                      className={`inline-flex items-center rounded-full border px-2 py-[2px] text-[8px] font-medium leading-none ${activeTier.className}`}
+                    >
+                      {activeTier.label}
+                    </span>
+
+                    {business.is_verified && (
+                      <span
+                        aria-label="Verified"
+                        title="Verified"
+                        className="inline-flex h-4.5 w-4.5 items-center justify-center rounded-full border border-[#00c4cc]/45 bg-[#00c4cc]/20 text-[#baf7f9]"
+                      >
+                        <Check className="h-2.5 w-2.5" />
+                      </span>
+                    )}
+                  </div>
+
+                  {(business.business_email || business.business_phone) && (
+                    <div className="mt-5 flex justify-center sm:mt-6">
+                      <button
+                        onClick={() => setShowContact(true)}
+                        className="inline-flex min-h-[40px] w-full max-w-[230px] items-center justify-center gap-2 rounded-xl bg-[#00c9cc] px-3 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-[#00aab0] sm:min-h-[46px] sm:w-auto sm:max-w-none sm:px-5 sm:py-3 sm:text-sm"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        Contact Business
+                      </button>
+                    </div>
                   )}
                 </div>
-
-                {(business.business_email || business.business_phone) && (
-                <div className="mt-4 flex justify-center sm:mt-6">
-                  <button
-                    onClick={() => setShowContact(true)}
-                    className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl bg-[#00c9cc] hover:bg-[#00aab0] px-4 py-2.5 text-xs font-semibold text-white transition-colors sm:min-h-[46px] sm:px-5 sm:py-3 sm:text-sm"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    Contact Business
-                  </button>
-                </div>
-              )}  
               </div>
             </div>
           </div>
         </div>
-        </div>
       </div>
 
-      <div className="relative flex justify-center px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-6 pb-16">
+      <div className="relative -mt-6 flex justify-center px-4 pb-16 sm:-mt-8 sm:px-6 lg:px-8">
         <div className="w-full max-w-3xl">
-          {/* Main profile card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
-            {/* Business banner at top - always show */}
+          <div className="mb-6 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
             <BusinessBanner business={business} />
 
-            <div className="p-5 sm:p-6">
-            {/* Full description */}
-            {fullText && (
-              <div className="pt-5 border-t border-gray-100">
-                <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-[#0a1628] mb-3">About</h2>
-                <div className="text-gray-600 text-sm sm:text-base lg:text-lg leading-7 prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-[#0a1628] prose-strong:text-[#0a1628] prose-ul:pl-5 prose-ul:my-3 prose-li:my-2 prose-p:my-3">
-                  <ReactMarkdown>{formatMarkdown(fullText)}</ReactMarkdown>
+            <div className="p-4 sm:p-6">
+              {fullText && (
+                <div className="pt-4 sm:pt-5">
+                  <h2 className="mb-2.5 text-sm font-semibold text-[#0a1628] sm:mb-3 sm:text-base lg:text-lg">
+                    About
+                  </h2>
+                  <div className="prose prose-sm max-w-none text-[13px] leading-[1.6] text-gray-600 prose-headings:font-semibold prose-headings:text-[#0a1628] prose-p:my-3 prose-strong:text-[#0a1628] prose-ul:my-3 prose-ul:pl-5 prose-li:my-2 sm:text-base sm:leading-7 lg:text-lg">
+                    <ReactMarkdown>{formatMarkdown(fullText)}</ReactMarkdown>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Languages */}
-            {culturalData.languagesDisplay.length > 0 && (
-              <div className="mt-5 pt-5 border-t border-gray-100">
-                <h3 className="text-sm font-semibold text-[#0a1628] mb-3">Languages</h3>
-                <div className="flex flex-wrap gap-2">
-                  {culturalData.languagesDisplay.map((lang, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 rounded-full border border-[#00c4cc]/20 bg-[#00c4cc]/10 px-3 py-1.5 text-xs font-medium text-[#00c4cc]"
-                    >
-                      <Globe className="h-3 w-3" />
-                      {lang}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Socials */}
-            {allSocials.length > 0 && (
-              <div className="mt-5 pt-5 border-t border-gray-100">
-                <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-[#0a1628] mb-3">Links</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {allSocials.map((social) => (
-                    <a
-                      key={`${social.label}-${social.href}`}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 hover:bg-gray-100 px-3 py-3 text-sm sm:text-base lg:text-lg text-gray-600 transition-colors"
-                    >
-                      <span className="flex items-center gap-2 min-w-0">
-                        <social.icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">{social.label}</span>
+              {culturalData.languagesDisplay.length > 0 && (
+                <div className="mt-4 border-t border-gray-100 pt-4 sm:mt-5 sm:pt-5">
+                  <h3 className="mb-2.5 text-sm font-semibold text-[#0a1628] sm:mb-3">
+                    Languages
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                    {culturalData.languagesDisplay.map((lang, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 rounded-full border border-[#00c4cc]/20 bg-[#00c4cc]/10 px-2 py-1 text-[11px] font-medium text-[#00c4cc] sm:px-3 sm:py-1.5 sm:text-xs"
+                      >
+                        <Globe className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                        {lang}
                       </span>
-                      <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
-                    </a>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {socials.length > 0 && (
+                <div className="mt-4 border-t border-gray-100 pt-4 sm:mt-5 sm:pt-5">
+                  <h2 className="mb-2.5 text-sm font-semibold text-[#0a1628] sm:mb-3 sm:text-base lg:text-lg">
+                    Links
+                  </h2>
+
+                  <div className="flex flex-wrap gap-3 sm:hidden">
+                    {socials.map((social) => (
+                      <a
+                        key={`${social.label}-${social.href}`}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.label}
+                        title={social.label}
+                        className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 hover:text-[#0d4f4f]"
+                      >
+                        <social.icon className="h-4.5 w-4.5" />
+                      </a>
+                    ))}
+                  </div>
+
+                  <div className="hidden grid-cols-2 gap-2 sm:grid">
+                    {socials.map((social) => (
+                      <a
+                        key={`${social.label}-${social.href}`}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 px-3 py-2.5 text-[13px] text-gray-600 transition-colors hover:bg-gray-100 sm:text-base lg:text-lg"
+                      >
+                        <span className="flex min-w-0 items-center gap-2">
+                          <social.icon className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{social.label}</span>
+                        </span>
+                        <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Claim */}
           {!business.is_claimed && (
-            <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-              <p className="text-sm sm:text-base lg:text-lg text-gray-500">
+            <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <p className="text-sm text-gray-500 sm:text-base lg:text-lg">
                 This business listing hasn't been claimed yet.{" "}
                 <button
                   onClick={handleClaim}
-                  className="text-[#0d4f4f] hover:text-[#0a3e3e] font-medium underline decoration-2 underline-offset-4 transition-colors"
+                  className="font-medium text-[#0d4f4f] underline decoration-2 underline-offset-4 transition-colors hover:text-[#0a3e3e]"
                 >
                   Claim this business
                 </button>
@@ -372,15 +416,13 @@ export default function BusinessProfile() {
             </div>
           )}
 
-          {/* Back */}
           <Link
             href={createPageUrl("PacificBusinesses")}
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#0d4f4f] transition-colors mt-6"
+            className="mt-6 inline-flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-[#0d4f4f]"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Pacific Businesses
           </Link>
-          </div>
         </div>
       </div>
     </div>
