@@ -304,7 +304,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
 
         {/* Banner */}
         <div className="relative w-full max-w-[800px] h-[160px] overflow-hidden bg-[#0a1628]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
+          {/* Removed gradient to match main card background */}
 
           {(() => {
           const bannerUrl = getBannerUrl(b);
@@ -312,7 +312,8 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
             <img
               src={bannerUrl}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-contain"
+              style={{ objectPosition: 'center top' }}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
