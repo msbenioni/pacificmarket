@@ -203,7 +203,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
       ].join(" ")}
     >
       {/* Banner */}
-      <div className="relative h-[133px] overflow-hidden rounded-t-[24px] bg-[#0d4f4f] flex-shrink-0">
+      <div className="relative w-full h-[160px] overflow-hidden rounded-t-[24px] bg-[#0d4f4f] flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
         {getBannerUrl(b) && (
           <img
@@ -211,7 +211,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
             alt=""
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "center top" }}
+            style={{ objectPosition: "center center" }}
           />
         )}
       </div>
@@ -303,8 +303,8 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#c9a84c]/15 blur-3xl" />
 
         {/* Banner */}
-        <div className="relative w-full max-w-[800px] h-[160px] overflow-hidden bg-[#0a1628]">
-          {/* Removed gradient to match main card background */}
+        <div className="relative w-full h-[160px] overflow-hidden bg-[#0a1628]">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
           {(() => {
           const bannerUrl = getBannerUrl(b);
@@ -312,8 +312,9 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
             <img
               src={bannerUrl}
               alt=""
-              className="absolute inset-0 w-full h-full object-contain"
-              style={{ objectPosition: 'center top' }}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: "center center" }}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -381,7 +382,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-white font-black text-xl sm:text-2xl leading-tight">
-                  {b?.name}
+                  {b?.business_name}
                 </h3>
                 {(b?.subscription_tier === "mana" || b?.subscription_tier === "moana") && (
                   <div className="inline-flex items-center gap-1 rounded-full bg-white/10 text-white px-3 py-1 text-xs font-bold border border-white/10">

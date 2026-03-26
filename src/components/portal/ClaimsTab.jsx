@@ -62,7 +62,7 @@ export default function ClaimsTab({
           <div className="p-4 sm:p-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="font-semibold text-[#0a1628] truncate">
-                {claim.businesses?.name || claim.business_name || `Business ID: ${claim.business_id}`}
+                {claim.businesses?.business_name || claim.business_name || `Business ID: ${claim.business_id}`}
               </p>
               <p className="text-xs text-slate-500 mt-1">
                 Submitted {formatDate(claim.created_at)}

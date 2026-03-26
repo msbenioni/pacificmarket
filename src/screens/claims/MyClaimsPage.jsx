@@ -79,7 +79,7 @@ export default function MyClaimsPage() {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg text-[#0a1628]">
-                    {claim.businesses?.name || claim.business_name}
+                    {claim.businesses?.business_name || claim.business_name}
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
                     {claim.businesses?.city && `${claim.businesses.city}, `}
