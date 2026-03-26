@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Business Banner Component - renders persisted banner media when available,
  * with resilient text fallback for missing/corrupt media.

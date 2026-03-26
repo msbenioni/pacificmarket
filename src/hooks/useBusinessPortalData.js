@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { getUserBusinesses } from "@/lib/supabase/queries/businesses";
 import { formatUserData } from "@/utils/dataTransformers";

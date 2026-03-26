@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
 import { Building2, Globe, CheckCircle, LayoutGrid } from "lucide-react";

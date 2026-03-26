@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 import { QrCode, Download, Link as LinkIcon, Building2, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";

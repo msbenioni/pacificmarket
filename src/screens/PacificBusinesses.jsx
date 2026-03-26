@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useMemo } from "react";
 import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
 import { LayoutGrid, List, SlidersHorizontal, X, Search } from "lucide-react";

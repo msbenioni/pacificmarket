@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Sparkles, UserCircle2, ChevronDown } from "lucide-react";
 import ProfileSettingsAccordion from "@/components/onboarding/ProfileSettingsAccordion";

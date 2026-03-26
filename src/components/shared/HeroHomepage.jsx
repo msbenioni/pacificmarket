@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronRight, CheckCircle } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import BusinessSearch from "@/components/BusinessSearch";

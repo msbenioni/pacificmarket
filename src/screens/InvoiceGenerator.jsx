@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 import { Plus, Trash2, Download, ArrowLeft, FileText, Building, Calendar, User, ShoppingCart, DollarSign, CreditCard, Palette, ChevronDown, Upload } from "lucide-react";
 import Link from "next/link";

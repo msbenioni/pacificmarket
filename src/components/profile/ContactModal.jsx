@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Mail, Phone, CheckCircle } from "lucide-react";
 import { ModalWrapper, ModalHeader, ModalContent, MODAL_SIZES } from "@/components/shared/ModalWrapper";

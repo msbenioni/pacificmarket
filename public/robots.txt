@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Allow search engines to crawl and index the site
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /favicon.ico
+
+# Sitemap location
+Sitemap: https://pacificdiscoverynetwork.com/sitemap.xml

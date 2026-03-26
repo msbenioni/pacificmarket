@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getUserBusinesses } from '../lib/supabase/queries/businesses';
 import { getBusinessWebsite } from '../lib/business/helpers';

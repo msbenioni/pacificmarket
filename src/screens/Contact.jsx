@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { ArrowRight, Mail, Send, CheckCircle } from "lucide-react";
 import HeroStandard from "../components/shared/HeroStandard";

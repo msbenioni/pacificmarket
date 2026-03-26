@@ -1,3 +1,5 @@
+"use client";
+
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { BUSINESS_STATUS, INDUSTRIES, COUNTRIES } from "@/constants/unifiedConstants";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useRef, useState } from "react";
 import { HelpCircle, BookOpen, MessageCircle, Search, ChevronDown } from "lucide-react";
 import HeroStandard from "@/components/shared/HeroStandard";

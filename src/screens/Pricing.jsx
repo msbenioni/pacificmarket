@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
@@ -8,9 +10,9 @@ import {
   ArrowRight,
   Waves,
   Compass,
-  Sparkles,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
