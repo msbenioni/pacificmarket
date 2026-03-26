@@ -197,14 +197,15 @@ export default function BusinessProfile() {
             <span
               aria-label="Verified"
               title="Verified"
-              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[#00c4cc]/45 bg-[#00c4cc]/20 text-[#baf7f9]"
+              className="inline-flex items-center gap-2 rounded-full border border-[#00c4cc]/45 bg-[#00c4cc]/20 px-3 py-1.5 text-xs font-medium text-[#baf7f9] backdrop-blur-sm"
             >
               <Check className="h-3 w-3" />
+              Verified
             </span>
           </div>
         )}
 
-        <div className="relative z-10 mx-auto flex items-start justify-center px-3 pb-8 pt-[104px] sm:min-h-[420px] sm:px-6 sm:pb-12 sm:pt-8 lg:min-h-[520px] lg:px-8 lg:pb-16 lg:pt-12">
+        <div className="relative z-10 mx-auto flex items-start justify-center px-3 pb-16 pt-[104px] sm:min-h-[420px] sm:px-6 sm:pb-20 sm:pt-8 lg:min-h-[520px] lg:px-8 lg:pb-24 lg:pt-12">
           <div className="mt-1 w-full max-w-3xl text-center sm:mt-6 lg:mt-8">
             <div className="rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
               <div className="flex flex-col items-center gap-3 sm:gap-5">
@@ -263,9 +264,10 @@ export default function BusinessProfile() {
                       <span
                         aria-label="Verified"
                         title="Verified"
-                        className="inline-flex h-4.5 w-4.5 items-center justify-center rounded-full border border-[#00c4cc]/45 bg-[#00c4cc]/20 text-[#baf7f9]"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[#00c4cc]/45 bg-[#00c4cc]/20 px-2.5 py-1 text-[10px] font-medium text-[#baf7f9] backdrop-blur-sm"
                       >
                         <Check className="h-2.5 w-2.5" />
+                        Verified
                       </span>
                     </div>
                   )}
