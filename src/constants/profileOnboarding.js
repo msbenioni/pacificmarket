@@ -1,7 +1,7 @@
 // Profile Onboarding Configuration
 // Business Owner Profile Onboarding Flow
 
-import { COUNTRIES, INDUSTRIES, LANGUAGES } from './unifiedConstants';
+import { COUNTRIES, INDUSTRIES, LANGUAGES, CULTURAL_IDENTITIES } from './unifiedConstants';
 
 export const ONBOARDING_STEPS = [
   {
@@ -51,7 +51,7 @@ export const ONBOARDING_STEPS = [
         required: true,
         placeholder: 'Select your cultural identity',
         description: 'Select all cultural identities that apply to you',
-        options: COUNTRIES
+        options: CULTURAL_IDENTITIES.map(identity => ({ value: identity, label: identity }))
       }
     ]
   },
@@ -111,4 +111,4 @@ export const ONBOARDING_DESCRIPTION = {
   estimatedTime: ONBOARDING_COMPLETION_TIME
 };
 
-export const IDENTITIES = ONBOARDING_STEPS[1].fields.find(f => f.id === 'cultural_identity').options.map(o => o.label);
+export const IDENTITIES = CULTURAL_IDENTITIES;

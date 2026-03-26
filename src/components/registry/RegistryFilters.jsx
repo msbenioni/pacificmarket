@@ -2,7 +2,7 @@
 
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { BUSINESS_STATUS, INDUSTRIES, COUNTRIES } from "@/constants/unifiedConstants";
+import { BUSINESS_STATUS, INDUSTRIES, COUNTRIES, CULTURAL_IDENTITIES } from "@/constants/unifiedConstants";
 
 export default function RegistryFilters({ filters, onChange }) {
   const [businesses, setBusinesses] = useState([]);
@@ -15,7 +15,7 @@ export default function RegistryFilters({ filters, onChange }) {
         const supabase = getSupabase();
         const { data } = await supabase
           .from("businesses")
-          .select("country, industry")
+          .select("country, industry, cultural_identity")
           .eq("status", BUSINESS_STATUS.ACTIVE);
 
         setBusinesses(data || []);
@@ -59,6 +59,80 @@ export default function RegistryFilters({ filters, onChange }) {
     });
   }, [businesses]);
 
+  const culturalIdentityOptions = useMemo(() => {
+    // Get all cultural identities from businesses and count them individually
+    const identityCounts = {};
+    
+    businesses.forEach((b) => {
+      const culturalIdentities = b.cultural_identity;
+      if (culturalIdentities) {
+        // Use the same parsing logic as FlagIcon and dataNormalization
+        let identities = [];
+        
+        if (Array.isArray(culturalIdentities)) {
+          identities = culturalIdentities;
+        } else if (typeof culturalIdentities === 'string') {
+          const raw = culturalIdentities.trim();
+          if (!raw) return;
+
+          // Handle JSON array format ["item1", "item2"]
+          if (raw.startsWith("[") && raw.endsWith("]")) {
+            try {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed)) {
+                identities = parsed;
+              }
+            } catch {
+              // continue below
+            }
+          }
+          // Handle curly brace format {item1,item2}
+          else if (raw.startsWith("{") && raw.endsWith("}")) {
+            identities = raw
+              .slice(1, -1)
+              .split(",")
+              .map(item => String(item).trim().replace(/^"(.*)"$/, "$1"))
+              .filter(Boolean);
+          }
+          // Handle comma-separated values
+          else if (raw.includes(",")) {
+            identities = raw.split(",").map(item => String(item).trim().replace(/^"(.*)"$/, "$1")).filter(Boolean);
+          }
+          // Single value
+          else {
+            identities = [raw];
+          }
+        }
+        
+        // Count each identity separately
+        identities.forEach(identity => {
+          if (identity) {
+            const cleanIdentity = String(identity).trim();
+            
+            // Use the full identity as the key (no need to split on " - " anymore)
+            const key = cleanIdentity;
+            if (!identityCounts[key]) {
+              identityCounts[key] = {
+                full: cleanIdentity,
+                count: 0
+              };
+            }
+            identityCounts[key].count++;
+          }
+        });
+      }
+    });
+    
+    // Convert to array and sort alphabetically
+    return Object.values(identityCounts)
+      .sort((a, b) => a.full.localeCompare(b.full))
+      .map(item => ({
+        value: item.full,
+        label: `${item.full} (${item.count})`,
+        count: item.count
+      }));
+  }, [businesses]);
+
   const set = (key, val) => onChange({ ...filters, [key]: val });
 
   const clear = () =>
@@ -66,9 +140,10 @@ export default function RegistryFilters({ filters, onChange }) {
       search: "",
       country: "",
       industry: "",
+      cultural_identity: "",
     });
 
-  const hasFilters = filters.search || filters.country || filters.industry;
+  const hasFilters = filters.search || filters.country || filters.industry || filters.cultural_identity;
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
@@ -134,6 +209,25 @@ export default function RegistryFilters({ filters, onChange }) {
             {industryOptions.map((industry) => (
               <option key={industry.value} value={industry.value}>
                 {industry.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Cultural Identity */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+            Cultural Identity
+          </label>
+          <select
+            value={filters.cultural_identity || ""}
+            onChange={(e) => set("cultural_identity", e.target.value)}
+            className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#0d4f4f] bg-white"
+          >
+            <option value="">All Cultural Identities</option>
+            {culturalIdentityOptions.map((identity) => (
+              <option key={identity.value} value={identity.value}>
+                {identity.label}
               </option>
             ))}
           </select>

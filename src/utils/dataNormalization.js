@@ -1,7 +1,20 @@
 /**
  * Shared data normalization utilities for cultural identity and languages
- * Handles arrays, JSON strings, comma-separated values, and single strings
+ * Uses the same parsing logic as FlagIcon for consistency
  */
+
+/**
+ * Clean token utility (matches FlagIcon implementation)
+ * @param {string} value - Raw token value
+ * @returns {string} - Cleaned token
+ */
+const cleanToken = (value) => {
+  return String(value ?? "")
+    .trim()
+    .replace(/^\{+|\}+$/g, "")
+    .replace(/^"(.*)"$/, "$1")
+    .trim();
+};
 
 /**
  * Normalize cultural identity data to consistent array format
@@ -17,43 +30,44 @@ export const normalizeCulturalIdentity = (data) => {
   if (Array.isArray(data)) {
     values = data;
   } else if (typeof data === 'string') {
-    try {
-      // Try parsing as JSON array
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) {
-        values = parsed;
-      } else {
-        values = [data];
-      }
-    } catch (e) {
-      // Not JSON, try parsing legacy format like "{samoan}"
-      const legacyFixed = data.replace(/^{/, "[").replace(/}$/, "]");
+    const raw = data.trim();
+    if (!raw) return [];
+
+    // Handle JSON array format ["item1", "item2"]
+    if (raw.startsWith("[") && raw.endsWith("]")) {
       try {
-        const parsed = JSON.parse(legacyFixed);
+        const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           values = parsed;
-        } else {
-          values = [data];
         }
-      } catch (e2) {
-        // Handle comma-separated values
-        if (data.includes(',')) {
-          values = data.split(',').map(item => item.trim()).filter(Boolean);
-        } else {
-          // Single string value
-          values = [data];
-        }
+      } catch {
+        // continue below
       }
+    }
+    // Handle curly brace format {item1,item2}
+    else if (raw.startsWith("{") && raw.endsWith("}")) {
+      values = raw
+        .slice(1, -1)
+        .split(",")
+        .map(cleanToken)
+        .filter(Boolean);
+    }
+    // Handle comma-separated values
+    else if (raw.includes(",")) {
+      values = raw.split(",").map(cleanToken).filter(Boolean);
+    }
+    // Single value
+    else {
+      values = [raw];
     }
   } else {
     values = [data];
   }
   
-  // Normalize each value: trim, remove empty, normalize format
+  // Normalize each value: clean token, remove empty, normalize format
   const normalized = values
+    .map(cleanToken)
     .filter(Boolean)
-    .map(val => String(val).trim())
-    .filter(val => val.length > 0)
     .map(val => normalizeCulturalIdentityValue(val))
     .filter(Boolean);
   
@@ -112,32 +126,44 @@ export const normalizeLanguagesSpoken = (data) => {
   if (Array.isArray(data)) {
     values = data;
   } else if (typeof data === 'string') {
-    try {
-      // Try parsing as JSON array
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) {
-        values = parsed;
-      } else {
-        values = [data];
+    const raw = data.trim();
+    if (!raw) return [];
+
+    // Handle JSON array format ["item1", "item2"]
+    if (raw.startsWith("[") && raw.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          values = parsed;
+        }
+      } catch {
+        // continue below
       }
-    } catch (e) {
-      // Handle comma-separated values
-      if (data.includes(',')) {
-        values = data.split(',').map(item => item.trim()).filter(Boolean);
-      } else {
-        // Single string value
-        values = [data];
-      }
+    }
+    // Handle curly brace format {item1,item2}
+    else if (raw.startsWith("{") && raw.endsWith("}")) {
+      values = raw
+        .slice(1, -1)
+        .split(",")
+        .map(cleanToken)
+        .filter(Boolean);
+    }
+    // Handle comma-separated values
+    else if (raw.includes(",")) {
+      values = raw.split(",").map(cleanToken).filter(Boolean);
+    }
+    // Single value
+    else {
+      values = [raw];
     }
   } else {
     values = [data];
   }
   
-  // Normalize each value: trim, remove empty, normalize format
+  // Normalize each value: clean token, remove empty, normalize format
   const normalized = values
+    .map(cleanToken)
     .filter(Boolean)
-    .map(val => String(val).trim())
-    .filter(val => val.length > 0)
     .map(val => normalizeLanguageValue(val))
     .filter(Boolean);
   

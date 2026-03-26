@@ -7,7 +7,7 @@ import {
   User,
   Globe,
 } from "lucide-react";
-import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
+import { COUNTRIES, LANGUAGES, CULTURAL_IDENTITIES } from "@/constants/unifiedConstants";
 
 const SECTIONS = [
   {
@@ -258,18 +258,18 @@ export default function ProfileSettingsAccordion({ onComplete }) {
               Select all cultural identities that apply to you
             </p>
             <div className="max-h-64 space-y-2 overflow-y-auto">
-              {COUNTRIES.map((country) => (
+              {CULTURAL_IDENTITIES.map((identity) => (
                 <label
-                  key={country.value}
+                  key={identity}
                   className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:bg-slate-100"
                 >
                   <input
                     type="checkbox"
-                    checked={form.cultural_identity?.includes(country.value) || false}
-                    onChange={() => toggleArrayItem("cultural_identity", country.value)}
+                    checked={form.cultural_identity?.includes(identity) || false}
+                    onChange={() => toggleArrayItem("cultural_identity", identity)}
                     className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#0d4f4f] focus:ring-[#0d4f4f]"
                   />
-                  <span className="text-sm leading-5 text-slate-700">{country.label}</span>
+                  <span className="text-sm leading-5 text-slate-700">{identity}</span>
                 </label>
               ))}
             </div>

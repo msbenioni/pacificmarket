@@ -21,7 +21,7 @@ export default function PacificBusinesses() {
   const [view, setView] = useState("grid");
   const [sort, setSort] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
-  const defaultFilters = { search: "", country: "", industry: "" };
+  const defaultFilters = { search: "", country: "", industry: "", cultural_identity: "" };
   const [filters, setFilters] = useState(defaultFilters);
   const [draftFilters, setDraftFilters] = useState(defaultFilters);
 
@@ -71,6 +71,13 @@ export default function PacificBusinesses() {
       }
       if (filters.country && b.country !== filters.country) return false;
       if (filters.industry && b.industry !== filters.industry) return false;
+      if (filters.cultural_identity) {
+        const culturalData = getBusinessCulturalData(b);
+        const hasCulturalIdentity = culturalData.culturalIdentitiesDisplay.some(identity => 
+          identity.toLowerCase() === filters.cultural_identity.toLowerCase()
+        );
+        if (!hasCulturalIdentity) return false;
+      }
       return true;
     });
 
@@ -103,7 +110,7 @@ export default function PacificBusinesses() {
     return result;
   }, [businesses, filters, sort]);
 
-  const hasFilters = filters.country || filters.industry;
+  const hasFilters = filters.country || filters.industry || filters.cultural_identity;
   const clearAllFilters = () => setFilters(defaultFilters);
   const clearDrafts = () => setDraftFilters(defaultFilters);
   const applyDrafts = () => {

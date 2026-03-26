@@ -1,19 +1,18 @@
 import React from "react";
 import { Globe } from "lucide-react";
-import { COUNTRIES } from "@/constants/unifiedConstants";
+import { COUNTRIES, CULTURAL_IDENTITIES, getCountryFromCulturalIdentity } from "@/constants/unifiedConstants";
 
-// Comprehensive mapping for both Pacific and non-Pacific countries
-export const IDENTITY_TO_CODE = {
-  // Pacific countries (display names)
+const ALL_VALID_LABELS = [
+  ...CULTURAL_IDENTITIES,
+  ...COUNTRIES.map((c) => c.label),
+];
+
+const COUNTRY_FLAG_CODES = {
   "American Samoa": "AS",
   "Australia": "AU",
-  "Australia Aboriginal": "AU",
   "Cook Islands": "CK",
-  "Cook Islands Māori": "CK",
-  "Cook Islands Maori": "CK",
   "Fiji": "FJ",
   "French Polynesia": "PF",
-  "Tahitian": "PF",
   "Guam": "GU",
   "Kiribati": "KI",
   "Marshall Islands": "MH",
@@ -21,8 +20,6 @@ export const IDENTITY_TO_CODE = {
   "Nauru": "NR",
   "New Caledonia": "NC",
   "New Zealand": "NZ",
-  "New Zealand Māori": "NZ",
-  "New Zealand Maori": "NZ",
   "Niue": "NU",
   "Northern Mariana Islands": "MP",
   "Palau": "PW",
@@ -32,68 +29,72 @@ export const IDENTITY_TO_CODE = {
   "Tokelau": "TK",
   "Tonga": "TO",
   "Tuvalu": "TV",
-  "United States": "US",
   "Vanuatu": "VU",
   "Wallis and Futuna": "WF",
   "Hawaii": "US",
 
-  // Pacific countries (slug formats)
-  "american-samoa": "AS",
-  "australia": "AU",
-  "australia-aboriginal": "AU",
-  "cook-islands": "CK",
-  "cook-islands-māori": "CK",
-  "cook-islands-maori": "CK",
-  "fiji": "FJ",
-  "french-polynesia": "PF",
-  "tahitian": "PF",
-  "guam": "GU",
-  "kiribati": "KI",
-  "marshall-islands": "MH",
-  "micronesia": "FM",
-  "nauru": "NR",
-  "new-caledonia": "NC",
-  "new-zealand": "NZ",
-  "new-zealand-maori": "NZ",
-  "new-zealand-māori": "NZ",
-  "niue": "NU",
-  "northern-mariana-islands": "MP",
-  "palau": "PW",
-  "papua-new-guinea": "PG",
-  "samoa": "WS",
-  "solomon-islands": "SB",
-  "tokelau": "TK",
-  "tonga": "TO",
-  "tuvalu": "TV",
-  "united-states": "US",
-  "vanuatu": "VU",
-  "wallis-and-futuna": "WF",
-  "hawaii": "US",
-
-  // Major non-Pacific countries (display names)
   "Afghanistan": "AF",
   "Albania": "AL",
   "Algeria": "DZ",
+  "Andorra": "AD",
+  "Angola": "AO",
   "Argentina": "AR",
   "Armenia": "AM",
   "Austria": "AT",
+  "Azerbaijan": "AZ",
+  "Bahamas": "BS",
   "Bangladesh": "BD",
+  "Barbados": "BB",
+  "Belarus": "BY",
   "Belgium": "BE",
+  "Belize": "BZ",
+  "Benin": "BJ",
+  "Bhutan": "BT",
+  "Bolivia": "BO",
+  "Bosnia and Herzegovina": "BA",
+  "Botswana": "BW",
   "Brazil": "BR",
+  "Bulgaria": "BG",
+  "Burkina Faso": "BF",
+  "Burundi": "BI",
+  "Cambodia": "KH",
+  "Cameroon": "CM",
   "Canada": "CA",
+  "Central African Republic": "CF",
+  "Chad": "TD",
   "Chile": "CL",
   "China": "CN",
   "Colombia": "CO",
+  "Comoros": "KM",
+  "Congo": "CG",
+  "Costa Rica": "CR",
   "Croatia": "HR",
   "Cuba": "CU",
+  "Cyprus": "CY",
   "Czech Republic": "CZ",
   "Denmark": "DK",
+  "Djibouti": "DJ",
+  "Dominican Republic": "DO",
+  "Ecuador": "EC",
   "Egypt": "EG",
+  "El Salvador": "SV",
   "Estonia": "EE",
+  "Ethiopia": "ET",
   "Finland": "FI",
   "France": "FR",
+  "Gabon": "GA",
+  "Gambia": "GM",
+  "Georgia": "GE",
   "Germany": "DE",
+  "Ghana": "GH",
   "Greece": "GR",
+  "Grenada": "GD",
+  "Guatemala": "GT",
+  "Guinea": "GN",
+  "Guinea-Bissau": "GW",
+  "Guyana": "GY",
+  "Haiti": "HT",
+  "Honduras": "HN",
   "Hungary": "HU",
   "Iceland": "IS",
   "India": "IN",
@@ -106,257 +107,175 @@ export const IDENTITY_TO_CODE = {
   "Jamaica": "JM",
   "Japan": "JP",
   "Jordan": "JO",
+  "Kazakhstan": "KZ",
   "Kenya": "KE",
+  "Kosovo": "XK",
+  "Kuwait": "KW",
+  "Kyrgyzstan": "KG",
+  "Laos": "LA",
+  "Latvia": "LV",
   "Lebanon": "LB",
+  "Lesotho": "LS",
+  "Liberia": "LR",
+  "Libya": "LY",
+  "Liechtenstein": "LI",
   "Lithuania": "LT",
   "Luxembourg": "LU",
+  "Madagascar": "MG",
+  "Malawi": "MW",
   "Malaysia": "MY",
+  "Maldives": "MV",
+  "Mali": "ML",
+  "Malta": "MT",
+  "Mauritania": "MR",
+  "Mauritius": "MU",
   "Mexico": "MX",
+  "Moldova": "MD",
+  "Monaco": "MC",
+  "Mongolia": "MN",
+  "Montenegro": "ME",
   "Morocco": "MA",
+  "Mozambique": "MZ",
+  "Myanmar": "MM",
+  "Namibia": "NA",
+  "Nepal": "NP",
   "Netherlands": "NL",
+  "Nigeria": "NG",
+  "North Macedonia": "MK",
   "Norway": "NO",
+  "Oman": "OM",
   "Pakistan": "PK",
+  "Panama": "PA",
+  "Paraguay": "PY",
   "Peru": "PE",
   "Philippines": "PH",
   "Poland": "PL",
   "Portugal": "PT",
+  "Qatar": "QA",
   "Romania": "RO",
   "Russia": "RU",
+  "Rwanda": "RW",
   "Saudi Arabia": "SA",
+  "Senegal": "SN",
+  "Serbia": "RS",
+  "Sierra Leone": "SL",
   "Singapore": "SG",
+  "Slovakia": "SK",
+  "Slovenia": "SI",
   "South Africa": "ZA",
   "South Korea": "KR",
   "Spain": "ES",
+  "Sri Lanka": "LK",
+  "Sudan": "SD",
   "Sweden": "SE",
   "Switzerland": "CH",
+  "Syria": "SY",
+  "Taiwan": "TW",
+  "Tajikistan": "TJ",
+  "Tanzania": "TZ",
   "Thailand": "TH",
+  "Tunisia": "TN",
   "Turkey": "TR",
+  "Turkmenistan": "TM",
+  "Uganda": "UG",
   "Ukraine": "UA",
   "United Arab Emirates": "AE",
   "United Kingdom": "GB",
+  "United States": "US",
+  "Uruguay": "UY",
+  "Uzbekistan": "UZ",
+  "Venezuela": "VE",
   "Vietnam": "VN",
-
-  // Major non-Pacific countries (slug formats)
-  "afghanistan": "AF",
-  "albania": "AL",
-  "algeria": "DZ",
-  "argentina": "AR",
-  "armenia": "AM",
-  "austria": "AT",
-  "bangladesh": "BD",
-  "belgium": "BE",
-  "brazil": "BR",
-  "canada": "CA",
-  "chile": "CL",
-  "china": "CN",
-  "colombia": "CO",
-  "croatia": "HR",
-  "cuba": "CU",
-  "czech-republic": "CZ",
-  "denmark": "DK",
-  "egypt": "EG",
-  "estonia": "EE",
-  "finland": "FI",
-  "france": "FR",
-  "germany": "DE",
-  "greece": "GR",
-  "hungary": "HU",
-  "iceland": "IS",
-  "india": "IN",
-  "indonesia": "ID",
-  "iran": "IR",
-  "iraq": "IQ",
-  "ireland": "IE",
-  "israel": "IL",
-  "italy": "IT",
-  "jamaica": "JM",
-  "japan": "JP",
-  "jordan": "JO",
-  "kenya": "KE",
-  "lebanon": "LB",
-  "lithuania": "LT",
-  "luxembourg": "LU",
-  "malaysia": "MY",
-  "mexico": "MX",
-  "morocco": "MA",
-  "netherlands": "NL",
-  "norway": "NO",
-  "pakistan": "PK",
-  "peru": "PE",
-  "philippines": "PH",
-  "poland": "PL",
-  "portugal": "PT",
-  "romania": "RO",
-  "russia": "RU",
-  "saudi-arabia": "SA",
-  "singapore": "SG",
-  "south-africa": "ZA",
-  "south-korea": "KR",
-  "spain": "ES",
-  "sweden": "SE",
-  "switzerland": "CH",
-  "thailand": "TH",
-  "turkey": "TR",
-  "ukraine": "UA",
-  "united-arab-emirates": "AE",
-  "united-kingdom": "GB",
-  "vietnam": "VN",
-
-  // common aliases
-  "UK": "GB",
-  "uk": "GB",
-  "England": "GB",
-  "england": "GB",
-  "USA": "US",
-  "usa": "US",
-  "United States of America": "US",
-
-  // Special cases
-  "Other": "GLOBE",
-  "Unknown": "GLOBE",
-  "other": "GLOBE",
-  "unknown": "GLOBE",
+  "Yemen": "YE",
+  "Zambia": "ZM",
+  "Zimbabwe": "ZW",
 };
 
-export const GLOBE_IDENTITIES = ["Other", "Unknown", "other", "unknown"];
+function cleanToken(value) {
+  return String(value ?? "")
+    .trim()
+    .replace(/^\{+|\}+$/g, "")
+    .replace(/^"(.*)"$/, "$1")
+    .trim();
+}
+
+function resolveCanonicalLabel(value) {
+  const cleaned = cleanToken(value);
+  if (!cleaned) return "";
+
+  const exactMatch = ALL_VALID_LABELS.find((item) => item === cleaned);
+  if (exactMatch) return exactMatch;
+
+  const caseInsensitiveMatch = ALL_VALID_LABELS.find(
+    (item) => item.toLowerCase() === cleaned.toLowerCase()
+  );
+  if (caseInsensitiveMatch) return caseInsensitiveMatch;
+
+  return cleaned;
+}
 
 function parseIdentities(identity) {
   if (!identity) return [];
 
   if (Array.isArray(identity)) {
-    return identity
-      .map((item) => String(item).trim())
+    return identity.map(resolveCanonicalLabel).filter(Boolean);
+  }
+
+  const raw = String(identity).trim();
+  if (!raw) return [];
+
+  if (raw.startsWith("[") && raw.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.map(resolveCanonicalLabel).filter(Boolean);
+      }
+    } catch {}
+  }
+
+  if (raw.startsWith("{") && raw.endsWith("}")) {
+    return raw
+      .slice(1, -1)
+      .split(",")
+      .map(resolveCanonicalLabel)
       .filter(Boolean);
   }
 
-  if (typeof identity === "string") {
-    const trimmed = identity.trim();
-
-    if (!trimmed) return [];
-
-    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        if (Array.isArray(parsed)) {
-          return parsed
-            .map((item) => String(item).trim())
-            .filter(Boolean);
-        }
-      } catch {
-        // continue below
-      }
-    }
-
-    if (trimmed.includes(",")) {
-      return trimmed
-        .split(",")
-        .map((item) => item.replace(/"/g, "").trim())
-        .filter(Boolean);
-    }
-
-    return [trimmed];
+  if (raw.includes(",")) {
+    return raw.split(",").map(resolveCanonicalLabel).filter(Boolean);
   }
 
-  return [];
+  return [resolveCanonicalLabel(raw)];
 }
 
-function dedupeIdentities(identities) {
+function dedupe(values) {
   const seen = new Set();
-  return identities.filter((item) => {
-    const key = item.toLowerCase();
+  return values.filter((value) => {
+    const key = value.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 }
 
-// Helper to normalize identity values
-function normalizeIdentity(identity) {
-  if (!identity) return "";
-
-  const trimmed = String(identity).trim();
-
-  if (IDENTITY_TO_CODE[trimmed]) {
-    return trimmed;
-  }
-
-  const lowerTrimmed = trimmed.toLowerCase();
-
-  const matchedKey = Object.keys(IDENTITY_TO_CODE).find(
-    (key) => key.toLowerCase() === lowerTrimmed
-  );
-
-  if (matchedKey) {
-    return matchedKey;
-  }
-
-  const country = COUNTRIES.find(
-    (c) =>
-      c.value === trimmed ||
-      c.value?.toLowerCase() === lowerTrimmed ||
-      c.label?.toLowerCase() === lowerTrimmed
-  );
-
-  if (country) {
-    if (IDENTITY_TO_CODE[country.label]) return country.label;
-    if (IDENTITY_TO_CODE[country.value]) return country.value;
-  }
-
-  return trimmed;
+function getDisplayLabel(identity) {
+  return resolveCanonicalLabel(identity);
 }
 
-// Helper to get display name for tooltip
-function getDisplayName(identity) {
-  if (!identity) return "";
+function getFlagCountry(identity) {
+  const label = resolveCanonicalLabel(identity);
 
-  const normalized = normalizeIdentity(identity);
+  return (
+    getCountryFromCulturalIdentity(label) ||
+    COUNTRIES.find((c) => c.label === label)?.label ||
+    null
+  );
+}
 
-  const specialCases = {
-    "new-zealand": "New Zealand",
-    "new zealand": "New Zealand",
-    "new-zealand-maori": "New Zealand",
-    "new zealand maori": "New Zealand",
-    "new-zealand-māori": "New Zealand",
-    "new zealand māori": "New Zealand",
-    "french-polynesia": "French Polynesia",
-    "french polynesia": "French Polynesia",
-    "cook-islands": "Cook Islands",
-    "cook islands": "Cook Islands",
-    "papua-new-guinea": "Papua New Guinea",
-    "papua new guinea": "Papua New Guinea",
-    "solomon-islands": "Solomon Islands",
-    "solomon islands": "Solomon Islands",
-    "northern-mariana-islands": "Northern Mariana Islands",
-    "northern mariana islands": "Northern Mariana Islands",
-    "wallis-and-futuna": "Wallis and Futuna",
-    "wallis and futuna": "Wallis and Futuna",
-    "united-states": "United States",
-    "united states": "United States",
-    "united-kingdom": "United Kingdom",
-    "united kingdom": "United Kingdom",
-    "united-arab-emirates": "United Arab Emirates",
-    "united arab emirates": "United Arab Emirates",
-    "south-africa": "South Africa",
-    "south africa": "South Africa",
-    "south-korea": "South Korea",
-    "south korea": "South Korea",
-    "saudi-arabia": "Saudi Arabia",
-    "saudi arabia": "Saudi Arabia",
-  };
-
-  if (specialCases[normalized]) {
-    return specialCases[normalized];
-  }
-
-  if (normalized.includes("-")) {
-    return normalized
-      .split("-")
-      .filter(Boolean)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
-
-  return normalized;
+function getFlagCode(identity) {
+  const country = getFlagCountry(identity);
+  if (!country) return null;
+  return COUNTRY_FLAG_CODES[country] || null;
 }
 
 function Tooltip({ label, children }) {
@@ -407,61 +326,28 @@ function SingleFlagIcon({
   className = "",
   showTooltip = true,
 }) {
-  if (!identity) return null;
+  const displayName = getDisplayLabel(identity);
+  if (!displayName) return null;
 
-  const normalizedIdentity = normalizeIdentity(identity);
-  const displayName = getDisplayName(identity);
+  const code = getFlagCode(identity);
 
-  const isGlobe =
-    GLOBE_IDENTITIES.includes(normalizedIdentity) ||
-    GLOBE_IDENTITIES.includes(identity);
-
-  if (isGlobe) {
-    const globeEl = (
-      <div
-        className={`inline-flex items-center justify-center rounded-md bg-slate-100 text-[#0d4f4f] shadow-sm ring-1 ring-black/5 ${className}`}
-        style={{ width: size, height: size }}
-      >
-        <Globe style={{ width: size * 0.7, height: size * 0.7 }} />
-      </div>
-    );
-
-    return showTooltip ? (
-      <Tooltip label={displayName}>{globeEl}</Tooltip>
-    ) : (
-      globeEl
-    );
-  }
-
-  const code = IDENTITY_TO_CODE[normalizedIdentity];
-
-  if (!code || code === "GLOBE") {
-    const fallbackEl = (
-      <div
-        className={`inline-flex items-center justify-center rounded-md bg-slate-100 text-[#0d4f4f] shadow-sm ring-1 ring-black/5 ${className}`}
-        style={{ width: size, height: size }}
-      >
-        <Globe style={{ width: size * 0.7, height: size * 0.7 }} />
-      </div>
-    );
-
-    return showTooltip ? (
-      <Tooltip label={displayName || identity}>{fallbackEl}</Tooltip>
-    ) : (
-      fallbackEl
-    );
-  }
-
-  const flagEl = (
+  const content = code ? (
     <FlagVisual
       code={code}
       displayName={displayName}
       size={size}
       className={className}
     />
+  ) : (
+    <div
+      className={`inline-flex items-center justify-center rounded-md bg-slate-100 text-[#0d4f4f] shadow-sm ring-1 ring-black/5 ${className}`}
+      style={{ width: size, height: size }}
+    >
+      <Globe style={{ width: size * 0.7, height: size * 0.7 }} />
+    </div>
   );
 
-  return showTooltip ? <Tooltip label={displayName}>{flagEl}</Tooltip> : flagEl;
+  return showTooltip ? <Tooltip label={displayName}>{content}</Tooltip> : content;
 }
 
 export default function FlagIcon({
@@ -471,7 +357,7 @@ export default function FlagIcon({
   showTooltip = true,
   maxFlags = 3,
 }) {
-  const identities = dedupeIdentities(parseIdentities(identity));
+  const identities = dedupe(parseIdentities(identity));
 
   if (!identities.length) return null;
 
@@ -487,7 +373,9 @@ export default function FlagIcon({
       ))}
 
       {identities.length > maxFlags && (
-        <span className="text-xs text-gray-500">+{identities.length - maxFlags}</span>
+        <span className="text-xs text-gray-500">
+          +{identities.length - maxFlags}
+        </span>
       )}
     </div>
   );
