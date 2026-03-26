@@ -5,7 +5,7 @@
  */
 
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
-import { generateBusinessLogo } from "@/utils/businessImageGenerator";
+import { generateMobileBanner, generateBusinessLogo } from "./businessImageGenerator";
 
 const getFirstDisplayableMediaUrl = (...candidates) => {
   for (const candidate of candidates) {
@@ -23,11 +23,27 @@ const getFirstDisplayableMediaUrl = (...candidates) => {
  * @returns {string} Banner URL (persisted URL first, then static fallback)
  */
 export function getBannerUrl(business) {
-  return getFirstDisplayableMediaUrl(
+  // First priority: saved/persisted banner URLs
+  const persistedUrl = getFirstDisplayableMediaUrl(
     business?.mobile_banner_url,
     business?.banner_url,
     business?.cover_image_url
   );
+  
+  if (persistedUrl) {
+    return persistedUrl;
+  }
+
+  // Second priority: generated banner from business name
+  if (business?.business_name) {
+    const generatedBanner = generateMobileBanner(business.business_name);
+    if (generatedBanner) {
+      return generatedBanner;
+    }
+  }
+
+  // Final fallback: return null for text fallback
+  return null;
 }
 
 /**

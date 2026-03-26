@@ -306,13 +306,27 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         <div className="relative w-full max-w-[800px] h-[160px] overflow-hidden bg-[#0a1628]">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
-          {getBannerUrl(b) && (
+          {(() => {
+          const bannerUrl = getBannerUrl(b);
+          return bannerUrl ? (
             <img
-              src={getBannerUrl(b)}
+              src={bannerUrl}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
             />
-          )}
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-white text-center px-4">
+                <div className="font-bold text-lg mb-2">
+                  {b?.business_name || "Business Name"}
+                </div>
+                <div className="text-sm opacity-80">
+                  Pacific Discovery Network
+                </div>
+              </div>
+            </div>
+          );
+        })()}
         </div>
 
         {/* Spotlight chevrons */}
