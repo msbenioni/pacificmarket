@@ -76,10 +76,10 @@ export default function BusinessProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc]">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-400 text-sm">
+          <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-2 border-[#0d4f4f] border-t-transparent" />
+          <p className="text-sm text-gray-400">
             Loading Pacific Discovery Network record...
           </p>
         </div>
@@ -89,17 +89,17 @@ export default function BusinessProfile() {
 
   if (!business) {
     return (
-      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center px-4">
-        <div className="text-center bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-sm">
-          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Record Not Found</h2>
-          <p className="text-gray-500 text-sm mb-5">
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f9fc] px-4">
+        <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm sm:p-8">
+          <h2 className="mb-2 text-xl font-bold text-[#0a1628]">Record Not Found</h2>
+          <p className="mb-5 text-sm text-gray-500">
             This business record does not exist in Pacific Discovery Network.
           </p>
           <Link
             href={createPageUrl("PacificBusinesses")}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-5 py-3 text-sm font-semibold text-white hover:bg-[#122040] transition"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#0a1628] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#122040]"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Pacific Businesses
           </Link>
         </div>
@@ -119,24 +119,6 @@ export default function BusinessProfile() {
 
   const countryLabel = getCountryLabel(business.country);
   const industryLabel = getIndustryLabel(business.industry);
-  const tier = business.subscription_tier || "vaka";
-
-  const tierConfig = {
-    vaka: {
-      label: "Vaka",
-      className: "border-white/20 bg-white/10 text-white/85",
-    },
-    mana: {
-      label: "Mana",
-      className: "border-[#7dd3fc]/35 bg-[#7dd3fc]/12 text-[#d7f3ff]",
-    },
-    moana: {
-      label: "Moana",
-      className: "border-[#c9a84c]/45 bg-[#c9a84c]/20 text-[#f5df9a]",
-    },
-  };
-
-  const activeTier = tierConfig[tier] || tierConfig.vaka;
 
   const socials = [
     {
@@ -164,7 +146,7 @@ export default function BusinessProfile() {
       href: business.social_links?.facebook?.startsWith("http")
         ? business.social_links?.facebook
         : business.social_links?.facebook
-          ? `https://${business.social_links?.facebook}`
+          ? `https://${business.social_links.facebook}`
           : "",
     },
     {
@@ -174,7 +156,7 @@ export default function BusinessProfile() {
       href: business.social_links?.linkedin?.startsWith("http")
         ? business.social_links?.linkedin
         : business.social_links?.linkedin
-          ? `https://${business.social_links?.linkedin}`
+          ? `https://${business.social_links.linkedin}`
           : "",
     },
     {
@@ -184,7 +166,7 @@ export default function BusinessProfile() {
       href: business.social_links?.tiktok?.startsWith("http")
         ? business.social_links?.tiktok
         : business.social_links?.tiktok
-          ? `https://${business.social_links?.tiktok}`
+          ? `https://${business.social_links.tiktok}`
           : "",
     },
   ].filter((s) => s.value && s.href);
@@ -201,25 +183,17 @@ export default function BusinessProfile() {
       <div className="relative overflow-hidden bg-[#03131f]">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
-        <div className="absolute inset-0 hidden sm:flex items-center justify-center">
-          <div className="text-white text-center">
-            <div className="font-bold text-2xl mb-2">
+        <div className="absolute inset-0 hidden items-center justify-center sm:flex">
+          <div className="text-center text-white">
+            <div className="mb-2 text-2xl font-bold">
               {business?.business_name || "Business Profile"}
             </div>
             <div className="text-sm opacity-80">Pacific Discovery Network</div>
           </div>
         </div>
 
-        <div className="hidden sm:flex absolute bottom-8 right-8 flex-wrap items-center gap-2 z-20">
-          <span
-            aria-label={`${activeTier.label} tier`}
-            title={`${activeTier.label} tier`}
-            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm ${activeTier.className}`}
-          >
-            {activeTier.label}
-          </span>
-
-          {business.is_verified && (
+        {business.is_verified && (
+          <div className="absolute bottom-8 right-8 z-20 hidden sm:flex">
             <span
               aria-label="Verified"
               title="Verified"
@@ -227,10 +201,10 @@ export default function BusinessProfile() {
             >
               <Check className="h-3 w-3" />
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="relative z-10 mx-auto flex items-start justify-center px-3 pt-[104px] pb-8 sm:min-h-[420px] sm:px-6 sm:pt-8 sm:pb-12 lg:min-h-[520px] lg:px-8 lg:pt-12 lg:pb-16">
+        <div className="relative z-10 mx-auto flex items-start justify-center px-3 pb-8 pt-[104px] sm:min-h-[420px] sm:px-6 sm:pb-12 sm:pt-8 lg:min-h-[520px] lg:px-8 lg:pb-16 lg:pt-12">
           <div className="mt-1 w-full max-w-3xl text-center sm:mt-6 lg:mt-8">
             <div className="rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-[0_20px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4 lg:p-5">
               <div className="flex flex-col items-center gap-3 sm:gap-5">
@@ -257,7 +231,7 @@ export default function BusinessProfile() {
                     {(business.city || countryLabel) && (
                       <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
                         <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                        <span className="truncate max-w-[120px] sm:max-w-none">
+                        <span className="max-w-[120px] truncate sm:max-w-none">
                           {business.city ? `${business.city}, ` : ""}
                           {countryLabel}
                         </span>
@@ -267,7 +241,7 @@ export default function BusinessProfile() {
                     {industryLabel && (
                       <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] text-white/90 backdrop-blur-md sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
                         <Briefcase className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                        <span className="truncate max-w-[150px] sm:max-w-none">
+                        <span className="max-w-[150px] truncate sm:max-w-none">
                           {industryLabel}
                         </span>
                       </span>
@@ -284,16 +258,8 @@ export default function BusinessProfile() {
                     </div>
                   )}
 
-                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:hidden">
-                    <span
-                      aria-label={`${activeTier.label} tier`}
-                      title={`${activeTier.label} tier`}
-                      className={`inline-flex items-center rounded-full border px-2 py-[2px] text-[8px] font-medium leading-none ${activeTier.className}`}
-                    >
-                      {activeTier.label}
-                    </span>
-
-                    {business.is_verified && (
+                  {business.is_verified && (
+                    <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:hidden">
                       <span
                         aria-label="Verified"
                         title="Verified"
@@ -301,8 +267,8 @@ export default function BusinessProfile() {
                       >
                         <Check className="h-2.5 w-2.5" />
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   {(business.business_email || business.business_phone) && (
                     <div className="mt-5 flex justify-center sm:mt-6">
@@ -405,7 +371,7 @@ export default function BusinessProfile() {
           {!business.is_claimed && (
             <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
               <p className="text-sm text-gray-500 sm:text-base lg:text-lg">
-                This business listing hasn't been claimed yet.{" "}
+                This business listing hasn&apos;t been claimed yet.{" "}
                 <button
                   onClick={handleClaim}
                   className="font-medium text-[#0d4f4f] underline decoration-2 underline-offset-4 transition-colors hover:text-[#0a3e3e]"
@@ -420,7 +386,7 @@ export default function BusinessProfile() {
             href={createPageUrl("PacificBusinesses")}
             className="mt-6 inline-flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-[#0d4f4f]"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Pacific Businesses
           </Link>
         </div>
