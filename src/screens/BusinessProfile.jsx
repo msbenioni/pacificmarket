@@ -32,6 +32,7 @@ import ContactModal from "@/components/profile/ContactModal";
 import BusinessGallery from "@/components/profile/BusinessGallery";
 import ProductsServices from "@/components/profile/ProductsServices";
 import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
+import IdentityFlagRow from "@/components/shared/IdentityFlagRow";
 
 export default function BusinessProfile() {
   const router = useRouter();
@@ -295,14 +296,14 @@ export default function BusinessProfile() {
                   {(() => {
                     const culturalData = getBusinessCulturalData(business);
                     return culturalData.culturalIdentitiesDisplay.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {culturalData.culturalIdentitiesDisplay.map((identity, index) => (
-                          <span key={index} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-white/90 backdrop-blur-md">
-                            <FlagIcon identity={identity} size={14} />
-                            {identity}
-                          </span>
-                        ))}
-                      </div>
+                      <IdentityFlagRow
+                        identities={culturalData.culturalIdentitiesDisplay}
+                        size={14}
+                        maxFlags={99}
+                        showLabels
+                        textClassName="text-xs text-white/90"
+                        className="flex flex-wrap gap-2"
+                      />
                     );
                   })()}
                 </div>

@@ -5,8 +5,18 @@ import { getLogoUrl } from "@/utils/bannerUtils";
 import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
 import { getCountryLabel, getIndustryLabel, formatDisplayList } from "@/utils/displayHelpers";
 import FlagIcon from "../shared/FlagIcon";
+import IdentityFlagRow from "../shared/IdentityFlagRow";
 
 export default function BusinessCard({ business, view = "grid" }) {
+  // Temporarily disable flag system to isolate rendering issue
+  // const culturalData = getBusinessCulturalData(business);
+  
+  console.log("[BusinessCard] business data", {
+    business: business?.business_name,
+    hasData: !!business,
+    hasId: !!business?.id,
+  });
+
   const href =
     createPageUrl("BusinessProfile") +
     `?handle=${business.business_handle || business.id}`;
@@ -15,9 +25,8 @@ export default function BusinessCard({ business, view = "grid" }) {
   const countryLabel = getCountryLabel(business.country);
   const metaLine = [business.city, countryLabel].filter(Boolean).join(", ");
   const description = business.tagline || business.description || "";
-
-  const culturalData = getBusinessCulturalData(business);
-  const readableLanguages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
+  // Temporarily disable languages
+  // const readableLanguages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
 
   if (view === "list") {
     return (
@@ -61,25 +70,23 @@ export default function BusinessCard({ business, view = "grid" }) {
             </div>
           )}
 
-          {readableLanguages && (
+          {/* Temporarily disable languages */}
+          {/*readableLanguages && (
             <div className="flex items-start gap-1 text-[11px] text-[#0d4f4f]">
               <Speech className="mt-0.5 h-3 w-3 flex-shrink-0" />
               <span className="leading-3">{readableLanguages}</span>
             </div>
-          )}
+          )}*/}
 
-          {culturalData.culturalIdentitiesRaw.length > 0 && (
-            <div className="flex items-center gap-1.5 mt-0.5">
-              {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
-                <FlagIcon key={index} identity={identity} size={22} />
-              ))}
-              {culturalData.culturalIdentitiesRaw.length > 3 && (
-                <span className="text-[9px] text-gray-500 ml-1">
-                  +{culturalData.culturalIdentitiesRaw.length - 3}
-                </span>
-              )}
-            </div>
-          )}
+          {/* Temporarily disable flags */}
+          {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+            <IdentityFlagRow
+              identities={culturalData.culturalIdentitiesRaw}
+              size={22}
+              maxFlags={3}
+              className="mt-0.5"
+            />
+          )}*/}
         </div>
 
         <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">
@@ -138,25 +145,23 @@ export default function BusinessCard({ business, view = "grid" }) {
             </div>
           )}
 
-          {readableLanguages && (
+          {/* Temporarily disable languages */}
+          {/*readableLanguages && (
             <div className="flex items-start gap-1.5 text-[12px] text-[#0d4f4f]">
               <Speech className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
               <span className="leading-4">{readableLanguages}</span>
             </div>
-          )}
+          )}*/}
 
-          {culturalData.culturalIdentitiesRaw.length > 0 && (
-            <div className="flex items-center gap-2 mt-1">
-              {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
-                <FlagIcon key={index} identity={identity} size={24} />
-              ))}
-              {culturalData.culturalIdentitiesRaw.length > 3 && (
-                <span className="text-[10px] text-gray-500 ml-1">
-                  +{culturalData.culturalIdentitiesRaw.length - 3}
-                </span>
-              )}
-            </div>
-          )}
+          {/* Temporarily disable flags */}
+          {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+            <IdentityFlagRow
+              identities={culturalData.culturalIdentitiesRaw}
+              size={24}
+              maxFlags={3}
+              className="mt-1"
+            />
+          )}*/}
         </div>
 
         <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">

@@ -101,7 +101,8 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
             {/* Options */}
             <div className="max-h-48 overflow-y-auto">
               {filteredIdentities.map(identity => {
-                const isSelected = normalizedSelectedValues.includes(identity);
+                const normalizedIdentity = resolveCanonicalLabel(identity);
+                const isSelected = normalizedSelectedValues.includes(normalizedIdentity);
                 return (
                   <div
                     key={identity}

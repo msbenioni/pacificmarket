@@ -8,7 +8,8 @@ import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Inst
 import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
 import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
-import { formatDisplayList, getCountryDisplayName, getIndustryDisplayName } from "@/utils/displayHelpers";
+import { getCountryDisplayName, getIndustryDisplayName, formatDisplayList } from "@/utils/displayHelpers";
+import IdentityFlagRow from "@/components/shared/IdentityFlagRow";
 
 const WINDOW_SIZE = 4;
 
@@ -81,8 +82,16 @@ function FeaturedBadge({ tier }) {
 }
 
 function BusinessMiniCard({ b, active, onSelect }) {
-  const culturalData = getBusinessCulturalData(b);
-  const languages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
+  // Temporarily disable flag system to isolate rendering issue
+  // const culturalData = getBusinessCulturalData(b);
+  
+  console.log("[FeaturedSpotlight] business data", {
+    business: b?.business_name,
+    hasData: !!b,
+    hasId: !!b?.id,
+  });
+
+  const languages = []; // formatDisplayList(culturalData.languagesDisplay, { max: 2 });
   const location = [b.city, getCountryDisplayName(b.country)].filter(Boolean).join(", ");
   const tagline = b.tagline || b.description || "";
   const industryLabel = getIndustryDisplayName(b.industry) || "Industry";
@@ -156,18 +165,15 @@ function BusinessMiniCard({ b, active, onSelect }) {
             </div>
           )}
 
-          {culturalData.culturalIdentitiesRaw.length > 0 && (
-            <div className="flex items-center gap-2">
-              {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
-                <FlagIcon key={index} identity={identity} size={24} />
-              ))}
-              {culturalData.culturalIdentitiesRaw.length > 3 && (
-                <span className="text-xs text-gray-500">
-                  +{culturalData.culturalIdentitiesRaw.length - 3}
-                </span>
-              )}
-            </div>
-          )}
+          {/* Temporarily disable flags */}
+          {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+            <IdentityFlagRow
+              identities={culturalData.culturalIdentitiesRaw}
+              size={24}
+              maxFlags={3}
+              className="flex items-center gap-2"
+            />
+          )}*/}
 
           {languages && (
             <div className="flex items-center gap-2 text-sm font-medium text-[#00c4cc]">
@@ -308,18 +314,15 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                     {getIndustryDisplayName(b.industry)}
                   </span>
                 )}
-                {culturalData.culturalIdentitiesRaw.length > 0 && (
-                  <div className="inline-flex items-center gap-2">
-                    {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
-                      <FlagIcon key={index} identity={identity} size={20} />
-                    ))}
-                    {culturalData.culturalIdentitiesRaw.length > 3 && (
-                      <span className="text-xs text-white/70">
-                        +{culturalData.culturalIdentitiesRaw.length - 3}
-                      </span>
-                    )}
-                  </div>
-                )}
+                {/* Temporarily disable flags */}
+                {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+                  <IdentityFlagRow
+                    identities={culturalData.culturalIdentitiesRaw}
+                    size={24}
+                    maxFlags={3}
+                    className="inline-flex items-center gap-2"
+                  />
+                )}*/}
               </div>
 
               {(b?.tagline || b?.description) && (

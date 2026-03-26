@@ -1,6 +1,6 @@
 import React from "react";
 import { Globe } from "lucide-react";
-import { getFlagItems } from "@/utils/flagIdentityUtils";
+import { getFlagItems, getFlagAssetUrl } from "@/utils/flagIdentityUtils";
 
 function Tooltip({ label, children }) {
   return (
@@ -15,16 +15,14 @@ function Tooltip({ label, children }) {
 }
 
 function FlagVisual({ code, displayName, size, className }) {
-  const width = size;
-  const height = size;
-  const flagUrl = `https://flagcdn.com/w${width}/${code.toLowerCase()}.png`;
+  const flagUrl = getFlagAssetUrl(code);
 
   return (
     <>
       <img
         src={flagUrl}
         alt={displayName}
-        style={{ width, height: size, objectFit: "cover" }}
+        style={{ width: size, height: size, objectFit: "cover" }}
         className={`rounded-md shadow-sm ring-1 ring-black/5 ${className}`}
         onError={(e) => {
           const target = e.currentTarget;
@@ -37,7 +35,7 @@ function FlagVisual({ code, displayName, size, className }) {
       />
       <div
         className={`hidden items-center justify-center rounded-md bg-slate-100 text-[#0d4f4f] shadow-sm ring-1 ring-black/5 ${className}`}
-        style={{ width, height: size }}
+        style={{ width: size, height: size }}
       >
         <Globe size={size * 0.6} />
       </div>
@@ -46,15 +44,12 @@ function FlagVisual({ code, displayName, size, className }) {
 }
 
 function SingleFlagIcon({
-  identity,
+  item,
   size = 24,
   className = "",
   showTooltip = true,
 }) {
-  const flagItems = getFlagItems(identity);
-  if (!flagItems.length) return null;
-
-  const { displayLabel, flagCode } = flagItems[0];
+  const { displayLabel, flagCode } = item;
 
   const content = flagCode ? (
     <FlagVisual
@@ -82,14 +77,20 @@ export default function FlagIcon({
   showTooltip = true,
   maxFlags = 3,
 }) {
-  const flagItems = getFlagItems(identity, { maxItems: maxFlags, debug: true });
+  let flagItems = [];
+  try {
+    flagItems = getFlagItems(identity, { maxItems: maxFlags });
+  } catch (error) {
+    console.error("[FlagIcon] failed to resolve flags", { identity, error });
+    flagItems = [];
+  }
 
   if (!flagItems.length) return null;
 
   if (flagItems.length === 1) {
     return (
       <SingleFlagIcon
-        identity={flagItems[0].identity}
+        item={flagItems[0]}
         size={size}
         className={className}
         showTooltip={showTooltip}
@@ -102,7 +103,7 @@ export default function FlagIcon({
       {flagItems.map((item, index) => (
         <SingleFlagIcon
           key={index}
-          identity={item.identity}
+          item={item}
           size={size}
           className={className}
           showTooltip={showTooltip}

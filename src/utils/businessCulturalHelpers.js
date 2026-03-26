@@ -17,8 +17,75 @@ import { parseIdentities, dedupe } from "@/utils/parsingUtils";
  * @returns {Object} - Resolved cultural and language data
  */
 export function getBusinessCulturalData(business, userProfile = null) {
-  // Input validation
-  if (!business) {
+  try {
+    if (!business) {
+      return {
+        culturalIdentitiesRaw: [],
+        culturalIdentitiesDisplay: [],
+        primaryCulturalIdentity: null,
+        languagesRaw: [],
+        languagesDisplay: [],
+        primaryLanguage: null,
+        hasCulturalInfo: false,
+        sources: { cultural: 'none', languages: 'none' }
+      };
+    }
+
+    // Helper function to check if a value is non-empty
+    const hasValue = (value) => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'string') return value.trim().length > 0;
+      if (Array.isArray(value)) return value.some((v) => String(v ?? "").trim().length > 0);
+      return true;
+    };
+
+    // Resolve cultural identities
+    let culturalSource = 'none';
+    let culturalRaw = [];
+
+    if (hasValue(userProfile?.cultural_identity)) {
+      culturalRaw = userProfile.cultural_identity;
+      culturalSource = 'user_profile';
+    } else if (hasValue(business?.cultural_identity)) {
+      culturalRaw = business.cultural_identity;
+      culturalSource = 'business';
+    }
+
+    // Resolve languages
+    let languagesSource = 'none';
+    let languagesRaw = [];
+
+    if (hasValue(userProfile?.languages_spoken)) {
+      languagesRaw = userProfile.languages_spoken;
+      languagesSource = 'user_profile';
+    } else if (hasValue(business?.languages_spoken)) {
+      languagesRaw = business.languages_spoken;
+      languagesSource = 'business';
+    }
+
+    // Parse and dedupe using shared utilities
+    const culturalParsed = parseIdentities(culturalRaw);
+    const languagesParsed = parseIdentities(languagesRaw);
+
+    // The parsed values are already the display labels (canonical form) and deduped
+    const culturalDisplay = culturalParsed;
+    const languagesDisplay = languagesParsed;
+    
+    return {
+      culturalIdentitiesRaw: culturalRaw,
+      culturalIdentitiesDisplay: culturalDisplay,
+      primaryCulturalIdentity: culturalDisplay[0] || null,
+      languagesRaw: languagesRaw,
+      languagesDisplay: languagesDisplay,
+      primaryLanguage: languagesDisplay[0] || null,
+      hasCulturalInfo: !!(culturalDisplay.length > 0 || languagesDisplay.length > 0),
+      sources: {
+        cultural: culturalSource,
+        languages: languagesSource
+      }
+    };
+  } catch (error) {
+    console.error("[businessCulturalHelpers] getBusinessCulturalData failed", { business, userProfile, error });
     return {
       culturalIdentitiesRaw: [],
       culturalIdentitiesDisplay: [],
@@ -27,69 +94,9 @@ export function getBusinessCulturalData(business, userProfile = null) {
       languagesDisplay: [],
       primaryLanguage: null,
       hasCulturalInfo: false,
-      sources: { cultural: 'none', languages: 'none' }
+      sources: { cultural: 'error', languages: 'error' }
     };
   }
-
-  // PROFILE-FIRST precedence: profile first, then business, then none
-  let culturalSource = 'none';
-  let languagesSource = 'none';
-  
-  let culturalRaw = [];
-  let languagesRaw = [];
-  
-  // Helper function to check if a value is non-empty
-  const hasValue = (value) => {
-    if (value === null || value === undefined) return false;
-    if (typeof value === 'string') return value.trim().length > 0;
-    if (Array.isArray(value)) return value.length > 0;
-    return false;
-  };
-  
-  // Check if business has merged profile data available
-  const profileData = business?._profile_data || userProfile;
-  
-  // PROFILE-FIRST: Cultural identity resolution
-  if (hasValue(profileData?.cultural_identity)) {
-    culturalRaw = dedupe(parseIdentities(profileData.cultural_identity));
-    culturalSource = 'profile';
-  } else if (hasValue(business?.cultural_identity)) {
-    culturalRaw = dedupe(parseIdentities(business.cultural_identity));
-    culturalSource = 'business';
-  }
-  
-  // PROFILE-FIRST: Languages resolution  
-  if (hasValue(profileData?.languages_spoken)) {
-    languagesRaw = dedupe(parseIdentities(profileData.languages_spoken));
-    languagesSource = 'profile';
-  } else if (hasValue(business?.languages_spoken)) {
-    languagesRaw = dedupe(parseIdentities(business.languages_spoken));
-    languagesSource = 'business';
-  }
-  
-  // The parsed values are already the display labels (canonical form)
-  const culturalDisplay = culturalRaw;
-  const languagesDisplay = languagesRaw;
-  
-  // Remove duplicates while preserving order
-  const uniqueCulturalRaw = [...new Set(culturalRaw)];
-  const uniqueCulturalDisplay = [...new Set(culturalDisplay)];
-  const uniqueLanguagesRaw = [...new Set(languagesRaw)];
-  const uniqueLanguagesDisplay = [...new Set(languagesDisplay)];
-  
-  return {
-    culturalIdentitiesRaw: uniqueCulturalRaw,
-    culturalIdentitiesDisplay: uniqueCulturalDisplay,
-    primaryCulturalIdentity: uniqueCulturalDisplay[0] || null,
-    languagesRaw: uniqueLanguagesRaw,
-    languagesDisplay: uniqueLanguagesDisplay,
-    primaryLanguage: uniqueLanguagesDisplay[0] || null,
-    hasCulturalInfo: !!(uniqueCulturalDisplay.length > 0 || uniqueLanguagesDisplay.length > 0),
-    sources: {
-      cultural: culturalSource,
-      languages: languagesSource
-    }
-  };
 }
 
 /**
