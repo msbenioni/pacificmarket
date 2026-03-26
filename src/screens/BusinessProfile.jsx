@@ -7,16 +7,10 @@ import { createPageUrl } from "@/utils";
 import { getBusinessById } from "@/lib/supabase/queries/businesses";
 import { 
   MapPin, 
-  Mail, 
-  Phone, 
   Globe, 
-  Clock, 
   MessageCircle,
   CheckCircle,
   Star,
-  Shield,
-  Users,
-  Calendar,
   Briefcase,
   Instagram,
   Facebook,
@@ -25,23 +19,31 @@ import {
 } from "lucide-react";
 import { getLogoUrl } from '@/utils/bannerUtils';
 import ReactMarkdown from "react-markdown";
-import FlagIcon from "@/components/shared/FlagIcon";
 import BusinessBanner from "@/components/shared/BusinessBanner";
 import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import ContactModal from "@/components/profile/ContactModal";
-import BusinessGallery from "@/components/profile/BusinessGallery";
-import ProductsServices from "@/components/profile/ProductsServices";
-import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
-import IdentityFlagRow from "@/components/shared/IdentityFlagRow";
+import { useBusinessCulturalData } from "@/hooks/useBusinessCulturalData";
+import { IdentityFlagRow } from "@/components/shared/FlagIcon";
 
 export default function BusinessProfile() {
   const router = useRouter();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [claimSubmitted, setClaimSubmitted] = useState(false);
   const [showContact, setShowContact] = useState(false);
-  const [galleryImages, setGalleryImages] = useState([]);
-  const [products, setProducts] = useState([]);
+  
+  // Compute cultural data once and reuse - must be called before any conditional logic
+  const culturalData = useBusinessCulturalData(business);
+
+  // Add diagnostics
+  useEffect(() => {
+    if (business) {
+      console.log("[BusinessProfile] cultural identities", {
+        business: business?.business_name,
+        raw: business?.cultural_identity,
+        profileData: business?._profile_data?.cultural_identity,
+      });
+    }
+  }, [business]);
 
   const formatMarkdown = (text) =>
     text?.replace(/\s*•\s*/g, "\n- ").replace(/\n{3,}/g, "\n\n").trim() || "";
@@ -85,32 +87,6 @@ export default function BusinessProfile() {
       const supabase = getSupabase();
       
       const tier = biz.subscription_tier || 'vaka';
-
-      if (tier === "mana" || tier === "moana") {
-        try {
-          const { data: imgs } = await supabase
-            .from("business_images")
-            .select("*")
-            .eq("business_id", biz.id);
-          setGalleryImages(imgs || []);
-        } catch (error) {
-          console.log("Gallery images not available:", error.message);
-          setGalleryImages([]);
-        }
-      }
-
-      if (tier === "moana") {
-        try {
-          const { data: prods } = await supabase
-            .from("product_services")
-            .select("*")
-            .eq("business_id", biz.id);
-          setProducts(prods || []);
-        } catch (error) {
-          console.log("Products/services not available:", error.message);
-          setProducts([]);
-        }
-      }
     } catch (error) {
       console.error("Error fetching extras:", error);
     }
@@ -293,19 +269,13 @@ export default function BusinessProfile() {
                     )}
                   </div>
 
-                  {(() => {
-                    const culturalData = getBusinessCulturalData(business);
-                    return culturalData.culturalIdentitiesDisplay.length > 0 && (
-                      <IdentityFlagRow
-                        identities={culturalData.culturalIdentitiesDisplay}
-                        size={14}
-                        maxFlags={99}
-                        showLabels
-                        textClassName="text-xs text-white/90"
-                        className="flex flex-wrap gap-2"
-                      />
-                    );
-                  })()}
+                  {culturalData.culturalIdentitiesDisplay.length > 0 && (
+                    <IdentityFlagRow
+                      identities={culturalData.culturalIdentitiesDisplay}
+                      maxFlags={99}
+                      className="flex flex-wrap gap-2"
+                    />
+                  )}
                 </div>
 
                 {(business.business_email || business.business_phone) && (
@@ -345,25 +315,22 @@ export default function BusinessProfile() {
             )}
 
             {/* Languages */}
-            {(() => {
-              const culturalData = getBusinessCulturalData(business);
-              return culturalData.languagesDisplay.length > 0 && (
-                <div className="mt-5 pt-5 border-t border-gray-100">
-                  <h3 className="text-sm font-semibold text-[#0a1628] mb-3">Languages</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {culturalData.languagesDisplay.map((lang, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 rounded-full border border-[#00c4cc]/20 bg-[#00c4cc]/10 px-3 py-1.5 text-xs font-medium text-[#00c4cc]"
-                      >
-                        <Globe className="h-3 w-3" />
-                        {lang}
-                      </span>
-                    ))}
-                  </div>
+            {culturalData.languagesDisplay.length > 0 && (
+              <div className="mt-5 pt-5 border-t border-gray-100">
+                <h3 className="text-sm font-semibold text-[#0a1628] mb-3">Languages</h3>
+                <div className="flex flex-wrap gap-2">
+                  {culturalData.languagesDisplay.map((lang, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1 rounded-full border border-[#00c4cc]/20 bg-[#00c4cc]/10 px-3 py-1.5 text-xs font-medium text-[#00c4cc]"
+                    >
+                      <Globe className="h-3 w-3" />
+                      {lang}
+                    </span>
+                  ))}
                 </div>
-              );
-            })()}
+              </div>
+            )}
 
             {/* Socials */}
             {allSocials.length > 0 && (
@@ -390,35 +357,18 @@ export default function BusinessProfile() {
             )}
           </div>
 
-          {/* Gallery */}
-          <div className="mt-6">
-            <BusinessGallery images={galleryImages} />
-          </div>
-
-          {/* Products / Services */}
-          <div className="mt-6">
-            <ProductsServices products={products} onContact={() => setShowContact(true)} />
-          </div>
-
           {/* Claim */}
           {!business.is_claimed && (
             <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-              {claimSubmitted ? (
-                <div className="flex items-center gap-2 text-green-700 text-sm sm:text-base lg:text-lg bg-green-50 px-3 py-3 rounded-xl">
-                  <CheckCircle className="w-4 h-4" />
-                  Claim submitted for review
-                </div>
-              ) : (
-                <p className="text-sm sm:text-base lg:text-lg text-gray-500">
-                  Is this your business?{" "}
-                  <button
-                    onClick={handleClaim}
-                    className="text-[#0d4f4f] font-semibold hover:underline"
-                  >
-                    Claim this listing
-                  </button>
-                </p>
-              )}
+              <p className="text-sm sm:text-base lg:text-lg text-gray-500">
+                This business listing hasn't been claimed yet.{" "}
+                <button
+                  onClick={handleClaim}
+                  className="text-[#0d4f4f] hover:text-[#0a3e3e] font-medium underline decoration-2 underline-offset-4 transition-colors"
+                >
+                  Claim this business
+                </button>
+              </p>
             </div>
           )}
 

@@ -2,7 +2,7 @@ import { pagesConfig } from "@/pages.config";
 import Layout from "@/components/layout/Layout";
 
 export const metadata = {
-  title: "Home - Discover Pacific Island Businesses",
+  title: "Home - Discover Pacific Owned Businesses",
   description: "Welcome to Pacific Discovery Network. Explore our curated directory of authentic Pacific Island businesses, from local artisans to modern enterprises. Support Pacific communities by connecting with verified businesses.",
   keywords: ["Pacific businesses", "Pacific Islands", "local businesses", "Pacific entrepreneurs", "Island economy"],
   openGraph: {

@@ -5,11 +5,10 @@ import Link from "next/link";
 import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
 import { createPageUrl } from "@/utils";
 import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, Speech } from "lucide-react";
-import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
-import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
+import { useBusinessCulturalData } from "@/hooks/useBusinessCulturalData";
 import { getCountryDisplayName, getIndustryDisplayName, formatDisplayList } from "@/utils/displayHelpers";
-import IdentityFlagRow from "@/components/shared/IdentityFlagRow";
+import { IdentityFlagRow } from "@/components/shared/FlagIcon";
 
 const WINDOW_SIZE = 4;
 
@@ -82,16 +81,15 @@ function FeaturedBadge({ tier }) {
 }
 
 function BusinessMiniCard({ b, active, onSelect }) {
-  // Temporarily disable flag system to isolate rendering issue
-  // const culturalData = getBusinessCulturalData(b);
+  const culturalData = useBusinessCulturalData(b);
   
-  console.log("[FeaturedSpotlight] business data", {
+  console.log("[FeaturedSpotlight] cultural identities", {
     business: b?.business_name,
-    hasData: !!b,
-    hasId: !!b?.id,
+    raw: b?.cultural_identity,
+    resolved: culturalData?.culturalIdentitiesRaw,
   });
 
-  const languages = []; // formatDisplayList(culturalData.languagesDisplay, { max: 2 });
+  const languages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
   const location = [b.city, getCountryDisplayName(b.country)].filter(Boolean).join(", ");
   const tagline = b.tagline || b.description || "";
   const industryLabel = getIndustryDisplayName(b.industry) || "Industry";
@@ -165,15 +163,13 @@ function BusinessMiniCard({ b, active, onSelect }) {
             </div>
           )}
 
-          {/* Temporarily disable flags */}
-          {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+          {culturalData.culturalIdentitiesRaw.length > 0 && (
             <IdentityFlagRow
               identities={culturalData.culturalIdentitiesRaw}
-              size={24}
               maxFlags={3}
               className="flex items-center gap-2"
             />
-          )}*/}
+          )}
 
           {languages && (
             <div className="flex items-center gap-2 text-sm font-medium text-[#00c4cc]">
@@ -201,7 +197,7 @@ function BusinessMiniCard({ b, active, onSelect }) {
 
 function SpotlightPanel({ b, index, total, onPrev, onNext }) {
   const [showContact, setShowContact] = useState(false);
-  const culturalData = getBusinessCulturalData(b);
+  const culturalData = useBusinessCulturalData(b);
   const socialLinks = getSocialLinks(b);
   const bannerUrl = getBannerUrl(b);
 
@@ -314,15 +310,13 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                     {getIndustryDisplayName(b.industry)}
                   </span>
                 )}
-                {/* Temporarily disable flags */}
-                {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+                {culturalData.culturalIdentitiesRaw.length > 0 && (
                   <IdentityFlagRow
                     identities={culturalData.culturalIdentitiesRaw}
-                    size={24}
                     maxFlags={3}
                     className="inline-flex items-center gap-2"
                   />
-                )}*/}
+                )}
               </div>
 
               {(b?.tagline || b?.description) && (

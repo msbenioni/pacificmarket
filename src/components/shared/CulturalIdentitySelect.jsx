@@ -59,7 +59,7 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
                 key={identity}
                 className="inline-flex items-center gap-1 bg-gray-100 border border-gray-200 rounded-lg px-2 py-1 text-sm"
               >
-                <FlagIcon identity={identity} size={14} />
+                <FlagIcon identity={identity} />
                 <span className="text-gray-700">{identity}</span>
                 <button
                   type="button"
@@ -117,7 +117,7 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
                       onChange={() => {}}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <FlagIcon identity={identity} size={16} />
+                    <FlagIcon identity={identity} />
                     <span className="text-sm">{identity}</span>
                   </div>
                 );

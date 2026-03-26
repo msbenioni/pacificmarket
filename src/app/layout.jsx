@@ -1,3 +1,4 @@
+import Script from "next/script";
 import "@/styles/index.css";
 import Providers from "./providers";
 import { HydrationErrorSuppressor } from "@/components/shared/HydrationErrorSuppressor";
@@ -51,12 +52,6 @@ export const metadata = {
     shortcut: "/favicon_min.ico",
     apple: "/favicon_min.ico",
   },
-  verification: {
-    google: "your-google-verification-code", // Add when you get it
-  },
-  other: {
-    "google-site-verification": "G-EZ9ZXWW1K0" // Add Google Analytics 4 tag
-  }
 };
 
 export default function RootLayout({ children }) {
@@ -64,17 +59,18 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         {/* Google Analytics 4 */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-EZ9ZXWW1K0"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-EZ9ZXWW1K0');
-            `
-          }}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
         />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+          `}
+        </Script>
       </head>
       <body>
         <HydrationErrorSuppressor />

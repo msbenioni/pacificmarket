@@ -3,7 +3,7 @@
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { BUSINESS_STATUS, INDUSTRIES, COUNTRIES, CULTURAL_IDENTITIES } from "@/constants/unifiedConstants";
-import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
+import { getBusinessCulturalDataAuto } from "@/hooks/useBusinessCulturalData";
 
 export default function RegistryFilters({ filters, onChange }) {
   const [businesses, setBusinesses] = useState([]);
@@ -82,7 +82,7 @@ export default function RegistryFilters({ filters, onChange }) {
     
     businesses.forEach((b) => {
       // Use shared helper to get parsed cultural identities
-      const culturalData = getBusinessCulturalData(b);
+      const culturalData = getBusinessCulturalDataAuto(b);
       const identities = culturalData.culturalIdentitiesRaw;
       
       // Count each identity separately

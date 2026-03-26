@@ -11,41 +11,71 @@ export default async function sitemap() {
         priority: 1.0,
       },
       {
-        url: 'https://pacificdiscoverynetwork.com/pacificbusinesses',
+        url: 'https://pacificdiscoverynetwork.com/PacificBusinesses',
         lastModified: new Date(),
         changeFrequency: 'daily',
         priority: 0.9,
       },
       {
-        url: 'https://pacificdiscoverynetwork.com/about',
+        url: 'https://pacificdiscoverynetwork.com/About',
         lastModified: new Date(),
         changeFrequency: 'monthly',
         priority: 0.8,
       },
       {
-        url: 'https://pacificdiscoverynetwork.com/auth',
+        url: 'https://pacificdiscoverynetwork.com/BusinessLogin',
         lastModified: new Date(),
         changeFrequency: 'monthly',
         priority: 0.6,
       },
       {
-        url: 'https://pacificdiscoverynetwork.com/signature-generator',
+        url: 'https://pacificdiscoverynetwork.com/QRCodeGenerator',
         lastModified: new Date(),
         changeFrequency: 'monthly',
         priority: 0.5,
       },
       {
-        url: 'https://pacificdiscoverynetwork.com/customer-portal',
+        url: 'https://pacificdiscoverynetwork.com/InvoiceGenerator',
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/EmailSignatureGenerator',
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/BusinessPortal',
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.7,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/Contact',
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/Pricing',
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.7,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/Tools',
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.6,
       },
     ],
     
     // Dynamic business pages
     getHomepageBusinesses({ limit: 100 }).then(({ data }) => 
       data?.map(business => ({
-        url: `https://pacificdiscoverynetwork.com/business/${business.business_handle}`,
+        url: `https://pacificdiscoverynetwork.com/BusinessProfile?handle=${business.business_handle}`,
         lastModified: new Date(business.updated_at),
         changeFrequency: 'weekly',
         priority: 0.7,

@@ -2,19 +2,18 @@ import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { CheckCircle, ArrowUpRight, MapPin, Speech } from "lucide-react";
 import { getLogoUrl } from "@/utils/bannerUtils";
-import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
+import { useBusinessCulturalData } from "@/hooks/useBusinessCulturalData";
 import { getCountryLabel, getIndustryLabel, formatDisplayList } from "@/utils/displayHelpers";
-import FlagIcon from "../shared/FlagIcon";
-import IdentityFlagRow from "../shared/IdentityFlagRow";
+import { IdentityFlagRow } from "../shared/FlagIcon";
 
 export default function BusinessCard({ business, view = "grid" }) {
-  // Temporarily disable flag system to isolate rendering issue
-  // const culturalData = getBusinessCulturalData(business);
+  const culturalData = useBusinessCulturalData(business);
   
-  console.log("[BusinessCard] business data", {
+  console.log("[BusinessCard] cultural identities", {
     business: business?.business_name,
-    hasData: !!business,
-    hasId: !!business?.id,
+    raw: business?.cultural_identity,
+    profileData: business?._profile_data?.cultural_identity,
+    resolved: culturalData?.culturalIdentitiesRaw,
   });
 
   const href =
@@ -25,8 +24,7 @@ export default function BusinessCard({ business, view = "grid" }) {
   const countryLabel = getCountryLabel(business.country);
   const metaLine = [business.city, countryLabel].filter(Boolean).join(", ");
   const description = business.tagline || business.description || "";
-  // Temporarily disable languages
-  // const readableLanguages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
+  const readableLanguages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
 
   if (view === "list") {
     return (
@@ -70,23 +68,20 @@ export default function BusinessCard({ business, view = "grid" }) {
             </div>
           )}
 
-          {/* Temporarily disable languages */}
-          {/*readableLanguages && (
+          {readableLanguages && (
             <div className="flex items-start gap-1 text-[11px] text-[#0d4f4f]">
               <Speech className="mt-0.5 h-3 w-3 flex-shrink-0" />
               <span className="leading-3">{readableLanguages}</span>
             </div>
-          )}*/}
+          )}
 
-          {/* Temporarily disable flags */}
-          {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+          {culturalData.culturalIdentitiesRaw.length > 0 && (
             <IdentityFlagRow
               identities={culturalData.culturalIdentitiesRaw}
-              size={22}
               maxFlags={3}
               className="mt-0.5"
             />
-          )}*/}
+          )}
         </div>
 
         <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">
@@ -145,23 +140,20 @@ export default function BusinessCard({ business, view = "grid" }) {
             </div>
           )}
 
-          {/* Temporarily disable languages */}
-          {/*readableLanguages && (
+          {readableLanguages && (
             <div className="flex items-start gap-1.5 text-[12px] text-[#0d4f4f]">
               <Speech className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
               <span className="leading-4">{readableLanguages}</span>
             </div>
-          )}*/}
+          )}
 
-          {/* Temporarily disable flags */}
-          {/*culturalData.culturalIdentitiesRaw.length > 0 && (
+          {culturalData.culturalIdentitiesRaw.length > 0 && (
             <IdentityFlagRow
               identities={culturalData.culturalIdentitiesRaw}
-              size={24}
               maxFlags={3}
               className="mt-1"
             />
-          )}*/}
+          )}
         </div>
 
         <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">

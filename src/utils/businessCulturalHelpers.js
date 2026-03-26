@@ -27,58 +27,49 @@ export function getBusinessCulturalData(business, userProfile = null) {
         languagesDisplay: [],
         primaryLanguage: null,
         hasCulturalInfo: false,
-        sources: { cultural: 'none', languages: 'none' }
+        sources: { cultural: "none", languages: "none" }
       };
     }
 
-    // Helper function to check if a value is non-empty
     const hasValue = (value) => {
       if (value === null || value === undefined) return false;
-      if (typeof value === 'string') return value.trim().length > 0;
+      if (typeof value === "string") return value.trim().length > 0;
       if (Array.isArray(value)) return value.some((v) => String(v ?? "").trim().length > 0);
       return true;
     };
 
-    // Resolve cultural identities
-    let culturalSource = 'none';
-    let culturalRaw = [];
+    let culturalSource = "none";
+    let culturalInput = [];
+    let languagesSource = "none";
+    let languagesInput = [];
 
     if (hasValue(userProfile?.cultural_identity)) {
-      culturalRaw = userProfile.cultural_identity;
-      culturalSource = 'user_profile';
+      culturalInput = userProfile.cultural_identity;
+      culturalSource = "user_profile";
     } else if (hasValue(business?.cultural_identity)) {
-      culturalRaw = business.cultural_identity;
-      culturalSource = 'business';
+      culturalInput = business.cultural_identity;
+      culturalSource = "business";
     }
-
-    // Resolve languages
-    let languagesSource = 'none';
-    let languagesRaw = [];
 
     if (hasValue(userProfile?.languages_spoken)) {
-      languagesRaw = userProfile.languages_spoken;
-      languagesSource = 'user_profile';
+      languagesInput = userProfile.languages_spoken;
+      languagesSource = "user_profile";
     } else if (hasValue(business?.languages_spoken)) {
-      languagesRaw = business.languages_spoken;
-      languagesSource = 'business';
+      languagesInput = business.languages_spoken;
+      languagesSource = "business";
     }
 
-    // Parse and dedupe using shared utilities
-    const culturalParsed = parseIdentities(culturalRaw);
-    const languagesParsed = parseIdentities(languagesRaw);
+    const culturalParsed = dedupe(parseIdentities(culturalInput)).filter(Boolean);
+    const languagesParsed = dedupe(parseIdentities(languagesInput)).filter(Boolean);
 
-    // The parsed values are already the display labels (canonical form) and deduped
-    const culturalDisplay = culturalParsed;
-    const languagesDisplay = languagesParsed;
-    
     return {
-      culturalIdentitiesRaw: culturalRaw,
-      culturalIdentitiesDisplay: culturalDisplay,
-      primaryCulturalIdentity: culturalDisplay[0] || null,
-      languagesRaw: languagesRaw,
-      languagesDisplay: languagesDisplay,
-      primaryLanguage: languagesDisplay[0] || null,
-      hasCulturalInfo: !!(culturalDisplay.length > 0 || languagesDisplay.length > 0),
+      culturalIdentitiesRaw: culturalParsed,
+      culturalIdentitiesDisplay: culturalParsed,
+      primaryCulturalIdentity: culturalParsed[0] || null,
+      languagesRaw: languagesParsed,
+      languagesDisplay: languagesParsed,
+      primaryLanguage: languagesParsed[0] || null,
+      hasCulturalInfo: !!(culturalParsed.length > 0 || languagesParsed.length > 0),
       sources: {
         cultural: culturalSource,
         languages: languagesSource
@@ -94,7 +85,7 @@ export function getBusinessCulturalData(business, userProfile = null) {
       languagesDisplay: [],
       primaryLanguage: null,
       hasCulturalInfo: false,
-      sources: { cultural: 'error', languages: 'error' }
+      sources: { cultural: "error", languages: "error" }
     };
   }
 }
