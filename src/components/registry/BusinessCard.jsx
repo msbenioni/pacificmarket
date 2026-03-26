@@ -1,36 +1,10 @@
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import { CheckCircle, ArrowUpRight, MapPin, Speech } from "lucide-react";
-import { INDUSTRIES, COUNTRIES } from "@/constants/unifiedConstants";
 import { getLogoUrl } from "@/utils/bannerUtils";
 import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
+import { getCountryLabel, getIndustryLabel, formatDisplayList } from "@/utils/displayHelpers";
 import FlagIcon from "../shared/FlagIcon";
-
-function getIndustryLabel(value) {
-  const match = INDUSTRIES.find((item) => item.value === value);
-  return match?.label || value || "Industry";
-}
-
-function getCountryLabel(value) {
-  const match = COUNTRIES.find((item) => item.value === value);
-  return match?.label || value || "";
-}
-
-function formatDisplayList(items, options = {}) {
-  const { max = 3, separator = ", ", finalSeparator = " & " } = options;
-  if (!items || !items.length) return "";
-  
-  const unique = [...new Set(items)].filter(Boolean);
-  if (unique.length === 0) return "";
-  
-  if (unique.length === 1) return unique[0];
-  if (unique.length === 2) return unique.join(finalSeparator);
-  if (unique.length <= max) {
-    return unique.slice(0, -1).join(separator) + finalSeparator + unique[unique.length - 1];
-  }
-  
-  return unique.slice(0, max - 1).join(separator) + finalSeparator + unique[max - 1] + ` +${unique.length - max} more`;
-}
 
 export default function BusinessCard({ business, view = "grid" }) {
   const href =

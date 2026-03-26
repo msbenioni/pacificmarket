@@ -27,7 +27,7 @@ import { getLogoUrl } from '@/utils/bannerUtils';
 import ReactMarkdown from "react-markdown";
 import FlagIcon from "@/components/shared/FlagIcon";
 import BusinessBanner from "@/components/shared/BusinessBanner";
-import { BUSINESS_STATUS, SUBSCRIPTION_TIER, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
+import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import ContactModal from "@/components/profile/ContactModal";
 import BusinessGallery from "@/components/profile/BusinessGallery";
 import ProductsServices from "@/components/profile/ProductsServices";

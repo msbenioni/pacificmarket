@@ -7,8 +7,8 @@ import { createPageUrl } from "@/utils";
 import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, Speech } from "lucide-react";
 import FlagIcon from "@/components/shared/FlagIcon";
 import ContactModal from "@/components/profile/ContactModal";
-import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
-import { getBusinessLanguagesSpoken } from "@/utils/businessCulturalHelpers";
+import { getBusinessCulturalData } from "@/utils/businessCulturalHelpers";
+import { formatDisplayList, getCountryDisplayName, getIndustryDisplayName } from "@/utils/displayHelpers";
 
 const WINDOW_SIZE = 4;
 
@@ -22,108 +22,6 @@ function clampText(s, max = 140) {
   return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
 }
 
-// Helper function to convert country slug to readable name
-function getCountryDisplayName(countrySlug) {
-  if (!countrySlug) return "";
-  
-  const country = COUNTRIES.find(c => c.value === countrySlug);
-  return country ? country.label : countrySlug;
-}
-
-function getIndustryDisplayName(industrySlug) {
-  if (!industrySlug) return "";
-  
-  const industry = INDUSTRIES.find(i => i.value === industrySlug);
-  return industry ? industry.label : industrySlug;
-}
-
-function formatLanguageName(languageCode) {
-  if (!languageCode) return "";
-
-  const languageMap = {
-    english: "English",
-    french: "French",
-    spanish: "Spanish",
-    chinese: "Chinese",
-    japanese: "Japanese",
-    korean: "Korean",
-    german: "German",
-    italian: "Italian",
-    portuguese: "Portuguese",
-    russian: "Russian",
-    arabic: "Arabic",
-    hindi: "Hindi",
-    maori: "Māori",
-    "te-reo-maori": "Te Reo Māori",
-    samoan: "Samoan",
-    tongan: "Tongan",
-    fijian: "Fijian",
-    tahitian: "Tahitian",
-    uvean: "Uvean",
-    rotuman: "Rotuman",
-    "tok-pisin": "Tok Pisin",
-    pidgin: "Pidgin",
-    bislama: "Bislama",
-    niuean: "Niuean",
-    cookislandsmaori: "Cook Islands Māori",
-    "cook-islands-maori": "Cook Islands Māori",
-    rarotongan: "Rarotongan",
-    paumotu: "Pa'umotu",
-    marquesan: "Marquesan",
-  };
-
-  const normalized = String(languageCode).trim().toLowerCase();
-  return (
-    languageMap[normalized] ||
-    normalized
-      .replace(/[[\]"]/g, "")
-      .split(/[-_, ]+/)
-      .filter(Boolean)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
-  );
-}
-
-function normaliseLanguages(languages) {
-  if (!languages) return [];
-
-  if (Array.isArray(languages)) {
-    return languages.filter(Boolean);
-  }
-
-  if (typeof languages === "string") {
-    const trimmed = languages.trim();
-
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    } catch {
-      // continue
-    }
-
-    return trimmed
-      .replace(/^\[|\]$/g, "")
-      .split(",")
-      .map((lang) => lang.replace(/"/g, "").trim())
-      .filter(Boolean);
-  }
-
-  return [];
-}
-
-function formatLanguages(languages) {
-  const normalizedLanguages = normaliseLanguages(languages);
-  
-  if (normalizedLanguages.length === 0) return '';
-  
-  const formattedLanguages = normalizedLanguages.map(lang => formatLanguageName(lang));
-  
-  if (formattedLanguages.length <= 2) {
-    return formattedLanguages.join(' & ');
-  }
-  
-  return `${formattedLanguages.slice(0, 2).join(' & ')} +${formattedLanguages.length - 2} more`;
-}
 
 function getSocialLinks(business) {
   const socials = [
@@ -183,10 +81,12 @@ function FeaturedBadge({ tier }) {
 }
 
 function BusinessMiniCard({ b, active, onSelect }) {
-  const languages = formatLanguages(getBusinessLanguagesSpoken(b));
+  const culturalData = getBusinessCulturalData(b);
+  const languages = formatDisplayList(culturalData.languagesDisplay, { max: 2 });
   const location = [b.city, getCountryDisplayName(b.country)].filter(Boolean).join(", ");
   const tagline = b.tagline || b.description || "";
   const industryLabel = getIndustryDisplayName(b.industry) || "Industry";
+  const bannerUrl = getBannerUrl(b);
 
   return (
     <button
@@ -205,9 +105,9 @@ function BusinessMiniCard({ b, active, onSelect }) {
       {/* Banner */}
       <div className="relative w-full h-[160px] overflow-hidden rounded-t-[24px] bg-[#0d4f4f] flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#1a6b6b]" />
-        {getBannerUrl(b) && (
+        {bannerUrl && (
           <img
-            src={getBannerUrl(b)}
+            src={bannerUrl}
             alt=""
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover"
@@ -256,9 +156,16 @@ function BusinessMiniCard({ b, active, onSelect }) {
             </div>
           )}
 
-          {b.cultural_identity && (
-            <div className="flex items-center">
-              <FlagIcon identity={b.cultural_identity} size={24} />
+          {culturalData.culturalIdentitiesRaw.length > 0 && (
+            <div className="flex items-center gap-2">
+              {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
+                <FlagIcon key={index} identity={identity} size={24} />
+              ))}
+              {culturalData.culturalIdentitiesRaw.length > 3 && (
+                <span className="text-xs text-gray-500">
+                  +{culturalData.culturalIdentitiesRaw.length - 3}
+                </span>
+              )}
             </div>
           )}
 
@@ -288,7 +195,9 @@ function BusinessMiniCard({ b, active, onSelect }) {
 
 function SpotlightPanel({ b, index, total, onPrev, onNext }) {
   const [showContact, setShowContact] = useState(false);
+  const culturalData = getBusinessCulturalData(b);
   const socialLinks = getSocialLinks(b);
+  const bannerUrl = getBannerUrl(b);
 
   // key forces clean fade/scale on change
   return (
@@ -306,9 +215,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
         <div className="relative w-full h-[160px] overflow-hidden bg-[#0a1628]">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
 
-          {(() => {
-          const bannerUrl = getBannerUrl(b);
-          return bannerUrl ? (
+          {bannerUrl ? (
             <img
               src={bannerUrl}
               alt=""
@@ -327,8 +234,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                 </div>
               </div>
             </div>
-          );
-        })()}
+          )}
         </div>
 
         {/* Spotlight chevrons */}
@@ -402,11 +308,18 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
                     {getIndustryDisplayName(b.industry)}
                   </span>
                 )}
-{b?.cultural_identity && (
-  <div className="inline-flex items-center">
-    <FlagIcon identity={b.cultural_identity} size={20} />
-  </div>
-)}
+                {culturalData.culturalIdentitiesRaw.length > 0 && (
+                  <div className="inline-flex items-center gap-2">
+                    {culturalData.culturalIdentitiesRaw.slice(0, 3).map((identity, index) => (
+                      <FlagIcon key={index} identity={identity} size={20} />
+                    ))}
+                    {culturalData.culturalIdentitiesRaw.length > 3 && (
+                      <span className="text-xs text-white/70">
+                        +{culturalData.culturalIdentitiesRaw.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
               {(b?.tagline || b?.description) && (

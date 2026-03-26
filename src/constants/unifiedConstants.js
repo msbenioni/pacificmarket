@@ -251,50 +251,38 @@ export const COUNTRIES = [
   { value: 'zimbabwe', label: 'Zimbabwe' }
 ];
 
-// Pacific-specific cultural identities (not countries)
-const PACIFIC_CULTURAL_IDENTITIES = [
-  "Australia - Torres Strait Islander",
-  "Australia - Aboriginal", 
-  "Cook Islands Maori",
-  "Fijian",
-  "Indo-Fijian",
-  "Rotuman",
-  "I-Kiribati",
-  "Marshallese",
-  "Chuukese",
-  "Pohnpeian",
-  "Yapese",
-  "Kosraean",
-  "Nauruan",
-  "New Zealand Maori",
-  "Niuean",
-  "Palauan",
-  "Papuan",
-  "Samoan",
-  "Tongan",
-  "Tuvaluan",
-  "Ni-Vanuatu"
-];
-
-// Combined cultural identities (Pacific identities + all countries)
+// Cultural identities for dropdown (Pacific identities + all countries)
 export const CULTURAL_IDENTITIES = Array.from(
   new Set([
-    ...PACIFIC_CULTURAL_IDENTITIES,
-    ...COUNTRIES
-      .filter(
-        (c) =>
-          ![
-            "american-samoa",
-            "australia-aboriginal",
-            "new-zealand-maori",
-            "northern-mariana-islands",
-          ].includes(c.value)
-      )
-      .map((c) => c.label),
+    // Pacific-specific cultural identities
+    "Australia - Torres Strait Islander",
+    "Australia - Aboriginal", 
+    "Cook Islands Maori",
+    "Fijian",
+    "Indo-Fijian",
+    "Rotuman",
+    "I-Kiribati",
+    "Marshallese",
+    "Chuukese",
+    "Pohnpeian",
+    "Yapese",
+    "Kosraean",
+    "Nauruan",
+    "New Zealand Maori",
+    "Niuean",
+    "Palauan",
+    "Papuan",
+    "Samoan",
+    "Tongan",
+    "Tuvaluan",
+    "Ni-Vanuatu",
+    
+    // All countries (for users who identify with their country)
+    ...COUNTRIES.map((c) => c.label),
   ])
 );
 
-// Mapping of cultural identities to their corresponding countries
+// Mapping of Pacific cultural identities to their corresponding countries
 const IDENTITY_TO_COUNTRY = {
   'New Zealand Maori': 'New Zealand',
   'Cook Islands Maori': 'Cook Islands',

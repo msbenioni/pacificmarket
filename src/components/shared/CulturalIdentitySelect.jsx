@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import FlagIcon from "./FlagIcon";
-import { IDENTITIES } from "@/constants/profileOnboarding";
+import { CULTURAL_IDENTITIES } from "@/constants/unifiedConstants";
+import { resolveCanonicalLabel } from "@/utils/parsingUtils";
 
 export default function CulturalIdentitySelect({ value, onChange, label = "Cultural Identity", required = false, className = "" }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,22 +13,27 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
   // Handle both single string and array values
   const selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
   
+  // Normalize selected values to canonical form
+  const normalizedSelectedValues = selectedValues.map(resolveCanonicalLabel);
+  
   // Filter identities based on search
-  const filteredIdentities = IDENTITIES.filter(identity => 
+  const filteredIdentities = CULTURAL_IDENTITIES.filter(identity => 
     identity.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleToggle = (identity) => {
-    const newValues = selectedValues.includes(identity)
-      ? selectedValues.filter(v => v !== identity)
-      : [...selectedValues, identity];
+    const normalizedIdentity = resolveCanonicalLabel(identity);
+    const newValues = normalizedSelectedValues.includes(normalizedIdentity)
+      ? normalizedSelectedValues.filter(v => v !== normalizedIdentity)
+      : [...normalizedSelectedValues, normalizedIdentity];
     
     // Pass as array if multiple selected, as string if single
     onChange(newValues.length === 1 ? newValues[0] : newValues);
   };
 
   const handleRemove = (identity) => {
-    const newValues = selectedValues.filter(v => v !== identity);
+    const normalizedIdentity = resolveCanonicalLabel(identity);
+    const newValues = normalizedSelectedValues.filter(v => v !== normalizedIdentity);
     onChange(newValues.length === 1 ? newValues[0] : newValues);
   };
 
@@ -45,10 +51,10 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
           className="w-full border border-gray-200 rounded-xl px-3 py-2.5 pr-8 bg-white cursor-text min-h-[42px] flex flex-wrap items-center gap-2"
           onClick={() => setIsOpen(true)}
         >
-          {selectedValues.length === 0 ? (
+          {normalizedSelectedValues.length === 0 ? (
             <span className="text-gray-400 text-sm">Select Pacific identities</span>
           ) : (
-            selectedValues.map(identity => (
+            normalizedSelectedValues.map(identity => (
               <div 
                 key={identity}
                 className="inline-flex items-center gap-1 bg-gray-100 border border-gray-200 rounded-lg px-2 py-1 text-sm"
@@ -95,7 +101,7 @@ export default function CulturalIdentitySelect({ value, onChange, label = "Cultu
             {/* Options */}
             <div className="max-h-48 overflow-y-auto">
               {filteredIdentities.map(identity => {
-                const isSelected = selectedValues.includes(identity);
+                const isSelected = normalizedSelectedValues.includes(identity);
                 return (
                   <div
                     key={identity}

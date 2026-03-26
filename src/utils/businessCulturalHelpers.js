@@ -2,9 +2,12 @@
  * Helper functions to handle cultural identity and languages for businesses
  * - For unclaimed businesses: use data from businesses table
  * - For claimed businesses: use data from user's profile
- * - Uses shared normalization utilities for consistent data handling
+ * - Uses unified parsing logic from FlagIcon for consistency
+ * Updated: Fixed module caching issues v3
  */
-import { normalizeCulturalIdentity, normalizeLanguagesSpoken, getCulturalIdentityLabel, getLanguageLabel } from './dataNormalization';
+
+// Import unified parsing functions
+import { parseIdentities, dedupe } from "@/utils/parsingUtils";
 
 /**
  * Get resolved cultural and language data for a business
@@ -48,25 +51,25 @@ export function getBusinessCulturalData(business, userProfile = null) {
   
   // PROFILE-FIRST: Cultural identity resolution
   if (hasValue(profileData?.cultural_identity)) {
-    culturalRaw = normalizeCulturalIdentity(profileData.cultural_identity);
+    culturalRaw = dedupe(parseIdentities(profileData.cultural_identity));
     culturalSource = 'profile';
   } else if (hasValue(business?.cultural_identity)) {
-    culturalRaw = normalizeCulturalIdentity(business.cultural_identity);
+    culturalRaw = dedupe(parseIdentities(business.cultural_identity));
     culturalSource = 'business';
   }
   
-  // PROFILE-FIRST: Languages resolution
+  // PROFILE-FIRST: Languages resolution  
   if (hasValue(profileData?.languages_spoken)) {
-    languagesRaw = normalizeLanguagesSpoken(profileData.languages_spoken);
+    languagesRaw = dedupe(parseIdentities(profileData.languages_spoken));
     languagesSource = 'profile';
   } else if (hasValue(business?.languages_spoken)) {
-    languagesRaw = normalizeLanguagesSpoken(business.languages_spoken);
+    languagesRaw = dedupe(parseIdentities(business.languages_spoken));
     languagesSource = 'business';
   }
   
-  // Apply display labels with fallback to raw values if no label found
-  const culturalDisplay = culturalRaw.map(id => getCulturalIdentityLabel(id) || id).filter(Boolean);
-  const languagesDisplay = languagesRaw.map(lang => getLanguageLabel(lang) || lang).filter(Boolean);
+  // The parsed values are already the display labels (canonical form)
+  const culturalDisplay = culturalRaw;
+  const languagesDisplay = languagesRaw;
   
   // Remove duplicates while preserving order
   const uniqueCulturalRaw = [...new Set(culturalRaw)];

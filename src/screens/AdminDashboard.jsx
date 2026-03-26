@@ -23,10 +23,8 @@ import AdminFiltersBar from "@/components/admin/AdminFiltersBar";
 import AdminTabsBar from "@/components/admin/AdminTabsBar";
 import ClaimMobileCard from "@/components/admin/ClaimMobileCard";
 import PresentationsTab from "@/components/admin/PresentationsTab";
-import {
-  formatLanguages,
-  getBadgeStyles,
-} from "@/components/admin/helpers/adminFormatting";
+import { formatDisplayList } from "@/utils/displayHelpers";
+import { getBadgeStyles } from "@/components/admin/helpers/adminFormatting";
 import {
   TABS,
   emptyBusinessForm,
@@ -1073,7 +1071,7 @@ export default function AdminDashboard() {
                                       <div className="mt-2">
                                         <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#00c4cc]">
                                           <Speech className="h-3 w-3 flex-shrink-0" />
-                                          {formatLanguages(b.languages_spoken)}
+                                          {formatDisplayList(b.languages_spoken, { max: 2, separator: " & " })}
                                         </span>
                                       </div>
                                     )}
