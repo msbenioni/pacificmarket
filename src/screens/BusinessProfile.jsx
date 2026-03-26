@@ -218,11 +218,18 @@ export default function BusinessProfile() {
 
       {/* Premium Hero */}
       <div className="relative min-h-[320px] overflow-hidden bg-[#03131f] sm:min-h-[420px] lg:min-h-[520px]">
-        <img
-          src="/pacific_logo_banner.png"
-          alt="Pacific Discovery Network banner"
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        />
+        {/* Use gradient background instead of static image */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-white text-center">
+            <div className="font-bold text-2xl mb-2">
+              {business?.business_name || "Business Profile"}
+            </div>
+            <div className="text-sm opacity-80">
+              Pacific Discovery Network
+            </div>
+          </div>
+        </div>
 
         {/* Tier and Verified badges on hero background bottom right */}
         <div className="absolute bottom-8 right-8 flex flex-wrap items-center gap-2 z-20">

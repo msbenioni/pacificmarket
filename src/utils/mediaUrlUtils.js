@@ -1,6 +1,6 @@
 const CONTROLLED_ROOT_RELATIVE_MEDIA_ASSETS = new Set([
   "/pm_logo.png",
-  "/pacific_logo_banner.png",
+  // "/pacific_logo_banner.png", // Removed - no longer used as fallback
 ]);
 
 const normalizeMediaUrl = (value) => {

@@ -23,12 +23,10 @@ const getFirstDisplayableMediaUrl = (...candidates) => {
  * @returns {string} Banner URL (persisted URL first, then static fallback)
  */
 export function getBannerUrl(business) {
-  return (
-    getFirstDisplayableMediaUrl(
-      business?.mobile_banner_url,
-      business?.banner_url,
-      business?.cover_image_url
-    ) || "/pacific_logo_banner.png"
+  return getFirstDisplayableMediaUrl(
+    business?.mobile_banner_url,
+    business?.banner_url,
+    business?.cover_image_url
   );
 }
 
@@ -51,7 +49,7 @@ export function hasPersistedBanner(business) {
  * @returns {string} Static banner URL
  */
 export function getHeroBannerUrl(business) {
-  return "/pacific_logo_banner.png";
+  return null; // No static fallback - should use generated banner or text fallback
 }
 
 /**
@@ -73,8 +71,8 @@ export function getLogoUrl(business) {
     }
   }
 
-  // Final fallback: controlled static asset.
-  return "/pm_logo.png";
+  // No static fallback - return null for text fallback
+  return null;
 }
 
 /**
@@ -83,7 +81,7 @@ export function getLogoUrl(business) {
  * @returns {string} Desktop banner URL (saved URL first, then static fallback)
  */
 export function getDesktopBannerUrl(business) {
-  return getFirstDisplayableMediaUrl(business?.banner_url, business?.cover_image_url) || "/pacific_logo_banner.png";
+  return getFirstDisplayableMediaUrl(business?.banner_url, business?.cover_image_url);
 }
 
 /**
@@ -92,12 +90,10 @@ export function getDesktopBannerUrl(business) {
  * @returns {string} Mobile banner URL (saved URL first, then static fallback)
  */
 export function getMobileBannerUrl(business) {
-  return (
-    getFirstDisplayableMediaUrl(
-      business?.mobile_banner_url,
-      business?.banner_url,
-      business?.cover_image_url
-    ) || "/pacific_logo_banner.png"
+  return getFirstDisplayableMediaUrl(
+    business?.mobile_banner_url,
+    business?.banner_url,
+    business?.cover_image_url
   );
 }
 
