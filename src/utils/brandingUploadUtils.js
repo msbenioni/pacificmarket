@@ -207,17 +207,6 @@ export const prepareBusinessBrandingPayload = async ({
   files = {}, 
   removals = /** @type {{ logo_remove?: boolean; banner_remove?: boolean; mobile_banner_remove?: boolean }} */ ({})
 }) => {
-  console.log("🎨 Preparing branding payload:", {
-    businessId,
-    incomingBrandingFields: {
-      logo_url: businessesData.logo_url,
-      banner_url: businessesData.banner_url,
-      mobile_banner_url: businessesData.mobile_banner_url
-    },
-    filesPresent: Object.keys(files).filter(key => files[key]),
-    removals: Object.keys(removals).filter(key => removals[key])
-  });
-
   try {
     // Step 1: Start with incoming payload and sanitize media fields defensively.
     let sanitizedData = { ...businessesData };
@@ -235,24 +224,15 @@ export const prepareBusinessBrandingPayload = async ({
       ...sanitizedMedia,
     };
     
-    console.log("🧹 Sanitized incoming data:", {
-      logo_url: sanitizedData.logo_url ? 'URL present' : 'omitted/empty',
-      banner_url: sanitizedData.banner_url ? 'URL present' : 'omitted/empty',
-      mobile_banner_url: sanitizedData.mobile_banner_url ? 'URL present' : 'omitted/empty'
-    });
-    
     // Step 2: Handle removal flags
     if (removals.logo_remove) {
       sanitizedData.logo_url = null;
-      console.log("🗑️ Logo marked for removal");
     }
     if (removals.banner_remove) {
       sanitizedData.banner_url = null;
-      console.log("🗑️ Banner marked for removal");
     }
     if (removals.mobile_banner_remove) {
       sanitizedData.mobile_banner_url = null;
-      console.log("🗑️ Mobile banner marked for removal");
     }
     
     // Step 3: Upload new files if present
@@ -260,19 +240,11 @@ export const prepareBusinessBrandingPayload = async ({
     const hasFiles = files.logo_file || files.banner_file || files.mobile_banner_file;
     
     if (hasFiles) {
-      console.log("📤 Starting file uploads:", {
-        logo: !!files.logo_file,
-        banner: !!files.banner_file,
-        mobile_banner: !!files.mobile_banner_file
-      });
-      
       uploadedUrls = await uploadBusinessBrandingFiles({
         supabase,
         businessId,
         files
       });
-      
-      console.log("📤 Upload results:", uploadedUrls);
       
       // Validate that files uploaded successfully
       const uploadValidationErrors = [];
@@ -303,16 +275,10 @@ export const prepareBusinessBrandingPayload = async ({
     // Step 5: Final safety check - ensure no blob/transient URLs remain
     const safePayload = sanitizeBusinessMediaPayload(finalPayload);
     
-    console.log("✅ Final safe payload prepared:", {
-      logo_url: safePayload.logo_url ? 'URL present' : 'null/empty',
-      banner_url: safePayload.banner_url ? 'URL present' : 'null/empty', 
-      mobile_banner_url: safePayload.mobile_banner_url ? 'URL present' : 'null/empty'
-    });
-    
     return safePayload;
     
   } catch (error) {
-    console.error("❌ Error preparing branding payload:", error);
+    console.error("Error preparing branding payload:", error);
     throw error;
   }
 };

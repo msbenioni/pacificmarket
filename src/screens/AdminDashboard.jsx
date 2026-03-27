@@ -222,12 +222,6 @@ export default function AdminDashboard() {
 
   const updateStatus = async (business, newStatus) => {
     try {
-      console.log("Updating business status:", {
-        businessId: business.id,
-        currentStatus: business.status,
-        newStatus,
-      });
-
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
@@ -253,8 +247,6 @@ export default function AdminDashboard() {
         .select()
         .single();
 
-      console.log("Business status update returned row:", data);
-
       if (error) throw error;
       if (!data) {
         throw new Error("Status update completed but no updated row was returned.");
@@ -274,13 +266,6 @@ export default function AdminDashboard() {
 
   const updateClaim = async (claim, newStatus) => {
     try {
-      console.log("Updating claim status:", {
-        claimId: claim.id,
-        businessId: claim.business_id,
-        currentStatus: claim.status,
-        newStatus,
-      });
-
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
@@ -293,8 +278,6 @@ export default function AdminDashboard() {
         })
         .eq("id", claim.id)
         .select();
-
-      console.log("Claim update result:", { data, error });
 
       if (error) throw error;
 
@@ -309,12 +292,6 @@ export default function AdminDashboard() {
       if (newStatus === "approved") {
         const matchedBusiness = businesses.find((b) => b.id === claim.business_id);
         if (matchedBusiness) {
-          console.log(
-            "Approving claim - updating business ownership:",
-            matchedBusiness.id,
-            matchedBusiness.business_name
-          );
-
           const { getSupabase } = await import("@/lib/supabase/client");
           const supabase = getSupabase();
 
@@ -334,8 +311,6 @@ export default function AdminDashboard() {
             console.error("Error updating business ownership:", ownershipError);
             throw ownershipError;
           }
-
-          console.log("Business ownership updated successfully");
         } else {
           console.error("Business not found for claim approval:", claim.business_id);
         }
@@ -480,16 +455,6 @@ export default function AdminDashboard() {
         updated_at: new Date().toISOString(),
       };
 
-      console.log("createVerifiedBusiness input:", {
-        businessesData: businessData,
-        filesPresent: {
-          logo_file: !!files.logo_file,
-          banner_file: !!files.banner_file,
-          mobile_banner_file: !!files.mobile_banner_file,
-        },
-        removals,
-      });
-
       const data = await createBusinessWithBranding({
         supabase,
         businessesData: businessData,
@@ -569,8 +534,6 @@ export default function AdminDashboard() {
           return updatedRow;
         },
       });
-
-      console.log("createVerifiedBusiness returned row:", data);
 
       if (!data) {
         throw new Error("Insert completed but no business row was returned.");
