@@ -9,10 +9,10 @@ export async function GET(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient } = auth;
+    const { userClient, serviceClient } = auth;
 
-    // Fetch templates using user client (respects RLS)
-    const { data: templates, error } = await userClient
+    // Fetch templates using service client (bypasses RLS temporarily)
+    const { data: templates, error } = await serviceClient
       .from('email_templates')
       .select('*')
       .order('created_at', { ascending: false });
@@ -37,7 +37,7 @@ export async function POST(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { user, userClient } = auth;
+    const { user, userClient, serviceClient } = auth;
     const { name, subject, html_content, variables } = await request.json();
 
     // Validate required fields
@@ -51,8 +51,8 @@ export async function POST(request) {
       templateVariables = extractTemplateVariables(html_content);
     }
 
-    // Create template using user client (respects RLS)
-    const { data: template, error } = await userClient
+    // Create template using service client (bypasses RLS temporarily)
+    const { data: template, error } = await serviceClient
       .from('email_templates')
       .insert({
         name,

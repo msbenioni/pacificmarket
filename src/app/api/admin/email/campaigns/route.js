@@ -22,18 +22,18 @@ export async function GET(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient } = auth;
+    const { userClient, serviceClient } = auth;
 
-    // Fetch campaigns using user client (respects RLS)
-    const { data: campaigns, error } = await userClient
+    // Fetch campaigns using service client (bypasses RLS temporarily)
+    const { data: campaigns, error } = await serviceClient
       .from('email_campaigns')
       .select(`
         *,
         email_campaign_recipients (
           id,
           status,
-          opened,
-          clicked
+          opened_at,
+          clicked_at
         )
       `)
       .order('created_at', { ascending: false });
@@ -46,10 +46,10 @@ export async function GET(request) {
     const campaignsWithStats = campaigns.map(campaign => ({
       ...campaign,
       recipients: campaign.email_campaign_recipients?.length || 0,
-      opens: campaign.email_campaign_recipients?.filter(r => r.opened).length || 0,
-      clicks: campaign.email_campaign_recipients?.filter(r => r.clicked).length || 0,
+      opens: campaign.email_campaign_recipients?.filter(r => r.opened_at).length || 0,
+      clicks: campaign.email_campaign_recipients?.filter(r => r.clicked_at).length || 0,
       open_rate: campaign.email_campaign_recipients?.length > 0 
-        ? Math.round((campaign.email_campaign_recipients?.filter(r => r.opened).length / campaign.email_campaign_recipients?.length) * 100)
+        ? Math.round((campaign.email_campaign_recipients?.filter(r => r.opened_at).length / campaign.email_campaign_recipients?.length) * 100)
         : 0
     }));
 

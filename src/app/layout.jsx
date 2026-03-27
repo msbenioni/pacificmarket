@@ -56,7 +56,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <head>
         {/* Google Analytics 4 */}
         <Script
@@ -72,7 +72,7 @@ export default function RootLayout({ children }) {
           `}
         </Script>
       </head>
-      <body>
+      <body suppressHydrationWarning={true}>
         <HydrationErrorSuppressor />
         <Providers>{children}</Providers>
       </body>

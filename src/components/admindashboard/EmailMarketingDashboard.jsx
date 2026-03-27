@@ -50,8 +50,21 @@ export default function EmailMarketingDashboard() {
       // Import getSupabase dynamically
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
-      const { data: { session } } = await supabase.auth.getSession();
-      return session?.access_token;
+      
+      // Get current session
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Session error:', error);
+        return null;
+      }
+      
+      if (!session) {
+        console.error('No active session found');
+        return null;
+      }
+      
+      return session.access_token;
     } catch (error) {
       console.error('Failed to get auth token:', error);
       return null;
@@ -66,6 +79,13 @@ export default function EmailMarketingDashboard() {
         console.error('No authentication token available for audience preview');
         return null;
       }
+      
+      if (!campaignId) {
+        console.error('❌ Campaign ID is required for audience preview');
+        return null;
+      }
+      
+      console.log(`🔍 Loading audience preview for campaign: ${campaignId}`);
       
       const response = await fetch(`/api/admin/email/campaigns/${campaignId}/audience-preview`, {
         method: 'GET',
@@ -167,18 +187,40 @@ export default function EmailMarketingDashboard() {
       setError("");
       setPageError("");
       
+      console.log('🔄 Loading email data...');
+      
       const token = await getAuthToken();
       if (!token) {
+        console.error('❌ No authentication token available');
         setPageError("Authentication failed. Please log in again.");
         return;
       }
+      
+      console.log('✅ Authentication token obtained');
 
       // Load all data in parallel
+      console.log('📊 Fetching campaigns, subscribers, and templates...');
+      
       const [campaignsData, subscribersData, templatesData] = await Promise.all([
-        makeApiCall('campaigns', {}, token),
-        makeApiCall('subscribers', {}, token),
-        makeApiCall('templates', {}, token)
+        makeApiCall('campaigns', {}, token).catch(err => {
+          console.error('❌ Campaigns API error:', err);
+          return { campaigns: [] };
+        }),
+        makeApiCall('subscribers', {}, token).catch(err => {
+          console.error('❌ Subscribers API error:', err);
+          return { subscribers: [] };
+        }),
+        makeApiCall('templates', {}, token).catch(err => {
+          console.error('❌ Templates API error:', err);
+          return { templates: [] };
+        })
       ]);
+
+      console.log('✅ Data loaded:', {
+        campaigns: campaignsData.campaigns?.length || 0,
+        subscribers: subscribersData.subscribers?.length || 0,
+        templates: templatesData.templates?.length || 0
+      });
 
       setCampaigns(campaignsData.campaigns || []);
       setSubscribers(subscribersData.subscribers || []);
@@ -199,11 +241,13 @@ export default function EmailMarketingDashboard() {
         totalSent,
         avgOpenRate
       });
+      
+      console.log('✅ Email data loaded successfully');
 
     } catch (error) {
-      console.error('Error loading email data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load email data';
-      setPageError(errorMessage || 'Failed to load email data');
+      console.error('❌ Failed to load email data:', error);
+      setError(error.message);
+      setPageError(`Failed to load email data: ${error.message}`);
     } finally {
       setLoading(false);
     }

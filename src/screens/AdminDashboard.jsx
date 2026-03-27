@@ -44,6 +44,7 @@ import {
 } from "@/constants/unifiedConstants";
 import { getLogoUrl } from "@/utils/bannerUtils";
 import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
+import { formatDateConsistent } from "@/utils/dateUtils";
 
 async function checkIsAdmin(user) {
   if (!user) return false;
@@ -98,6 +99,12 @@ export default function AdminDashboard() {
     tier: "",
     is_verified: "",
   });
+
+  // Fix hydration mismatch
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const loadAdminData = useCallback(async () => {
     if (!user) return;

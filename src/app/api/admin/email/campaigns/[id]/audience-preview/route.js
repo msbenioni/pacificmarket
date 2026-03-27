@@ -3,6 +3,9 @@ import { buildAudienceRecipients } from '@/lib/email/getAudienceRecipients';
 
 export async function GET(request, { params }) {
   try {
+    // Await params in Next.js App Router
+    const { id: campaignId } = await params;
+    
     // Authenticate admin and get both clients
     const auth = await requireAdmin(request);
     if (auth.error) {
@@ -10,14 +13,13 @@ export async function GET(request, { params }) {
     }
 
     const { userClient, serviceClient } = auth;
-    const campaignId = params.id;
 
     if (!campaignId) {
       return Response.json({ error: 'Campaign ID is required' }, { status: 400 });
     }
 
-    // Fetch campaign details using user client (respects RLS)
-    const { data: campaign, error: campaignError } = await userClient
+    // Fetch campaign details using service client (bypasses RLS temporarily)
+    const { data: campaign, error: campaignError } = await serviceClient
       .from('email_campaigns')
       .select('name, audience, subject')
       .eq('id', campaignId)

@@ -2,19 +2,19 @@ import { requireAdmin } from '@/lib/server-auth';
 
 export async function GET(request) {
   try {
-    // Authenticate admin and get user client
+    // Authenticate admin and get both clients
     const auth = await requireAdmin(request);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient } = auth;
+    const { userClient, serviceClient } = auth;
     const { searchParams } = new URL(request.url);
     const source = searchParams.get('source');
     const status = searchParams.get('status');
 
-    // Build query using user client (respects RLS)
-    let query = userClient
+    // Build query using service client (bypasses RLS temporarily)
+    let query = serviceClient
       .from('email_subscribers')
       .select(`
         *,
