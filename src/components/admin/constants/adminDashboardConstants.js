@@ -1,4 +1,4 @@
-import { CheckCircle, Clock, Presentation, Shield } from "lucide-react";
+import { CheckCircle, Clock, Presentation, Shield, Mail } from "lucide-react";
 
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 
@@ -24,6 +24,7 @@ export const TABS = [
     icon: Presentation,
     color: "text-purple-600",
   },
+  { id: "email", label: "Email Marketing", icon: Mail, color: "text-indigo-600" },
 ];
 
 export const buttonCls =

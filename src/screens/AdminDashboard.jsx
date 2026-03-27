@@ -23,6 +23,7 @@ import AdminFiltersBar from "@/components/admin/AdminFiltersBar";
 import AdminTabsBar from "@/components/admin/AdminTabsBar";
 import ClaimMobileCard from "@/components/admin/ClaimMobileCard";
 import PresentationsTab from "@/components/admin/PresentationsTab";
+import EmailMarketingDashboard from "@/components/admindashboard/EmailMarketingDashboard";
 import { formatDisplayList } from "@/utils/displayHelpers";
 import { getBadgeStyles } from "@/components/admin/helpers/adminFormatting";
 import {
@@ -965,7 +966,9 @@ export default function AdminDashboard() {
 
               {activeTab === "presentations" && <PresentationsTab />}
 
-              {activeTab !== "claims" && activeTab !== "presentations" && (
+              {activeTab === "email" && <EmailMarketingDashboard />}
+
+              {activeTab !== "claims" && activeTab !== "presentations" && activeTab !== "email" && (
                 <div className="space-y-3">
                   {filteredData.length === 0 ? (
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">
