@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { Menu, X, ChevronDown, User, LogOut, Home, Shield } from "lucide-react";
@@ -114,10 +115,13 @@ export default function Layout({ children, currentPageName }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href={createPageUrl("Home")} className="flex items-center group">
-              <img
+              <Image
                 src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"}
                 alt="Pacific Discovery Network"
+                width={160}
+                height={64}
                 className="h-16 w-40 transition-opacity duration-300"
+                priority={false}
               />
             </Link>
 
@@ -339,10 +343,13 @@ export default function Layout({ children, currentPageName }) {
             <div className="md:col-span-2">
               <Link href={createPageUrl("Home")} className="inline-block">
                 <div className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
-                  <img
+                  <Image
                     src="/pm_logo.png"
                     alt="Pacific Discovery Network"
+                    width={160}
+                    height={64}
                     className="h-16 w-40"
+                    priority={false}
                   />
                 </div>
               </Link>

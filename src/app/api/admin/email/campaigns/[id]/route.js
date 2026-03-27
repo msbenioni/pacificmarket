@@ -20,18 +20,132 @@ const handleSupabaseError = (error, operation, context = {}) => {
   };
 };
 
-export async function PUT(request, context) {
+export async function POST(request, context) {
   try {
     const params = await context.params;
     const campaignId = params?.id;
     
-    // Authenticate admin and get service client
+    // Authenticate admin
     const auth = await requireAdmin(request);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
+    const { name, subject, audience_type, audience_value } = await request.json();
+
+    if (!campaignId) {
+      return Response.json({ error: 'Campaign ID required' }, { status: 400 });
+    }
+
+    // Fetch the original campaign - only select the fields we need
+    const { data: originalCampaign, error: fetchError } = await userClient
+      .from('email_campaigns')
+      .select('name, subject, html_content, audience_type, audience_value')
+      .eq('id', campaignId)
+      .single();
+
+    if (fetchError) {
+      console.error('Fetch original campaign error:', {
+        message: fetchError.message,
+        details: fetchError.details,
+        hint: fetchError.hint,
+        code: fetchError.code,
+        campaignId
+      });
+      return Response.json({ 
+        error: 'Campaign not found', 
+        details: fetchError.message 
+      }, { status: 404 });
+    }
+
+    if (!originalCampaign) {
+      return Response.json({ error: 'Campaign not found' }, { status: 404 });
+    }
+
+    // Validate that original campaign has required audience fields
+    if (!originalCampaign.audience_type) {
+      return Response.json({ 
+        error: 'Original campaign has invalid audience structure',
+        details: 'Missing audience_type field'
+      }, { status: 400 });
+    }
+
+    // Create new campaign with copied data - only copy safe fields
+    const newCampaignData = {
+      name: name || `${originalCampaign.name} (Copy)`,
+      subject: subject || originalCampaign.subject,
+      html_content: originalCampaign.html_content,
+      audience_type: audience_type || originalCampaign.audience_type,
+      audience_value: audience_value !== undefined ? audience_value : originalCampaign.audience_value,
+      status: 'draft',
+      created_by: auth.user.id, // Use current authenticated user
+      updated_at: new Date().toISOString()
+    };
+
+    console.log('Creating duplicate campaign:', {
+      originalId: campaignId,
+      newData: { ...newCampaignData, html_content: '[CONTENT]' } // Don't log HTML content
+    });
+
+    const { data: newCampaign, error: createError } = await userClient
+      .from('email_campaigns')
+      .insert(newCampaignData)
+      .select()
+      .single();
+
+    if (createError) {
+      console.error('Create duplicate campaign error:', {
+        message: createError.message,
+        details: createError.details,
+        hint: createError.hint,
+        code: createError.code,
+        campaignId,
+        insertData: { ...newCampaignData, html_content: '[CONTENT]' }
+      });
+      
+      // Return more specific error information
+      const errorResponse = {
+        error: 'Failed to duplicate campaign',
+        details: createError.message,
+        hint: createError.hint,
+        code: createError.code
+      };
+      return Response.json(errorResponse, { status: 500 });
+    }
+
+    console.log('Campaign duplicated successfully:', { 
+      newId: newCampaign.id,
+      newName: newCampaign.name 
+    });
+
+    return Response.json({ 
+      success: true, 
+      campaign: newCampaign,
+      message: 'Campaign duplicated successfully'
+    });
+
+  } catch (error) {
+    console.error('Duplicate campaign unexpected error:', error);
+    return Response.json({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, { status: 500 });
+  }
+}
+
+export async function PUT(request, context) {
+  try {
+    const params = await context.params;
+    const campaignId = params?.id;
+    
+    // Authenticate admin
+    const auth = await requireAdmin(request);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { userClient } = auth;
     const { name, subject, html_content, audience_type, audience_value } = await request.json();
 
     if (!campaignId) {
@@ -50,7 +164,7 @@ export async function PUT(request, context) {
     }
 
     // First check if campaign exists and is in draft status
-    const { data: existingCampaign, error: fetchError } = await serviceClient
+    const { data: existingCampaign, error: fetchError } = await userClient
       .from('email_campaigns')
       .select('id, status')
       .eq('id', campaignId)
@@ -67,7 +181,7 @@ export async function PUT(request, context) {
       }, { status: 400 });
     }
 
-    // Update campaign using service client
+    // Update campaign
     const updateData = {
       name,
       subject,
@@ -77,7 +191,7 @@ export async function PUT(request, context) {
       updated_at: new Date().toISOString()
     };
 
-    const { data: campaign, error } = await serviceClient
+    const { data: campaign, error } = await userClient
       .from('email_campaigns')
       .update(updateData)
       .eq('id', campaignId)
@@ -106,20 +220,20 @@ export async function DELETE(request, context) {
     const params = await context.params;
     const campaignId = params?.id;
     
-    // Authenticate admin and get service client
+    // Authenticate admin
     const auth = await requireAdmin(request);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
 
     if (!campaignId) {
       return Response.json({ error: 'Campaign ID required' }, { status: 400 });
     }
 
     // Check if campaign exists and can be deleted
-    const { data: existingCampaign, error: fetchError } = await serviceClient
+    const { data: existingCampaign, error: fetchError } = await userClient
       .from('email_campaigns')
       .select('id, status')
       .eq('id', campaignId)
@@ -136,8 +250,8 @@ export async function DELETE(request, context) {
       }, { status: 400 });
     }
 
-    // Delete campaign using service client (will cascade delete recipients)
-    const { error } = await serviceClient
+    // Delete campaign (will cascade delete recipients)
+    const { error } = await userClient
       .from('email_campaigns')
       .delete()
       .eq('id', campaignId);

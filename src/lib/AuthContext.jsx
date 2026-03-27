@@ -74,8 +74,6 @@ export const AuthProvider = ({ children }) => {
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
       
-      console.log('Auth state change:', event, session?.user?.id);
-      
       setUser(session?.user ?? null);
       setIsAuthenticated(Boolean(session?.user));
 

@@ -14,6 +14,19 @@ import { createServiceClient } from '@/lib/server-auth';
 // ============================================================================
 
 /**
+ * Extract first name from a full name string
+ * @param {string} fullName - Full name (e.g., "Jasmin Benioni")
+ * @returns {string} First name only (e.g., "Jasmin")
+ */
+const extractFirstName = (fullName) => {
+  if (!fullName || typeof fullName !== 'string') return fullName;
+  
+  // Split by space and return the first part
+  const parts = fullName.trim().split(/\s+/);
+  return parts[0] || fullName;
+};
+
+/**
  * Get human-readable label for audience
  * @param {Object} campaign - Campaign object with audience fields
  * @returns {string} Human-readable audience label
@@ -75,7 +88,7 @@ export const validateAudienceStructure = (audienceData) => {
 async function buildAllBusinessesAudience(serviceClient) {
   const { data: businesses } = await serviceClient
     .from('businesses')
-    .select('owner_user_id, business_handle, business_email, business_contact_person')
+    .select('owner_user_id, business_handle, business_email, business_contact_person, business_name')
     .eq('is_active', true)
     .eq('status', 'active')
     .not('business_email', 'is', null);
@@ -103,7 +116,7 @@ async function buildAllBusinessesAudience(serviceClient) {
 
     return {
       email: business.business_email,
-      first_name: business.business_contact_person || owner?.display_name || subscriber?.first_name,
+      first_name: extractFirstName(business.business_contact_person) || extractFirstName(business.business_name) || owner?.display_name || subscriber?.first_name,
       business_handle: business.business_handle,
       subscriber_id: subscriber?.id || null
     };
@@ -119,7 +132,7 @@ async function buildAllBusinessesAudience(serviceClient) {
 async function buildPlanAudience(plan, serviceClient) {
   const { data: planBusinesses } = await serviceClient
     .from('businesses')
-    .select('owner_user_id, business_handle, business_email, business_contact_person')
+    .select('owner_user_id, business_handle, business_email, business_contact_person, business_name')
     .eq('subscription_tier', plan)
     .eq('is_active', true)
     .eq('status', 'active')
@@ -148,7 +161,7 @@ async function buildPlanAudience(plan, serviceClient) {
 
     return {
       email: business.business_email,
-      first_name: business.business_contact_person || owner?.display_name || subscriber?.first_name,
+      first_name: extractFirstName(business.business_contact_person) || extractFirstName(business.business_name) || owner?.display_name || subscriber?.first_name,
       business_handle: business.business_handle,
       subscriber_id: subscriber?.id || null
     };
@@ -166,7 +179,7 @@ async function buildLanguageAudience(language, serviceClient) {
   // Use text-safe quoted match with ilike for proper matching
   const { data: languageBusinesses } = await serviceClient
     .from('businesses')
-    .select('owner_user_id, business_handle, business_email, business_contact_person, languages_spoken')
+    .select('owner_user_id, business_handle, business_email, business_contact_person, business_name, languages_spoken')
     .eq('is_active', true)
     .eq('status', 'active')
     .not('business_email', 'is', null)
@@ -195,7 +208,7 @@ async function buildLanguageAudience(language, serviceClient) {
 
     return {
       email: business.business_email,
-      first_name: business.business_contact_person || owner?.display_name || subscriber?.first_name,
+      first_name: extractFirstName(business.business_contact_person) || extractFirstName(business.business_name) || owner?.display_name || subscriber?.first_name,
       business_handle: business.business_handle,
       subscriber_id: subscriber?.id || null
     };
@@ -211,7 +224,7 @@ async function buildLanguageAudience(language, serviceClient) {
 async function buildCountryAudience(country, serviceClient) {
   const { data: countryBusinesses } = await serviceClient
     .from('businesses')
-    .select('owner_user_id, business_handle, business_email, business_contact_person')
+    .select('owner_user_id, business_handle, business_email, business_contact_person, business_name')
     .eq('country', country)
     .eq('is_active', true)
     .eq('status', 'active')
@@ -240,7 +253,7 @@ async function buildCountryAudience(country, serviceClient) {
 
     return {
       email: business.business_email,
-      first_name: business.business_contact_person || owner?.display_name || subscriber?.first_name,
+      first_name: extractFirstName(business.business_contact_person) || extractFirstName(business.business_name) || owner?.display_name || subscriber?.first_name,
       business_handle: business.business_handle,
       subscriber_id: subscriber?.id || null
     };

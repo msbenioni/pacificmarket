@@ -42,10 +42,10 @@ export async function GET(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
 
-    // Fetch campaigns using service client (bypasses RLS temporarily)
-    const { data: campaigns, error } = await serviceClient
+    // Fetch campaigns using userClient (RLS policy grants admin access)
+    const { data: campaigns, error } = await userClient
       .from('email_campaigns')
       .select(`
         *,
@@ -90,7 +90,7 @@ export async function POST(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { user, serviceClient } = auth;
+    const { user, userClient } = auth;
     const { name, subject, html_content, audience_type, audience_value, testEmail } = await request.json();
 
     // Validate required fields
@@ -129,7 +129,7 @@ export async function POST(request) {
         return Response.json({ error: 'Failed to send test email' }, { status: 500 });
       }
     } else {
-      // Create campaign using service client
+      // Create campaign using userClient (RLS policy grants admin access)
       const campaignData = {
         name,
         subject, 
@@ -139,7 +139,7 @@ export async function POST(request) {
         created_by: user.id
       };
 
-      const { data: campaign, error } = await serviceClient
+      const { data: campaign, error } = await userClient
         .from('email_campaigns')
         .insert(campaignData)
         .select()

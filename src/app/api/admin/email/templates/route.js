@@ -28,16 +28,17 @@ export async function GET(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient, serviceClient } = auth;
+    const { userClient } = auth;
 
-    // Fetch templates using service client (bypasses RLS temporarily)
-    const { data: templates, error } = await serviceClient
+    // Fetch templates (RLS policy grants admin access)
+    const { data: templates, error } = await userClient
       .from('email_templates')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
-      return Response.json({ error: 'Failed to fetch templates' }, { status: 500 });
+      console.error('Templates fetch error:', error);
+      return Response.json({ error: 'Failed to fetch templates', details: error.message, code: error.code }, { status: 500 });
     }
 
     return Response.json({ templates });
@@ -56,7 +57,7 @@ export async function POST(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { user, serviceClient } = auth;
+    const { user, userClient } = auth;
     const { name, subject, html_content, variables } = await request.json();
 
     // Validate required fields
@@ -70,8 +71,8 @@ export async function POST(request) {
       templateVariables = extractTemplateVariables(html_content);
     }
 
-    // Create template using service client (bypasses RLS temporarily)
-    const { data: template, error } = await serviceClient
+    // Create template
+    const { data: template, error } = await userClient
       .from('email_templates')
       .insert({
         name,
@@ -110,14 +111,14 @@ export async function PUT(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
     const { templateId, name, subject, html_content, variables } = await request.json();
 
     if (!templateId) {
       return Response.json({ error: 'Template ID required' }, { status: 400 });
     }
 
-    // Update template using service client (bypasses RLS temporarily)
+    // Update template
     const updateData = {};
     if (name) updateData.name = name;
     if (subject) updateData.subject = subject;
@@ -135,7 +136,7 @@ export async function PUT(request) {
     // Always set updated_at on template updates
     updateData.updated_at = new Date().toISOString();
 
-    const { data: template, error } = await serviceClient
+    const { data: template, error } = await userClient
       .from('email_templates')
       .update(updateData)
       .eq('id', templateId)
@@ -167,14 +168,14 @@ export async function DELETE(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
     const { templateId } = await request.json();
 
     if (!templateId) {
       return Response.json({ error: 'Template ID required' }, { status: 400 });
     }
 
-    const { error } = await serviceClient
+    const { error } = await userClient
       .from('email_templates')
       .delete()
       .eq('id', templateId);

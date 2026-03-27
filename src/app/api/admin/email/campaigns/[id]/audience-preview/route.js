@@ -11,16 +11,16 @@ export async function GET(request, context) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient, serviceClient } = auth;
 
     if (!campaignId) {
       return Response.json({ error: 'Campaign ID is required' }, { status: 400 });
     }
 
-    // Fetch campaign details using service client (bypasses RLS temporarily)
-    const { data: campaign, error: campaignError } = await serviceClient
+    // Fetch campaign details (RLS policy grants admin access)
+    const { data: campaign, error: campaignError } = await userClient
       .from('email_campaigns')
-      .select('name, audience, audience_type, audience_value, subject')
+      .select('name, audience_type, audience_value, subject')
       .eq('id', campaignId)
       .single();
 
@@ -28,20 +28,12 @@ export async function GET(request, context) {
       return Response.json({ error: 'Campaign not found' }, { status: 404 });
     }
 
-    // Legacy fallback: map old `audience` field to new structure
-    if (!campaign.audience_type && campaign.audience) {
-      const legacyMap = {
-        'all': 'all_businesses',
-        'business_owners': 'all_businesses',
-        'mana_plan': 'plan',
-        'moana_plan': 'plan',
-      };
-      const legacyValueMap = {
-        'mana_plan': 'mana',
-        'moana_plan': 'moana',
-      };
-      campaign.audience_type = legacyMap[campaign.audience] || 'all_businesses';
-      campaign.audience_value = legacyValueMap[campaign.audience] || null;
+    // Validate that campaign has required audience structure
+    if (!campaign.audience_type) {
+      return Response.json({ 
+        error: 'Invalid campaign audience structure',
+        details: 'Missing audience_type field'
+      }, { status: 400 });
     }
 
     // Get audience emails using shared utility (already deduplicated)

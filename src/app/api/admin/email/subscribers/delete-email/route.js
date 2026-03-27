@@ -8,15 +8,15 @@ export async function PUT(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient, serviceClient } = auth;
+    const { userClient } = auth;
     const { subscriberId } = await request.json();
 
     if (!subscriberId) {
       return Response.json({ error: 'Subscriber ID is required' }, { status: 400 });
     }
 
-    // Get subscriber details before deletion for logging
-    const { data: subscriber, error: fetchError } = await serviceClient
+    // Get subscriber details before deletion
+    const { data: subscriber, error: fetchError } = await userClient
       .from('email_subscribers')
       .select('email, first_name, status')
       .eq('id', subscriberId)
@@ -27,7 +27,7 @@ export async function PUT(request) {
     }
 
     // Unsubscribe the subscriber while preserving the email record
-    const { data: updatedSubscriber, error: updateError } = await serviceClient
+    const { data: updatedSubscriber, error: updateError } = await userClient
       .from('email_subscribers')
       .update({ 
         status: 'unsubscribed',
@@ -41,8 +41,6 @@ export async function PUT(request) {
       console.error('Error unsubscribing subscriber:', updateError);
       return Response.json({ error: 'Failed to unsubscribe subscriber' }, { status: 500 });
     }
-
-    console.log(`� Subscriber unsubscribed: ${subscriber.email} (${subscriber.first_name})`);
 
     return Response.json({
       success: true,

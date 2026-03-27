@@ -8,13 +8,13 @@ export async function GET(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient, serviceClient } = auth;
+    const { userClient } = auth;
     const { searchParams } = new URL(request.url);
     const source = searchParams.get('source');
     const status = searchParams.get('status');
 
-    // Build query using service client (bypasses RLS temporarily)
-    let query = serviceClient
+    // Build query (RLS policy grants admin access)
+    let query = userClient
       .from('email_subscribers')
       .select(`
         *,
@@ -78,7 +78,7 @@ export async function POST(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
     const { subscribers, source } = await request.json();
 
     if (!subscribers || !Array.isArray(subscribers) || subscribers.length === 0) {
@@ -96,7 +96,7 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // Insert subscribers using service client (elevated access needed)
+    // Insert subscribers
     const subscriberRecords = subscribers.map(subscriber => ({
       email: subscriber.email.toLowerCase(),
       first_name: subscriber.first_name || 'Business Owner',
@@ -104,7 +104,7 @@ export async function POST(request) {
       status: 'subscribed'
     }));
 
-    const { data, error } = await serviceClient
+    const { data, error } = await userClient
       .from('email_subscribers')
       .upsert(subscriberRecords, { 
         onConflict: 'email',
@@ -136,7 +136,7 @@ export async function PUT(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
     const { subscriberId, status } = await request.json();
 
     if (!subscriberId || !status) {
@@ -148,7 +148,7 @@ export async function PUT(request) {
       return Response.json({ error: 'Invalid status' }, { status: 400 });
     }
 
-    const { data, error } = await serviceClient
+    const { data, error } = await userClient
       .from('email_subscribers')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', subscriberId)

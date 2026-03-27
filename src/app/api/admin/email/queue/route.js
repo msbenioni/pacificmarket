@@ -1,4 +1,3 @@
-import { createServiceClient } from '@/lib/server-auth';
 import { requireAdmin } from '@/lib/server-auth';
 import { QUEUE_PRIORITY } from '@/constants/emailConstants';
 
@@ -11,7 +10,7 @@ export async function POST(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient, serviceClient } = auth;
+    const { userClient } = auth;
     const { campaignId, priority = 'normal' } = await request.json();
 
     if (!campaignId) {
@@ -24,7 +23,7 @@ export async function POST(request) {
                             QUEUE_PRIORITY.NORMAL;
 
     // Validate campaign exists and is in draft status
-    const { data: campaign, error: campaignError } = await serviceClient
+    const { data: campaign, error: campaignError } = await userClient
       .from('email_campaigns')
       .select('*')
       .eq('id', campaignId)
@@ -39,7 +38,7 @@ export async function POST(request) {
     }
 
     // Check if campaign is already queued or processing
-    const { data: existingQueueItem } = await serviceClient
+    const { data: existingQueueItem } = await userClient
       .from('email_campaign_queue')
       .select('id, status')
       .eq('campaign_id', campaignId)
@@ -54,7 +53,7 @@ export async function POST(request) {
     }
 
     // Add campaign to processing queue
-    const { data: queueItem, error: queueError } = await serviceClient
+    const { data: queueItem, error: queueError } = await userClient
       .from('email_campaign_queue')
       .insert({
         campaign_id: campaignId,
@@ -71,7 +70,7 @@ export async function POST(request) {
     }
 
     // Update campaign status to queued
-    await serviceClient
+    await userClient
       .from('email_campaigns')
       .update({ status: 'queued' })
       .eq('id', campaignId);
@@ -97,11 +96,11 @@ export async function GET(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { serviceClient } = auth;
+    const { userClient } = auth;
     const { searchParams } = new URL(request.url);
     const campaignId = searchParams.get('campaign_id');
 
-    let query = serviceClient
+    let query = userClient
       .from('email_campaign_queue')
       .select(`
         *,

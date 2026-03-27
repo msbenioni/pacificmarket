@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp, X } from "lucide-react";
+import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp, X, Copy } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { useToast } from "@/components/ui/use-toast";
+import { getAudienceLabel } from "@/lib/email/audience";
 import CampaignForm from "./CampaignForm";
 import TemplateForm from "./TemplateForm";
 
@@ -43,6 +44,7 @@ export default function EmailMarketingDashboard() {
   // Per-action loading states
   const [sendingCampaignId, setSendingCampaignId] = useState(null);
   const [deletingCampaignId, setDeletingCampaignId] = useState(null);
+  const [duplicatingCampaignId, setDuplicatingCampaignId] = useState(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState(null);
   const [updatingSubscriberId, setUpdatingSubscriberId] = useState(null);
 
@@ -69,7 +71,7 @@ export default function EmailMarketingDashboard() {
 
   const tabs = [
     { id: "campaigns", label: "Campaigns", icon: Mail, category: "creation" },
-    { id: "ready", label: "Ready to Send", icon: Send, category: "preparation" },
+    { id: "ready", label: "Send Campaign", icon: Send, category: "preparation" },
     { id: "sent", label: "Completed Campaigns", icon: CheckCircle, category: "results" },
     { id: "subscribers", label: "Subscribers", icon: Users, category: "audience" },
     { id: "templates", label: "Templates", icon: FileText, category: "creation" },
@@ -116,7 +118,6 @@ export default function EmailMarketingDashboard() {
         return null;
       }
       
-      console.log(`🔍 Loading audience preview for campaign: ${campaignId}`);
       
       const response = await fetch(`/api/admin/email/campaigns/${campaignId}/audience-preview`, {
         method: 'GET',
@@ -218,7 +219,6 @@ export default function EmailMarketingDashboard() {
       setError("");
       setPageError("");
       
-      console.log('🔄 Loading email data...');
       
       const token = await getAuthToken();
       if (!token) {
@@ -227,10 +227,8 @@ export default function EmailMarketingDashboard() {
         return;
       }
       
-      console.log('✅ Authentication token obtained');
 
       // Load all data in parallel
-      console.log('📊 Fetching campaigns, subscribers, and templates...');
       
       let failures = [];
       
@@ -253,18 +251,13 @@ export default function EmailMarketingDashboard() {
       ]);
 
       if (failures.length === 0) {
-        console.log('✅ Email data loaded successfully');
+        // Success - no logging needed
       } else if (failures.length === 3) {
-        console.log('⚠️ All endpoints failed, using fallback data');
+        console.error('All endpoints failed, using fallback data');
       } else {
-        console.log(`⚠️ Partial success - failed endpoints: ${failures.join(', ')}`);
+        console.warn(`Partial success - failed endpoints: ${failures.join(', ')}`);
       }
 
-      console.log('✅ Data loaded:', {
-        campaigns: campaignsData.campaigns?.length || 0,
-        subscribers: subscribersData.subscribers?.length || 0,
-        templates: templatesData.templates?.length || 0
-      });
 
       setCampaigns(campaignsData.campaigns || []);
       setSubscribers(subscribersData.subscribers || []);
@@ -369,6 +362,42 @@ export default function EmailMarketingDashboard() {
       showError('Failed to delete campaign', errorMessage);
     } finally {
       setDeletingCampaignId(null);
+    }
+  };
+
+  const handleDuplicateCampaign = async (campaignId) => {
+    try {
+      setError(""); // Clear previous action errors
+      setDuplicatingCampaignId(campaignId);
+      const token = await getAuthToken();
+      if (!token) {
+        showError('Authentication required');
+        return;
+      }
+      
+      const response = await fetch(`/api/admin/email/campaigns/${campaignId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}) // Will use defaults (copy name, subject, etc.)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to duplicate campaign');
+      }
+
+      showSuccess('Campaign duplicated successfully');
+      // Reload data
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error duplicating campaign:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to duplicate campaign';
+      showError('Failed to duplicate campaign', errorMessage);
+    } finally {
+      setDuplicatingCampaignId(null);
     }
   };
 
@@ -500,7 +529,7 @@ export default function EmailMarketingDashboard() {
   const handleSendCampaign = async (campaignId) => {
     const confirmed = await confirm({
       title: "Send Campaign",
-      description: "Are you sure you want to send this campaign? This will queue the campaign for background sending.",
+      description: "Are you sure you want to send this campaign? Emails will be sent immediately to all subscribers.",
       confirmText: "Send Campaign",
       cancelText: "Cancel"
     });
@@ -527,15 +556,15 @@ export default function EmailMarketingDashboard() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to queue campaign');
+        throw new Error(errorData.error || 'Failed to send campaign');
       }
 
       showSuccess('Campaign sent successfully!');
       // Reload data
       await loadEmailData();
     } catch (error) {
-      console.error('Error queuing campaign:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to queue campaign';
+      console.error('Error sending campaign:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send campaign';
       showError('Failed to send campaign', errorMessage);
     } finally {
       setSendingCampaignId(null);
@@ -789,7 +818,7 @@ export default function EmailMarketingDashboard() {
                         <div className="text-sm text-gray-500 truncate max-w-xs">{campaign.subject}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600 capitalize">{campaign.audience?.replace(/_/g, ' ') || 'N/A'}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{getAudienceLabel(campaign)}</td>
                     <td className="px-4 py-4">{getStatusBadge(campaign.status)}</td>
                     <td className="px-4 py-4 text-sm text-gray-600">
                       {campaign.recipients > 0 ? campaign.recipients.toLocaleString() : '-'}
@@ -817,6 +846,18 @@ export default function EmailMarketingDashboard() {
                           title={campaign.status === 'draft' ? 'Edit Campaign' : 'Only draft campaigns can be edited'}
                         >
                           <Edit className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDuplicateCampaign(campaign.id)}
+                          disabled={duplicatingCampaignId === campaign.id}
+                          className="text-gray-400 hover:text-green-600 disabled:text-gray-300"
+                          title="Duplicate Campaign"
+                        >
+                          {duplicatingCampaignId === campaign.id ? (
+                            <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
                         </button>
                         <button 
                           onClick={() => handleDeleteCampaign(campaign.id)}
@@ -849,7 +890,7 @@ export default function EmailMarketingDashboard() {
   const renderReadyToSend = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-[#0a1628]">Ready to Send</h3>
+        <h3 className="text-lg font-semibold text-[#0a1628]">Send Campaign</h3>
         <span className="text-sm text-gray-500">
           {draftCampaigns.length} campaigns ready to send
         </span>
@@ -923,13 +964,25 @@ export default function EmailMarketingDashboard() {
                             {sendingCampaignId === campaign.id ? (
                               <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Queuing...
+                                Sending...
                               </>
                             ) : (
                               <>
                                 <Send className="w-4 h-4" />
-                                Queue Send
+                                Send Now
                               </>
+                            )}
+                          </button>
+                          <button 
+                            onClick={() => handleDuplicateCampaign(campaign.id)}
+                            disabled={duplicatingCampaignId === campaign.id}
+                            className="text-gray-400 hover:text-green-600 disabled:text-gray-300 p-2 rounded-lg border border-gray-200 hover:border-green-300"
+                            title="Duplicate Campaign"
+                          >
+                            {duplicatingCampaignId === campaign.id ? (
+                              <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <Copy className="w-4 h-4" />
                             )}
                           </button>
                         </div>
@@ -1508,8 +1561,8 @@ export default function EmailMarketingDashboard() {
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-xs text-gray-500 uppercase">Audience</p>
-                  <p className="text-sm font-medium text-gray-700 mt-1 capitalize">
-                    {viewingCampaign.audience_type?.replace(/_/g, ' ') || viewingCampaign.audience?.replace(/_/g, ' ') || 'N/A'}
+                  <p className="text-sm font-medium text-gray-700 mt-1">
+                    {getAudienceLabel(viewingCampaign)}
                   </p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
