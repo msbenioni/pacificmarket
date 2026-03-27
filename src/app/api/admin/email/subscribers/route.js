@@ -130,13 +130,13 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    // Authenticate admin and get user client
+    // Authenticate admin and get service client
     const auth = await requireAdmin(request);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient } = auth;
+    const { serviceClient } = auth;
     const { subscriberId, status } = await request.json();
 
     if (!subscriberId || !status) {
@@ -148,7 +148,7 @@ export async function PUT(request) {
       return Response.json({ error: 'Invalid status' }, { status: 400 });
     }
 
-    const { data, error } = await userClient
+    const { data, error } = await serviceClient
       .from('email_subscribers')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', subscriberId)

@@ -4,7 +4,8 @@ import { Fragment, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
-import toast from "react-hot-toast";
+import { useToast } from "@/components/ui/use-toast";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import {
   AlertTriangle,
   Building2,
@@ -72,6 +73,23 @@ async function checkIsAdmin(user) {
 }
 
 export default function AdminDashboard() {
+  const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
+  const { toast } = useToast();
+  
+  // Toast helper functions for consistent API
+  const showSuccess = (title, description) =>
+    toast({
+      title,
+      description,
+    });
+
+  const showError = (title, description) =>
+    toast({
+      title,
+      description,
+      variant: "destructive",
+    });
+  
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
@@ -143,7 +161,7 @@ export default function AdminDashboard() {
       setClaims(claimsRes.data || []);
     } catch (error) {
       console.error("Error loading admin data:", error);
-      toast.error(`Failed to load data: ${error.message || "Unknown error"}`);
+      showError('Failed to load data', error.message || 'Unknown error');
     } finally {
       setDashboardLoading(false);
     }
@@ -247,10 +265,10 @@ export default function AdminDashboard() {
       );
 
       await loadAdminData();
-      toast.success(`Business status changed to ${newStatus}`);
+      showSuccess('Business status changed', `Status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
-      toast.error("Unable to update business status.");
+      showError('Unable to update business status', 'Please try again.');
     }
   };
 
@@ -324,17 +342,22 @@ export default function AdminDashboard() {
       }
 
       await loadAdminData();
-      toast.success(`Claim status changed to ${newStatus}`);
+      showSuccess('Claim status changed', `Status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating claim:", error);
-      toast.error("Unable to update claim status.");
+      showError('Unable to update claim status', 'Please try again.');
     }
   };
 
   const deleteBusiness = async (businessId) => {
-    if (!confirm("Are you sure you want to delete this business? This action cannot be undone.")) {
-      return;
-    }
+    const confirmed = await confirmDestructive({
+      title: "Delete Business",
+      description: "Are you sure you want to delete this business? This action cannot be undone.",
+      confirmText: "Delete Business",
+      cancelText: "Cancel"
+    });
+    
+    if (!confirmed) return;
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
@@ -350,10 +373,10 @@ export default function AdminDashboard() {
         cancelEditingBusiness();
       }
 
-      toast.success("The business has been permanently deleted.");
+      showSuccess('Business deleted', 'The business has been permanently deleted.');
     } catch (error) {
       console.error("Error deleting business:", error);
-      toast.error("Unable to delete the business.");
+      showError('Unable to delete business', 'Please try again.');
     }
   };
 
@@ -425,12 +448,12 @@ export default function AdminDashboard() {
       }
 
       cancelEditingBusiness();
-      toast.success("The business has been successfully updated.");
+      showSuccess('Business updated', 'The business has been successfully updated.');
 
       return data;
     } catch (error) {
       console.error("saveBusiness failed:", error);
-      toast.error(error?.message || "Unable to update the business.");
+      showError('Unable to update business', error?.message || 'Please try again.');
       throw error;
     } finally {
       setSavingEdit(false);
@@ -557,12 +580,12 @@ export default function AdminDashboard() {
 
       setBusinesses((prev) => [data, ...prev]);
       resetCreateForm();
-      toast.success("The listing was created and automatically is_verified.");
+      showSuccess('Business created', 'The listing was created and automatically verified.');
 
       return data;
     } catch (error) {
       console.error("Error creating business:", error);
-      toast.error(error?.message || "Unable to create the listing.");
+      showError('Unable to create business', error?.message || 'Please try again.');
       throw error;
     } finally {
       setSavingCreate(false);
@@ -1216,6 +1239,9 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+      
+      {/* Confirmation Dialog */}
+      {DialogComponent}
     </PortalShell>
   );
 }

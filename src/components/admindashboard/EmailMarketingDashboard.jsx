@@ -2,8 +2,27 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function EmailMarketingDashboard() {
+  const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
+  const { toast } = useToast();
+  
+  // Toast helper functions for consistent API
+  const showSuccess = (title, description) =>
+    toast({
+      title,
+      description,
+    });
+
+  const showError = (title, description) =>
+    toast({
+      title,
+      description,
+      variant: "destructive",
+    });
+  
   const [activeTab, setActiveTab] = useState("campaigns");
   const [campaigns, setCampaigns] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
@@ -201,20 +220,33 @@ export default function EmailMarketingDashboard() {
       // Load all data in parallel
       console.log('📊 Fetching campaigns, subscribers, and templates...');
       
+      let failures = [];
+      
       const [campaignsData, subscribersData, templatesData] = await Promise.all([
         makeApiCall('campaigns', {}, token).catch(err => {
           console.error('❌ Campaigns API error:', err);
+          failures.push('campaigns');
           return { campaigns: [] };
         }),
         makeApiCall('subscribers', {}, token).catch(err => {
           console.error('❌ Subscribers API error:', err);
+          failures.push('subscribers');
           return { subscribers: [] };
         }),
         makeApiCall('templates', {}, token).catch(err => {
           console.error('❌ Templates API error:', err);
+          failures.push('templates');
           return { templates: [] };
         })
       ]);
+
+      if (failures.length === 0) {
+        console.log('✅ Email data loaded successfully');
+      } else if (failures.length === 3) {
+        console.log('⚠️ All endpoints failed, using fallback data');
+      } else {
+        console.log(`⚠️ Partial success - failed endpoints: ${failures.join(', ')}`);
+      }
 
       console.log('✅ Data loaded:', {
         campaigns: campaignsData.campaigns?.length || 0,
@@ -241,8 +273,6 @@ export default function EmailMarketingDashboard() {
         totalSent,
         avgOpenRate
       });
-      
-      console.log('✅ Email data loaded successfully');
 
     } catch (error) {
       console.error('❌ Failed to load email data:', error);
@@ -288,14 +318,21 @@ export default function EmailMarketingDashboard() {
   };
 
   const handleDeleteCampaign = async (campaignId) => {
-    if (!confirm('Are you sure you want to delete this campaign?')) return;
+    const confirmed = await confirmDestructive({
+      title: "Delete Campaign",
+      description: "Are you sure you want to delete this campaign? This action cannot be undone.",
+      confirmText: "Delete Campaign",
+      cancelText: "Cancel"
+    });
+    
+    if (!confirmed) return;
     
     try {
       setError(""); // Clear previous action errors
       setDeletingCampaignId(campaignId);
       const token = await getAuthToken();
       if (!token) {
-        setError('Authentication required');
+      showError('Authentication required');
         return;
       }
       
@@ -311,26 +348,34 @@ export default function EmailMarketingDashboard() {
         throw new Error(errorData.error || 'Failed to delete campaign');
       }
 
+      showSuccess('Campaign deleted successfully');
       // Reload data
       await loadEmailData();
     } catch (error) {
       console.error('Error deleting campaign:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete campaign';
-      setError(errorMessage || 'Failed to delete campaign');
+      showError('Failed to delete campaign', errorMessage);
     } finally {
       setDeletingCampaignId(null);
     }
   };
 
   const handleDeleteTemplate = async (templateId) => {
-    if (!confirm('Are you sure you want to delete this template?')) return;
+    const confirmed = await confirmDestructive({
+      title: "Delete Template",
+      description: "Are you sure you want to delete this template? This action cannot be undone.",
+      confirmText: "Delete Template",
+      cancelText: "Cancel"
+    });
+    
+    if (!confirmed) return;
     
     try {
       setError(""); // Clear previous action errors
       setDeletingTemplateId(templateId);
       const token = await getAuthToken();
       if (!token) {
-        setError('Authentication required');
+      showError('Authentication required');
         return;
       }
       
@@ -348,12 +393,13 @@ export default function EmailMarketingDashboard() {
         throw new Error(errorData.error || 'Failed to delete template');
       }
 
+      showSuccess('Template deleted successfully');
       // Reload data
       await loadEmailData();
     } catch (error) {
       console.error('Error deleting template:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete template';
-      setError(errorMessage || 'Failed to delete template');
+      showError('Failed to delete template', errorMessage);
     } finally {
       setDeletingTemplateId(null);
     }
@@ -365,7 +411,7 @@ export default function EmailMarketingDashboard() {
       setUpdatingSubscriberId(subscriberId);
       const token = await getAuthToken();
       if (!token) {
-        setError('Authentication required');
+      showError('Authentication required');
         return;
       }
       
@@ -383,12 +429,13 @@ export default function EmailMarketingDashboard() {
         throw new Error(errorData.error || 'Failed to update subscriber');
       }
 
+      showSuccess(`Subscriber ${status === 'active' ? 'activated' : 'deactivated'} successfully`);
       // Reload data
       await loadEmailData();
     } catch (error) {
       console.error('Error updating subscriber:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to update subscriber';
-      setError(errorMessage || 'Failed to update subscriber');
+      showError('Failed to update subscriber', errorMessage);
     } finally {
       setUpdatingSubscriberId(null);
     }
@@ -433,16 +480,21 @@ export default function EmailMarketingDashboard() {
   }
 
   const handleSendCampaign = async (campaignId) => {
-    if (!confirm('Are you sure you want to send this campaign? This will queue the campaign for background sending.')) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: "Send Campaign",
+      description: "Are you sure you want to send this campaign? This will queue the campaign for background sending.",
+      confirmText: "Send Campaign",
+      cancelText: "Cancel"
+    });
+    
+    if (!confirmed) return;
 
     try {
       setError(""); // Clear previous action errors
       setSendingCampaignId(campaignId);
       const token = await getAuthToken();
       if (!token) {
-        setError('Authentication required');
+      showError('Authentication required');
         return;
       }
       
@@ -460,12 +512,13 @@ export default function EmailMarketingDashboard() {
         throw new Error(errorData.error || 'Failed to queue campaign');
       }
 
+      showSuccess('Campaign sent successfully!');
       // Reload data
       await loadEmailData();
     } catch (error) {
       console.error('Error queuing campaign:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to queue campaign';
-      setError(errorMessage || 'Failed to queue campaign');
+      showError('Failed to send campaign', errorMessage);
     } finally {
       setSendingCampaignId(null);
     }
@@ -859,16 +912,18 @@ export default function EmailMarketingDashboard() {
                       {new Date(subscriber.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-4">
-                      <select
-                        value={subscriber.status}
-                        onChange={(e) => handleUpdateSubscriber(subscriber.id, e.target.value)}
-                        disabled={updatingSubscriberId === subscriber.id}
-                        className="text-xs border border-gray-200 rounded px-2 py-1 disabled:bg-gray-100"
-                      >
-                        <option value="subscribed">Subscribed</option>
-                        <option value="unsubscribed">Unsubscribed</option>
-                        <option value="bounced">Bounced</option>
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={subscriber.status}
+                          onChange={(e) => handleUpdateSubscriber(subscriber.id, e.target.value)}
+                          disabled={updatingSubscriberId === subscriber.id}
+                          className="text-xs border border-gray-200 rounded px-2 py-1 disabled:bg-gray-100"
+                        >
+                          <option value="subscribed">Subscribed</option>
+                          <option value="unsubscribed">Unsubscribed</option>
+                          <option value="bounced">Bounced</option>
+                        </select>
+                      </div>
                       {updatingSubscriberId === subscriber.id && (
                         <div className="text-xs text-gray-500 mt-1">Updating...</div>
                       )}
@@ -1165,6 +1220,9 @@ export default function EmailMarketingDashboard() {
         {activeTab === "templates" && renderTemplates()}
         {activeTab === "analytics" && renderAnalytics()}
       </div>
+      
+      {/* Confirmation Dialog */}
+      {DialogComponent}
     </div>
   );
 }

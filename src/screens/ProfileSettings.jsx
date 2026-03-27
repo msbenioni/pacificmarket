@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import PortalShell from "@/components/portal/PortalShell";
 import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
 import HeroStandard from "@/components/shared/HeroStandard";
@@ -105,6 +106,9 @@ function InsightsAccordionSection({
 }
 
 export default function ProfileSettings() {
+  const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
+  const { toast } = useToast();
+  
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -141,7 +145,6 @@ export default function ProfileSettings() {
   const [savingAccount, setSavingAccount] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-  const { toast } = useToast();
 
   const isStep2Complete =
     city.trim() !== "" &&
@@ -362,19 +365,10 @@ export default function ProfileSettings() {
         return next;
       });
 
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
-        variant: "success",
-      });
+      toast.success("Profile Updated");
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast({
-        title: "Update Failed",
-        description:
-          error.message || "Failed to update profile. Please try again.",
-        variant: "error",
-      });
+      toast.error(error.message || "Failed to update profile. Please try again.");
     } finally {
       setSavingAccount(false);
     }
@@ -382,11 +376,7 @@ export default function ProfileSettings() {
 
   const updatePassword = async () => {
     if (newPassword !== confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "New password and confirmation do not match.",
-        variant: "error",
-      });
+      toast.error("New password and confirmation do not match.");
       return;
     }
 
@@ -402,11 +392,7 @@ export default function ProfileSettings() {
       });
 
       if (signInError) {
-        toast({
-          title: "Invalid Password",
-          description: "Current password is incorrect.",
-          variant: "error",
-        });
+        toast.error("Current password is incorrect.");
         setSavingPassword(false);
         return;
       }
@@ -427,19 +413,10 @@ export default function ProfileSettings() {
         return next;
       });
 
-      toast({
-        title: "Password Updated",
-        description: "Your password has been successfully changed.",
-        variant: "success",
-      });
+      toast.success("Your password has been successfully changed.");
     } catch (error) {
       console.error("Error updating password:", error);
-      toast({
-        title: "Update Failed",
-        description:
-          error.message || "Failed to update password. Please try again.",
-        variant: "error",
-      });
+      toast.error(error.message || "Failed to update password. Please try again.");
     } finally {
       setSavingPassword(false);
     }
@@ -447,11 +424,7 @@ export default function ProfileSettings() {
 
   const addAdminUser = async () => {
     if (!newAdminEmail || !newAdminName || !newAdminPassword) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all fields.",
-        variant: "error",
-      });
+      toast.error("Please fill in all fields.");
       return;
     }
 
@@ -498,32 +471,24 @@ export default function ProfileSettings() {
 
       await loadAdminUsers();
 
-      toast({
-        title: "Admin User Added",
-        description: `${newAdminName} has been added as an admin user.`,
-        variant: "success",
-      });
+      toast.success(`${newAdminName} has been added as an admin user.`);
     } catch (error) {
       console.error("Error adding admin user:", error);
-      toast({
-        title: "Add Admin Failed",
-        description:
-          error.message || "Failed to add admin user. Please try again.",
-        variant: "error",
-      });
+      toast.error(error.message || "Failed to add admin user. Please try again.");
     } finally {
       setAddingAdmin(false);
     }
   };
 
   const removeAdminUser = async (adminUserId, adminName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to remove admin access for ${adminName}? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+    const confirmed = await confirmDestructive({
+      title: "Remove Admin Access",
+      description: `Are you sure you want to remove admin access for ${adminName}? This action cannot be undone.`,
+      confirmText: "Remove Access",
+      cancelText: "Cancel"
+    });
+    
+    if (!confirmed) return;
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
@@ -538,18 +503,10 @@ export default function ProfileSettings() {
 
       await loadAdminUsers();
 
-      toast({
-        title: "Admin Access Removed",
-        description: `${adminName} no longer has admin access.`,
-        variant: "success",
-      });
+      toast.success(`${adminName} no longer has admin access.`);
     } catch (error) {
       console.error("Error removing admin user:", error);
-      toast({
-        title: "Remove Admin Failed",
-        description: "Failed to remove admin access. Please try again.",
-        variant: "error",
-      });
+      toast.error("Failed to remove admin access. Please try again.");
     }
   };
 
@@ -602,26 +559,14 @@ export default function ProfileSettings() {
         return next;
       });
 
-      toast({
-        title: "Profile Foundation Saved",
-        description:
-          "Thanks for completing your profile. You can now claim an existing business or add a new business in the Business Portal.",
-        variant: "success",
-      });
+      toast.success("Profile Foundation Saved");
     } catch (error) {
       console.error("Error updating profile foundation:", error);
-      toast({
-        title: "Update Failed",
-        description:
-          error.message ||
-          "Failed to update profile foundation. Please try again.",
-        variant: "error",
-      });
+      toast.error(error.message || "Failed to update profile foundation. Please try again.");
     } finally {
       setSavingProfile(false);
     }
   };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
@@ -1152,6 +1097,8 @@ export default function ProfileSettings() {
           </div>
         </section>
       </div>
+      {/* Confirmation Dialog */}
+      {DialogComponent}
     </PortalShell>
   );
 }
