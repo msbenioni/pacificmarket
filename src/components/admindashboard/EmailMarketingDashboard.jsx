@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
+import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp, X } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { useToast } from "@/components/ui/use-toast";
 import CampaignForm from "./CampaignForm";
@@ -54,6 +54,7 @@ export default function EmailMarketingDashboard() {
   const [savingCampaign, setSavingCampaign] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
+  const [viewingCampaign, setViewingCampaign] = useState(null);
 
   // Derived campaign filters (memoized for performance)
   const draftCampaigns = useMemo(
@@ -798,12 +799,13 @@ export default function EmailMarketingDashboard() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
-                        disabled
-                        title="View Campaign feature coming soon"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                        <button 
+                          onClick={() => setViewingCampaign(campaign)}
+                          className="text-gray-400 hover:text-blue-600"
+                          title="View Campaign"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                         <button 
                           onClick={() => handleEditCampaign(campaign)}
                           disabled={campaign.status !== 'draft'}
@@ -984,21 +986,22 @@ export default function EmailMarketingDashboard() {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
-                        disabled
-                        title="View Campaign feature coming soon"
+                      <button 
+                        onClick={() => setViewingCampaign(campaign)}
+                        className="text-gray-400 hover:text-blue-600"
+                        title="View Campaign"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                      <button className="text-gray-300 cursor-not-allowed"
                         disabled
-                        title="Edit Campaign feature coming soon"
+                        title="Sent campaigns cannot be edited"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button className="text-gray-400 hover:text-red-600 disabled:text-gray-300"
+                      <button className="text-gray-300 cursor-not-allowed"
                         disabled
-                        title="Delete Campaign feature coming soon"
+                        title="Sent campaigns cannot be deleted"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1479,6 +1482,63 @@ export default function EmailMarketingDashboard() {
           }}
           saving={savingTemplate}
         />
+      )}
+
+      {/* Campaign View Modal */}
+      {viewingCampaign && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-semibold text-[#0a1628]">{viewingCampaign.name}</h3>
+                <p className="text-sm text-gray-500 mt-1">{viewingCampaign.subject}</p>
+              </div>
+              <button
+                onClick={() => setViewingCampaign(null)}
+                className="text-gray-400 hover:text-gray-600 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 flex-1 overflow-auto">
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 uppercase">Status</p>
+                  <div className="mt-1">{getStatusBadge(viewingCampaign.status)}</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 uppercase">Audience</p>
+                  <p className="text-sm font-medium text-gray-700 mt-1 capitalize">
+                    {viewingCampaign.audience_type?.replace(/_/g, ' ') || viewingCampaign.audience?.replace(/_/g, ' ') || 'N/A'}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 uppercase">Recipients</p>
+                  <p className="text-sm font-medium text-gray-700 mt-1">
+                    {viewingCampaign.recipients > 0 ? viewingCampaign.recipients.toLocaleString() : 'Not sent yet'}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Email Preview</p>
+                <div className="border border-gray-200 rounded-lg overflow-hidden" style={{ height: '400px' }}>
+                  {viewingCampaign.html_content ? (
+                    <iframe
+                      srcDoc={viewingCampaign.html_content}
+                      title="Campaign Preview"
+                      className="w-full h-full bg-white"
+                      sandbox=""
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                      No content available
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Mail, Send, X, Users, Globe, CreditCard, MessageSquare } from 'lucide-react';
 import { SUBSCRIPTION_TIER, COUNTRIES, LANGUAGES } from '@/constants/unifiedConstants';
+import { DEFAULT_EMAIL_TEMPLATE } from '@/constants/emailTemplates';
 
 const CampaignForm = ({ 
   campaign, 
@@ -15,7 +16,7 @@ const CampaignForm = ({
   const [formData, setFormData] = useState({
     name: campaign?.name || '',
     subject: campaign?.subject || '',
-    html_content: campaign?.html_content || '',
+    html_content: campaign?.html_content || DEFAULT_EMAIL_TEMPLATE,
     audience_type: campaign?.audience_type || 'all_businesses',
     audience_value: campaign?.audience_value || null,
     testEmail: ''
@@ -75,6 +76,44 @@ const CampaignForm = ({
   }, []);
 
   const [showTestSection, setShowTestSection] = useState(false);
+  const [contentView, setContentView] = useState('code'); // 'code' or 'preview'
+  const previewIframeRef = useRef(null);
+
+  // Sync editable preview content back to formData when switching away from preview
+  const syncPreviewToCode = useCallback(() => {
+    const iframe = previewIframeRef.current;
+    if (iframe?.contentDocument?.body) {
+      const doc = iframe.contentDocument;
+      const html = `<!DOCTYPE html><html><head>${doc.head.innerHTML}</head><body>${doc.body.innerHTML}</body></html>`;
+      setFormData(prev => ({ ...prev, html_content: html }));
+    }
+  }, []);
+
+  // Initialize editable iframe when switching to preview
+  useEffect(() => {
+    if (contentView === 'preview' && previewIframeRef.current) {
+      const iframe = previewIframeRef.current;
+      const initEditor = () => {
+        try {
+          const doc = iframe.contentDocument;
+          if (doc) {
+            doc.open();
+            doc.write(formData.html_content || '');
+            doc.close();
+            doc.designMode = 'on';
+            doc.body.addEventListener('input', () => {
+              const html = `<!DOCTYPE html><html><head>${doc.head.innerHTML}</head><body>${doc.body.innerHTML}</body></html>`;
+              setFormData(prev => ({ ...prev, html_content: html }));
+            });
+          }
+        } catch (e) {
+          console.error('Failed to initialize preview editor:', e);
+        }
+      };
+      // Small delay to ensure iframe is mounted
+      setTimeout(initEditor, 50);
+    }
+  }, [contentView]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -231,14 +270,11 @@ const CampaignForm = ({
                         required
                       >
                         <option value="">Select a language...</option>
-                        {availableLanguages.map(lang => {
-                          const langInfo = LANGUAGES.find(l => l.value === lang);
-                          return (
-                            <option key={lang} value={lang}>
-                              {langInfo?.label || lang}
-                            </option>
-                          );
-                        })}
+                        {LANGUAGES.map(lang => (
+                          <option key={lang.value} value={lang.label}>
+                            {lang.label}
+                          </option>
+                        ))}
                       </select>
                     )}
                   </div>
@@ -298,19 +334,61 @@ const CampaignForm = ({
 
           {/* HTML Content */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Content (HTML)
-            </label>
-            <textarea
-              value={formData.html_content}
-              onChange={(e) => setFormData(prev => ({ ...prev, html_content: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d4f4f] focus:border-transparent h-64 font-mono text-sm"
-              placeholder="<h1>Hello {{first_name}}</h1><p>Your email content here...</p>"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Use {{variable_name}} for personalization (e.g., {{first_name}}, {{business_name}})
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Email Content
+              </label>
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setContentView('code')}
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
+                    contentView === 'code'
+                      ? 'bg-[#0d4f4f] text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Code
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setContentView('preview')}
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
+                    contentView === 'preview'
+                      ? 'bg-[#0d4f4f] text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+
+            {contentView === 'code' ? (
+              <>
+                <textarea
+                  value={formData.html_content}
+                  onChange={(e) => setFormData(prev => ({ ...prev, html_content: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d4f4f] focus:border-transparent h-64 font-mono text-sm"
+                  placeholder="<h1>Hello {{first_name}}</h1><p>Your email content here...</p>"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Use {"{{variable_name}}"} for personalization (e.g., {"{{first_name}}"}, {"{{business_name}}"})
+                </p>
+              </>
+            ) : (
+              <div className="border border-gray-300 rounded-lg overflow-hidden h-64">
+                <iframe
+                  ref={previewIframeRef}
+                  title="Email Preview Editor"
+                  className="w-full h-full bg-white"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Click into the preview to edit text directly
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Test Email Section */}

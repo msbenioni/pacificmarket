@@ -9,19 +9,9 @@ export async function PUT(request, context) {
     const params = await context.params;
     const businessId = params?.id;
 
-    console.log('API: Extracted businessId:', businessId);
-    console.log('API: Full params:', params);
-    console.log('API: Request URL:', request.url);
-
     if (!businessId || businessId === 'undefined' || businessId === '' || businessId === 'null') {
-      console.error('API: Business ID validation failed:', { businessId, params });
       return Response.json(
-        {
-          error: 'Business ID is required',
-          details: `Received businessId: ${businessId}`,
-          params,
-          url: request.url,
-        },
+        { error: 'Business ID is required' },
         { status: 400 }
       );
     }
@@ -32,14 +22,18 @@ export async function PUT(request, context) {
     }
 
     const { serviceClient } = auth;
-    const requestBody = await request.json();
 
-    console.log("API requestBody keys:", Object.keys(requestBody || {}));
-    console.log("API files payload:", requestBody?.files);
-    console.log("API removals payload:", requestBody?.removals);
-    console.log("API businessesData keys:", Object.keys(requestBody?.businessesData || {}));
+    // Parse FormData (supports file uploads)
+    const formData = await request.formData();
+    const businessesData = JSON.parse(formData.get('businessesData') || '{}');
+    const removals = JSON.parse(formData.get('removals') || '{}');
 
-    const { businessesData, files, removals } = requestBody;
+    // Extract file uploads
+    const files = {
+      logo_file: formData.get('logo_file') || null,
+      banner_file: formData.get('banner_file') || null,
+      mobile_banner_file: formData.get('mobile_banner_file') || null,
+    };
 
     const {
       prepareBusinessBrandingPayload,
@@ -61,10 +55,6 @@ export async function PUT(request, context) {
       subscriptionTier === SUBSCRIPTION_TIER.MOANA;
 
     const hasFileUploads = files && Object.keys(files).some((key) => files[key]);
-
-    if (!canUploadImages && hasFileUploads) {
-      console.log('🎨 Vaka plan detected - ignoring uploaded files.');
-    }
 
     let brandingPayload = {};
 
@@ -99,8 +89,6 @@ export async function PUT(request, context) {
       updated_at: new Date().toISOString(),
     };
 
-    console.log("API finalPayload keys:", Object.keys(finalPayload || {}));
-
     let updateResult;
     try {
       updateResult = await serviceClient
@@ -121,8 +109,6 @@ export async function PUT(request, context) {
     }
 
     const { data, error } = updateResult;
-    console.log("Supabase update result data:", data);
-    console.log("Supabase update result error:", error);
 
     if (error) {
       console.error('Admin business update error:', error);

@@ -399,67 +399,32 @@ export default function AdminDashboard() {
         removals = {},
       } = payload;
 
-      console.log("saveBusiness: Received payload:", { businessId, businessesData, files, removals });
-
       if (!businessId) {
-        console.error("saveBusiness: Missing businessId in payload:", payload);
         throw new Error("Missing business id for update.");
       }
 
-      console.log("saveBusiness input:", {
-        businessId,
-        businessesData,
-        filesPresent: {
-          logo_file: !!files.logo_file,
-          banner_file: !!files.banner_file,
-          mobile_banner_file: !!files.mobile_banner_file,
-        },
-        removals,
-      });
+      // Use FormData to support file uploads (File objects can't be JSON-serialized)
+      const formData = new FormData();
+      formData.append('businessesData', JSON.stringify(businessesData));
+      formData.append('removals', JSON.stringify(removals));
 
-      console.log("saveBusiness outgoing body preview:", {
-        businessId,
-        businessesData,
-        filesSummary: {
-          logo_file: files?.logo_file ? {
-            name: files.logo_file.name,
-            type: files.logo_file.type,
-            size: files.logo_file.size,
-          } : null,
-          banner_file: files?.banner_file ? {
-            name: files.banner_file.name,
-            type: files.banner_file.type,
-            size: files.banner_file.size,
-          } : null,
-          mobile_banner_file: files?.mobile_banner_file ? {
-            name: files.mobile_banner_file.name,
-            type: files.mobile_banner_file.type,
-            size: files.mobile_banner_file.size,
-          } : null,
-        },
-        removals,
-      });
-
-      // Temporarily disable file uploads to isolate the issue
-      const safeFiles = {
-        logo_file: null,
-        banner_file: null,
-        mobile_banner_file: null,
-      };
-
-      console.log("saveBusiness: About to call API with URL:", `/api/admin/businesses/${businessId}`);
+      // Append actual file objects if present
+      if (files.logo_file instanceof File) {
+        formData.append('logo_file', files.logo_file);
+      }
+      if (files.banner_file instanceof File) {
+        formData.append('banner_file', files.banner_file);
+      }
+      if (files.mobile_banner_file instanceof File) {
+        formData.append('mobile_banner_file', files.mobile_banner_file);
+      }
 
       const response = await fetch(`/api/admin/businesses/${businessId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          businessesData,
-          files: safeFiles,
-          removals
-        })
+        body: formData
       });
 
       if (!response.ok) {
@@ -472,7 +437,6 @@ export default function AdminDashboard() {
       }
 
       const { business: data } = await response.json();
-      console.log("saveBusiness returned row:", data);
 
       setBusinesses((prev) =>
         prev.map((b) => (b.id === businessId ? { ...b, ...data } : b))
@@ -487,7 +451,6 @@ export default function AdminDashboard() {
 
       return data;
     } catch (error) {
-      console.error("saveBusiness failed:", error);
       showError('Unable to update business', error?.message || 'Please try again.');
       throw error;
     } finally {

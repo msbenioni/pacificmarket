@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { FileText, X, Code } from 'lucide-react';
+import { DEFAULT_EMAIL_TEMPLATE } from '@/constants/emailTemplates';
 
 const TemplateForm = ({ 
   template, 
@@ -12,10 +13,37 @@ const TemplateForm = ({
   const [formData, setFormData] = useState({
     name: template?.name || '',
     subject: template?.subject || '',
-    html_content: template?.html_content || ''
+    html_content: template?.html_content || DEFAULT_EMAIL_TEMPLATE
   });
 
   const [detectedVariables, setDetectedVariables] = useState([]);
+  const [contentView, setContentView] = useState('code');
+  const previewIframeRef = useRef(null);
+
+  // Initialize editable iframe when switching to preview
+  useEffect(() => {
+    if (contentView === 'preview' && previewIframeRef.current) {
+      const iframe = previewIframeRef.current;
+      const initEditor = () => {
+        try {
+          const doc = iframe.contentDocument;
+          if (doc) {
+            doc.open();
+            doc.write(formData.html_content || '');
+            doc.close();
+            doc.designMode = 'on';
+            doc.body.addEventListener('input', () => {
+              const html = `<!DOCTYPE html><html><head>${doc.head.innerHTML}</head><body>${doc.body.innerHTML}</body></html>`;
+              setFormData(prev => ({ ...prev, html_content: html }));
+            });
+          }
+        } catch (e) {
+          console.error('Failed to initialize preview editor:', e);
+        }
+      };
+      setTimeout(initEditor, 50);
+    }
+  }, [contentView]);
 
   // Extract variables from HTML content
   useEffect(() => {
@@ -107,19 +135,61 @@ const TemplateForm = ({
 
           {/* HTML Content */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Content (HTML)
-            </label>
-            <textarea
-              value={formData.html_content}
-              onChange={(e) => setFormData(prev => ({ ...prev, html_content: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-64 font-mono text-sm"
-              placeholder="<h1>Hello {{first_name}}</h1><p>Thank you for joining us!</p>"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Use {{variable_name}} for personalization (e.g., {{first_name}}, {{business_name}})
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Email Content
+              </label>
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setContentView('code')}
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
+                    contentView === 'code'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Code
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setContentView('preview')}
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
+                    contentView === 'preview'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+
+            {contentView === 'code' ? (
+              <>
+                <textarea
+                  value={formData.html_content}
+                  onChange={(e) => setFormData(prev => ({ ...prev, html_content: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-64 font-mono text-sm"
+                  placeholder="<h1>Hello {{first_name}}</h1><p>Thank you for joining us!</p>"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Use {"{{variable_name}}"} for personalization (e.g., {"{{first_name}}"}, {"{{business_name}}"})
+                </p>
+              </>
+            ) : (
+              <div className="border border-gray-300 rounded-lg overflow-hidden h-64">
+                <iframe
+                  ref={previewIframeRef}
+                  title="Template Preview Editor"
+                  className="w-full h-full bg-white"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Click into the preview to edit text directly
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Detected Variables */}

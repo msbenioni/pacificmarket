@@ -20,9 +20,10 @@ const handleSupabaseError = (error, operation, context = {}) => {
   };
 };
 
-export async function PUT(request, { params }) {
+export async function PUT(request, context) {
   try {
-    const { id: campaignId } = params;
+    const params = await context.params;
+    const campaignId = params?.id;
     
     // Authenticate admin and get service client
     const auth = await requireAdmin(request);
@@ -100,9 +101,10 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(request, { params }) {
+export async function DELETE(request, context) {
   try {
-    const { id: campaignId } = params;
+    const params = await context.params;
+    const campaignId = params?.id;
     
     // Authenticate admin and get service client
     const auth = await requireAdmin(request);
