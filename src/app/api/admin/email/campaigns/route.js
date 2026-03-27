@@ -1,11 +1,31 @@
 import { requireAdmin } from '@/lib/server-auth';
+import { validateAudienceStructure } from '@/lib/email/audience';
 import nodemailer from 'nodemailer';
+
+// Helper for consistent error logging and responses
+const handleSupabaseError = (error, operation, context = {}) => {
+  const errorDetails = {
+    operation,
+    error: error.message,
+    details: error.details,
+    hint: error.hint,
+    code: error.code,
+    ...context
+  };
+  
+  console.error(`Failed to ${operation}:`, errorDetails);
+  
+  return {
+    error: `Failed to ${operation}`,
+    details: process.env.NODE_ENV === 'development' ? error.message : undefined
+  };
+};
 
 // Create SMTP transporter using Google Workspace
 const createTransporter = () => {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT),
+    port: parseInt(process.env.SMTP_PORT) || 587, // Safely default to 587
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
       user: process.env.SMTP_USER,
@@ -22,7 +42,7 @@ export async function GET(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient, serviceClient } = auth;
+    const { serviceClient } = auth;
 
     // Fetch campaigns using service client (bypasses RLS temporarily)
     const { data: campaigns, error } = await serviceClient
@@ -39,7 +59,8 @@ export async function GET(request) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      return Response.json({ error: 'Failed to fetch campaigns' }, { status: 500 });
+      const errorResponse = handleSupabaseError(error, 'fetch campaigns');
+      return Response.json(errorResponse, { status: 500 });
     }
 
     // Calculate stats for each campaign
@@ -69,12 +90,18 @@ export async function POST(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { user, userClient } = auth;
-    const { name, subject, html_content, audience, testEmail } = await request.json();
+    const { user, serviceClient } = auth;
+    const { name, subject, html_content, audience_type, audience_value, testEmail } = await request.json();
 
     // Validate required fields
-    if (!name || !subject || !html_content || !audience) {
+    if (!name || !subject || !html_content) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Validate audience structure
+    const validation = validateAudienceStructure({ audience_type, audience_value });
+    if (!validation.valid) {
+      return Response.json({ error: validation.error }, { status: 400 });
     }
 
     if (testEmail) {
@@ -102,22 +129,25 @@ export async function POST(request) {
         return Response.json({ error: 'Failed to send test email' }, { status: 500 });
       }
     } else {
-      // Create campaign using user client (respects RLS)
-      const { data: campaign, error } = await userClient
+      // Create campaign using service client
+      const campaignData = {
+        name,
+        subject, 
+        html_content,
+        audience_type,
+        audience_value,
+        created_by: user.id
+      };
+
+      const { data: campaign, error } = await serviceClient
         .from('email_campaigns')
-        .insert({
-          name,
-          subject,
-          html_content,
-          audience,
-          status: 'draft',
-          created_by: user.id
-        })
+        .insert(campaignData)
         .select()
         .single();
 
       if (error) {
-        return Response.json({ error: 'Failed to create campaign' }, { status: 500 });
+        const errorResponse = handleSupabaseError(error, 'create campaign', { campaignData });
+        return Response.json(errorResponse, { status: 500 });
       }
 
       return Response.json({ 

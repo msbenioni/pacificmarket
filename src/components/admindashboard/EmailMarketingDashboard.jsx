@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { useToast } from "@/components/ui/use-toast";
+import CampaignForm from "./CampaignForm";
+import TemplateForm from "./TemplateForm";
 
 export default function EmailMarketingDashboard() {
   const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
@@ -43,6 +45,15 @@ export default function EmailMarketingDashboard() {
   const [deletingCampaignId, setDeletingCampaignId] = useState(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState(null);
   const [updatingSubscriberId, setUpdatingSubscriberId] = useState(null);
+
+  // Form states
+  const [showCampaignForm, setShowCampaignForm] = useState(false);
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState(null);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [savingCampaign, setSavingCampaign] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
 
   // Derived campaign filters (memoized for performance)
   const draftCampaigns = useMemo(
@@ -429,7 +440,13 @@ export default function EmailMarketingDashboard() {
         throw new Error(errorData.error || 'Failed to update subscriber');
       }
 
-      showSuccess(`Subscriber ${status === 'active' ? 'activated' : 'deactivated'} successfully`);
+      const statusMessages = {
+        subscribed: 'subscribed',
+        unsubscribed: 'unsubscribed', 
+        bounced: 'marked as bounced'
+      };
+      
+      showSuccess(`Subscriber ${statusMessages[status] || 'updated'} successfully`);
       // Reload data
       await loadEmailData();
     } catch (error) {
@@ -494,11 +511,11 @@ export default function EmailMarketingDashboard() {
       setSendingCampaignId(campaignId);
       const token = await getAuthToken();
       if (!token) {
-      showError('Authentication required');
+        showError('Authentication required');
         return;
       }
       
-      const response = await fetch('/api/admin/email/queue-campaign', {
+      const response = await fetch(`/api/admin/email/queue-campaign`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -524,13 +541,218 @@ export default function EmailMarketingDashboard() {
     }
   };
 
+  // Campaign CRUD handlers
+  const handleCreateCampaign = async (campaignData) => {
+    try {
+      setSavingCampaign(true);
+      const token = await getAuthToken();
+      if (!token) {
+        showError('Authentication required');
+        return;
+      }
+      
+      const response = await fetch('/api/admin/email/campaigns', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(campaignData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create campaign');
+      }
+
+      showSuccess('Campaign created', 'Campaign created successfully');
+      setShowCampaignForm(false);
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error creating campaign:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create campaign';
+      showError('Failed to create campaign', errorMessage);
+    } finally {
+      setSavingCampaign(false);
+    }
+  };
+
+  const handleUpdateCampaign = async (campaignId, campaignData) => {
+    try {
+      setSavingCampaign(true);
+      const token = await getAuthToken();
+      if (!token) {
+        showError('Authentication required');
+        return;
+      }
+      
+      const response = await fetch(`/api/admin/email/campaigns/${campaignId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(campaignData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update campaign');
+      }
+
+      showSuccess('Campaign updated', 'Campaign updated successfully');
+      setShowCampaignForm(false);
+      setEditingCampaign(null);
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error updating campaign:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update campaign';
+      showError('Failed to update campaign', errorMessage);
+    } finally {
+      setSavingCampaign(false);
+    }
+  };
+
+  const handleEditCampaign = (campaign) => {
+    if (campaign.status !== 'draft') {
+      showError('Cannot edit campaign', 'Only draft campaigns can be edited');
+      return;
+    }
+    setEditingCampaign(campaign);
+    setShowCampaignForm(true);
+  };
+
+  // Template CRUD handlers
+  const handleCreateTemplate = async (templateData) => {
+    try {
+      setSavingTemplate(true);
+      const token = await getAuthToken();
+      if (!token) {
+        showError('Authentication required');
+        return;
+      }
+      
+      const response = await fetch('/api/admin/email/templates', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(templateData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create template');
+      }
+
+      showSuccess('Template created', 'Template created successfully');
+      setShowTemplateForm(false);
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error creating template:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create template';
+      showError('Failed to create template', errorMessage);
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const handleUpdateTemplate = async (templateId, templateData) => {
+    try {
+      setSavingTemplate(true);
+      const token = await getAuthToken();
+      if (!token) {
+        showError('Authentication required');
+        return;
+      }
+      
+      const response = await fetch('/api/admin/email/templates', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ templateId, ...templateData })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update template');
+      }
+
+      showSuccess('Template updated', 'Template updated successfully');
+      setShowTemplateForm(false);
+      setEditingTemplate(null);
+      await loadEmailData();
+    } catch (error) {
+      console.error('Error updating template:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update template';
+      showError('Failed to update template', errorMessage);
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const handleEditTemplate = (template) => {
+    setEditingTemplate(template);
+    setShowTemplateForm(true);
+  };
+
+  const handleUseTemplate = (template) => {
+    // Start a new campaign from template
+    setEditingCampaign({
+      name: `Campaign from ${template.name}`,
+      subject: template.subject,
+      html_content: template.html_content,
+      audience: 'all'
+    });
+    setShowCampaignForm(true);
+  };
+
+  const handleTestEmail = async (testEmail, campaignData) => {
+    try {
+      setTestingEmail(true);
+      const token = await getAuthToken();
+      if (!token) {
+        showError('Authentication required');
+        return;
+      }
+      
+      const response = await fetch('/api/admin/email/campaigns', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...campaignData,
+          testEmail
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send test email');
+      }
+
+      showSuccess('Test email sent', `Test email sent to ${testEmail}`);
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send test email';
+      showError('Failed to send test email', errorMessage);
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   const renderCampaigns = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-[#0a1628]">Email Campaigns</h3>
-        <button className="bg-[#0d4f4f] hover:bg-[#1a6b6b] disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-          disabled
-          title="Create Campaign feature coming soon"
+        <button 
+          onClick={() => setShowCampaignForm(true)}
+          className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Create Campaign
@@ -582,16 +804,27 @@ export default function EmailMarketingDashboard() {
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                        <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
-                        disabled
-                        title="Edit Campaign feature coming soon"
-                      >
+                        <button 
+                          onClick={() => handleEditCampaign(campaign)}
+                          disabled={campaign.status !== 'draft'}
+                          className={`${
+                            campaign.status === 'draft' 
+                              ? 'text-blue-500 hover:text-blue-700' 
+                              : 'text-gray-400 hover:text-gray-600 disabled:text-gray-300'
+                          }`}
+                          title={campaign.status === 'draft' ? 'Edit Campaign' : 'Only draft campaigns can be edited'}
+                        >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDeleteCampaign(campaign.id)}
-                          disabled={deletingCampaignId === campaign.id}
-                          className="text-gray-400 hover:text-red-600 disabled:text-gray-300"
+                          disabled={deletingCampaignId === campaign.id || campaign.status !== 'draft'}
+                          className={`${
+                            campaign.status === 'draft'
+                              ? 'text-gray-400 hover:text-red-600' 
+                              : 'text-gray-300 cursor-not-allowed'
+                          }`}
+                          title={campaign.status === 'draft' ? 'Delete Campaign' : 'Only draft campaigns can be deleted'}
                         >
                           {deletingCampaignId === campaign.id ? (
                             <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
@@ -696,14 +929,6 @@ export default function EmailMarketingDashboard() {
                                 Queue Send
                               </>
                             )}
-                          </button>
-                          <button 
-                            disabled
-                            className="bg-gray-100 hover:bg-gray-200 text-gray-500 px-3 py-2 rounded-lg text-sm flex items-center gap-2 cursor-not-allowed"
-                            title="Quick test feature coming soon"
-                          >
-                            <Eye className="w-4 h-4" />
-                            Test (Coming Soon)
                           </button>
                         </div>
                       </td>
@@ -942,7 +1167,10 @@ export default function EmailMarketingDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-[#0a1628]">Email Templates</h3>
-        <button className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2">
+        <button 
+          onClick={() => setShowTemplateForm(true)}
+          className="bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg flex items-center gap-2"
+        >
           <Plus className="w-4 h-4" />
           Create Template
         </button>
@@ -964,9 +1192,10 @@ export default function EmailMarketingDashboard() {
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">{template.subject}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button className="text-gray-400 hover:text-gray-600 disabled:text-gray-300"
-                    disabled
-                    title="Edit Template feature coming soon"
+                  <button 
+                    onClick={() => handleEditTemplate(template)}
+                    className="text-blue-500 hover:text-blue-700 disabled:text-gray-300"
+                    title="Edit Template"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -995,9 +1224,10 @@ export default function EmailMarketingDashboard() {
                 </div>
               </div>
               
-              <button className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] disabled:bg-gray-400 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2"
-            disabled
-            title="Use Template feature coming soon"
+              <button 
+            onClick={() => handleUseTemplate(template)}
+            className="w-full bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2"
+            title="Start a new campaign from this template"
           >
             <Send className="w-4 h-4" />
             Use Template
@@ -1223,6 +1453,33 @@ export default function EmailMarketingDashboard() {
       
       {/* Confirmation Dialog */}
       {DialogComponent}
+      
+      {/* Forms */}
+      {showCampaignForm && (
+        <CampaignForm
+          campaign={editingCampaign}
+          onSave={editingCampaign ? (data) => handleUpdateCampaign(editingCampaign.id, data) : handleCreateCampaign}
+          onCancel={() => {
+            setShowCampaignForm(false);
+            setEditingCampaign(null);
+          }}
+          saving={savingCampaign}
+          onTestEmail={handleTestEmail}
+          testingEmail={testingEmail}
+        />
+      )}
+      
+      {showTemplateForm && (
+        <TemplateForm
+          template={editingTemplate}
+          onSave={editingTemplate ? (data) => handleUpdateTemplate(editingTemplate.id, data) : handleCreateTemplate}
+          onCancel={() => {
+            setShowTemplateForm(false);
+            setEditingTemplate(null);
+          }}
+          saving={savingTemplate}
+        />
+      )}
     </div>
   );
 }

@@ -402,10 +402,19 @@ export default function BusinessProfileForm({
     setErrors({ submit: undefined });
 
     try {
+      console.log("BusinessProfileForm: performSave called with businessId:", businessId);
+      console.log("BusinessProfileForm: form state:", form);
+      
       const { businessesData, businessInsightsData } = transformBusinessFormData(form);
 
-      const saveResult = await onSave({
+      console.log("BusinessProfileForm: About to call onSave with:", {
         businessId,
+        businessesDataKeys: Object.keys(businessesData),
+        businessInsightsDataKeys: Object.keys(businessInsightsData)
+      });
+
+      const saveResult = await onSave({
+        businessId: businessId, // Use the prop
         businessesData,
         businessInsightsData,
         files: {

@@ -386,6 +386,11 @@ export default function AdminDashboard() {
     try {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error("Authentication required for admin operations");
+      }
 
       const {
         businessId,
@@ -394,7 +399,10 @@ export default function AdminDashboard() {
         removals = {},
       } = payload;
 
+      console.log("saveBusiness: Received payload:", { businessId, businessesData, files, removals });
+
       if (!businessId) {
+        console.error("saveBusiness: Missing businessId in payload:", payload);
         throw new Error("Missing business id for update.");
       }
 
@@ -409,35 +417,62 @@ export default function AdminDashboard() {
         removals,
       });
 
-      const { prepareBusinessBrandingPayload } = await import(
-        "../utils/brandingUploadUtils"
-      );
-
-      const finalPayload = await prepareBusinessBrandingPayload({
-        supabase,
+      console.log("saveBusiness outgoing body preview:", {
         businessId,
         businessesData,
-        files,
+        filesSummary: {
+          logo_file: files?.logo_file ? {
+            name: files.logo_file.name,
+            type: files.logo_file.type,
+            size: files.logo_file.size,
+          } : null,
+          banner_file: files?.banner_file ? {
+            name: files.banner_file.name,
+            type: files.banner_file.type,
+            size: files.banner_file.size,
+          } : null,
+          mobile_banner_file: files?.mobile_banner_file ? {
+            name: files.mobile_banner_file.name,
+            type: files.mobile_banner_file.type,
+            size: files.mobile_banner_file.size,
+          } : null,
+        },
         removals,
       });
 
-      finalPayload.updated_at = new Date().toISOString();
+      // Temporarily disable file uploads to isolate the issue
+      const safeFiles = {
+        logo_file: null,
+        banner_file: null,
+        mobile_banner_file: null,
+      };
 
-      console.log("saveBusiness finalPayload:", finalPayload);
+      console.log("saveBusiness: About to call API with URL:", `/api/admin/businesses/${businessId}`);
 
-      const { data, error } = await supabase
-        .from("businesses")
-        .update(finalPayload)
-        .eq("id", businessId)
-        .select()
-        .single();
+      const response = await fetch(`/api/admin/businesses/${businessId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          businessesData,
+          files: safeFiles,
+          removals
+        })
+      });
 
-      console.log("saveBusiness returned row:", data);
-
-      if (error) throw error;
-      if (!data) {
-        throw new Error("Update completed but no updated business row was returned.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.details
+            ? `${errorData.error}: ${errorData.details}` 
+            : (errorData.error || 'Failed to update business')
+        );
       }
+
+      const { business: data } = await response.json();
+      console.log("saveBusiness returned row:", data);
 
       setBusinesses((prev) =>
         prev.map((b) => (b.id === businessId ? { ...b, ...data } : b))

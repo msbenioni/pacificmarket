@@ -1,7 +1,7 @@
 import { createServiceClient } from '@/lib/server-auth';
 import nodemailer from 'nodemailer';
 import { extractTemplateVariables, BACKGROUND_BATCH_SIZE, BACKGROUND_BATCH_DELAY, EMAIL_SEND_DELAY } from '@/constants/emailConstants';
-import { buildAudienceRecipients } from '@/lib/email/getAudienceRecipients';
+import { buildAudienceRecipients } from '@/lib/email/audience';
 
 const serviceClient = createServiceClient();
 
@@ -9,7 +9,7 @@ const serviceClient = createServiceClient();
 const createTransporter = () => {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT),
+    port: parseInt(process.env.SMTP_PORT) || 587, // Safely default to 587
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
       user: process.env.SMTP_USER,

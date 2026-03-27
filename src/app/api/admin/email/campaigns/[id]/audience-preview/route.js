@@ -1,18 +1,16 @@
 import { requireAdmin } from '@/lib/server-auth';
-import { buildAudienceRecipients } from '@/lib/email/getAudienceRecipients';
+import { buildAudienceRecipients, getAudienceLabel } from '@/lib/email/audience';
 
 export async function GET(request, { params }) {
   try {
-    // Await params in Next.js App Router
-    const { id: campaignId } = await params;
-    
+    const { id: campaignId } = params; // in Next.js App Router
     // Authenticate admin and get both clients
     const auth = await requireAdmin(request);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient, serviceClient } = auth;
+    const { serviceClient } = auth;
 
     if (!campaignId) {
       return Response.json({ error: 'Campaign ID is required' }, { status: 400 });
@@ -21,7 +19,7 @@ export async function GET(request, { params }) {
     // Fetch campaign details using service client (bypasses RLS temporarily)
     const { data: campaign, error: campaignError } = await serviceClient
       .from('email_campaigns')
-      .select('name, audience, subject')
+      .select('name, audience_type, audience_value, subject')
       .eq('id', campaignId)
       .single();
 
@@ -39,22 +37,14 @@ export async function GET(request, { params }) {
       business_handle: e.business_handle
     }));
 
-    // Audience labels
-    const audienceLabels = {
-      'all': 'All Subscribers',
-      'business_owners': 'Business Owners',
-      'mana_plan': 'Mana Plan Members',
-      'moana_plan': 'Moana Plan Members',
-      'referral_participants': 'Referral Participants'
-    };
-
     return Response.json({
       success: true,
       campaign: {
         id: campaignId,
         name: campaign.name,
-        audience: campaign.audience,
-        audience_label: audienceLabels[campaign.audience] || campaign.audience,
+        audience_type: campaign.audience_type,
+        audience_value: campaign.audience_value,
+        audience_label: getAudienceLabel(campaign),
         subject: campaign.subject
       },
       audience_preview: {

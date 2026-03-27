@@ -1,6 +1,25 @@
 import { requireAdmin } from '@/lib/server-auth';
 import { extractTemplateVariables } from '@/constants/emailConstants';
 
+// Helper for consistent error logging and responses
+const handleSupabaseError = (error, operation, context = {}) => {
+  const errorDetails = {
+    operation,
+    error: error.message,
+    details: error.details,
+    hint: error.hint,
+    code: error.code,
+    ...context
+  };
+  
+  console.error(`Failed to ${operation}:`, errorDetails);
+  
+  return {
+    error: `Failed to ${operation}`,
+    details: process.env.NODE_ENV === 'development' ? error.message : undefined
+  };
+};
+
 export async function GET(request) {
   try {
     // Authenticate admin and get user client
@@ -37,7 +56,7 @@ export async function POST(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { user, userClient, serviceClient } = auth;
+    const { user, serviceClient } = auth;
     const { name, subject, html_content, variables } = await request.json();
 
     // Validate required fields
@@ -65,7 +84,10 @@ export async function POST(request) {
       .single();
 
     if (error) {
-      return Response.json({ error: 'Failed to create template' }, { status: 500 });
+      const errorResponse = handleSupabaseError(error, 'create template', { 
+        templateData: { name, subject, variables: templateVariables }
+      });
+      return Response.json(errorResponse, { status: 500 });
     }
 
     return Response.json({ 
@@ -88,14 +110,14 @@ export async function PUT(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient } = auth;
+    const { serviceClient } = auth;
     const { templateId, name, subject, html_content, variables } = await request.json();
 
     if (!templateId) {
       return Response.json({ error: 'Template ID required' }, { status: 400 });
     }
 
-    // Update template using user client (respects RLS)
+    // Update template using service client (bypasses RLS temporarily)
     const updateData = {};
     if (name) updateData.name = name;
     if (subject) updateData.subject = subject;
@@ -109,8 +131,11 @@ export async function PUT(request) {
       updateData.variables = templateVariables;
     }
     if (variables) updateData.variables = variables;
+    
+    // Always set updated_at on template updates
+    updateData.updated_at = new Date().toISOString();
 
-    const { data: template, error } = await userClient
+    const { data: template, error } = await serviceClient
       .from('email_templates')
       .update(updateData)
       .eq('id', templateId)
@@ -118,7 +143,8 @@ export async function PUT(request) {
       .single();
 
     if (error) {
-      return Response.json({ error: 'Failed to update template' }, { status: 500 });
+      const errorResponse = handleSupabaseError(error, 'update template', { templateId, updateData });
+      return Response.json(errorResponse, { status: 500 });
     }
 
     return Response.json({ 
@@ -141,20 +167,21 @@ export async function DELETE(request) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { userClient } = auth;
+    const { serviceClient } = auth;
     const { templateId } = await request.json();
 
     if (!templateId) {
       return Response.json({ error: 'Template ID required' }, { status: 400 });
     }
 
-    const { error } = await userClient
+    const { error } = await serviceClient
       .from('email_templates')
       .delete()
       .eq('id', templateId);
 
     if (error) {
-      return Response.json({ error: 'Failed to delete template' }, { status: 500 });
+      const errorResponse = handleSupabaseError(error, 'delete template', { templateId });
+      return Response.json(errorResponse, { status: 500 });
     }
 
     return Response.json({ 
