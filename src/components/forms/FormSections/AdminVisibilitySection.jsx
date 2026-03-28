@@ -2,6 +2,7 @@
 
 import { labelCls, selectCls, helperCls } from "../shared/FormComponents";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 export default function AdminVisibilitySection({
   form,
@@ -24,6 +25,26 @@ export default function AdminVisibilitySection({
 
   return (
     <div className="space-y-4">
+      <div>
+        <div className="mb-2">
+          <label className={labelCls}>Subscription Tier</label>
+        </div>
+        <select
+          id="subscription_tier"
+          name="subscription_tier"
+          value={form.subscription_tier || SUBSCRIPTION_TIER.VAKA}
+          onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
+          className={selectCls}
+        >
+          <option value={SUBSCRIPTION_TIER.VAKA}>Vaka (Free)</option>
+          <option value={SUBSCRIPTION_TIER.MANA}>Mana (Premium)</option>
+          <option value={SUBSCRIPTION_TIER.MOANA}>Moana (Premium Plus)</option>
+        </select>
+        <p className={helperCls}>
+          Set the subscription tier for this business. Moana tier includes automatic homepage visibility.
+        </p>
+      </div>
+
       <div>
         <div className="mb-2">
           <label className={labelCls}>Homepage Visibility</label>

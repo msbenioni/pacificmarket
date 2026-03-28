@@ -10,6 +10,7 @@ import {
 import { getBusinessReferralRewards } from "@/lib/supabase/queries/referralRewards";
 import { getBadgeStyles } from "@/components/admin/helpers/adminFormatting";
 import { secondaryButtonCls } from "@/components/admin/constants/adminDashboardConstants";
+import { getLogoUrl } from "@/utils/bannerUtils";
 
 export default function AdminBusinessMobileCard({
   business,

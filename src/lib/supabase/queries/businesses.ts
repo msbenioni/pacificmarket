@@ -393,7 +393,6 @@ const BUSINESS_ADMIN_FIELDS = `
   business_acquisition_interest,
   team_size_band,
   social_links,
-  -- Join to get referrer business info
   referrer_business:referred_by_business_id(
     business_name,
     business_handle

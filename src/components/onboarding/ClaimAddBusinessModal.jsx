@@ -191,7 +191,7 @@ export function ClaimAddBusinessModal({
       if (insertErr) throw insertErr;
 
       // Send admin notification for new claim (non-blocking)
-      fetch("/api/admin-notifications/business-claim", {
+      fetch("/api/notifications/claim-submitted", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -269,6 +269,7 @@ export function ClaimAddBusinessModal({
         subscription_tier: "vaka",
         source: "claim",
         created_via: "user_claim_modal",
+        referred_by_business_id: clean.referred_by_business_id || null,
       };
 
       console.log("💾 ClaimAddBusinessModal calling createBusinessWithBranding with:", {
@@ -333,7 +334,7 @@ export function ClaimAddBusinessModal({
       console.log('Business created:', savedRow);
 
       // Send admin notification for new business (non-blocking)
-      fetch("/api/admin-notifications/business-created", {
+      fetch("/api/notifications/business-added", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -343,20 +344,6 @@ export function ClaimAddBusinessModal({
       }).catch(error => {
         console.error("Failed to send admin notification:", error);
       });
-
-      // Send business-added notification (non-blocking)
-      try {
-        await fetch("/api/notifications/business-added", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            businessId: savedRow.id,
-            userId: userRes.user.id,
-          }),
-        });
-      } catch (notifError) {
-        console.error("Failed to send business added notification:", notifError);
-      }
 
       // Create approved direct claim request (non-blocking)
       try {

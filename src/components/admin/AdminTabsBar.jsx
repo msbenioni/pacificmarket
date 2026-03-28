@@ -4,7 +4,6 @@ export default function AdminTabsBar({
   tabs,
   activeTab,
   setActiveTab,
-  pendingCount,
   pendingClaimsCount,
   onExport,
   onResetEditing,
@@ -20,9 +19,7 @@ export default function AdminTabsBar({
                 key={tab.id}
                 onClick={() => {
                   setActiveTab(tab.id);
-                  if (onResetEditing) {
-                    onResetEditing();
-                  }
+                  if (onResetEditing) onResetEditing();
                 }}
                 className={`inline-flex min-h-[44px] items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                   activeTab === tab.id
@@ -36,11 +33,7 @@ export default function AdminTabsBar({
                   }`}
                 />
                 {tab.label}
-                {tab.id === "pending" && pendingCount > 0 && (
-                  <span className="rounded-full bg-yellow-500 px-1.5 py-0.5 text-[11px] text-white">
-                    {pendingCount}
-                  </span>
-                )}
+
                 {tab.id === "claims" && pendingClaimsCount > 0 && (
                   <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-[11px] text-white">
                     {pendingClaimsCount}

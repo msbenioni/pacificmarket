@@ -1,121 +1,110 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
 
-import { serve } from "https://deno.land/std/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-import { createHmac } from "https://deno.land/std/crypto/mod.ts"
+import { serve } from "https://deno.land/std/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-// Verify webhook signature
-function verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
-  const expectedSignature = createHmac('sha256', secret)
-    .update(payload)
-    .toString('hex')
-  
-  return signature === expectedSignature
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-webhook-secret",
+};
 
 serve(async (req: Request) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Verify webhook signature
-    const signature = req.headers.get('X-Webhook-Secret')
-    const webhookSecret = Deno.env.get('WEBHOOK_SECRET')
-    
+    const providedSecret = req.headers.get("X-Webhook-Secret");
+    const webhookSecret = Deno.env.get("WEBHOOK_SECRET");
+
     if (!webhookSecret) {
-      throw new Error('WEBHOOK_SECRET not configured')
+      throw new Error("WEBHOOK_SECRET not configured");
     }
 
-    const body = await req.text()
-    
-    if (!verifyWebhookSignature(body, signature || '', webhookSecret)) {
-      console.error('Invalid webhook signature')
-      return new Response(JSON.stringify({ error: 'Invalid signature' }), { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 401 
-      })
+    if (!providedSecret || providedSecret !== webhookSecret) {
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
     }
 
-    // Parse webhook payload
-    const webhookData = JSON.parse(body)
-    const { type, table, record } = webhookData
+    const body = await req.json();
+    const { table, record } = body;
 
-    console.log('Processing webhook:', { type, table, record_id: record?.id })
+    console.log("Processing webhook:", {
+      table,
+      record_id: record?.id,
+    });
 
-    // Use service role for server-to-server calls
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    // Extract relevant data from webhook payload
-    const created_via = record?.created_via
-    const business_id = record?.business_id || record?.id
-    const user_id = record?.user_id || record?.owner_user_id
+    const created_via = record?.created_via;
+    const business_id = record?.business_id || record?.id;
+    const _user_id = record?.user_id || record?.owner_user_id;
 
-    // Only process user-originated notifications
-    if (!['user_claim_modal', 'user_portal'].includes(created_via)) {
-      console.log('Skipping admin-created notification:', created_via)
-      return new Response(JSON.stringify({ skipped: true }), { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      })
+    if (!["user_claim_modal", "user_portal"].includes(created_via)) {
+      return new Response(JSON.stringify({ skipped: true, reason: "admin-created" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
-    // Skip direct claims to avoid duplicate notifications
-    if (table === 'claim_requests' && record?.claim_type === 'direct') {
-      console.log('Skipping direct claim notification to avoid duplicates')
-      return new Response(JSON.stringify({ skipped: true }), { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      })
+    if (table === "claim_requests" && record?.claim_type === "direct") {
+      return new Response(JSON.stringify({ skipped: true, reason: "direct-claim" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
-    // Import notification functions
-    const { notifyNewBusinessCreated, notifyNewBusinessClaim } = await import(
-      "../../src/utils/notifyAdmin.js"
-    )
+    // TODO: move these helpers into supabase/functions/_shared/notifyAdmin.ts
+    // import from there instead of ../../src/utils/notifyAdmin.js
 
-    if (table === 'businesses') {
-      // Fetch user details
-      const { data: userData } = await supabaseClient.auth.admin.getUserById(user_id)
+    if (table === "businesses") {
+      console.log("Business webhook received for:", record?.business_name);
 
-      if (record && userData) {
-        await notifyNewBusinessCreated(record, userData.user)
-        console.log('✅ Business notification sent:', record.business_name)
-      }
-    } else if (table === 'claim_requests') {
-      // Fetch business and user details
-      const { data: business } = await supabaseClient
-        .from('businesses')
-        .select('*')
-        .eq('id', business_id)
-        .single()
+      // TODO: Add user fetch when implementing notifications
+      // const { data: _userData, error: userError } =
+      //   await supabaseClient.auth.admin.getUserById(user_id);
+      // if (userError) throw userError;
 
-      const { data: userData } = await supabaseClient.auth.admin.getUserById(user_id)
-
-      if (record && business && userData) {
-        await notifyNewBusinessClaim(record, business, userData.user)
-        console.log('✅ Claim notification sent:', business.business_name)
-      }
+      // await notifyNewBusinessCreated(record, _userData.user)
     }
 
-    return new Response(JSON.stringify({ success: true }), { 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200 
-    })
-  } catch (error: any) {
-    console.error('Webhook error:', error)
-    return new Response(JSON.stringify({ error: error.message }), { 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500 
-    })
+    if (table === "claim_requests") {
+      const { data: business, error: businessError } = await supabaseClient
+        .from("businesses")
+        .select("*")
+        .eq("id", business_id)
+        .single();
+
+      if (businessError) throw businessError;
+
+      console.log("Claim webhook received for:", business?.business_name);
+
+      // TODO: Add user fetch when implementing notifications
+      // const { data: _userData, error: userError } =
+      //   await supabaseClient.auth.admin.getUserById(user_id);
+      // if (userError) throw userError;
+
+      // await notifyNewBusinessClaim(record, business, _userData.user)
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
+  } catch (error: unknown) {
+    console.error("Webhook error:", error);
+
+    const message =
+      error instanceof Error ? error.message : "Unknown webhook error";
+
+    return new Response(JSON.stringify({ error: message }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});

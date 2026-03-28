@@ -10,9 +10,7 @@ import {
   AlertTriangle,
   Building2,
   CheckCircle,
-  Eye,
   Shield,
-  Speech,
   XCircle,
 } from "lucide-react";
 
@@ -25,7 +23,6 @@ import AdminTabsBar from "@/components/admin/AdminTabsBar";
 import ClaimMobileCard from "@/components/admin/ClaimMobileCard";
 import PresentationsTab from "@/components/admin/PresentationsTab";
 import EmailMarketingDashboard from "@/components/admindashboard/EmailMarketingDashboard";
-import { formatDisplayList } from "@/utils/displayHelpers";
 import { getBadgeStyles } from "@/components/admin/helpers/adminFormatting";
 import {
   TABS,
@@ -39,13 +36,9 @@ import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 import {
   COUNTRIES,
   INDUSTRIES,
-  getCountryDisplayName,
-  getIndustryDisplayName,
-  getTierDisplayName,
 } from "@/constants/unifiedConstants";
 import { getLogoUrl } from "@/utils/bannerUtils";
 import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
-import { formatDateConsistent } from "@/utils/dateUtils";
 
 async function checkIsAdmin(user) {
   if (!user) return false;
@@ -96,7 +89,7 @@ export default function AdminDashboard() {
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
-  const [activeTab, setActiveTab] = useState("active");
+  const [activeTab, setActiveTab] = useState("businesses");
 
   const [businesses, setBusinesses] = useState([]);
   const [claims, setClaims] = useState([]);
@@ -117,6 +110,12 @@ export default function AdminDashboard() {
     tier: "",
     is_verified: "",
   });
+
+  // Claims filter state
+  const [claimsFilter, setClaimsFilter] = useState("all"); // "all", "pending", "approved", "rejected"
+
+  // Businesses filter state
+  const [businessesFilter, setBusinessesFilter] = useState("active"); // "active", "pending", "rejected", "all"
 
   // Fix hydration mismatch
   const [isClient, setIsClient] = useState(false);
@@ -145,9 +144,7 @@ export default function AdminDashboard() {
             role, created_at, claim_type, message,
             reviewed_by, reviewed_at
           `)
-          .eq("status", "pending")
-          .order("created_at", { ascending: false })
-          .limit(100),
+          .order("created_at", { ascending: false }),
       ]);
 
       if (businessesRes.error) {
@@ -222,6 +219,8 @@ export default function AdminDashboard() {
 
   const updateStatus = async (business, newStatus) => {
     try {
+      console.log("🔄 Updating business status:", { businessId: business.id, currentStatus: business.status, newStatus });
+      
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
@@ -238,7 +237,10 @@ export default function AdminDashboard() {
         updateData.is_verified = true;
         updateData.claimed_at = new Date().toISOString();
         updateData.claimed_by = user?.id;
+        console.log("📝 Approving pending business - adding claim data:", { claimed_by: user?.id });
       }
+
+      console.log("🚀 Sending update to database:", updateData);
 
       const { data, error } = await supabase
         .from("businesses")
@@ -247,10 +249,17 @@ export default function AdminDashboard() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("❌ Database update error:", error);
+        throw error;
+      }
+      
       if (!data) {
+        console.error("❌ No data returned from update");
         throw new Error("Status update completed but no updated row was returned.");
       }
+
+      console.log("✅ Update successful:", data);
 
       setBusinesses((prev) =>
         prev.map((b) => (b.id === business.id ? { ...b, ...data } : b))
@@ -259,8 +268,8 @@ export default function AdminDashboard() {
       await loadAdminData();
       showSuccess('Business status changed', `Status changed to ${newStatus}`);
     } catch (error) {
-      console.error("Error updating status:", error);
-      showError('Unable to update business status', 'Please try again.');
+      console.error("❌ Error updating status:", error);
+      showError('Unable to update business status', error?.message || 'Please try again.');
     }
   };
 
@@ -269,32 +278,21 @@ export default function AdminDashboard() {
       const { getSupabase } = await import("@/lib/supabase/client");
       const supabase = getSupabase();
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("claim_requests")
         .update({
           status: newStatus,
           reviewed_at: new Date().toISOString(),
           reviewed_by: user?.id,
         })
-        .eq("id", claim.id)
-        .select();
+        .eq("id", claim.id);
 
       if (error) throw error;
 
-      if (newStatus !== "pending") {
-        setClaims((prev) => prev.filter((c) => c.id !== claim.id));
-      } else {
-        setClaims((prev) =>
-          prev.map((c) => (c.id === claim.id ? { ...c, status: newStatus } : c))
-        );
-      }
-
       if (newStatus === "approved") {
         const matchedBusiness = businesses.find((b) => b.id === claim.business_id);
-        if (matchedBusiness) {
-          const { getSupabase } = await import("@/lib/supabase/client");
-          const supabase = getSupabase();
 
+        if (matchedBusiness) {
           const { error: ownershipError } = await supabase
             .from("businesses")
             .update({
@@ -307,10 +305,7 @@ export default function AdminDashboard() {
             })
             .eq("id", claim.business_id);
 
-          if (ownershipError) {
-            console.error("Error updating business ownership:", ownershipError);
-            throw ownershipError;
-          }
+          if (ownershipError) throw ownershipError;
         } else {
           console.error("Business not found for claim approval:", claim.business_id);
         }
@@ -320,7 +315,7 @@ export default function AdminDashboard() {
       showSuccess('Claim status changed', `Status changed to ${newStatus}`);
     } catch (error) {
       console.error("Error updating claim:", error);
-      showError('Unable to update claim status', 'Please try again.');
+      showError('Unable to update claim status', error?.message || 'Please try again.');
     }
   };
 
@@ -649,51 +644,27 @@ export default function AdminDashboard() {
     );
   }
 
-  const statusTab = TABS.find((tab) => tab.id === activeTab && tab.status);
-  const filtered = statusTab
-    ? businesses.filter((b) => b.status === statusTab.status)
-    : [];
-
-  const getFilteredData = () => {
-    let data = filtered;
-
-    if (searchQuery) {
-      data = data.filter(
-        (business) =>
-          business.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business.industry?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (filters.country) {
-      data = data.filter((business) => business.country === filters.country);
-    }
-    if (filters.industry) {
-      data = data.filter((business) => business.industry === filters.industry);
-    }
-    if (filters.tier) {
-      data = data.filter((business) => business.subscription_tier === filters.tier);
-    }
-    if (filters.is_verified !== "") {
-      const isVerified = filters.is_verified === "true";
-      data = data.filter((business) => business.is_verified === isVerified);
-    }
-
-    return data;
-  };
-
   const getFilteredClaims = () => {
     let filteredClaims = claims;
 
+    // Apply status filter
+    if (claimsFilter !== "all") {
+      filteredClaims = filteredClaims.filter((c) => c.status === claimsFilter);
+    }
+
     if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+
       filteredClaims = filteredClaims.filter((claim) => {
         const business = businesses.find((b) => b.id === claim.business_id);
+
         return (
-          claim.business_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          claim.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business?.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business?.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          claim.business_email?.toLowerCase().includes(q) ||
+          claim.business_phone?.toLowerCase().includes(q) ||
+          business?.business_name?.toLowerCase().includes(q) ||
+          business?.description?.toLowerCase().includes(q) ||
+          business?.country?.toLowerCase().includes(q) ||
+          business?.industry?.toLowerCase().includes(q)
         );
       });
     }
@@ -701,12 +672,58 @@ export default function AdminDashboard() {
     return filteredClaims;
   };
 
-  const filteredData = getFilteredData();
+  const getFilteredBusinesses = () => {
+    let filteredBusinesses = businesses;
+
+    // ... rest of the code remains the same ...
+    if (businessesFilter !== "all") {
+      filteredBusinesses = filteredBusinesses.filter(
+        (b) => b.status === businessesFilter
+      );
+    }
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filteredBusinesses = filteredBusinesses.filter(
+        (business) =>
+          business.business_name?.toLowerCase().includes(q) ||
+          business.description?.toLowerCase().includes(q) ||
+          business.industry?.toLowerCase().includes(q) ||
+          business.country?.toLowerCase().includes(q)
+      );
+    }
+
+    if (filters.country) {
+      filteredBusinesses = filteredBusinesses.filter(
+        (business) => business.country === filters.country
+      );
+    }
+
+    if (filters.industry) {
+      filteredBusinesses = filteredBusinesses.filter(
+        (business) => business.industry === filters.industry
+      );
+    }
+
+    if (filters.tier) {
+      filteredBusinesses = filteredBusinesses.filter(
+        (business) => business.subscription_tier === filters.tier
+      );
+    }
+
+    if (filters.is_verified !== "") {
+      const isVerified = filters.is_verified === "true";
+      filteredBusinesses = filteredBusinesses.filter(
+        (business) => business.is_verified === isVerified
+      );
+    }
+
+    return filteredBusinesses;
+  };
+
+  const filteredData = getFilteredBusinesses();
   const filteredClaimsData = getFilteredClaims();
 
-  const pendingCount = businesses.filter(
-    (b) => b.status === BUSINESS_STATUS.PENDING
-  ).length;
   const pendingClaimsCount = claims.filter((c) => c.status === "pending").length;
 
   const executiveStats = [
@@ -719,11 +736,6 @@ export default function AdminDashboard() {
       label: "Verified",
       value: businesses.filter((b) => b.is_verified).length,
       color: "text-green-600",
-    },
-    {
-      label: "Pending Review",
-      value: pendingCount,
-      color: "text-yellow-600",
     },
     {
       label: "Pending Claims",
@@ -789,183 +801,47 @@ export default function AdminDashboard() {
               tabs={TABS}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
-              pendingCount={pendingCount}
               pendingClaimsCount={pendingClaimsCount}
               onExport={exportCSV}
               onResetEditing={cancelEditingBusiness}
               secondaryButtonCls={secondaryButtonCls}
             />
-
             <div className="p-4">
-              {activeTab === "claims" && (
-                <div className="space-y-3">
-                  {filteredClaimsData.length === 0 ? (
-                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">
-                      <Shield className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-                      <p className="text-sm text-gray-500">No claim requests found.</p>
+              {activeTab === "businesses" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700">Filter:</label>
+                      <select
+                        value={businessesFilter}
+                        onChange={(e) => setBusinessesFilter(e.target.value)}
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="active">
+                          Active ({businesses.filter((b) => b.status === "active").length})
+                        </option>
+                        <option value="pending">
+                          Pending ({businesses.filter((b) => b.status === "pending").length})
+                        </option>
+                        <option value="rejected">
+                          Rejected ({businesses.filter((b) => b.status === "rejected").length})
+                        </option>
+                        <option value="all">All ({businesses.length})</option>
+                      </select>
                     </div>
-                  ) : (
-                    <>
-                      <div className="space-y-3 lg:hidden">
-                        {filteredClaimsData.map((claim) => {
-                          const business = businesses.find(
-                            (b) => b.id === claim.business_id
-                          );
-                          return (
-                            <ClaimMobileCard
-                              key={claim.id}
-                              claim={claim}
-                              business={business}
-                              onApprove={() => updateClaim(claim, "approved")}
-                              onDeny={() => updateClaim(claim, "rejected")}
-                            />
-                          );
-                        })}
-                      </div>
+                  </div>
 
-                      <div className="hidden space-y-3 lg:block">
-                        {filteredClaimsData.map((claim) => {
-                          const business = businesses.find(
-                            (b) => b.id === claim.business_id
-                          );
-                          return (
-                            <div
-                              key={claim.id}
-                              className="rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
-                            >
-                              <div className="flex items-start gap-4">
-                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
-                                  <img
-                                    src={getLogoUrl(business)}
-                                    alt=""
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-
-                                <div className="min-w-0 flex-1">
-                                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                                    <span className="font-semibold text-[#0a1628]">
-                                      {business?.business_name || "Unknown Business"}
-                                    </span>
-                                    <span
-                                      className={`rounded-full border px-2 py-1 text-xs font-medium ${
-                                        claim.status === "approved"
-                                          ? getBadgeStyles("success")
-                                          : claim.status === "rejected"
-                                          ? getBadgeStyles("danger")
-                                          : claim.status === "pending"
-                                          ? getBadgeStyles("warning")
-                                          : getBadgeStyles("neutral")
-                                      }`}
-                                    >
-                                      {claim.status
-                                        ? claim.status.charAt(0).toUpperCase() +
-                                          claim.status.slice(1)
-                                        : "Unknown"}
-                                    </span>
-                                    {business && (
-                                      <span
-                                        className={`rounded-full border px-2 py-1 text-xs ${getBadgeStyles(
-                                          "neutral"
-                                        )}`}
-                                      >
-                                        {getTierDisplayName(
-                                          business.subscription_tier
-                                        ) ||
-                                          business.subscription_tier ||
-                                          "vaka"}
-                                      </span>
-                                    )}
-                                  </div>
-
-                                  <p className="text-xs text-gray-500">
-                                    {business?.country || "Unknown"} ·{" "}
-                                    {business?.industry || "Unknown"} ·{" "}
-                                    {claim.business_email}
-                                  </p>
-
-                                  <div className="mt-2 space-y-1">
-                                    <p className="text-xs text-gray-600">
-                                      <span className="font-medium">Contact:</span>{" "}
-                                      {claim.business_email || "Not provided"}
-                                    </p>
-                                    {claim.business_phone && (
-                                      <p className="text-xs text-gray-600">
-                                        <span className="font-medium">Phone:</span>{" "}
-                                        {claim.business_phone}
-                                      </p>
-                                    )}
-                                    <p className="text-xs text-gray-600">
-                                      <span className="font-medium">Role:</span>{" "}
-                                      {claim.role || "Not specified"}
-                                    </p>
-                                    <p className="text-xs text-gray-600">
-                                      <span className="font-medium">Claim Type:</span>{" "}
-                                      {claim.claim_type || "Standard request"}
-                                    </p>
-                                    {claim.message && (
-                                      <p className="text-xs text-gray-600">
-                                        <span className="font-medium">Message:</span>{" "}
-                                        {claim.message}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  <p className="mt-1 text-xs text-gray-400">
-                                    Requested{" "}
-                                    {claim.created_at || claim.created_date
-                                      ? new Date(
-                                          claim.created_at || claim.created_date
-                                        ).toLocaleDateString()
-                                      : "—"}
-                                  </p>
-                                </div>
-
-                                <div className="flex flex-shrink-0 items-center gap-2">
-                                  {claim.status === "pending" && (
-                                    <>
-                                      <button
-                                        onClick={() => updateClaim(claim, "approved")}
-                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
-                                          "success"
-                                        )}`}
-                                      >
-                                        <CheckCircle className="h-3 w-3" />
-                                        Approve
-                                      </button>
-                                      <button
-                                        onClick={() => updateClaim(claim, "rejected")}
-                                        className={`inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
-                                          "danger"
-                                        )}`}
-                                      >
-                                        <XCircle className="h-3 w-3" />
-                                        Reject
-                                      </button>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "presentations" && <PresentationsTab />}
-
-              {activeTab === "email" && <EmailMarketingDashboard />}
-
-              {activeTab !== "claims" && activeTab !== "presentations" && activeTab !== "email" && (
-                <div className="space-y-3">
                   {filteredData.length === 0 ? (
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">
                       <Building2 className="mx-auto mb-3 h-10 w-10 text-gray-300" />
                       <p className="text-sm text-gray-500">
-                        No {activeTab} businesses found.
+                        {businessesFilter === "active"
+                          ? "No active businesses found."
+                          : businessesFilter === "pending"
+                          ? "No pending businesses found."
+                          : businessesFilter === "rejected"
+                          ? "No rejected businesses found."
+                          : "No businesses found."}
                       </p>
                     </div>
                   ) : (
@@ -979,12 +855,8 @@ export default function AdminDashboard() {
                             draftBusiness={
                               editingBusinessId === business.id ? draftBusiness : null
                             }
-                            onApprove={() =>
-                              updateStatus(business, BUSINESS_STATUS.ACTIVE)
-                            }
-                            onReject={() =>
-                              updateStatus(business, BUSINESS_STATUS.REJECTED)
-                            }
+                            onApprove={() => updateStatus(business, BUSINESS_STATUS.ACTIVE)}
+                            onReject={() => updateStatus(business, BUSINESS_STATUS.REJECTED)}
                             onEdit={() => {
                               if (editingBusinessId === business.id) {
                                 cancelEditingBusiness();
@@ -1036,85 +908,67 @@ export default function AdminDashboard() {
                                           }}
                                         />
                                       </div>
-
                                       <div>
-                                        <div className="font-medium text-[#0a1628]">
+                                        <div className="font-medium text-gray-900">
                                           {b.business_name}
                                         </div>
-                                        <div className="text-xs text-gray-500">
-                                          {b.business_email || "No email"}
+                                        <div className="text-sm text-gray-500">
+                                          {b.country} · {b.industry}
                                         </div>
                                       </div>
                                     </div>
                                   </td>
 
                                   <td className="px-4 py-4">
-                                    <div className="text-sm text-gray-600">
-                                      {getCountryDisplayName(b.country)} ·{" "}
-                                      {getIndustryDisplayName(b.industry) ||
-                                        "No industry"}
-                                    </div>
-
-                                    {b.cultural_identity && (
-                                      <div className="mt-1 text-xs text-gray-500">
-                                        Cultural: {b.cultural_identity}
-                                      </div>
-                                    )}
-
-                                    {b.languages_spoken && (
-                                      <div className="mt-2">
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#00c4cc]">
-                                          <Speech className="h-3 w-3 flex-shrink-0" />
-                                          {formatDisplayList(b.languages_spoken, { max: 2, separator: " & " })}
-                                        </span>
-                                      </div>
-                                    )}
-
-                                    <div className="mt-1 text-xs text-gray-400">
-                                      Submitted{" "}
-                                      {b.created_date
-                                        ? new Date(b.created_date).toLocaleDateString()
-                                        : "—"}
-                                    </div>
-                                  </td>
-
-                                  <td className="px-4 py-4">
-                                    <div className="flex items-center gap-2">
-                                      <span
-                                        className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(
-                                          b.is_verified ? "premium" : "neutral"
-                                        )}`}
-                                      >
-                                        {getTierDisplayName(b.subscription_tier) ||
-                                          b.subscription_tier ||
-                                          "vaka"}
-                                      </span>
-                                      {b.is_verified && (
-                                        <span
-                                          className={`rounded-full border px-2 py-1 text-xs font-medium ${getBadgeStyles(
-                                            "success"
-                                          )}`}
-                                        >
-                                          Verified
-                                        </span>
+                                    <div className="text-sm text-gray-500">
+                                      {b.business_email && <div>{b.business_email}</div>}
+                                      {b.business_website && (
+                                        <div>
+                                          <a
+                                            href={b.business_website}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:underline"
+                                          >
+                                            Website
+                                          </a>
+                                        </div>
                                       )}
                                     </div>
                                   </td>
 
                                   <td className="px-4 py-4">
+                                    <span
+                                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                                        b.status === BUSINESS_STATUS.ACTIVE
+                                          ? getBadgeStyles("success")
+                                          : b.status === BUSINESS_STATUS.PENDING
+                                          ? getBadgeStyles("warning")
+                                          : b.status === BUSINESS_STATUS.REJECTED
+                                          ? getBadgeStyles("danger")
+                                          : getBadgeStyles("neutral")
+                                      }`}
+                                    >
+                                      {b.status
+                                        ? b.status.charAt(0).toUpperCase() + b.status.slice(1)
+                                        : "Unknown"}
+                                    </span>
+                                  </td>
+
+                                  <td className="px-4 py-4 text-right">
                                     <div className="flex items-center justify-end gap-2">
                                       <button
                                         onClick={() => {
-                                          const businessHandle = b.business_handle || b.id;
-                                          window.open(
-                                            `/BusinessProfile?handle=${businessHandle}`,
-                                            "_blank"
-                                          );
+                                          if (editingBusinessId === b.id) {
+                                            cancelEditingBusiness();
+                                          } else {
+                                            startEditingBusiness(b);
+                                            setShowCreateForm(false);
+                                          }
                                         }}
-                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${secondaryButtonCls}`}
+                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                                       >
-                                        <Eye className="h-3 w-3" />
-                                        View
+                                        {editingBusinessId === b.id ? "Close" : "Edit"}
                                       </button>
 
                                       {b.status === BUSINESS_STATUS.PENDING && (
@@ -1123,7 +977,7 @@ export default function AdminDashboard() {
                                             onClick={() =>
                                               updateStatus(b, BUSINESS_STATUS.ACTIVE)
                                             }
-                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                            className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
                                               "success"
                                             )}`}
                                           >
@@ -1135,47 +989,24 @@ export default function AdminDashboard() {
                                             onClick={() =>
                                               updateStatus(b, BUSINESS_STATUS.REJECTED)
                                             }
-                                            className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
+                                            className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
                                               "danger"
                                             )}`}
                                           >
                                             <XCircle className="h-3 w-3" />
-                                            Deny
+                                            Reject
                                           </button>
                                         </>
                                       )}
-
-                                      <button
-                                        onClick={() => {
-                                          setShowCreateForm(false);
-                                          if (editingBusinessId === b.id) {
-                                            cancelEditingBusiness();
-                                          } else {
-                                            startEditingBusiness(b);
-                                          }
-                                        }}
-                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${secondaryButtonCls}`}
-                                      >
-                                        {editingBusinessId === b.id ? "Close" : "Edit"}
-                                      </button>
-
-                                      <button
-                                        onClick={() => deleteBusiness(b.id)}
-                                        className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-all ${getBadgeStyles(
-                                          "danger"
-                                        )}`}
-                                      >
-                                        Delete
-                                      </button>
                                     </div>
                                   </td>
                                 </tr>
 
-                                {editingBusinessId === b.id && draftBusiness && (
+                                {editingBusinessId === b.id && (
                                   <tr>
-                                    <td colSpan={4} className="bg-gray-50 px-4 py-5">
+                                    <td colSpan={4} className="bg-gray-50 px-4 py-4">
                                       <BusinessProfileForm
-                                        title={`Edit ${b.business_name}`}
+                                        title="Edit Business"
                                         businessId={b.id}
                                         initialData={draftBusiness}
                                         onSave={saveBusiness}
@@ -1196,11 +1027,167 @@ export default function AdminDashboard() {
                   )}
                 </div>
               )}
+
+              {activeTab === "claims" && (
+                <div className="space-y-4">
+                  {/* Claims Filter */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700">Filter:</label>
+                      <select
+                        value={claimsFilter}
+                        onChange={(e) => setClaimsFilter(e.target.value)}
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="all">All Claims ({claims.length})</option>
+                        <option value="pending">Pending ({claims.filter((c) => c.status === 'pending').length})</option>
+                        <option value="approved">Approved ({claims.filter((c) => c.status === 'approved').length})</option>
+                        <option value="rejected">Rejected ({claims.filter((c) => c.status === 'rejected').length})</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {filteredClaimsData.length === 0 ? (
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-12 text-center">
+                      <Shield className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+                      <p className="text-sm text-gray-500">
+                        {claimsFilter === "all" ? "No claim requests found." : claimsFilter === "pending" ? "No pending claims found." : claimsFilter === "approved" ? "No approved claims found." : claimsFilter === "rejected" ? "No rejected claims found." : "No claims found."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white lg:block">
+                      <table className="w-full">
+                        <thead className="border-b border-gray-200 bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                              Business
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                              Contact
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                              Status
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                              Date
+                            </th>
+                            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {filteredClaimsData.map((claim) => {
+                            const business = businesses.find((b) => b.id === claim.business_id);
+                            return (
+                              <tr key={claim.id} className="hover:bg-gray-50">
+                                <td className="px-4 py-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-[#0a1628] to-[#0d4f4f]">
+                                      <img
+                                        src={getLogoUrl(business)}
+                                        alt=""
+                                        className="h-full w-full object-cover"
+                                      />
+                                    </div>
+                                    <div>
+                                      <div className="font-medium text-gray-900">
+                                        {business?.business_name || "Unknown Business"}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        {business?.country || "Unknown"} · {business?.industry || "Unknown"}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                  <div className="text-sm">
+                                    <div className="font-medium text-gray-900">{claim.business_email}</div>
+                                    {claim.business_phone && (
+                                      <div className="text-gray-500">{claim.business_phone}</div>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                  <span
+                                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                                      claim.status === "approved"
+                                        ? getBadgeStyles("success")
+                                        : claim.status === "rejected"
+                                        ? getBadgeStyles("danger")
+                                        : claim.status === "pending"
+                                        ? getBadgeStyles("warning")
+                                        : getBadgeStyles("neutral")
+                                    }`}
+                                  >
+                                    {claim.status
+                                      ? claim.status.charAt(0).toUpperCase() + claim.status.slice(1)
+                                      : "Unknown"}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-4 text-sm text-gray-500">
+                                  {claim.created_at || claim.created_date
+                                    ? new Date(claim.created_at || claim.created_date).toLocaleDateString()
+                                    : "—"}
+                                </td>
+                                <td className="px-4 py-4 text-right">
+                                  {claim.status === "pending" && (
+                                    <div className="flex items-center justify-end gap-2">
+                                      <button
+                                        onClick={() => updateClaim(claim, "approved")}
+                                        className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
+                                          "success"
+                                        )}`}
+                                      >
+                                        <CheckCircle className="h-3 w-3" />
+                                        Approve
+                                      </button>
+                                      <button
+                                        onClick={() => updateClaim(claim, "rejected")}
+                                        className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold ${getBadgeStyles(
+                                          "danger"
+                                        )}`}
+                                      >
+                                        <XCircle className="h-3 w-3" />
+                                        Reject
+                                      </button>
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Mobile view - keep existing cards */}
+                  <div className="space-y-3 lg:hidden">
+                    {filteredClaimsData.map((claim) => {
+                      const business = businesses.find((b) => b.id === claim.business_id);
+                      return (
+                        <ClaimMobileCard
+                          key={claim.id}
+                          claim={claim}
+                          business={business}
+                          onApprove={() => updateClaim(claim, "approved")}
+                          onDeny={() => updateClaim(claim, "rejected")}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "presentations" && <PresentationsTab />}
+
+              {activeTab === "email" && <EmailMarketingDashboard />}
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Confirmation Dialog */}
       {DialogComponent}
     </PortalShell>

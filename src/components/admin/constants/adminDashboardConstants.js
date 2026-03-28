@@ -1,30 +1,33 @@
-import { CheckCircle, Clock, Presentation, Shield, Mail } from "lucide-react";
-
+import { Building2, Presentation, Shield, Mail } from "lucide-react";
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
 
 export const TABS = [
   {
-    id: "active",
-    label: "Active",
-    icon: CheckCircle,
-    color: "text-green-600",
-    status: BUSINESS_STATUS.ACTIVE,
+    id: "businesses",
+    label: "Businesses",
+    icon: Building2,
+    color: "text-blue-600",
+    filterType: "businesses",
   },
   {
-    id: "pending",
-    label: "Pending",
-    icon: Clock,
-    color: "text-yellow-600",
-    status: BUSINESS_STATUS.PENDING,
+    id: "claims",
+    label: "Claims",
+    icon: Shield,
+    color: "text-blue-600",
+    filterType: "claims",
   },
-  { id: "claims", label: "Claims", icon: Shield, color: "text-blue-600" },
   {
     id: "presentations",
     label: "Presentations",
     icon: Presentation,
-    color: "text-purple-600",
+    color: "text-blue-600",
   },
-  { id: "email", label: "Email Marketing", icon: Mail, color: "text-indigo-600" },
+  {
+    id: "email",
+    label: "Email Marketing",
+    icon: Mail,
+    color: "text-blue-600",
+  },
 ];
 
 export const buttonCls =
@@ -39,6 +42,7 @@ export const emptyBusinessForm = {
   business_name: "",
   business_handle: "",
   description: "",
+  industry: "",
   tagline: "",
   role: "",
   business_contact_person: "",
@@ -52,7 +56,6 @@ export const emptyBusinessForm = {
   suburb: "",
   state_region: "",
   postal_code: "",
-  industry: "",
   year_started: null,
   business_stage: "",
   business_structure: "",
@@ -76,9 +79,9 @@ export const emptyBusinessForm = {
   },
   is_verified: false,
   is_claimed: false,
-  subscription_tier: 'vaka',
-  visibility_tier: 'none',
-  visibility_mode: 'auto',
+  subscription_tier: "vaka",
+  visibility_tier: "none",
+  visibility_mode: "auto",
   logo_url: "",
   banner_url: "",
   mobile_banner_url: "",
