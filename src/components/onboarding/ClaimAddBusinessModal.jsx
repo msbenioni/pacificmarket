@@ -298,61 +298,53 @@ export function ClaimAddBusinessModal({
       });
 
       try {
-        const { createReferralIfPresent } = await import("../../utils/referrals");
-        const referralCode = userRes.user?.user_metadata?.referral_code;
+        // Business created successfully
+        console.log('Business created:', savedRow);
 
-        if (referralCode) {
-          await createReferralIfPresent(referralCode, savedRow.id);
-          console.log("Referral processed for business:", savedRow.id);
+        try {
+          await fetch("/api/notifications/business-added", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              businessId: savedRow.id,
+              userId: userRes.user.id,
+            }),
+          });
+        } catch (notifError) {
+          console.error("Failed to send business added notification:", notifError);
         }
-      } catch (referralError) {
-        console.error("Error processing referral:", referralError);
-      }
 
-      try {
-        await fetch("/api/notifications/business-added", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            businessId: savedRow.id,
-            userId: userRes.user.id,
-          }),
-        });
-      } catch (notifError) {
-        console.error("Failed to send business added notification:", notifError);
-      }
+        try {
+          const { error: claimError } = await supabase.from("claim_requests").insert({
+            business_id: savedRow.id,
+            user_id: userRes.user.id,
+            status: "approved",
+            business_email: clean.business_email || userRes.user.email,
+            business_phone: clean.business_phone || null,
+            role: "owner",
+            created_at: new Date().toISOString(),
+            reviewed_at: new Date().toISOString(),
+            reviewed_by: userRes.user.id,
+            claim_type: "direct",
+          });
 
-      try {
-        const { error: claimError } = await supabase.from("claim_requests").insert({
-          business_id: savedRow.id,
-          user_id: userRes.user.id,
-          status: "approved",
-          business_email: clean.business_email || userRes.user.email,
-          business_phone: clean.business_phone || null,
-          role: "owner",
-          created_at: new Date().toISOString(),
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: userRes.user.id,
-          claim_type: "direct",
-        });
-
-        if (claimError) {
+          if (claimError) {
+            console.error(
+              "Failed to create claim request for new business:",
+              claimError
+            );
+          } else {
+            console.log(
+              "Created approved claim request for new business:",
+              savedRow.id
+            );
+          }
+        } catch (claimError) {
           console.error(
-            "Failed to create claim request for new business:",
+            "Error creating claim request for new business:",
             claimError
           );
-        } else {
-          console.log(
-            "Created approved claim request for new business:",
-            savedRow.id
-          );
         }
-      } catch (claimError) {
-        console.error(
-          "Error creating claim request for new business:",
-          claimError
-        );
-      }
 
       toast({
         title: "Business Added",

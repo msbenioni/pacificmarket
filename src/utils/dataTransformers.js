@@ -17,6 +17,9 @@ export function sanitizeBusinessPayload(formData) {
     updated_at,
     verification_source,
     logo_file,
+    logo_remove,
+    banner_remove,
+    mobile_banner_remove,
     banner_file,
     mobile_banner_file,
     owner_user_id,
@@ -24,7 +27,6 @@ export function sanitizeBusinessPayload(formData) {
     claimed_at,
     claimed_by,
     profile_completeness,
-    referral_code,
     source,
     ...rest
   } = formData;
@@ -91,7 +93,7 @@ export function sanitizeBusinessPayload(formData) {
   const expectedFilteredFields = [
     'logo_file', 'banner_file', 'mobile_banner_file', 'logo_remove', 'banner_remove', 'mobile_banner_remove',
     'id', 'created_at', 'created_date', 'updated_at', 'verification_source', 'owner_user_id', 
-    'created_by', 'claimed_at', 'claimed_by', 'profile_completeness', 'referral_code', 'source'
+    'created_by', 'claimed_at', 'claimed_by', 'profile_completeness', 'source'
   ];
   
   const unexpectedFields = filteredFields.filter(field => !expectedFilteredFields.includes(field));
