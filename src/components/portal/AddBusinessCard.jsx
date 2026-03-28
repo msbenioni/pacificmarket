@@ -8,7 +8,6 @@ export default function AddBusinessCard({
   onAddSuccess, 
   onCancel,
   saving = false,
-  onboardingStatus
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

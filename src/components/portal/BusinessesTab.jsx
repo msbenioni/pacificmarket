@@ -11,6 +11,7 @@ import EmptyState from "./EmptyState";
 export default function BusinessesTab({
   user,
   businesses,
+  onboardingStatus,
   editingBusinessId,
   draftBusiness,
   savingEdit,
@@ -21,11 +22,9 @@ export default function BusinessesTab({
   onClaimAddAction,
   onUpgradeClick,
   showAddBusiness,
-  onAddBusinessSuccess,
   onAddBusinessCancel,
   onShowAddBusiness,
   handleAddBusiness,
-  isProfileComplete,
 }) {
   const { toast } = useToast();
   const handleEmptyStateAction = (action) => {
@@ -110,7 +109,6 @@ export default function BusinessesTab({
                 onAddSuccess={handleAddBusiness}
                 onCancel={onAddBusinessCancel}
                 saving={savingEdit}
-                onboardingStatus={onboardingStatus}
               />
             )}
 

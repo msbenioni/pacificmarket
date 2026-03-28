@@ -286,11 +286,9 @@ export default function BusinessPortal() {
               onClaimAddAction={handleClaimAddAction}
               onUpgradeClick={handleUpgradeClick}
               showAddBusiness={showAddBusiness}
-              onAddBusinessSuccess={handleAddBusinessSuccess}
               onAddBusinessCancel={handleAddBusinessCancel}
               onShowAddBusiness={handleShowAddBusiness}
               handleAddBusiness={handleAddBusiness}
-              isProfileComplete={isProfileComplete}
             />
           )}
 
