@@ -232,7 +232,7 @@ export function ClaimAddBusinessModal({
         removals = {},
       } = payload || {};
 
-      let clean = pickAllowedBusinessFields(businessesData);
+      const clean = pickAllowedBusinessFields(businessesData);
 
       console.log("Submitting business data:", {
         cleaned: clean,
@@ -248,7 +248,7 @@ export function ClaimAddBusinessModal({
         updated_at: new Date().toISOString(),
         status: "pending",
         visibility_tier: "none",
-        visibility_mode: "public",
+        visibility_mode: "auto",
         is_verified: false,
         is_claimed: false,
         subscription_tier: "vaka",
@@ -256,16 +256,30 @@ export function ClaimAddBusinessModal({
       };
 
       console.log("💾 ClaimAddBusinessModal calling createBusinessWithBranding with:", {
-        payload: createPayload,
+        businessesData: createPayload,
         files,
         removals,
       });
 
       const savedRow = await createBusinessWithBranding({
-        payload: createPayload,
+        supabase,
+        businessesData: createPayload,
         files,
         removals,
-        userId: userRes.user.id,
+        allowCustomBranding: true,
+        createRow: async (payloadToCreate) => {
+          const { data, error } = await supabase
+            .from("businesses")
+            .insert(payloadToCreate)
+            .select()
+            .single();
+          
+          if (error) {
+            throw error;
+          }
+          
+          return data;
+        },
       });
 
       console.log("💾 ClaimAddBusinessModal DB returned row:", {
@@ -344,7 +358,7 @@ export function ClaimAddBusinessModal({
       toast({
         title: "Business Creation Failed",
         description: `Failed to create business: ${
-          error.message || "Unknown error occurred. Please try again."
+          error instanceof Error ? error.message : "Unknown error occurred. Please try again."
         }`,
         variant: "error",
       });
