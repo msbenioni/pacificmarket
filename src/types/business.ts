@@ -67,6 +67,13 @@ export type Business = {
   owner_user_id: string | null;
   created_by: string | null;
 
+  // Referral system
+  referred_by_business_id: string | null;
+  referral_reward_applied: boolean;
+  referral_reward_applied_at: string | null;
+  tier_expires_at: string | null;
+  referral_count: number;
+
   // Metadata
   source: 'user' | 'admin' | 'import' | 'claim';
   profile_completeness: number;

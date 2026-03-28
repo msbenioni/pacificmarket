@@ -23,6 +23,7 @@ import CommunitySection from "./FormSections/CommunitySection";
 import SocialMediaSection from "./FormSections/SocialMediaSection";
 import ContactDetailsSection from "./FormSections/ContactDetailsSection";
 import AdminVisibilitySection from "./FormSections/AdminVisibilitySection";
+import { ReferralDropdown } from "./ReferralDropdown";
 import { inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection } from "./shared/FormComponents";
 
 // Form Sections Configuration
@@ -62,6 +63,12 @@ const SECTIONS = [
     label: "Contact Details",
     icon: Phone,
     description: "Contact information for customer inquiries",
+  },
+  {
+    key: "referral",
+    label: "Referral",
+    icon: Building2,
+    description: "Business referral information",
   },
   {
     key: "brand",
@@ -158,6 +165,9 @@ export default function BusinessProfileForm({
       youtube: "",
       tiktok: "",
     },
+    
+    // Referral
+    referred_by_business_id: null,
     
     // System fields
     subscription_tier: subscriptionTier,
@@ -562,6 +572,18 @@ export default function BusinessProfileForm({
             textareaCls={textareaCls}
             labelCls={labelCls}
           />
+        );
+      
+      case "referral":
+        return (
+          <FormSection>
+            <ReferralDropdown
+              value={form.referred_by_business_id}
+              onChange={(value) => handleInputChange("referred_by_business_id", value)}
+              disabled={submitting}
+              excludeBusinessId={businessId}
+            />
+          </FormSection>
         );
       
       case "admin":

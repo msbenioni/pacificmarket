@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Gift, Users } from "lucide-react";
 
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import {
@@ -22,6 +22,8 @@ export default function AdminBusinessMobileCard({
   onSave,
   onCancel,
   savingEdit,
+  onApplyReferralReward,
+  applyingReferralReward,
 }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -68,6 +70,16 @@ export default function AdminBusinessMobileCard({
               ? new Date(business.created_date).toLocaleDateString()
               : "—"}
           </p>
+
+          {/* Referral Information */}
+          {business.referred_by_business_id && (
+            <div className="mt-2 rounded-lg bg-gray-50 p-2">
+              <div className="flex items-center gap-1 text-xs text-gray-600">
+                <Users className="h-3 w-3" />
+                <span>Referred by: Loading...</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -110,6 +122,22 @@ export default function AdminBusinessMobileCard({
         >
           Delete
         </button>
+
+        {/* Referral Reward Button */}
+        {business.referred_by_business_id && 
+         !business.referral_reward_applied && 
+         business.status === BUSINESS_STATUS.APPROVED && (
+          <button
+            onClick={() => onApplyReferralReward && onApplyReferralReward(business.id)}
+            disabled={applyingReferralReward === business.id}
+            className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
+              "success"
+            )} disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <Gift className="h-3.5 w-3.5" />
+            {applyingReferralReward === business.id ? "Applying..." : "Apply Referral Reward"}
+          </button>
+        )}
       </div>
 
       {isEditing && draftBusiness && (

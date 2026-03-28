@@ -45,6 +45,11 @@ const BUSINESS_PUBLIC_FIELDS = `
   languages_spoken,
   owner_user_id,
   created_by,
+  referred_by_business_id,
+  referral_reward_applied,
+  referral_reward_applied_at,
+  tier_expires_at,
+  referral_count,
   source,
   profile_completeness,
   referral_code,
@@ -58,8 +63,38 @@ const BUSINESS_PUBLIC_FIELDS = `
   mentorship_offering,
   open_to_future_contact,
   business_acquisition_interest,
-  social_links
+  team_size,
+  social_links,
+  tags
 `;
+
+// Fields for referral dropdown (minimal data)
+const BUSINESS_REFERRAL_FIELDS = `
+  id,
+  business_name,
+  business_handle,
+  status
+`;
+
+/**
+ * Fetch businesses for referral dropdown
+ * Only returns approved/active businesses
+ */
+export async function getReferralBusinesses(supabase: any): Promise<Business[]> {
+  const { data, error } = await supabase
+    .from('businesses')
+    .select(BUSINESS_REFERRAL_FIELDS)
+    .eq('status', 'active')
+    .eq('is_verified', true)
+    .order('business_name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching referral businesses:', error);
+    return [];
+  }
+
+  return data || [];
+}
 
 /**
  * Enrich an array of businesses with profile fallback data

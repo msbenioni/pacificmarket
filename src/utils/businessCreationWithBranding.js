@@ -22,6 +22,7 @@ const CREATE_FIELD_PASSTHROUGH = [
   "claimed_by",
   "created_by",
   "source",
+  "referred_by_business_id",
 ];
 
 const stripFileFields = (payload = /** @type {{ logo_file?: File; banner_file?: File; mobile_banner_file?: File }} */ ({})) => {

@@ -110,6 +110,7 @@ export default function AdminDashboard() {
   const [editingBusinessId, setEditingBusinessId] = useState(null);
   const [draftBusiness, setDraftBusiness] = useState(null);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [applyingReferralReward, setApplyingReferralReward] = useState(null);
 
   const [filters, setFilters] = useState({
     country: "",
@@ -352,6 +353,45 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error deleting business:", error);
       showError('Unable to delete business', 'Please try again.');
+    }
+  };
+
+  const applyReferralReward = async (businessId) => {
+    try {
+      setApplyingReferralReward(businessId);
+      
+      // Get auth token
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = getSupabase();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`/api/admin/businesses/${businessId}/apply-referral-reward`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to apply referral reward');
+      }
+
+      // Refresh business data
+      await loadAdminData();
+      
+      showSuccess('Referral reward applied', result.message);
+    } catch (error) {
+      console.error('Error applying referral reward:', error);
+      showError('Unable to apply referral reward', error.message || 'Please try again.');
+    } finally {
+      setApplyingReferralReward(null);
     }
   };
 
@@ -997,6 +1037,8 @@ export default function AdminDashboard() {
                             onSave={saveBusiness}
                             onCancel={cancelEditingBusiness}
                             savingEdit={savingEdit}
+                            onApplyReferralReward={applyReferralReward}
+                            applyingReferralReward={applyingReferralReward}
                           />
                         ))}
                       </div>
