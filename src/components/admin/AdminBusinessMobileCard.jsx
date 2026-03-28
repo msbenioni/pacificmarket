@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Gift, Users } from "lucide-react";
+import { CheckCircle, XCircle, Gift, Users, Clock } from "lucide-react";
 
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import {
@@ -7,7 +7,7 @@ import {
   getIndustryDisplayName,
   getTierDisplayName,
 } from "@/constants/unifiedConstants";
-import { getLogoUrl } from "@/utils/bannerUtils";
+import { getBusinessReferralRewards } from "@/lib/supabase/queries/referralRewards";
 import { getBadgeStyles } from "@/components/admin/helpers/adminFormatting";
 import { secondaryButtonCls } from "@/components/admin/constants/adminDashboardConstants";
 
@@ -83,12 +83,24 @@ export default function AdminBusinessMobileCard({
                   }
                 </span>
               </div>
-              {business.referral_reward_applied && (
-                <div className="mt-1 flex items-center gap-1 text-xs text-green-600">
-                  <Gift className="h-3 w-3" />
-                  <span>Reward applied</span>
-                </div>
-              )}
+              <div className="mt-1 flex items-center gap-1 text-xs">
+                {business.referral_reward_applied ? (
+                  <>
+                    <Gift className="h-3 w-3 text-green-600" />
+                    <span className="text-green-600">Both businesses received 31 days</span>
+                  </>
+                ) : business.status === 'active' ? (
+                  <>
+                    <Clock className="h-3 w-3 text-yellow-600" />
+                    <span className="text-yellow-600">Processing dual rewards...</span>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="h-3 w-3 text-gray-400" />
+                    <span className="text-gray-400">Dual rewards pending activation</span>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -134,21 +146,6 @@ export default function AdminBusinessMobileCard({
           Delete
         </button>
 
-        {/* Referral Reward Button */}
-        {business.referred_by_business_id && 
-         !business.referral_reward_applied && 
-         business.status === 'active' && (
-          <button
-            onClick={() => onApplyReferralReward && onApplyReferralReward(business.id)}
-            disabled={applyingReferralReward === business.id}
-            className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold ${getBadgeStyles(
-              "success"
-            )} disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <Gift className="h-3.5 w-3.5" />
-            {applyingReferralReward === business.id ? "Applying..." : "Apply Referral Reward"}
-          </button>
-        )}
       </div>
 
       {isEditing && draftBusiness && (
