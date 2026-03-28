@@ -86,7 +86,7 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
 
       {businesses.length === 0 && !loading && !error && (
         <p className="text-xs text-gray-400 italic">
-          No approved businesses available for referral.
+          No active businesses available for referral.
         </p>
       )}
 

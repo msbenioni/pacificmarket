@@ -133,4 +133,4 @@ REVOKE ALL ON FUNCTION public.apply_referral_moana_reward(UUID) FROM anon;
 GRANT EXECUTE ON FUNCTION public.apply_referral_moana_reward(UUID) TO service_role;
 
 -- Add comment documenting the security model
-COMMENT ON FUNCTION public.apply_referral_moana_reward(UUID) IS 'Securely applies referral rewards to both new and referrer businesses. Only callable by service role through admin API. Requires both businesses to be active status.';
+COMMENT ON FUNCTION public.apply_referral_moana_reward(UUID) IS 'Securely applies referral rewards to both new and referrer businesses. Only callable by service role through admin API. Requires both businesses to be active status (no verification requirement).';

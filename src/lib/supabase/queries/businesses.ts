@@ -78,14 +78,13 @@ const BUSINESS_REFERRAL_FIELDS = `
 
 /**
  * Fetch businesses for referral dropdown
- * Only returns approved/active businesses
+ * Only returns active businesses (no verification requirement)
  */
 export async function getReferralBusinesses(supabase: any): Promise<ReferralBusinessOption[]> {
   const { data, error } = await supabase
     .from('businesses')
     .select(BUSINESS_REFERRAL_FIELDS)
     .eq('status', 'active')
-    .eq('is_verified', true)
     .order('business_name', { ascending: true });
 
   if (error) {
