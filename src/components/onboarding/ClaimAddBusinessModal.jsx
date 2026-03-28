@@ -14,10 +14,6 @@ import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, ChevronLeft } from "lucide-react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
-import {
-  notifyNewBusinessClaim,
-  notifyNewBusinessCreated,
-} from "@/utils/notifyAdmin";
 
 // Whitelist of allowed fields that match the exact database schema
 const ALLOWED_BUSINESS_FIELDS = [
@@ -194,11 +190,17 @@ export function ClaimAddBusinessModal({
       if (insertErr) throw insertErr;
 
       // Send admin notification for new claim (non-blocking)
-      notifyNewBusinessClaim(inserted, pickedBusiness, userRes.user).catch(
-        (error) => {
-          console.error("Failed to send admin notification:", error);
-        }
-      );
+      fetch("/api/admin-notifications/business-claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          claimData: inserted,
+          businessData: pickedBusiness,
+          userData: userRes.user,
+        }),
+      }).catch((error) => {
+        console.error("Failed to send admin notification:", error);
+      });
 
       toast({
         title: "Claim Submitted",
@@ -329,7 +331,14 @@ export function ClaimAddBusinessModal({
       console.log('Business created:', savedRow);
 
       // Send admin notification for new business (non-blocking)
-      notifyNewBusinessCreated(savedRow, userRes.user).catch(error => {
+      fetch("/api/admin-notifications/business-created", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessData: savedRow,
+          userData: userRes.user,
+        }),
+      }).catch(error => {
         console.error("Failed to send admin notification:", error);
       });
 
