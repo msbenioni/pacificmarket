@@ -1,5 +1,5 @@
 import { CheckCircle, XCircle } from "lucide-react";
-import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
+import { BUSINESS_STATUS, getCountryDisplayName, getIndustryDisplayName, getTierDisplayName } from "@/constants/unifiedConstants";
 import { getBadgeStyles } from "@/components/admin/helpers/adminFormatting";
 import { getLogoUrl } from "@/utils/bannerUtils";
 import AdminStatusBadge from "../AdminStatusBadge";
@@ -29,7 +29,7 @@ export default function BusinessTableRow({ business, isEditing, onEdit, onDelete
               {business.business_name}
             </div>
             <div className="text-sm text-gray-500">
-              {business.country} · {business.industry}
+              {getCountryDisplayName(business.country)} · {getIndustryDisplayName(business.industry)}
             </div>
           </div>
         </div>
@@ -54,8 +54,14 @@ export default function BusinessTableRow({ business, isEditing, onEdit, onDelete
       </td>
 
       <td className="px-4 py-4">
-        <span className="inline-flex rounded-full px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800">
-          {business.subscription_tier || "vaka"}
+        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+          {
+            vaka: 'bg-yellow-100 text-yellow-800',
+            mana: 'bg-purple-100 text-purple-800',
+            moana: 'bg-blue-100 text-blue-800',
+          }[business.subscription_tier] || 'bg-yellow-100 text-yellow-800'
+        }`}>
+          {getTierDisplayName(business.subscription_tier) || 'Vaka'}
         </span>
       </td>
 

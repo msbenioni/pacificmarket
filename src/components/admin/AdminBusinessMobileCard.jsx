@@ -39,13 +39,15 @@ export default function AdminBusinessMobileCard({
               {business.business_name}
             </h3>
             <span
-              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${getBadgeStyles(
-                "neutral"
-              )}`}
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${
+                {
+                  vaka: 'border-yellow-200 bg-yellow-50 text-yellow-700',
+                  mana: 'border-purple-200 bg-purple-50 text-purple-700',
+                  moana: 'border-blue-200 bg-blue-50 text-blue-700',
+                }[business.subscription_tier] || 'border-yellow-200 bg-yellow-50 text-yellow-700'
+              }`}
             >
-              {getTierDisplayName(business.subscription_tier) ||
-                business.subscription_tier ||
-                "vaka"}
+              {getTierDisplayName(business.subscription_tier) || 'Vaka'}
             </span>
             {business.is_verified && (
               <span

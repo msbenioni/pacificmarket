@@ -893,6 +893,14 @@ export const AGE_RANGES = [
 
 // Helper functions to get display names from values
 export const getCountryDisplayName = (value) => {
+  const COUNTRY_ALIASES = {
+    'usa': 'United States',
+    'us': 'United States',
+    'uk': 'United Kingdom',
+    'nz': 'New Zealand',
+    'uae': 'United Arab Emirates',
+  };
+  if (COUNTRY_ALIASES[value]) return COUNTRY_ALIASES[value];
   const country = COUNTRIES.find(c => c.value === value);
   return country ? country.label : value;
 };
