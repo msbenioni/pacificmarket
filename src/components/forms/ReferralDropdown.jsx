@@ -67,7 +67,7 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
           }`}
         >
           <option value="">Select a referring business</option>
-          <option value="no-referral">No referral</option>
+          <option value="none">No referral</option>
           {businesses.map((business) => (
             <option key={business.id} value={business.id}>
               {business.business_name}

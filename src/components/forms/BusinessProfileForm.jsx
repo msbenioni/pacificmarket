@@ -13,6 +13,7 @@ import {
 import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 
 // Import section components
 import CoreInfoSection from "./FormSections/CoreInfoSection";
@@ -137,7 +138,7 @@ export default function BusinessProfileForm({
     mobile_banner_remove: false,
     
     // Admin & Visibility
-    visibility_tier: "pacific-businesses",
+    visibility_tier: VISIBILITY_TIER.NONE,
     visibility_mode: "auto",
     
     // Business Overview

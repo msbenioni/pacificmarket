@@ -1,6 +1,7 @@
 "use client";
 
 import { labelCls, selectCls, helperCls } from "../shared/FormComponents";
+import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 
 export default function AdminVisibilitySection({
   form,
@@ -34,9 +35,9 @@ export default function AdminVisibilitySection({
           onChange={handleVisibilityTierChange}
           className={selectCls}
         >
-          <option value="none">Not Featured</option>
-          <option value="pacific-businesses">Pacific Businesses Page Only</option>
-          <option value="homepage">Homepage & Pacific Businesses</option>
+          <option value={VISIBILITY_TIER.NONE}>Not Featured</option>
+          <option value={VISIBILITY_TIER.SPOTLIGHT}>Spotlight Featured</option>
+          <option value={VISIBILITY_TIER.HOMEPAGE}>Homepage Featured</option>
         </select>
         <p className={helperCls}>
           Control where this business appears in public listings. Homepage features are displayed prominently on the main page.

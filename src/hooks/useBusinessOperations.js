@@ -10,6 +10,7 @@ import { deleteBusiness, createBusiness } from "@/lib/supabase/queries/businesse
 import { sanitizeBusinessPayload, validateBusinessData, isBusinessHandleAvailable } from "@/utils/dataTransformers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 
 export function useBusinessOperations(refetchPortalData) {
   const { toast } = useToast();
@@ -135,10 +136,10 @@ export function useBusinessOperations(refetchPortalData) {
       const resultingMode = businessData.businessesData.visibility_mode ?? currentBusiness?.visibility_mode ?? 'auto';
       
       if (resultingTier === SUBSCRIPTION_TIER.MOANA && resultingMode === 'auto') {
-        sanitizedPayload.visibility_tier = 'homepage';
+        sanitizedPayload.visibility_tier = VISIBILITY_TIER.HOMEPAGE;
       } else if (resultingTier !== SUBSCRIPTION_TIER.MOANA && resultingMode === 'auto') {
-        // Non-Moana tier in auto mode - use 'pacific-businesses' for directory visibility
-        sanitizedPayload.visibility_tier = 'pacific-businesses';
+        // Non-Moana tier in auto mode - use 'none' for standard visibility
+        sanitizedPayload.visibility_tier = VISIBILITY_TIER.NONE;
       }
       // Manual mode preserves admin-selected visibility_tier
       
@@ -279,7 +280,7 @@ export function useBusinessOperations(refetchPortalData) {
         is_claimed: true,
         created_at: new Date().toISOString(),
         // Set required visibility fields for new businesses
-        visibility_tier: "pacific-businesses", // Default to pacific-businesses for new businesses
+        visibility_tier: VISIBILITY_TIER.NONE, // Default to 'none' for new businesses
         visibility_mode: "auto", // Default to auto mode
       };
 

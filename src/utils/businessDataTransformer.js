@@ -70,6 +70,8 @@ export const transformBusinessFormData = (formData) => {
     subscription_tier: formData.subscription_tier,
     visibility_tier: formData.visibility_tier,
     visibility_mode: formData.visibility_mode,
+    // Convert "none" referral selection to null for database
+    referred_by_business_id: formData.referred_by_business_id === "none" ? null : formData.referred_by_business_id,
   };
 
   return {

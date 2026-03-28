@@ -67,7 +67,7 @@ export type Business = {
   claimed_by: string | null;
 
   // Visibility and tiers
-  visibility_tier: 'homepage' | 'pacific-businesses' | 'none';
+  visibility_tier: 'homepage' | 'none' | 'spotlight';
   visibility_mode: 'auto' | 'manual';
   subscription_tier: 'vaka' | 'mana' | 'moana';
 

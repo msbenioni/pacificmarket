@@ -1,7 +1,8 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { notifyPlanUpgraded } from "@/lib/notifications";
-import { SUBSCRIPTION_TIER, STRIPE_PRICE_LOOKUP_KEYS } from "@/constants/unifiedConstants";
+import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -64,13 +65,13 @@ export async function POST(request) {
           
           // Set homepage visibility for Moana tier (only if not manually set)
           if (newTier === SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual') {
-            updateData.visibility_tier = 'homepage';
+            updateData.visibility_tier = VISIBILITY_TIER.HOMEPAGE;
             console.log(`Auto-featured business ${business.id} on homepage due to Moana upgrade`);
           }
           
           // Remove homepage visibility for non-Moana tier (only if auto mode)
           if (newTier !== SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual' && business.visibility_tier === 'homepage') {
-            updateData.visibility_tier = 'pacific-businesses'; // Downgrade to Pacific Businesses only
+            updateData.visibility_tier = VISIBILITY_TIER.NONE; // Downgrade to standard visibility
             console.log(`Removed homepage visibility for business ${business.id} due to tier downgrade`);
           }
           
@@ -165,13 +166,13 @@ export async function POST(request) {
             
             // Set homepage visibility for Moana tier (only if not manually set)
             if (newTier === SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual') {
-              updateData.visibility_tier = 'homepage';
+              updateData.visibility_tier = VISIBILITY_TIER.HOMEPAGE;
               console.log(`Auto-featured business ${business.id} on homepage due to Moana upgrade`);
             }
             
             // Remove homepage visibility for non-Moana tier (only if auto mode)
             if (newTier !== SUBSCRIPTION_TIER.MOANA && business.visibility_mode !== 'manual' && business.visibility_tier === 'homepage') {
-              updateData.visibility_tier = 'pacific-businesses'; // Downgrade to Pacific Businesses only
+              updateData.visibility_tier = VISIBILITY_TIER.NONE; // Downgrade to standard visibility
               console.log(`Removed homepage visibility for business ${business.id} due to tier downgrade`);
             }
             

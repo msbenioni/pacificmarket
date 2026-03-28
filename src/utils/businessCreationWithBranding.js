@@ -6,6 +6,7 @@ import {
   generateAndUploadDefaultBusinessAssets,
 } from "@/utils/brandingUploadUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
+import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 
 const CREATE_FIELD_PASSTHROUGH = [
   "owner_user_id",
@@ -149,10 +150,10 @@ export const createBusinessWithBranding = async ({
   } else {
     // Auto mode: compute from tier
     if (resultingTier === SUBSCRIPTION_TIER.MOANA) {
-      changedBusinessPayload.visibility_tier = 'homepage';
+      changedBusinessPayload.visibility_tier = VISIBILITY_TIER.HOMEPAGE;
     } else {
-      // Non-Moana tier in auto mode - use 'pacific-businesses' for directory visibility
-      changedBusinessPayload.visibility_tier = 'pacific-businesses';
+      // Non-Moana tier in auto mode - use 'none' for standard visibility
+      changedBusinessPayload.visibility_tier = VISIBILITY_TIER.NONE;
     }
   }
 

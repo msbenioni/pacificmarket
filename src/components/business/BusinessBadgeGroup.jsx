@@ -1,5 +1,6 @@
 import React from 'react';
-import { Shield, Star, CheckCircle, Home, Crown } from 'lucide-react';
+import { CheckCircle, Home, Star, Shield, Award, Crown } from "lucide-react";
+import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 import { getBusinessTier } from '@/lib/business/helpers';
 import { isVerifiedBusiness, canAppearOnHomepage, getBusinessVisibilityTier } from '@/lib/business/rules';
 
@@ -80,7 +81,7 @@ export function BusinessBadgeGroup({
 
   // Visibility Badges
   if (variant === 'all' || variant === 'visibility') {
-    if (visibilityTier === 'homepage') {
+    if (visibilityTier === VISIBILITY_TIER.HOMEPAGE) {
       badges.push({
         id: 'visibility-homepage',
         icon: Star,
@@ -88,13 +89,13 @@ export function BusinessBadgeGroup({
         color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
         iconColor: 'text-yellow-600'
       });
-    } else if (visibilityTier === 'pacific-businesses') {
+    } else if (visibilityTier === VISIBILITY_TIER.SPOTLIGHT) {
       badges.push({
-        id: 'visibility-pacific',
-        icon: Home,
-        label: 'Pacific Business',
-        color: 'bg-blue-100 text-blue-700 border-blue-200',
-        iconColor: 'text-blue-600'
+        id: 'visibility-spotlight',
+        icon: Award,
+        label: 'Spotlight',
+        color: 'bg-purple-100 text-purple-700 border-purple-200',
+        iconColor: 'text-purple-600'
       });
     }
   }
