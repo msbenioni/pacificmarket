@@ -148,7 +148,7 @@ export function mergeBusinessData(businessesData = {}, businessInsightsData = {}
  */
 export function shouldShowUpgradePrompt(businesses = []) {
   return businesses.length > 0 && 
-         !businesses.some((b) => b.subscription_tier !== "VAKA");
+         !businesses.some((b) => b.subscription_tier !== "vaka");
 }
 
 /**

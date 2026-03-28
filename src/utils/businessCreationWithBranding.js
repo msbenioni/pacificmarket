@@ -86,6 +86,14 @@ export const createBusinessWithBranding = async ({
     }
   });
 
+  // Debug log to verify referral field persistence
+  console.log("🔍 createBusinessWithBranding final payload:", {
+    hasReferral: !!initialCreatePayload.referred_by_business_id,
+    referralValue: initialCreatePayload.referred_by_business_id,
+    subscriptionTier: initialCreatePayload.subscription_tier,
+    payloadKeys: Object.keys(initialCreatePayload)
+  });
+
   const createdRow = await createRow(initialCreatePayload);
 
   if (!createdRow?.id) {

@@ -251,7 +251,7 @@ export function ClaimAddBusinessModal({
         visibility_mode: "public",
         is_verified: false,
         is_claimed: false,
-        subscription_tier: "free",
+        subscription_tier: "vaka",
         source: "claim",
       };
 
