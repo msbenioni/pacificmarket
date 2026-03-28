@@ -367,10 +367,18 @@ export default function ProfileSettings() {
         return next;
       });
 
-      toast.success("Profile Updated");
+      toast({
+        title: "Success",
+        description: "Profile Updated",
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error(error.message || "Failed to update profile. Please try again.");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile. Please try again.",
+        variant: "error"
+      });
     } finally {
       setSavingAccount(false);
     }
@@ -378,7 +386,11 @@ export default function ProfileSettings() {
 
   const updatePassword = async () => {
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirmation do not match.");
+      toast({
+        title: "Error",
+        description: "New password and confirmation do not match.",
+        variant: "error"
+      });
       return;
     }
 
@@ -394,7 +406,11 @@ export default function ProfileSettings() {
       });
 
       if (signInError) {
-        toast.error("Current password is incorrect.");
+        toast({
+        title: "Error",
+        description: "Current password is incorrect.",
+        variant: "error"
+      });
         setSavingPassword(false);
         return;
       }
@@ -415,10 +431,18 @@ export default function ProfileSettings() {
         return next;
       });
 
-      toast.success("Your password has been successfully changed.");
+      toast({
+        title: "Success",
+        description: "Your password has been successfully changed.",
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error updating password:", error);
-      toast.error(error.message || "Failed to update password. Please try again.");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password. Please try again.",
+        variant: "error"
+      });
     } finally {
       setSavingPassword(false);
     }
@@ -426,7 +450,11 @@ export default function ProfileSettings() {
 
   const addAdminUser = async () => {
     if (!newAdminEmail || !newAdminName || !newAdminPassword) {
-      toast.error("Please fill in all fields.");
+      toast({
+        title: "Error",
+        description: "Please fill in all fields.",
+        variant: "error"
+      });
       return;
     }
 
@@ -473,10 +501,18 @@ export default function ProfileSettings() {
 
       await loadAdminUsers();
 
-      toast.success(`${newAdminName} has been added as an admin user.`);
+      toast({
+        title: "Success",
+        description: `${newAdminName} has been added as an admin user.`,
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error adding admin user:", error);
-      toast.error(error.message || "Failed to add admin user. Please try again.");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add admin user. Please try again.",
+        variant: "error"
+      });
     } finally {
       setAddingAdmin(false);
     }
@@ -505,10 +541,18 @@ export default function ProfileSettings() {
 
       await loadAdminUsers();
 
-      toast.success(`${adminName} no longer has admin access.`);
+      toast({
+        title: "Success",
+        description: `${adminName} no longer has admin access.`,
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error removing admin user:", error);
-      toast.error("Failed to remove admin access. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to remove admin access. Please try again.",
+        variant: "error"
+      });
     }
   };
 
@@ -561,10 +605,18 @@ export default function ProfileSettings() {
         return next;
       });
 
-      toast.success("Profile Foundation Saved");
+      toast({
+        title: "Success",
+        description: "Profile Foundation Saved",
+        variant: "success"
+      });
     } catch (error) {
       console.error("Error updating profile foundation:", error);
-      toast.error(error.message || "Failed to update profile foundation. Please try again.");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile foundation. Please try again.",
+        variant: "error"
+      });
     } finally {
       setSavingProfile(false);
     }
