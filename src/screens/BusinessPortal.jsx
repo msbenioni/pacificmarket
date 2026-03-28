@@ -164,16 +164,25 @@ export default function BusinessPortal() {
     createCheckoutSession();
   };
 
-  const handleBusinessAction = (action, data) => {
+  const handleBusinessAction = async (action, businessId, data) => {
     switch (action) {
       case "delete":
-        handleDeleteBusiness(data.businessId);
+        handleDeleteBusiness(businessId);
         break;
       case "addOwner":
-        setAddOwnerModal(data.businessId);
+        setAddOwnerModal(businessId);
         break;
       case "addBusiness":
         handleAddBusiness(data);
+        break;
+      case "save":
+        try {
+          const result = await saveBusiness(data);
+          return result;
+        } catch (error) {
+          console.error("Save failed in handleBusinessAction:", error);
+          throw error;
+        }
         break;
       default:
         console.warn(`Unknown business action: ${action}`);

@@ -444,25 +444,44 @@ export default function BusinessProfileForm({
       // Validate save result and reconcile form state
       console.log("Save result received:", saveResult);
       console.log("Save result type:", typeof saveResult);
-      console.log("Save result keys:", saveResult ? Object.keys(saveResult) : "null/undefined");
       
-      // Very permissive validation - accept any truthy result as success
+      // Handle normalized result contract
       if (!saveResult) {
         console.error("Save result is falsy:", saveResult);
         throw new Error("Save completed but no result was returned. Please refresh and verify.");
       }
       
-      // For now, accept any truthy result as success
-      // TODO: Revisit this once we understand the expected save result format
-      console.log("Save validation passed - treating as successful");
+      // Accept both direct business objects and normalized result objects
+      let business = null;
+      let success = false;
       
-      // Only reconcile if we have an object with data
-      if (typeof saveResult === 'object' && saveResult !== null && Object.keys(saveResult).length > 0) {
-        console.log("Reconciling saved business data");
-        validateUploadedMediaPersistence(saveResult);
-        reconcileSavedBusiness(saveResult);
+      if (typeof saveResult === 'object' && saveResult !== null) {
+        if (saveResult.success === true) {
+          // Normalized result format
+          success = true;
+          business = saveResult.business;
+        } else if (saveResult.id || saveResult.business_name) {
+          // Direct business object
+          success = true;
+          business = saveResult;
+        } else {
+          console.error("Unexpected save result format:", saveResult);
+          throw new Error("Save completed but returned unexpected data format. Please refresh and verify.");
+        }
       } else {
-        console.log("No business data to reconcile, but save was successful");
+        console.error("Invalid save result type:", typeof saveResult);
+        throw new Error("Save completed but returned invalid data type. Please refresh and verify.");
+      }
+      
+      console.log("Save validation passed - success:", success, "business:", business ? business.id : null);
+      
+      // Only reconcile if we have a concrete business row
+      if (business && typeof business === 'object' && Object.keys(business).length > 0) {
+        console.log("Reconciling saved business data");
+        validateUploadedMediaPersistence(business);
+        reconcileSavedBusiness(business);
+      } else {
+        console.log("Save succeeded but no business data to reconcile");
       }
 
       setSaveSuccess(true);

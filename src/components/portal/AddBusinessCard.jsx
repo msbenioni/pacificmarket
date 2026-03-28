@@ -16,10 +16,12 @@ export default function AddBusinessCard({
   const handleAddBusiness = async (data) => {
     setIsSubmitting(true);
     try {
-      await onAddSuccess(data);
+      const result = await onAddSuccess(data);
       setIsOpen(false);
+      return result;
     } catch (error) {
       console.error("Failed to add business:", error);
+      throw error;
     } finally {
       setIsSubmitting(false);
     }
