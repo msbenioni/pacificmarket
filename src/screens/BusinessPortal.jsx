@@ -156,6 +156,10 @@ export default function BusinessPortal() {
     setClaimAddModal('claim');
   };
 
+  const handleClaimAddAction = (action) => {
+    setClaimAddModal(action);
+  };
+
   const handleBusinessAction = (action, data) => {
     switch (action) {
       case "delete":
