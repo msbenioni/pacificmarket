@@ -1,5 +1,5 @@
 -- Pacific Discovery Network Database Schema
--- Generated on: 2026-03-28T22:36:37.791Z
+-- Generated on: 2026-03-28T23:21:37.576Z
 -- Connection: postgresql://postgres:***@db.mnmisjprswpuvcojnbip.supabase.co:5432/postgres
 
 
@@ -972,6 +972,7 @@ CREATE POLICY "Users can view their own onboarding status" ON user_onboarding_st
 
 -- Function: add_shipment_tracking_event
 
+
 DECLARE
   v_event jsonb;
 BEGIN
@@ -992,6 +993,7 @@ END;
 
 
 -- Function: allocate_monthly_boost_credits
+
 
 DECLARE
   v_seller RECORD;
@@ -1036,300 +1038,212 @@ END;
 
 -- Function: apply_referral_moana_reward
 
-DECLARE
-    v_new_business RECORD;
-    v_referrer_business RECORD;
-    v_new_expiry_date TIMESTAMPTZ;
-    v_referrer_expiry_date TIMESTAMPTZ;
-    v_result JSON;
-BEGIN
-    -- Load the new business with status check
-    SELECT * INTO v_new_business 
-    FROM public.businesses 
-    WHERE id = p_new_business_id;
-    
-    -- Fail if new business not found
-    IF NOT FOUND THEN
-        v_result := json_build_object('success', false, 'error', 'New business not found');
-        RETURN v_result;
-    END IF;
-    
-    -- Fail if business is not active (must be active to receive rewards)
-    IF v_new_business.status != 'active' THEN
-        v_result := json_build_object('success', false, 'error', 'Business must be active before referral rewards can be applied');
-        RETURN v_result;
-    END IF;
-    
-    -- Fail if no referral
-    IF v_new_business.referred_by_business_id IS NULL THEN
-        v_result := json_build_object('success', false, 'error', 'No referral found for this business');
-        RETURN v_result;
-    END IF;
-    
-    -- Fail if reward already applied
-    IF v_new_business.referral_reward_applied = true THEN
-        v_result := json_build_object('success', false, 'error', 'Referral reward already applied');
-        RETURN v_result;
-    END IF;
-    
-    -- Fail if self-referral
-    IF v_new_business.referred_by_business_id = p_new_business_id THEN
-        v_result := json_build_object('success', false, 'error', 'Self-referral not allowed');
-        RETURN v_result;
-    END IF;
-    
-    -- Load referrer business with status check
-    SELECT * INTO v_referrer_business 
-    FROM public.businesses 
-    WHERE id = v_new_business.referred_by_business_id;
-    
-    -- Fail if referrer not found
-    IF NOT FOUND THEN
-        v_result := json_build_object('success', false, 'error', 'Referrer business not found');
-        RETURN v_result;
-    END IF;
-    
-    -- Fail if referrer is not active
-    IF v_referrer_business.status != 'active' THEN
-        v_result := json_build_object('success', false, 'error', 'Referrer business must be active to receive rewards');
-        RETURN v_result;
-    END IF;
-    
-    -- Calculate expiry dates (additive logic)
-    -- For new business: extend from existing expiry if in future, otherwise from now
-    IF v_new_business.tier_expires_at IS NOT NULL AND v_new_business.tier_expires_at > now() THEN
-        v_new_expiry_date := v_new_business.tier_expires_at + interval '1 month';
-    ELSE
-        v_new_expiry_date := now() + interval '1 month';
-    END IF;
-    
-    -- For referrer: extend from existing expiry if in future, otherwise from now
-    IF v_referrer_business.tier_expires_at IS NOT NULL AND v_referrer_business.tier_expires_at > now() THEN
-        v_referrer_expiry_date := v_referrer_business.tier_expires_at + interval '1 month';
-    ELSE
-        v_referrer_expiry_date := now() + interval '1 month';
-    END IF;
-    
-    -- Update new business with Moana tier
-    UPDATE public.businesses 
-    SET 
-        subscription_tier = 'moana',
-        tier_expires_at = v_new_expiry_date,
-        referral_reward_applied = true,
-        referral_reward_applied_at = now(),
-        updated_at = now()
-    WHERE id = p_new_business_id;
-    
-    -- Update referrer business with Moana tier and increment referral count
-    UPDATE public.businesses 
-    SET 
-        subscription_tier = 'moana',
-        tier_expires_at = v_referrer_expiry_date,
-        referral_count = referral_count + 1,
-        updated_at = now()
-    WHERE id = v_new_business.referred_by_business_id;
-    
-    -- Return success result with detailed information
-    v_result := json_build_object(
-        'success', true,
-        'message', 'Referral reward applied successfully',
-        'new_business_expiry', v_new_expiry_date,
-        'referrer_business_expiry', v_referrer_expiry_date,
-        'new_business_name', v_new_business.business_name,
-        'referrer_business_name', v_referrer_business.business_name
-    );
-    
-    RETURN v_result;
-    
-EXCEPTION
-    WHEN OTHERS THEN
-        v_result := json_build_object(
-            'success', false, 
-            'error', SQLERRM,
-            'detail', SQLSTATE
-        );
-        RETURN v_result;
-END;
 
+      DECLARE
+          v_new_business RECORD;
+          v_referrer_business RECORD;
+          v_new_expiry_date TIMESTAMPTZ;
+          v_referrer_expiry_date TIMESTAMPTZ;
+          v_result JSON;
+      BEGIN
+          SELECT * INTO v_new_business FROM public.businesses WHERE id = p_new_business_id;
+          IF NOT FOUND THEN
+              RETURN json_build_object('success', false, 'error', 'New business not found');
+          END IF;
+          IF v_new_business.status != 'active' THEN
+              RETURN json_build_object('success', false, 'error', 'Business must be active before referral rewards can be applied');
+          END IF;
+          IF v_new_business.referred_by_business_id IS NULL THEN
+              RETURN json_build_object('success', false, 'error', 'No referral found for this business');
+          END IF;
+          IF v_new_business.referral_reward_applied = true THEN
+              RETURN json_build_object('success', false, 'error', 'Referral reward already applied');
+          END IF;
+          IF v_new_business.referred_by_business_id = p_new_business_id THEN
+              RETURN json_build_object('success', false, 'error', 'Self-referral not allowed');
+          END IF;
+          
+          SELECT * INTO v_referrer_business FROM public.businesses WHERE id = v_new_business.referred_by_business_id;
+          IF NOT FOUND THEN
+              RETURN json_build_object('success', false, 'error', 'Referrer business not found');
+          END IF;
+          IF v_referrer_business.status != 'active' THEN
+              RETURN json_build_object('success', false, 'error', 'Referrer business must be active to receive rewards');
+          END IF;
+          
+          IF v_new_business.tier_expires_at IS NOT NULL AND v_new_business.tier_expires_at > now() THEN
+              v_new_expiry_date := v_new_business.tier_expires_at + interval '1 month';
+          ELSE
+              v_new_expiry_date := now() + interval '1 month';
+          END IF;
+          IF v_referrer_business.tier_expires_at IS NOT NULL AND v_referrer_business.tier_expires_at > now() THEN
+              v_referrer_expiry_date := v_referrer_business.tier_expires_at + interval '1 month';
+          ELSE
+              v_referrer_expiry_date := now() + interval '1 month';
+          END IF;
+          
+          UPDATE public.businesses SET 
+              subscription_tier = 'moana',
+              visibility_tier = CASE WHEN visibility_mode = 'manual' THEN visibility_tier ELSE 'homepage' END,
+              tier_expires_at = v_new_expiry_date,
+              referral_reward_applied = true,
+              referral_reward_applied_at = now(),
+              updated_at = now()
+          WHERE id = p_new_business_id;
+          
+          UPDATE public.businesses SET 
+              subscription_tier = 'moana',
+              visibility_tier = CASE WHEN visibility_mode = 'manual' THEN visibility_tier ELSE 'homepage' END,
+              tier_expires_at = v_referrer_expiry_date,
+              referral_count = referral_count + 1,
+              updated_at = now()
+          WHERE id = v_new_business.referred_by_business_id;
+          
+          v_result := json_build_object(
+              'success', true,
+              'message', 'Referral reward applied successfully',
+              'new_business_expiry', v_new_expiry_date,
+              'referrer_business_expiry', v_referrer_expiry_date,
+              'new_business_name', v_new_business.business_name,
+              'referrer_business_name', v_referrer_business.business_name
+          );
+          RETURN v_result;
+      EXCEPTION
+          WHEN OTHERS THEN
+              RETURN json_build_object('success', false, 'error', SQLERRM, 'detail', SQLSTATE);
+      END;
+      
 
 -- Function: apply_referral_reward_for_business
 
-DECLARE
-    v_referred_business RECORD;
-    v_referrer_business RECORD;
-    v_existing_reward RECORD;
-    v_referrer_expiry_date TIMESTAMPTZ;
-    v_referred_expiry_date TIMESTAMPTZ;
-    v_reward_record_id UUID;
-    v_result JSON;
-BEGIN
-    -- Load the referred business
-    SELECT * INTO v_referred_business 
-    FROM public.businesses 
-    WHERE id = p_referred_business_id;
-    
-    -- Fail if business not found
-    IF NOT FOUND THEN
-        v_result := json_build_object(
-            'success', false, 
-            'error', 'Referred business not found',
-            'action', 'none'
-        );
-        RETURN v_result;
-    END IF;
-    
-    -- Check eligibility using our helper function
-    IF NOT public.is_business_referral_reward_eligible(p_referred_business_id) THEN
-        v_result := json_build_object(
-            'success', false, 
-            'error', 'Business not eligible for referral reward',
-            'reason', public.get_business_referral_reward_eligibility_reason(p_referred_business_id),
-            'action', 'none'
-        );
-        RETURN v_result;
-    END IF;
-    
-    -- Check for existing reward record (any status)
-    SELECT * INTO v_existing_reward
-    FROM public.business_referral_rewards 
-    WHERE referred_business_id = p_referred_business_id
-    LIMIT 1;
-    
-    -- If reward already applied, return success (idempotent)
-    IF v_existing_reward.status = 'applied' THEN
-        v_result := json_build_object(
-            'success', true, 
-            'message', 'Referral reward already applied',
-            'action', 'already_applied',
-            'reward_id', v_existing_reward.id,
-            'applied_at', v_existing_reward.applied_at
-        );
-        RETURN v_result;
-    END IF;
-    
-    -- Load referrer business
-    SELECT * INTO v_referrer_business 
-    FROM public.businesses 
-    WHERE id = v_referred_business.referred_by_business_id;
-    
-    -- Calculate new expiry dates for both businesses (additive logic)
-    -- For referrer business:
-    IF v_referrer_business.tier_expires_at IS NOT NULL 
-       AND v_referrer_business.tier_expires_at > now() 
-       AND v_referrer_business.subscription_tier = 'moana' THEN
-        v_referrer_expiry_date := v_referrer_business.tier_expires_at + interval '31 days';
-    ELSE
-        v_referrer_expiry_date := now() + interval '31 days';
-    END IF;
-    
-    -- For referred business:
-    IF v_referred_business.tier_expires_at IS NOT NULL 
-       AND v_referred_business.tier_expires_at > now() 
-       AND v_referred_business.subscription_tier = 'moana' THEN
-        v_referred_expiry_date := v_referred_business.tier_expires_at + interval '31 days';
-    ELSE
-        v_referred_expiry_date := now() + interval '31 days';
-    END IF;
-    
-    -- Start transaction
-    BEGIN
-        -- Update or create reward record
-        IF v_existing_reward IS NOT NULL THEN
-            -- Update existing pending/skipped/failed record
-            UPDATE public.business_referral_rewards 
-            SET 
-                status = 'applied',
-                eligibility_reason = 'Referred business became active',
-                applied_at = now(),
-                updated_at = now()
-            WHERE id = v_existing_reward.id;
-            
-            v_reward_record_id := v_existing_reward.id;
-        ELSE
-            -- Create new reward record
-            INSERT INTO public.business_referral_rewards (
-                referrer_business_id,
-                referred_business_id,
-                reward_type,
-                reward_days,
-                status,
-                eligibility_reason,
-                applied_at,
-                applied_by
-            ) VALUES (
-                v_referrer_business.id,
-                v_referred_business.id,
-                'moana_extension',
-                31,
-                'applied',
-                'Referred business became active',
-                now(),
-                'system'
-            ) RETURNING id INTO v_reward_record_id;
-        END IF;
-        
-        -- Update referrer business with extended Moana access
-        UPDATE public.businesses 
-        SET 
-            subscription_tier = 'moana',
-            tier_expires_at = v_referrer_expiry_date,
-            referral_count = referral_count + 1,
-            updated_at = now()
-        WHERE id = v_referrer_business.id;
-        
-        -- Update referred business with extended Moana access
-        UPDATE public.businesses 
-        SET 
-            subscription_tier = 'moana',
-            tier_expires_at = v_referred_expiry_date,
-            referral_reward_applied = true,
-            referral_reward_applied_at = now(),
-            updated_at = now()
-        WHERE id = p_referred_business_id;
-        
-    EXCEPTION
-        WHEN OTHERS THEN
-            -- Rollback and return error
-            v_result := json_build_object(
-                'success', false, 
-                'error', 'Failed to apply referral reward: ' || SQLERRM,
-                'detail', SQLSTATE,
-                'action', 'rollback'
-            );
-            RETURN v_result;
-    END;
-    
-    -- Return success result
-    v_result := json_build_object(
-        'success', true,
-        'message', 'Referral rewards applied successfully to both businesses',
-        'action', 'applied',
-        'reward_id', v_reward_record_id,
-        'referrer_business_id', v_referrer_business.id,
-        'referrer_business_name', v_referrer_business.business_name,
-        'referred_business_id', v_referred_business.id,
-        'referred_business_name', v_referred_business.business_name,
-        'reward_days', 31,
-        'referrer_expiry_date', v_referrer_expiry_date,
-        'referred_expiry_date', v_referred_expiry_date,
-        'applied_at', now()
-    );
-    
-    RETURN v_result;
-    
-EXCEPTION
-    WHEN OTHERS THEN
-        v_result := json_build_object(
-            'success', false, 
-            'error', 'Unexpected error in referral reward application: ' || SQLERRM,
-            'detail', SQLSTATE,
-            'action', 'error'
-        );
-        RETURN v_result;
-END;
 
+      DECLARE
+          v_referred_business RECORD;
+          v_referrer_business RECORD;
+          v_existing_reward RECORD;
+          v_referrer_expiry_date TIMESTAMPTZ;
+          v_referred_expiry_date TIMESTAMPTZ;
+          v_reward_record_id UUID;
+          v_result JSON;
+      BEGIN
+          SELECT * INTO v_referred_business 
+          FROM public.businesses 
+          WHERE id = p_referred_business_id;
+          
+          IF NOT FOUND THEN
+              v_result := json_build_object('success', false, 'error', 'Referred business not found', 'action', 'none');
+              RETURN v_result;
+          END IF;
+          
+          IF NOT public.is_business_referral_reward_eligible(p_referred_business_id) THEN
+              v_result := json_build_object(
+                  'success', false, 
+                  'error', 'Business not eligible for referral reward',
+                  'reason', public.get_business_referral_reward_eligibility_reason(p_referred_business_id),
+                  'action', 'none'
+              );
+              RETURN v_result;
+          END IF;
+          
+          SELECT * INTO v_existing_reward
+          FROM public.business_referral_rewards 
+          WHERE referred_business_id = p_referred_business_id
+          LIMIT 1;
+          
+          IF v_existing_reward.status = 'applied' THEN
+              v_result := json_build_object(
+                  'success', true, 
+                  'message', 'Referral reward already applied',
+                  'action', 'already_applied',
+                  'reward_id', v_existing_reward.id,
+                  'applied_at', v_existing_reward.applied_at
+              );
+              RETURN v_result;
+          END IF;
+          
+          SELECT * INTO v_referrer_business 
+          FROM public.businesses 
+          WHERE id = v_referred_business.referred_by_business_id;
+          
+          IF v_referrer_business.tier_expires_at IS NOT NULL 
+             AND v_referrer_business.tier_expires_at > now() 
+             AND v_referrer_business.subscription_tier = 'moana' THEN
+              v_referrer_expiry_date := v_referrer_business.tier_expires_at + interval '31 days';
+          ELSE
+              v_referrer_expiry_date := now() + interval '31 days';
+          END IF;
+          
+          IF v_referred_business.tier_expires_at IS NOT NULL 
+             AND v_referred_business.tier_expires_at > now() 
+             AND v_referred_business.subscription_tier = 'moana' THEN
+              v_referred_expiry_date := v_referred_business.tier_expires_at + interval '31 days';
+          ELSE
+              v_referred_expiry_date := now() + interval '31 days';
+          END IF;
+          
+          BEGIN
+              IF v_existing_reward IS NOT NULL THEN
+                  UPDATE public.business_referral_rewards 
+                  SET status = 'applied', eligibility_reason = 'Referred business became active', applied_at = now(), updated_at = now()
+                  WHERE id = v_existing_reward.id;
+                  v_reward_record_id := v_existing_reward.id;
+              ELSE
+                  INSERT INTO public.business_referral_rewards (
+                      referrer_business_id, referred_business_id, reward_type, reward_days, status, eligibility_reason, applied_at, applied_by
+                  ) VALUES (
+                      v_referrer_business.id, v_referred_business.id, 'moana_extension', 31, 'applied', 'Referred business became active', now(), 'system'
+                  ) RETURNING id INTO v_reward_record_id;
+              END IF;
+              
+              UPDATE public.businesses 
+              SET 
+                  subscription_tier = 'moana',
+                  visibility_tier = CASE WHEN visibility_mode = 'manual' THEN visibility_tier ELSE 'homepage' END,
+                  tier_expires_at = v_referrer_expiry_date,
+                  referral_count = referral_count + 1,
+                  updated_at = now()
+              WHERE id = v_referrer_business.id;
+              
+              UPDATE public.businesses 
+              SET 
+                  subscription_tier = 'moana',
+                  visibility_tier = CASE WHEN visibility_mode = 'manual' THEN visibility_tier ELSE 'homepage' END,
+                  tier_expires_at = v_referred_expiry_date,
+                  referral_reward_applied = true,
+                  referral_reward_applied_at = now(),
+                  updated_at = now()
+              WHERE id = p_referred_business_id;
+              
+          EXCEPTION
+              WHEN OTHERS THEN
+                  v_result := json_build_object('success', false, 'error', 'Failed to apply referral reward: ' || SQLERRM, 'detail', SQLSTATE, 'action', 'rollback');
+                  RETURN v_result;
+          END;
+          
+          v_result := json_build_object(
+              'success', true,
+              'message', 'Referral rewards applied successfully to both businesses',
+              'action', 'applied',
+              'reward_id', v_reward_record_id,
+              'referrer_business_id', v_referrer_business.id,
+              'referrer_business_name', v_referrer_business.business_name,
+              'referred_business_id', v_referred_business.id,
+              'referred_business_name', v_referred_business.business_name,
+              'reward_days', 31,
+              'referrer_expiry_date', v_referrer_expiry_date,
+              'referred_expiry_date', v_referred_expiry_date,
+              'applied_at', now()
+          );
+          RETURN v_result;
+      EXCEPTION
+          WHEN OTHERS THEN
+              v_result := json_build_object('success', false, 'error', 'Unexpected error: ' || SQLERRM, 'detail', SQLSTATE, 'action', 'error');
+              RETURN v_result;
+      END;
+      
 
 -- Function: audit_trigger_function
+
 
 BEGIN
   IF TG_OP = 'DELETE' THEN
@@ -1351,6 +1265,7 @@ END;
 
 -- Function: auto_initialize_service_subscription
 
+
 BEGIN
   -- Pro sellers get service subscription trial
   IF NEW.seller_tier = 'pro' AND NEW.service_subscription_status IS NULL THEN
@@ -1364,6 +1279,7 @@ END;
 
 
 -- Function: backfill_historic_referral_rewards
+
 
 DECLARE
     v_businesses_with_referrals RECORD;
@@ -1461,6 +1377,7 @@ END;
 
 -- Function: calculate_commission_bps
 
+
 DECLARE
   v_seller_tier TEXT;
 BEGIN
@@ -1475,6 +1392,7 @@ END;
 
 
 -- Function: calculate_commission_for_seller
+
 
 DECLARE
   v_seller_type seller_type;
@@ -1501,6 +1419,7 @@ END;
 
 
 -- Function: calculate_monthly_fee
+
 
 DECLARE
   v_seller_tier TEXT;
@@ -1533,6 +1452,7 @@ END;
 
 
 -- Function: calculate_platform_fee
+
 
 DECLARE
   v_fee_cents int;
@@ -1570,6 +1490,7 @@ END;
 
 -- Function: calculate_seller_commission
 
+
 DECLARE
   v_commission_bps integer;
 BEGIN
@@ -1585,6 +1506,7 @@ END;
 
 -- Function: calculate_seller_net
 
+
 BEGIN
   RETURN QUERY SELECT
     (p_gross_cents - ROUND(p_gross_cents * p_commission_rate) - ROUND(p_gross_cents * p_reserve_bps / 10000.0))::integer AS net_cents,
@@ -1594,6 +1516,7 @@ END;
 
 
 -- Function: cleanup_expired_unsubscribe_tokens
+
 
 DECLARE
     deleted_count INTEGER;
@@ -1610,6 +1533,7 @@ END;
 
 -- Function: create_follower_notifications
 
+
 BEGIN
   -- Insert notification for each follower of this seller
   INSERT INTO follower_notifications (buyer_id, seller_id, activity_id)
@@ -1622,6 +1546,7 @@ END;
 
 
 -- Function: create_pending_referral_reward
+
 
 DECLARE
     v_referred_business RECORD;
@@ -1671,6 +1596,7 @@ END;
 
 
 -- Function: create_product_boost
+
 
 DECLARE
   v_boost_id bigint;
@@ -1727,6 +1653,7 @@ END;
 
 -- Function: create_referral_if_present
 
+
 DECLARE
     v_referrer_business_id UUID;
 BEGIN
@@ -1749,6 +1676,7 @@ END;
 
 
 -- Function: ensure_single_default_address
+
 
 BEGIN
   -- If setting as default shipping, unset others
@@ -1775,6 +1703,7 @@ END;
 
 -- Function: generate_order_number
 
+
 DECLARE
   new_number text;
   exists_check boolean;
@@ -1789,6 +1718,7 @@ END;
 
 
 -- Function: generate_quote_number
+
 
 DECLARE
   next_num INT;
@@ -1807,12 +1737,14 @@ END;
 
 -- Function: generate_transfer_group
 
+
 BEGIN
   RETURN 'order_' || p_order_id::text;
 END;
 
 
 -- Function: generate_unique_business_handle
+
 
 DECLARE
     base_handle TEXT;
@@ -1842,6 +1774,7 @@ END;
 
 
 -- Function: get_business_referral_reward_eligibility_reason
+
 
 DECLARE
     v_business RECORD;
@@ -1892,6 +1825,7 @@ END;
 
 
 -- Function: get_business_referral_summary
+
 
 DECLARE
     v_business RECORD;
@@ -1963,6 +1897,7 @@ END;
 
 -- Function: get_business_stats
 
+
 BEGIN
     RETURN QUERY
     SELECT 
@@ -1977,6 +1912,7 @@ END;
 
 
 -- Function: get_cart_grouped_by_seller
+
 
 declare
 begin
@@ -2041,6 +1977,7 @@ end;
 
 -- Function: get_cart_grouped_by_seller
 
+
 BEGIN
   RETURN QUERY
   SELECT 
@@ -2060,6 +1997,7 @@ END;
 
 -- Function: get_challenges_analysis
 
+
 BEGIN
   RETURN QUERY
   SELECT 
@@ -2077,6 +2015,7 @@ END;
 
 
 -- Function: get_economic_insights
+
 
 BEGIN
     RETURN QUERY
@@ -2108,6 +2047,7 @@ END;
 
 -- Function: get_ecosystem_insights
 
+
 BEGIN
   RETURN QUERY
   SELECT 
@@ -2124,6 +2064,7 @@ END;
 
 
 -- Function: get_financial_insights_summary
+
 
 BEGIN
   RETURN QUERY
@@ -2142,6 +2083,7 @@ END;
 
 -- Function: get_founder_insights_summary
 
+
 BEGIN
   RETURN QUERY
   SELECT 
@@ -2158,6 +2100,7 @@ END;
 
 -- Function: get_funding_gaps_analysis
 
+
 BEGIN
   RETURN QUERY
   SELECT 
@@ -2173,6 +2116,7 @@ END;
 
 
 -- Function: get_public_insights_stats
+
 
 BEGIN
     RETURN QUERY
@@ -2192,6 +2136,7 @@ END;
 
 
 -- Function: get_referral_backfill_report
+
 
 DECLARE
     v_report JSON;
@@ -2245,6 +2190,7 @@ END;
 
 -- Function: get_referral_stats
 
+
 BEGIN
     RETURN QUERY
     SELECT 
@@ -2259,6 +2205,7 @@ END;
 
 -- Function: get_seller_boost_balance
 
+
 DECLARE
   v_balance integer;
 BEGIN
@@ -2271,6 +2218,7 @@ END;
 
 
 -- Function: get_seller_monthly_fee
+
 
 DECLARE
   v_seller_type seller_type;
@@ -2305,6 +2253,7 @@ END;
 
 -- Function: get_seller_stripe_account
 
+
   select stripe_connect_account_id
   from sellers
   where id = p_seller_id
@@ -2314,6 +2263,7 @@ END;
 
 
 -- Function: get_shop_analytics_summary
+
 
 BEGIN
   -- Validate input
@@ -2345,6 +2295,7 @@ END;
 
 -- Function: get_unread_message_count
 
+
 DECLARE
     unread_count bigint;
 BEGIN
@@ -2367,6 +2318,7 @@ END;
 
 -- Function: get_users_with_gdpr_consent
 
+
 begin
   return query
   select
@@ -2384,6 +2336,7 @@ end;
 
 -- Function: handle_business_created_notification
 
+
 BEGIN
     -- Only notify for user-created businesses, not admin-created
     IF NEW.created_via IN ('user_claim_modal', 'user_portal') THEN
@@ -2398,6 +2351,7 @@ END;
 
 -- Function: handle_claim_created_notification
 
+
 BEGIN
     -- Only notify for user-submitted claims, not admin-created
     -- Skip direct claims to avoid duplicate notifications
@@ -2411,6 +2365,7 @@ END;
 
 
 -- Function: handle_new_user
+
 
 begin
   insert into public.profiles (
@@ -2447,6 +2402,7 @@ end;
 
 -- Function: handle_updated_at
 
+
 begin
   new.updated_at = now();
   return new;
@@ -2454,6 +2410,7 @@ end;
 
 
 -- Function: increment_directory_analytics
+
 
 BEGIN
   INSERT INTO directory_analytics (seller_id, event_type, event_date, count, metadata)
@@ -2467,6 +2424,7 @@ END;
 
 -- Function: increment_product_views
 
+
 BEGIN
   UPDATE public.products
   SET view_count = view_count + 1
@@ -2475,6 +2433,7 @@ END;
 
 
 -- Function: increment_promo_code_usage
+
 
 BEGIN
     -- Increment the usage count
@@ -2489,6 +2448,7 @@ END;
 
 -- Function: initialize_service_trial
 
+
 BEGIN
   UPDATE public.sellers
   SET
@@ -2501,6 +2461,7 @@ END;
 
 -- Function: is_admin
 
+
   SELECT EXISTS (
     SELECT 1 FROM profiles
     WHERE id = auth.uid()
@@ -2509,6 +2470,7 @@ END;
 
 
 -- Function: is_business_referral_reward_eligible
+
 
 DECLARE
     v_business RECORD;
@@ -2559,6 +2521,7 @@ END;
 
 -- Function: is_service_subscription_active
 
+
 DECLARE
   v_status subscription_status;
   v_trial_ends_at timestamptz;
@@ -2583,6 +2546,7 @@ END;
 
 
 -- Function: is_service_subscription_active
+
 
 DECLARE
   v_status subscription_status;
@@ -2615,6 +2579,7 @@ END;
 
 -- Function: is_shop_member
 
+
 BEGIN
   RETURN EXISTS(
     SELECT 1 FROM public.shop_members sm
@@ -2632,6 +2597,7 @@ END;
 
 -- Function: is_super_admin
 
+
 BEGIN
   RETURN EXISTS (
     SELECT 1 FROM public.admin_users
@@ -2641,6 +2607,7 @@ END;
 
 
 -- Function: link_business_to_signed_in_user
+
 
 declare
   v_business_id uuid;
@@ -2671,6 +2638,7 @@ end;
 
 
 -- Function: prevent_service_publish_without_sub
+
 
 DECLARE
   v_type TEXT;
@@ -2708,6 +2676,7 @@ END;
 
 
 -- Function: process_pending_referral_rewards
+
 
 DECLARE
     v_pending_rewards RECORD;
@@ -2753,6 +2722,7 @@ END;
 
 -- Function: reset_unread_count
 
+
 BEGIN
   IF NEW.is_read = TRUE AND OLD.is_read = FALSE THEN
     UPDATE conversation_threads
@@ -2775,6 +2745,7 @@ END;
 
 
 -- Function: select_monthly_referral_winner
+
 
 BEGIN
     RETURN QUERY
@@ -2806,6 +2777,7 @@ END;
 
 -- Function: set_commission_by_seller_type
 
+
 BEGIN
   -- Products or hybrid sellers get 6% commission
   IF NEW.seller_type IN ('products', 'hybrid') THEN
@@ -2823,6 +2795,7 @@ END;
 
 -- Function: set_order_number
 
+
 BEGIN
   IF NEW.order_number IS NULL OR NEW.order_number = '' THEN
     NEW.order_number := generate_order_number();
@@ -2832,6 +2805,7 @@ END;
 
 
 -- Function: set_payout_method_by_country
+
 
 BEGIN
   -- If country is NZ or New Zealand, use stripe_connect, otherwise use manual
@@ -2847,6 +2821,7 @@ END;
 
 -- Function: set_quote_number
 
+
 BEGIN
   IF NEW.quote_number IS NULL OR NEW.quote_number = '' THEN
     NEW.quote_number := generate_quote_number();
@@ -2856,6 +2831,7 @@ END;
 
 
 -- Function: set_seller_commission
+
 
 BEGIN
   -- All sellers get 6.5% commission (650 basis points)
@@ -2868,12 +2844,14 @@ END;
 
 -- Function: set_updated_at
 
+
 begin
   new.updated_at = now();
   return new;
 end 
 
 -- Function: sync_business_to_subscriber
+
 
 DECLARE
   existing_subscriber UUID;
@@ -2919,6 +2897,7 @@ END;
 
 -- Function: sync_user_email_to_profile
 
+
 begin
   if new.email is distinct from old.email then
     update public.profiles
@@ -2932,7 +2911,30 @@ begin
 end;
 
 
+-- Function: sync_visibility_on_subscription_change
+
+
+      BEGIN
+          IF OLD.subscription_tier IS DISTINCT FROM NEW.subscription_tier THEN
+              IF NEW.visibility_mode = 'manual' THEN
+                  RETURN NEW;
+              END IF;
+              IF NEW.subscription_tier = 'moana' THEN
+                  NEW.visibility_tier := 'homepage';
+                  RAISE LOG 'Auto-set visibility_tier=homepage for business % (subscription_tier changed to moana)', NEW.id;
+              END IF;
+              IF OLD.subscription_tier = 'moana' AND NEW.subscription_tier != 'moana' 
+                 AND NEW.visibility_tier = 'homepage' THEN
+                  NEW.visibility_tier := 'none';
+                  RAISE LOG 'Auto-reset visibility_tier=none for business % (subscription_tier changed from moana to %)', NEW.id, NEW.subscription_tier;
+              END IF;
+          END IF;
+          RETURN NEW;
+      END;
+      
+
 -- Function: track_shop_event
+
 
 DECLARE
   v_event_id BIGINT;
@@ -2985,6 +2987,7 @@ END;
 
 -- Function: trigger_apply_referral_reward_on_activation
 
+
 DECLARE
     v_result JSON;
 BEGIN
@@ -3015,6 +3018,7 @@ END;
 
 -- Function: trigger_create_pending_referral_reward
 
+
 BEGIN
     -- Only create pending reward if business has a referrer
     IF NEW.referred_by_business_id IS NOT NULL THEN
@@ -3032,6 +3036,7 @@ END;
 
 -- Function: trigger_set_timestamp
 
+
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
@@ -3039,6 +3044,7 @@ END;
 
 
 -- Function: trigger_update_referral_eligibility
+
 
 BEGIN
     -- Update reward eligibility when referrer or referred business changes
@@ -3063,6 +3069,7 @@ END;
 
 -- Function: update_admin_directory_listings_updated_at
 
+
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
@@ -3071,6 +3078,7 @@ END;
 
 -- Function: update_cart_updated_at
 
+
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
@@ -3078,6 +3086,7 @@ END;
 
 
 -- Function: update_conversation_thread
+
 
 BEGIN
   UPDATE conversation_threads
@@ -3100,6 +3109,7 @@ END;
 
 
 -- Function: update_creator_feature_stats
+
 
 BEGIN
   -- Insert or update stats
@@ -3138,6 +3148,7 @@ END;
 
 -- Function: update_directory_featured
 
+
 BEGIN
   -- Standard tier gets featured badge automatically
   IF NEW.directory_tier = 'standard' THEN
@@ -3151,6 +3162,7 @@ END;
 
 -- Function: update_message_threads_updated_at
 
+
 BEGIN
     NEW.updated_at = now();
     RETURN NEW;
@@ -3158,6 +3170,7 @@ END;
 
 
 -- Function: update_parent_cart_timestamp
+
 
 BEGIN
   UPDATE carts SET updated_at = NOW() 
@@ -3167,6 +3180,7 @@ END;
 
 
 -- Function: update_product_search_vector
+
 
 BEGIN
   NEW.search_vector := 
@@ -3179,6 +3193,7 @@ END;
 
 -- Function: update_promo_codes_updated_at
 
+
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
@@ -3186,6 +3201,7 @@ END;
 
 
 -- Function: update_quote_timestamps
+
 
 BEGIN
   IF NEW.status = 'sent' AND OLD.status != 'sent' THEN
@@ -3207,6 +3223,7 @@ END;
 
 -- Function: update_rfp_proposal_count
 
+
 BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE rfp_requests 
@@ -3223,6 +3240,7 @@ END;
 
 -- Function: update_rfp_search_vector
 
+
 BEGIN
   NEW.search_vector := 
     setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') ||
@@ -3233,6 +3251,7 @@ END;
 
 
 -- Function: update_rfq_proposal_count
+
 
 BEGIN
   IF TG_OP = 'INSERT' THEN
@@ -3250,6 +3269,7 @@ END;
 
 -- Function: update_rfq_search_vector
 
+
 BEGIN
   NEW.search_vector := 
     setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') ||
@@ -3260,6 +3280,7 @@ END;
 
 
 -- Function: update_seller_commission_on_plan_change
+
 
 BEGIN
   -- Update commission_bps from the plan
@@ -3274,6 +3295,7 @@ END;
 
 
 -- Function: update_seller_follower_count
+
 
 BEGIN
     IF TG_OP = 'INSERT' THEN
@@ -3293,6 +3315,7 @@ END;
 
 -- Function: update_seller_product_count
 
+
 BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE public.sellers
@@ -3308,6 +3331,7 @@ END;
 
 
 -- Function: update_seller_search_vector
+
 
 BEGIN
   NEW.search_vector := 
@@ -3327,6 +3351,7 @@ END;
 
 
 -- Function: update_seller_service_count
+
 
 BEGIN
   IF TG_OP = 'INSERT' THEN
@@ -3358,6 +3383,7 @@ END;
 
 -- Function: update_sellers_search_vector
 
+
 BEGIN
   NEW.search_vector := 
     -- Business name (highest weight)
@@ -3377,6 +3403,7 @@ END;
 
 -- Function: update_service_request_response_count
 
+
 BEGIN
   UPDATE service_requests
   SET response_count = (
@@ -3390,6 +3417,7 @@ END;
 
 -- Function: update_service_requests_updated_at
 
+
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
@@ -3397,6 +3425,7 @@ END;
 
 
 -- Function: update_shipment_from_ptp
+
 
 BEGIN
   UPDATE public.shipments
@@ -3412,6 +3441,7 @@ END;
 
 -- Function: update_shipments_updated_at
 
+
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
@@ -3420,6 +3450,7 @@ END;
 
 -- Function: update_shipping_options_updated_at
 
+
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
@@ -3427,6 +3458,7 @@ END;
 
 
 -- Function: update_thread_last_message
+
 
 BEGIN
     UPDATE public.message_threads
@@ -3439,6 +3471,7 @@ END;
 
 -- Function: update_updated_at_column
 
+
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
@@ -3446,6 +3479,7 @@ END;
 
 
 -- Function: validate_coupon_for_seller
+
 
 DECLARE
   v_coupon RECORD;
@@ -3529,6 +3563,7 @@ END;
 
 -- Function: validate_coupon_for_seller
 
+
   with c as (
     select *
     from coupons
@@ -3561,6 +3596,7 @@ END;
 
 -- Function: validate_financial_insights
 
+
 BEGIN
   -- Validate revenue_streams contains valid values
   IF NEW.revenue_streams IS NOT NULL THEN
@@ -3576,6 +3612,7 @@ END;
 
 
 -- Function: validate_founder_insights
+
 
 BEGIN
   -- Validate business_stage
@@ -3598,6 +3635,7 @@ END;
 
 
 -- Function: verify_purchase_for_review
+
 
 BEGIN
     -- If order_id is provided, verify the purchase
@@ -3645,6 +3683,11 @@ CREATE TRIGGER on_business_insert_sync
 CREATE TRIGGER on_business_insert_sync
   AFTER UPDATE ON businesses
   FOR EACH ROW EXECUTE FUNCTION sync_business_to_subscriber();
+
+-- Trigger: on_business_subscription_sync_visibility on businesses
+CREATE TRIGGER on_business_subscription_sync_visibility
+  BEFORE UPDATE ON businesses
+  FOR EACH ROW EXECUTE FUNCTION sync_visibility_on_subscription_change();
 
 -- Trigger: on_business_update_apply_referral_reward on businesses
 CREATE TRIGGER on_business_update_apply_referral_reward
