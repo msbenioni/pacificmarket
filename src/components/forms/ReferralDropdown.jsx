@@ -36,7 +36,11 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
       setBusinesses(filteredBusinesses);
     } catch (err) {
       console.error("Error loading referral businesses:", err);
-      setError("Failed to load referral options");
+      if (err.message?.includes('column') || err.message?.includes('does not exist')) {
+        setError("Referral system not yet available - please run database migration");
+      } else {
+        setError("Failed to load referral options");
+      }
     } finally {
       setLoading(false);
     }

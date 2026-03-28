@@ -1,4 +1,5 @@
 import { CheckCircle, XCircle, Gift, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import {
@@ -25,6 +26,39 @@ export default function AdminBusinessMobileCard({
   onApplyReferralReward,
   applyingReferralReward,
 }) {
+  const [referrerBusiness, setReferrerBusiness] = useState(null);
+
+  // Load referrer business details when component mounts or business changes
+  useEffect(() => {
+    const loadReferrerBusiness = async () => {
+      if (business.referred_by_business_id) {
+        try {
+          const { getSupabase } = await import("@/lib/supabase/client");
+          const supabase = getSupabase();
+          
+          const { data, error } = await supabase
+            .from('businesses')
+            .select('business_name, business_handle')
+            .eq('id', business.referred_by_business_id)
+            .single();
+          
+          if (!error && data) {
+            setReferrerBusiness(data);
+          } else {
+            console.error('Error loading referrer business:', error);
+            setReferrerBusiness(null);
+          }
+        } catch (err) {
+          console.error('Error loading referrer business:', err);
+          setReferrerBusiness(null);
+        }
+      } else {
+        setReferrerBusiness(null);
+      }
+    };
+
+    loadReferrerBusiness();
+  }, [business.referred_by_business_id]);
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
@@ -76,8 +110,19 @@ export default function AdminBusinessMobileCard({
             <div className="mt-2 rounded-lg bg-gray-50 p-2">
               <div className="flex items-center gap-1 text-xs text-gray-600">
                 <Users className="h-3 w-3" />
-                <span>Referred by: Loading...</span>
+                <span>
+                  Referred by: {referrerBusiness ? 
+                    `${referrerBusiness.business_name}${referrerBusiness.business_handle ? ` (@${referrerBusiness.business_handle})` : ''}` 
+                    : 'Loading...'
+                  }
+                </span>
               </div>
+              {business.referral_reward_applied && (
+                <div className="mt-1 flex items-center gap-1 text-xs text-green-600">
+                  <Gift className="h-3 w-3" />
+                  <span>Reward applied</span>
+                </div>
+              )}
             </div>
           )}
         </div>
