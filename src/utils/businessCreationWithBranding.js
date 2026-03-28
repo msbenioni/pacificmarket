@@ -151,7 +151,7 @@ export const createBusinessWithBranding = async ({
     if (resultingTier === SUBSCRIPTION_TIER.MOANA) {
       changedBusinessPayload.visibility_tier = 'homepage';
     } else {
-      // Non-Moana tier in auto mode should not have homepage visibility
+      // Non-Moana tier in auto mode - use 'pacific-businesses' for directory visibility
       changedBusinessPayload.visibility_tier = 'pacific-businesses';
     }
   }

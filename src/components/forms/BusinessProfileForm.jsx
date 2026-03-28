@@ -137,7 +137,7 @@ export default function BusinessProfileForm({
     mobile_banner_remove: false,
     
     // Admin & Visibility
-    visibility_tier: "none",
+    visibility_tier: "pacific-businesses",
     visibility_mode: "auto",
     
     // Business Overview

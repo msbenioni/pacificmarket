@@ -137,7 +137,7 @@ export function useBusinessOperations(refetchPortalData) {
       if (resultingTier === SUBSCRIPTION_TIER.MOANA && resultingMode === 'auto') {
         sanitizedPayload.visibility_tier = 'homepage';
       } else if (resultingTier !== SUBSCRIPTION_TIER.MOANA && resultingMode === 'auto') {
-        // Non-Moana tier in auto mode should not have homepage visibility
+        // Non-Moana tier in auto mode - use 'pacific-businesses' for directory visibility
         sanitizedPayload.visibility_tier = 'pacific-businesses';
       }
       // Manual mode preserves admin-selected visibility_tier
@@ -277,7 +277,7 @@ export function useBusinessOperations(refetchPortalData) {
         is_claimed: true,
         created_at: new Date().toISOString(),
         // Set required visibility fields for new businesses
-        visibility_tier: "none", // Default to none - visible in directory but not homepage
+        visibility_tier: "pacific-businesses", // Default to pacific-businesses for new businesses
         visibility_mode: "auto", // Default to auto mode
       };
 
