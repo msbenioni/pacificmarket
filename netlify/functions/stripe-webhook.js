@@ -35,7 +35,7 @@ exports.handler = async (event, context) => {
         const deletedSubscription = eventObj.data.object;
         console.log('Subscription deleted:', deletedSubscription.id);
         
-        // Downgrade to vaka tier
+        // Downgrade to Vaka tier
         await downgradeBusinessToVaka(deletedSubscription);
         break;
 

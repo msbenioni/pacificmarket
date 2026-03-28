@@ -254,7 +254,7 @@ export const investorOverviewDeck: PresentationDeck = {
         {
           title: "Convert and retain",
           items: [
-            "Upgrade pathways from free to Mana and Moana",
+            "Upgrade pathways from Vaka to Mana and Moana",
             "Visibility, trust, and tool-based conversion messaging",
             "Community partnerships and referrals",
             "Retention through profile value and business utility",

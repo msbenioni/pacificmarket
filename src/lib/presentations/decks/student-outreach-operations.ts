@@ -305,7 +305,7 @@ export const studentOutreachOperationsDeck: PresentationDeck = {
           ["Assigned To", "Student or founder"],
           ["Last Contact Date", "Follow-up visibility"],
           ["Notes", "Context and next action"],
-          ["Paid Plan Status", "Free / Mana / Moana"],
+          ["Paid Plan Status", "Vaka / Mana / Moana"],
         ],
       },
       closingLine:

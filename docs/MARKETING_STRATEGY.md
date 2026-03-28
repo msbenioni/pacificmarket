@@ -47,7 +47,10 @@
   - Cultural ambassador program
 
 - **Referral Program**
-  - $50 credit for each successful referral
+  - Business-to-business referral system
+  - Referral rewards for active businesses
+  - Network growth through trusted recommendations
+  - Admin-managed reward application
   - Tiered rewards: 3 referrals = free month, 10 referrals = free year
   - Business networking events
 

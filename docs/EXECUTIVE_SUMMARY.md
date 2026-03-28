@@ -19,21 +19,24 @@
 
 **All-in-one business platform with 3 tiers:**
 
-### **Free Tier**
+### **Vaka Tier (Free)**
 - Basic business profile
 - Directory listing
 - Community features
+- Referral participation
 
 ### **Mana Tier - $4.99/month**
 - Enhanced profile with photos/banner
 - Basic business tools (invoices, signatures)
 - Verification badge
+- Referral rewards
 
 ### **Moana Tier - $29/month**
 - Full feature access
 - Advanced analytics
 - Priority support
 - Featured listings
+- Enhanced referral rewards
 
 ---
 
@@ -43,6 +46,7 @@
 - **Production-ready platform** live
 - **Stripe payments** integrated
 - **Business tools** working
+- **Referral system** implemented
 - **User base** growing organically
 
 ### **🎯 3-Year Goals**

@@ -51,7 +51,7 @@ export default function Help() {
         },
         {
           q: "Is Pacific Discovery Network free to use?",
-          a: "Basic browsing and searching is free for everyone. Business listings start with a free Vaka tier, with paid options for Mana and Moana tiers with enhanced features."
+          a: "Basic browsing and searching is free for everyone. Business listings start on the Vaka plan, with paid options for Mana and Moana tiers with enhanced features."
         },
         {
           q: "Who can list a business?",

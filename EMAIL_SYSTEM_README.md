@@ -71,7 +71,7 @@ node scripts/create-founder-campaign.cjs
 
 ### Subscription Tiers
 ```
-vaka: 32 businesses (84%)
+Vaka: 32 businesses (84%)
 mana: 6 businesses (16%)
 moana: 0 businesses (0%)
 ```
@@ -87,7 +87,7 @@ moana: 0 businesses (0%)
 
 ## Campaign Segments Available
 
-### Founder Campaign Target: `vaka_plan`
+### Founder Campaign Target: `Vaka_plan`
 - **Audience:** 32 businesses on Vaka plan
 - **Message:** Pacific Market → Pacific Discovery Network evolution
 - **Goal:** Inform about transition, upsell to Mana for branding changes

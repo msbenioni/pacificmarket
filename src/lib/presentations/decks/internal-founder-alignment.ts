@@ -236,7 +236,7 @@ export const internalFounderAlignmentDeck: PresentationDeck = {
             "Useful business support features",
             "Practical profile and document tools",
             "Affordable recurring access",
-            "Clear pathway from free to paid value",
+            "Clear pathway from Vaka to paid value",
           ],
         },
       ],
@@ -422,7 +422,7 @@ export const internalFounderAlignmentDeck: PresentationDeck = {
           title: "Priority 1: Conversion",
           items: [
             "Tighten homepage and landing page messaging",
-            "Clarify Free vs Mana vs Moana value",
+            "Clarify Vaka vs Mana vs Moana value",
             "Improve upgrade prompts and CTAs",
             "Create a founding member offer",
           ],
@@ -486,7 +486,7 @@ export const internalFounderAlignmentDeck: PresentationDeck = {
         "A growth plan only works if we track the right metrics consistently.",
       stats: [
         { label: "New Paid Subs", value: "Weekly target" },
-        { label: "Upgrade Rate", value: "Free → Paid" },
+        { label: "Upgrade Rate", value: "Vaka → Paid" },
         { label: "Churn", value: "Monthly watch" },
       ],
       bullets: [

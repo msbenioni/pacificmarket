@@ -49,6 +49,7 @@
    - Rich, professional business profiles
    - Search and discovery across Pacific nations
    - Verification system building trust
+   - **Referral system** for network growth
 
 2. **Business Tools Suite**
    - Invoice Generator with branding
@@ -57,7 +58,7 @@
    - Analytics Dashboard
 
 3. **Premium Subscription Tiers**
-   - Free tier for basic presence
+   - **Vaka tier** for basic presence (free)
    - Mana tier ($4.99/month) for enhanced features
    - Moana tier ($29/month) for full access
 
@@ -96,10 +97,11 @@
 
 ### **Three-Tier Subscription Strategy**
 
-#### **🆓 Free Tier - Market Entry**
+#### **🆓 Vaka Tier - Market Entry (Free)**
 - Basic business profile
 - Directory listing
 - Community features
+- Referral participation
 - **Goal**: Drive market adoption
 
 #### **💎 Mana Tier - $4.99/month (60% of subscribers)**
@@ -107,6 +109,7 @@
 - Basic business tools (invoices, signatures)
 - Verification badge
 - Priority support
+- Referral rewards eligibility
 
 #### **🌊 Moana Tier - $29/month (40% of subscribers)**
 - Full feature access
@@ -114,6 +117,7 @@
 - Featured listings
 - Premium support
 - API access
+- Enhanced referral rewards
 
 #### **💰 Revenue Model**
 - **Recurring Revenue** - Predictable monthly income
@@ -155,13 +159,16 @@
 2. **Profile Creation** - Rich business profiles
 3. **Business Tools** - Invoice generator in action
 4. **Premium Features** - Analytics dashboard
-5. **Mobile Experience** - Responsive design
+5. **Referral System** - Business-to-business referrals
+6. **Mobile Experience** - Responsive design
 
 #### **💡 Key Features to Showcase**
 - **Easy Setup** - 5-minute profile creation
 - **Professional Templates** - Invoice and signature generators
 - **Real-time Analytics** - Business insights
 - **Mobile-First Design** - Works on any device
+- **Referral Network** - Grow through business referrals
+- **Referral Rewards** - Earn credits for successful referrals
 
 #### **🌏 Cultural Integration**
 - **Pacific Language Support** - Local language options

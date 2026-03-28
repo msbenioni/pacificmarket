@@ -165,9 +165,9 @@ const createTransporter = () => {
 
 ```javascript
 const SUBSCRIPTION_TIERS = {
-  VAKA: 'vaka',      // Free tier
-  MANA: 'mana',      // $4.99/month
-  MOANA: 'moana'     // $29.00/month
+  vaka: 'vaka',      // Free tier
+  mana: 'mana',      // $4.99/month
+  moana: 'moana'     // $29.00/month
 };
 ```
 

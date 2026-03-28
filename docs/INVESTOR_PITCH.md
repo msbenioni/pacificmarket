@@ -33,6 +33,7 @@ Comprehensive business ecosystem with three core pillars:
 - **Verification system** building trust and credibility
 - **Search and discovery** across industries and locations
 - **Cultural context** understanding Pacific business practices
+- **Business-to-business referrals** for network growth
 
 #### **2. Business Tools Suite**
 - **Invoice Generator** - Professional PDF invoices with branding
@@ -41,8 +42,9 @@ Comprehensive business ecosystem with three core pillars:
 - **Analytics Dashboard** - Business insights and performance metrics
 
 #### **3. Premium Subscription Tiers**
-- **Mana Tier ($4.99/month)**: Enhanced profiles, basic tools
-- **Moana Tier ($29.00/month)**: Full feature access, advanced analytics
+- **Vaka Tier (Free)**: Basic presence, directory listing, referral participation
+- **Mana Tier ($4.99/month)**: Enhanced profiles, basic tools, referral rewards
+- **Moana Tier ($29.00/month)**: Full feature access, advanced analytics, enhanced referral rewards
 
 ---
 
