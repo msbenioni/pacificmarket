@@ -7,7 +7,7 @@ import {
 } from "@/utils/brandingUploadUtils";
 import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
 import { deleteBusiness, createBusiness } from "@/lib/supabase/queries/businesses";
-import { sanitizeBusinessPayload, validateBusinessData } from "@/utils/dataTransformers";
+import { sanitizeBusinessPayload, validateBusinessData, isBusinessHandleAvailable } from "@/utils/dataTransformers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
@@ -278,14 +278,30 @@ export function useBusinessOperations(refetchPortalData) {
         created_at: new Date().toISOString(),
       };
 
-      // Validate business handle uniqueness
-      const validationResult = await validateBusinessHandle(
-        baseCreatePayload.business_handle,
-        null // null for create (no existing business to exclude)
-      );
+      // Validate business handle format and uniqueness
+      const businessHandle = baseCreatePayload.business_handle;
       
-      if (!validationResult.isValid) {
-        return;
+      // Validate handle format
+      if (!businessHandle || !businessHandle.trim()) {
+        throw new Error("Business handle is required");
+      }
+      
+      if (!/^[a-z0-9-]+$/.test(businessHandle)) {
+        throw new Error("Business handle can only contain lowercase letters, numbers, and hyphens");
+      }
+
+      // Check handle uniqueness
+      const { data: existingBusinesses, error: queryError } = await supabase
+        .from('businesses')
+        .select('id, business_handle')
+        .eq('business_handle', businessHandle);
+        
+      if (queryError) {
+        throw new Error("Failed to validate business handle availability");
+      }
+
+      if (existingBusinesses && existingBusinesses.length > 0) {
+        throw new Error("This business handle is already taken. Please choose a different one.");
       }
 
       const newBusiness = await createBusinessWithBranding({
