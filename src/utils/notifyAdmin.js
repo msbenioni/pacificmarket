@@ -10,9 +10,6 @@ const ADMIN_EMAIL = "admin@pacificdiscoverynetwork.com";
  */
 export async function sendAdminNotification(subject, message, data = {}) {
   try {
-    // In a real implementation, this would use an email service like SendGrid, Resend, etc.
-    // For now, we'll log the notification and could integrate with an email service later
-    
     const notification = {
       to: ADMIN_EMAIL,
       subject: `[Pacific Discovery Network] ${subject}`,
@@ -21,19 +18,32 @@ export async function sendAdminNotification(subject, message, data = {}) {
       data
     };
 
-    // Log for development - in production, replace with actual email sending
+    // Log for development/debugging
     console.log("📧 ADMIN NOTIFICATION:", notification);
     
-    // TODO: Replace with actual email service integration
-    // Example with Resend (would require npm install resend):
-    // const { Resend } = require('resend');
-    // const resend = new Resend(process.env.RESEND_API_KEY);
-    // await resend.emails.send({
-    //   from: 'hello@pacificdiscoverynetwork.com',
-    //   to: ADMIN_EMAIL,
-    //   subject: notification.subject,
-    //   html: generateEmailHTML(notification)
-    // });
+    // Send email using SMTP
+    const nodemailer = require('nodemailer');
+    
+    const transporter = nodemailer.createTransporter({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: ADMIN_EMAIL,
+      subject: notification.subject,
+      text: notification.message,
+      html: generateEmailHTML(notification),
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent successfully to:", ADMIN_EMAIL);
 
     return { success: true, notification };
   } catch (error) {
