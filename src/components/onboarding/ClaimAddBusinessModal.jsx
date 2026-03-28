@@ -371,6 +371,7 @@ export function ClaimAddBusinessModal({
           reviewed_at: new Date().toISOString(),
           reviewed_by: userRes.user.id,
           claim_type: "direct",
+          created_via: "user_claim_modal",
         });
 
         if (claimError) {

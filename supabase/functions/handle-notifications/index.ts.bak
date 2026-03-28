@@ -1,8 +1,8 @@
-/// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
-
-import { serve } from "https://deno.land/std/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
+// Import the notification functions directly since Edge Functions run in Deno
+// Note: This will be handled differently in production
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -15,16 +15,23 @@ serve(async (req: Request) => {
   }
 
   try {
-    // Use service role for server-to-server calls (no user auth needed for DB-triggered events)
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
     )
 
-    // This is called by database webhook/trigger
-    const { type, business_id, claim_id, user_id, created_via, table, record } = await req.json()
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
+    if (authError) throw authError
 
-    console.log('Processing notification:', { type, business_id, claim_id, user_id, created_via, table })
+    // This is called by database webhook/trigger
+    const { type, business_id, claim_id, user_id, created_via } = await req.json()
+
+    console.log('Processing notification:', { type, business_id, claim_id, user_id, created_via })
 
     // Only process user-originated notifications
     if (!['user_claim_modal', 'user_portal'].includes(created_via)) {
@@ -35,19 +42,31 @@ serve(async (req: Request) => {
       })
     }
 
-    // Skip direct claims to avoid duplicate notifications
-    if (type === 'claim_created' && record?.claim_type === 'direct') {
-      console.log('Skipping direct claim notification to avoid duplicates')
+    // For now, we'll just log the notification and handle email sending via webhook
+    // In production, you'd call the notification functions here
+    console.log('✅ Would send notification:', { type, business_id, claim_id, user_id })
+
+    return new Response(JSON.stringify({ success: true }), { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200 
+    })
+  } catch (error: any) {
+    console.error('Notification error:', error)
+    return new Response(JSON.stringify({ error: error.message }), { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500 
+    })
+  }
+})
+
+    // Only process user-originated notifications
+    if (!['user_claim_modal', 'user_portal'].includes(created_via)) {
+      console.log('Skipping admin-created notification:', created_via)
       return new Response(JSON.stringify({ skipped: true }), { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
       })
     }
-
-    // Import notification functions dynamically
-    const { notifyNewBusinessCreated, notifyNewBusinessClaim } = await import(
-      "https://esm.sh/@/utils/notifyAdmin.js"
-    )
 
     if (type === 'business_created') {
       // Fetch business and user details
@@ -61,7 +80,7 @@ serve(async (req: Request) => {
 
       if (business && userData) {
         await notifyNewBusinessCreated(business, userData.user)
-        console.log('✅ Business notification sent:', business.business_name)
+        console.log('Business notification sent:', business.business_name)
       }
     } else if (type === 'claim_created') {
       // Fetch claim, business, and user details
@@ -81,7 +100,7 @@ serve(async (req: Request) => {
 
       if (claim && business && userData) {
         await notifyNewBusinessClaim(claim, business, userData.user)
-        console.log('✅ Claim notification sent:', business.business_name)
+        console.log('Claim notification sent:', business.business_name)
       }
     }
 
@@ -89,7 +108,7 @@ serve(async (req: Request) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200 
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Notification error:', error)
     return new Response(JSON.stringify({ error: error.message }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
