@@ -20,7 +20,6 @@ export default function ReferralRegister() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
-  const [referralCode, setReferralCode] = useState("");
   const [referrerBusiness, setReferrerBusiness] = useState(null);
 
   const businessHandle = params['business-handle'];
@@ -30,7 +29,7 @@ export default function ReferralRegister() {
     const handle = Array.isArray(businessHandle) ? businessHandle[0] : businessHandle;
     
     if (handle && typeof handle === 'string') {
-      setReferralCode(handle);
+      // This is a business handle referral registration flow
       // Load referrer business info for display
       loadReferrerBusiness(handle);
     } else {
@@ -93,7 +92,6 @@ export default function ReferralRegister() {
             display_name: name,
             gdpr_consent: gdprConsent,
             gdpr_consent_date: new Date().toISOString(),
-            referral_code: referralCode
           }
         }
       });

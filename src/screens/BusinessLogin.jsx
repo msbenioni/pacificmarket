@@ -20,7 +20,6 @@ export default function BusinessLogin() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
-  const [referralCode, setReferralCode] = useState("");
   
   // Get initial mode from URL parameter
   const getInitialMode = () => {
@@ -34,14 +33,6 @@ export default function BusinessLogin() {
   const isClaimFlow = !!businessId;
   
   const [mode, setMode] = useState(getInitialMode());
-
-  // Capture referral code from URL on component mount
-  useEffect(() => {
-    const refParam = searchParams.get('ref');
-    if (refParam) {
-      setReferralCode(refParam);
-    }
-  }, [searchParams]);
 
   const handleModeSwitch = (newMode) => {
     setMode(newMode);
@@ -118,7 +109,6 @@ export default function BusinessLogin() {
               display_name: name,
               gdpr_consent: gdprConsent,
               gdpr_consent_date: new Date().toISOString(),
-              referral_code: referralCode // Store referral code for later use
             },
             emailRedirectTo: signupRedirectUrl
           }
