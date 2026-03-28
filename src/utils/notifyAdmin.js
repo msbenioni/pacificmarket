@@ -3,7 +3,7 @@
  * Sends email notifications to admin for important business events
  */
 
-const ADMIN_EMAIL = "new@pacificdiscoverynetwork.com";
+const ADMIN_EMAIL = "admin@pacificdiscoverynetwork.com";
 
 /**
  * Send notification email to admin
