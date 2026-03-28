@@ -70,7 +70,7 @@ export function FormSection({
   
   // Check if this section should show tier info (only brand/media section)
   const shouldShowTierInfo = sectionKey === "brand" && tierInfo && mode === "edit";
-  const isVakaTier = tierInfo?.label?.toLowerCase().includes('vaka');
+  const isVakaTier = tierInfo === "vaka";
   
   return (
     <div className="rounded-xl border border-slate-300 bg-white shadow-sm transition-all hover:shadow-md">
