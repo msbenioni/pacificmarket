@@ -179,6 +179,7 @@ export function ClaimAddBusinessModal({
         role: details.role || "owner",
         message: details.message || null,
         claim_type: "request",
+        created_via: "user_claim_modal",
       };
 
       const { data: inserted, error: insertErr } = await supabase
@@ -267,6 +268,7 @@ export function ClaimAddBusinessModal({
         is_claimed: false,
         subscription_tier: "vaka",
         source: "claim",
+        created_via: "user_claim_modal",
       };
 
       console.log("💾 ClaimAddBusinessModal calling createBusinessWithBranding with:", {
