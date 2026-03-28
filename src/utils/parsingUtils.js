@@ -4,11 +4,12 @@
  * Used across FlagIcon, FeaturedSpotlight, RegistryFilters, and businessCulturalHelpers
  */
 
-import { COUNTRIES, CULTURAL_IDENTITIES } from '@/constants/unifiedConstants';
+import { COUNTRIES, CULTURAL_IDENTITIES, LANGUAGES } from '@/constants/unifiedConstants';
 
 const ALL_VALID_LABELS = [
   ...CULTURAL_IDENTITIES,
   ...COUNTRIES.map((c) => c.label),
+  ...LANGUAGES.map((l) => l.label),
 ];
 
 /**
