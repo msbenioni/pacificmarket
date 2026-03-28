@@ -575,16 +575,20 @@ export default function BusinessProfileForm({
         );
       
       case "referral":
-        return (
-          <FormSection>
-            <ReferralDropdown
-              value={form.referred_by_business_id}
-              onChange={(value) => handleInputChange("referred_by_business_id", value)}
-              disabled={submitting}
-              excludeBusinessId={businessId}
-            />
-          </FormSection>
-        );
+        // Only show referral dropdown during creation, not editing
+        if (mode === 'create') {
+          return (
+            <FormSection>
+              <ReferralDropdown
+                value={form.referred_by_business_id}
+                onChange={(value) => handleInputChange("referred_by_business_id", value)}
+                disabled={submitting}
+                excludeBusinessId={businessId}
+              />
+            </FormSection>
+          );
+        }
+        return null;
       
       case "admin":
         return (

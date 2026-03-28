@@ -37,9 +37,9 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
     } catch (err) {
       console.error("Error loading referral businesses:", err);
       if (err.message?.includes('column') || err.message?.includes('does not exist')) {
-        setError("Referral system not yet available - please run database migration");
+        setError("Referral system not yet available");
       } else {
-        setError("Failed to load referral options");
+        setError("Unable to load referral options");
       }
     } finally {
       setLoading(false);
@@ -81,8 +81,14 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
       </div>
 
       <p className="text-xs text-gray-500">
-        Optional — select the business that invited you to join Pacific Discovery Network.
+        Optional — select the business that invited you to join.
       </p>
+
+      {businesses.length === 0 && !loading && !error && (
+        <p className="text-xs text-gray-400 italic">
+          No approved businesses available for referral.
+        </p>
+      )}
 
       {selectedBusiness && (
         <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">

@@ -16,7 +16,16 @@ export async function POST(request, context) {
       return Response.json({ error: 'Business ID required' }, { status: 400 });
     }
 
-    // Create service client for RPC call
+    // Environment variable guard for service role key
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY not configured');
+      return Response.json({ 
+        error: 'Server configuration error', 
+        details: 'Service role key not available' 
+      }, { status: 500 });
+    }
+
+    // Create service client for RPC call (service role bypasses RLS)
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -35,8 +44,8 @@ export async function POST(request, context) {
       }, { status: 500 });
     }
 
-    // Parse the JSON result from the SQL function
-    const result = typeof data === 'string' ? JSON.parse(data) : data;
+    // The SQL function already returns JSON, so no parsing needed
+    const result = data;
 
     if (!result.success) {
       return Response.json({ 

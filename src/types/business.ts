@@ -3,6 +3,14 @@
  * Single source of truth for business data structure
  */
 
+// Smaller type for referral dropdown options
+export type ReferralBusinessOption = {
+  id: string;
+  business_name: string;
+  business_handle: string | null;
+  status: string;
+};
+
 export type Business = {
   // Core identity
   id: string;

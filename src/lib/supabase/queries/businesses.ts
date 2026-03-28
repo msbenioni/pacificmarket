@@ -3,7 +3,7 @@
  * Centralized query logic to eliminate duplication and ensure consistency
  */
 
-import type { Business, BusinessUpdate, BusinessCreate } from '../../../types/business';
+import type { Business, BusinessUpdate, BusinessCreate, ReferralBusinessOption } from '../../../types/business';
 
 // Explicit field selection for performance and consistency
 const BUSINESS_PUBLIC_FIELDS = `
@@ -80,7 +80,7 @@ const BUSINESS_REFERRAL_FIELDS = `
  * Fetch businesses for referral dropdown
  * Only returns approved/active businesses
  */
-export async function getReferralBusinesses(supabase: any): Promise<Business[]> {
+export async function getReferralBusinesses(supabase: any): Promise<ReferralBusinessOption[]> {
   const { data, error } = await supabase
     .from('businesses')
     .select(BUSINESS_REFERRAL_FIELDS)
@@ -337,6 +337,74 @@ export async function getUserBusinesses(userId: string, options: {
   return { data, error: null };
 }
 
+// Fields for admin queries (includes referral info)
+const BUSINESS_ADMIN_FIELDS = `
+  id,
+  business_name,
+  description,
+  tagline,
+  business_handle,
+  role,
+  logo_url,
+  banner_url,
+  mobile_banner_url,
+  business_contact_person,
+  business_email,
+  business_phone,
+  business_website,
+  business_hours,
+  country,
+  industry,
+  city,
+  address,
+  suburb,
+  state_region,
+  postal_code,
+  year_started,
+  business_stage,
+  business_structure,
+  team_size_band,
+  is_business_registered,
+  status,
+  is_verified,
+  is_claimed,
+  claimed_at,
+  claimed_by,
+  visibility_tier,
+  visibility_mode,
+  subscription_tier,
+  cultural_identity,
+  languages_spoken,
+  owner_user_id,
+  created_by,
+  referred_by_business_id,
+  referral_reward_applied,
+  referral_reward_applied_at,
+  tier_expires_at,
+  referral_count,
+  source,
+  profile_completeness,
+  referral_code,
+  created_at,
+  updated_at,
+  created_date,
+  founder_story,
+  age_range,
+  gender,
+  collaboration_interest,
+  mentorship_offering,
+  open_to_future_contact,
+  business_acquisition_interest,
+  team_size,
+  social_links,
+  tags,
+  -- Join to get referrer business info
+  referrer_business:referred_by_business_id(
+    business_name,
+    business_handle
+  )
+`;
+
 /**
  * Get businesses for admin dashboard (all statuses)
  */
@@ -351,7 +419,7 @@ export async function getAdminBusinesses(options: {
 
   let query = supabase
     .from('businesses')
-    .select(BUSINESS_PUBLIC_FIELDS);
+    .select(BUSINESS_ADMIN_FIELDS);
 
   if (status && status.length > 0) {
     query = query.in('status', status);

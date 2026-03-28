@@ -143,6 +143,8 @@ export const sanitizeForBusinessesTable = (data) => {
     'country', 'city', 'address', 'suburb', 'state_region', 'postal_code', 'industry',
     'year_started', 'business_stage', 'business_structure', 'team_size_band', 'is_business_registered',
     'status', 'is_verified', 'is_claimed', 'subscription_tier', 'visibility_tier', 'visibility_mode',
+    // Referral fields
+    'referred_by_business_id',
     // Claim request details
     'role',
     // Social media
