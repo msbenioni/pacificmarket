@@ -246,6 +246,7 @@ export function ClaimAddBusinessModal({
         owner_user_id: userRes.user.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        created_date: new Date().toISOString().split("T")[0],
         status: "pending",
         visibility_tier: "none",
         visibility_mode: "auto",
@@ -259,6 +260,11 @@ export function ClaimAddBusinessModal({
         businessesData: createPayload,
         files,
         removals,
+        referralField: {
+          presentInClean: !!clean.referred_by_business_id,
+          presentInPayload: !!createPayload.referred_by_business_id,
+          value: clean.referred_by_business_id
+        }
       });
 
       const savedRow = await createBusinessWithBranding({
@@ -279,6 +285,23 @@ export function ClaimAddBusinessModal({
           }
           
           return data;
+        },
+        updateRow: async (businessId, brandingPayload) => {
+          const { data: updatedRow, error } = await supabase
+            .from("businesses")
+            .update({
+              ...brandingPayload,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", businessId)
+            .select()
+            .single();
+          
+          if (error) {
+            throw error;
+          }
+          
+          return updatedRow;
         },
       });
 
