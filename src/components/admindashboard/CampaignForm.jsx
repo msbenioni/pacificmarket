@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mail, Send, X, Users, Globe, CreditCard, MessageSquare } from 'lucide-react';
+import { Mail, Send, X, Users, Globe, CreditCard, MessageSquare, Image, Upload } from 'lucide-react';
 import { SUBSCRIPTION_TIER, COUNTRIES, LANGUAGES } from '@/constants/unifiedConstants';
 import { DEFAULT_EMAIL_TEMPLATE } from '@/constants/emailTemplates';
 
@@ -25,6 +25,8 @@ const CampaignForm = ({
   const [availableLanguages, setAvailableLanguages] = useState([]);
   const [availableCountries, setAvailableCountries] = useState([]);
   const [loadingAudienceData, setLoadingAudienceData] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   // Load available languages and countries from actual business data
   useEffect(() => {
@@ -114,6 +116,112 @@ const CampaignForm = ({
       setTimeout(initEditor, 50);
     }
   }, [contentView]);
+
+  // Image handling functions
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploadingImages(true);
+    
+    try {
+      // Get authentication token
+      const { getSupabase } = await import("@/lib/supabase/client");
+      const supabase = await getSupabase();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.error('No authentication token available for image upload');
+        return;
+      }
+
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'email-campaigns');
+
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to upload ${file.name}`);
+        }
+
+        const result = await response.json();
+        return {
+          url: result.url,
+          name: file.name,
+          size: file.size
+        };
+      });
+
+      const uploadedResults = await Promise.all(uploadPromises);
+      setUploadedImages(prev => [...prev, ...uploadedResults]);
+      
+      // Clear the file input
+      e.target.value = '';
+      
+    } catch (error) {
+      console.error('Image upload error:', error);
+      // You could add toast notification here
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeImage = (index) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const insertImage = (imageUrl) => {
+    const imageHtml = `<img src="${imageUrl}" alt="Campaign image" style="max-width: 100%; height: auto;" />`;
+    setFormData(prev => ({ 
+      ...prev, 
+      html_content: prev.html_content + imageHtml 
+    }));
+  };
+
+  const insertImageTemplate = (templateType) => {
+    let templateHtml = '';
+    
+    switch (templateType) {
+      case 'header':
+        templateHtml = `<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="text-align: center; padding: 20px 0;">
+      <img src="https://pacificdiscoverynetwork.com/pm_logo.png" alt="Pacific Discovery Network" style="max-width: 200px; height: auto;" />
+    </td>
+  </tr>
+</table>`;
+        break;
+      case 'logo':
+        templateHtml = `<img src="https://pacificdiscoverynetwork.com/pm_logo.png" alt="Logo" style="max-width: 150px; height: auto;" />`;
+        break;
+      case 'signature':
+        templateHtml = `<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="padding: 20px 0; border-top: 1px solid #eee;">
+      <img src="https://pacificdiscoverynetwork.com/pm_logo.png" alt="Pacific Discovery Network" style="max-width: 120px; height: auto;" />
+      <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+        Pacific Discovery Network<br>
+        Connecting Pacific Businesses
+      </p>
+    </td>
+  </tr>
+</table>`;
+        break;
+    }
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      html_content: prev.html_content + templateHtml 
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -389,6 +497,100 @@ const CampaignForm = ({
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Image Upload Section */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Add Images
+              </label>
+            </div>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              {uploadingImages ? (
+                <div className="text-center">
+                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#0d4f4f] mb-2"></div>
+                  <p className="text-sm text-gray-600">Uploading images...</p>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                  <div className="flex text-sm text-gray-600">
+                    <label htmlFor="image-upload" className="relative cursor-pointer rounded-md font-medium text-[#0d4f4f] hover:text-[#1a6b6b]">
+                      <span>Upload images</span>
+                      <input id="image-upload" name="image-upload" type="file" className="sr-only" multiple accept="image/*" onChange={handleImageUpload} />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Uploaded Images */}
+            {uploadedImages.length > 0 && (
+              <div className="mt-3">
+                <p className="text-xs font-medium text-gray-700 mb-2">Uploaded Images:</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img 
+                        src={image.url} 
+                        alt={`Upload ${index + 1}`}
+                        className="w-full h-20 object-cover rounded border border-gray-200"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="bg-red-500 text-white p-1 rounded-full"
+                          title="Remove image"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <div className="mt-1">
+                        <button
+                          type="button"
+                          onClick={() => insertImage(image.url)}
+                          className="w-full text-xs bg-[#0d4f4f] text-white px-2 py-1 rounded hover:bg-[#1a6b6b]"
+                        >
+                          Insert
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Quick Image Templates */}
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-700 mb-2">Quick Templates:</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => insertImageTemplate('header')}
+                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                >
+                  Header Image
+                </button>
+                <button
+                  type="button"
+                  onClick={() => insertImageTemplate('logo')}
+                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                >
+                  Logo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => insertImageTemplate('signature')}
+                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                  >
+                  Signature
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Test Email Section */}
