@@ -29,7 +29,7 @@ export async function sendAdminNotification(subject, message, data = {}) {
     // const { Resend } = require('resend');
     // const resend = new Resend(process.env.RESEND_API_KEY);
     // await resend.emails.send({
-    //   from: 'notifications@pacificdiscoverynetwork.com',
+    //   from: 'hello@pacificdiscoverynetwork.com',
     //   to: ADMIN_EMAIL,
     //   subject: notification.subject,
     //   html: generateEmailHTML(notification)
