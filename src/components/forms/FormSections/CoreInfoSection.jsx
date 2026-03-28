@@ -8,7 +8,8 @@ export default function CoreInfoSection({
   textareaCls, 
   labelCls, 
   selectCls,
-  showAdminFields = false 
+  showAdminFields = false,
+  fieldErrors = {}
 }) {
   const handleNameChange = (value) => {
     handleInputChange("business_name", value);
@@ -27,10 +28,13 @@ export default function CoreInfoSection({
           type="text"
           value={form.business_name || ""}
           onChange={(e) => handleNameChange(e.target.value)}
-          className={inputCls}
+          className={`${inputCls} ${fieldErrors.business_name ? 'border-red-500 focus:border-red-500' : ''}`}
           placeholder="Enter your business name"
           required
         />
+        {fieldErrors.business_name && (
+          <p className="mt-1 text-xs text-red-600">{fieldErrors.business_name}</p>
+        )}
       </div>
 
       <div>
@@ -39,9 +43,12 @@ export default function CoreInfoSection({
           type="text"
           value={form.business_handle || ""}
           onChange={(e) => handleInputChange("business_handle", e.target.value)}
-          className={inputCls}
+          className={`${inputCls} ${fieldErrors.business_handle ? 'border-red-500 focus:border-red-500' : ''}`}
           placeholder="unique-business-handle"
         />
+        {fieldErrors.business_handle && (
+          <p className="mt-1 text-xs text-red-600">{fieldErrors.business_handle}</p>
+        )}
       </div>
 
       <div>
@@ -60,11 +67,14 @@ export default function CoreInfoSection({
         <textarea
           value={form.description || ""}
           onChange={(e) => handleInputChange("description", e.target.value)}
-          className={textareaCls}
+          className={`${textareaCls} ${fieldErrors.description ? 'border-red-500 focus:border-red-500' : ''}`}
           placeholder="Describe what your business does, your products/services, and what makes you unique..."
           rows={8}
           required
         />
+        {fieldErrors.description && (
+          <p className="mt-1 text-xs text-red-600">{fieldErrors.description}</p>
+        )}
       </div>
 
       <div>

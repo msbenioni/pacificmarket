@@ -177,7 +177,7 @@ export default function BusinessProfileForm({
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [savingSection, setSavingSection] = useState(null);
-  const [errors, setErrors] = useState({ submit: undefined });
+  const [errors, setErrors] = useState({ submit: undefined, fields: {} });
   const saveSuccessTimeoutRef = useRef(null);
 
   // Initialize form with existing data
@@ -410,11 +410,44 @@ export default function BusinessProfileForm({
 
   const performSave = async ({ saveAll = false, errorMessage }) => {
     setSubmitting(true);
-    setErrors({ submit: undefined });
+    setErrors({ submit: undefined, fields: {} });
 
     try {
       console.log("BusinessProfileForm: performSave called with businessId:", businessId);
       console.log("BusinessProfileForm: form state:", form);
+      
+      // Client-side validation first
+      const validation = validateForm({ form, mode });
+      
+      if (!validation.isValid) {
+        console.log("BusinessProfileForm: Client validation failed:", validation);
+        
+        // Set field errors
+        setErrors(prev => ({
+          ...prev,
+          fields: validation.fieldErrors,
+          submit: validation.summaryMessage
+        }));
+        
+        // Expand invalid sections
+        const newExpandedSections = new Set(expandedSections);
+        Object.keys(validation.sectionErrors).forEach(section => {
+          newExpandedSections.add(section);
+        });
+        setExpandedSections(newExpandedSections);
+        
+        // Scroll to first invalid section
+        if (validation.firstInvalidSection) {
+          setTimeout(() => {
+            const element = document.querySelector(`[data-section="${validation.firstInvalidSection}"]`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }
+        
+        return; // Don't proceed to save
+      }
       
       const { businessesData, businessInsightsData } = transformBusinessFormData(form);
 
@@ -500,6 +533,114 @@ export default function BusinessProfileForm({
     }
   };
 
+  // Form validation
+  const validateForm = ({ form, mode }) => {
+    const fieldErrors = {};
+    const sectionErrors = {};
+    let firstInvalidField = null;
+    let firstInvalidSection = null;
+
+    // Field to section mapping
+    const FIELD_SECTION_MAP = {
+      business_name: "core",
+      business_handle: "core",
+      tagline: "core",
+      description: "core",
+      country: "location",
+      city: "location",
+      address: "location",
+      suburb: "location",
+      state_region: "location",
+      postal_code: "location",
+      industry: "location",
+      year_started: "overview",
+      business_stage: "overview",
+      business_structure: "overview",
+      team_size_band: "overview",
+      is_business_registered: "overview",
+      business_acquisition_interest: "community",
+      collaboration_interest: "community",
+      mentorship_interest: "community",
+      community_engagement: "community",
+      business_contact_person: "contact",
+      business_email: "contact",
+      business_phone: "contact",
+      business_website: "contact",
+      business_hours: "contact",
+      facebook: "social",
+      instagram: "social",
+      twitter: "social",
+      linkedin: "social",
+      youtube: "social",
+      tiktok: "social",
+      referred_by_business_id: "referral",
+      logo_file: "brand",
+      banner_file: "brand",
+      mobile_banner_file: "brand",
+      logo_remove: "brand",
+      banner_remove: "brand",
+      mobile_banner_remove: "brand",
+    };
+
+    // Required fields for create mode
+    if (mode === "create") {
+      // Business name validation
+      if (!form.business_name || !form.business_name.trim()) {
+        fieldErrors.business_name = "Business name is required";
+        if (!firstInvalidField) {
+          firstInvalidField = "business_name";
+          firstInvalidSection = "core";
+        }
+      }
+
+      // Business handle validation
+      if (!form.business_handle || !form.business_handle.trim()) {
+        fieldErrors.business_handle = "Business handle is required";
+        if (!firstInvalidField) {
+          firstInvalidField = "business_handle";
+          firstInvalidSection = "core";
+        }
+      } else if (!/^[a-z0-9-]+$/.test(form.business_handle.trim())) {
+        fieldErrors.business_handle = "Business handle can only contain lowercase letters, numbers, and hyphens";
+        if (!firstInvalidField) {
+          firstInvalidField = "business_handle";
+          firstInvalidSection = "core";
+        }
+      }
+
+      // Description validation
+      if (!form.description || !form.description.trim()) {
+        fieldErrors.description = "Business description is required";
+        if (!firstInvalidField) {
+          firstInvalidField = "description";
+          firstInvalidSection = "core";
+        }
+      }
+    }
+
+    // Map field errors to sections
+    Object.keys(fieldErrors).forEach(field => {
+      const section = FIELD_SECTION_MAP[field];
+      if (section) {
+        sectionErrors[section] = true;
+      }
+    });
+
+    const isValid = Object.keys(fieldErrors).length === 0;
+
+    return {
+      isValid,
+      fieldErrors,
+      sectionErrors,
+      firstInvalidField,
+      firstInvalidSection,
+      summaryMessage: isValid ? null : 
+        mode === "create" 
+          ? "Please complete the required fields before saving your business."
+          : "Please fix the highlighted fields before saving."
+    };
+  };
+
   // Save Handlers
   const saveSection = async (sectionKey) => {
     setSavingSection(sectionKey);
@@ -538,6 +679,7 @@ export default function BusinessProfileForm({
             labelCls={labelCls}
             selectCls={selectCls}
             showAdminFields={showAdminFields}
+            fieldErrors={errors.fields || {}}
           />
         );
       
@@ -657,26 +799,34 @@ export default function BusinessProfileForm({
   return (
     <div className="rounded-2xl bg-white overflow-hidden max-w-full">
       <form onSubmit={handleSubmit} className="p-3 sm:p-8">
+        {/* Global validation message */}
+        {errors.submit && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-red-800 text-sm font-medium">{errors.submit}</p>
+          </div>
+        )}
+        
         <div className="space-y-3 sm:space-y-4 overflow-x-hidden">
           {visibleSections.map((section) => (
-            <FormSection
-              key={section.key}
-              title={section.label}
-              subtitle={section.description}
-              icon={section.icon}
-              isOpen={expandedSections.has(section.key)}
-              onToggle={() => toggleSection(section.key)}
-              onSaveSection={() => saveSection(section.key)}
-              saving={savingSection === section.key}
-              formData={form}
-              errors={errors}
-              mode={mode}
-              tierInfo={subscriptionTier}
-              onUpgrade={onUpgrade}
-              sectionKey={section.key}
-            >
-              {renderSectionContent(section.key)}
-            </FormSection>
+            <div key={section.key} data-section={section.key}>
+              <FormSection
+                title={section.label}
+                subtitle={section.description}
+                icon={section.icon}
+                isOpen={expandedSections.has(section.key)}
+                onToggle={() => toggleSection(section.key)}
+                onSaveSection={() => saveSection(section.key)}
+                saving={savingSection === section.key}
+                formData={form}
+                errors={errors}
+                mode={mode}
+                tierInfo={subscriptionTier}
+                onUpgrade={onUpgrade}
+                sectionKey={section.key}
+              >
+                {renderSectionContent(section.key)}
+              </FormSection>
+            </div>
           ))}
 
           {/* Global Save Actions */}
@@ -686,11 +836,19 @@ export default function BusinessProfileForm({
                 <span className="text-green-600 text-sm font-medium">Saved successfully!</span>
               )}
               <button
-                type="submit"
+                type="button"
+                onClick={onCancel}
+                className="px-6 py-3 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
                 disabled={submitting}
-                className="rounded-xl bg-[#0d4f4f] px-4 py-2 text-xs sm:text-sm sm:px-6 sm:py-3 font-medium text-white hover:bg-[#0a3e3e] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {submitting ? "Saving..." : "Save All"}
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] disabled:opacity-50 transition-colors sm:w-auto"
+                disabled={submitting}
+              >
+                {submitting ? "Saving..." : mode === "create" ? "Create Business" : "Save Changes"}
               </button>
             </div>
           </div>
