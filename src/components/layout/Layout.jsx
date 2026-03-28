@@ -5,7 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
-import { Menu, X, ChevronDown, User, LogOut, Home, Shield } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  User,
+  LogOut,
+  Home,
+  Shield,
+} from "lucide-react";
 import CookieConsent from "../shared/CookieConsent";
 
 export default function Layout({ children, currentPageName }) {
@@ -25,17 +33,17 @@ export default function Layout({ children, currentPageName }) {
         } = await supabase.auth.getUser();
 
         if (user) {
-          // Try to get profile data, but don't fail if it doesn't exist
           let profileData = null;
+
           try {
             const { data } = await supabase
               .from("profiles")
               .select("role, display_name")
               .eq("id", user.id)
               .single();
+
             profileData = data;
           } catch (profileError) {
-            // Profile doesn't exist yet for new users - that's okay
             console.log("Profile not found for new user:", user.id);
           }
 
@@ -46,7 +54,7 @@ export default function Layout({ children, currentPageName }) {
               profileData?.display_name ||
               user.user_metadata?.display_name ||
               user.user_metadata?.full_name ||
-              user.email?.split('@')[0] || // Fallback to email username
+              user.email?.split("@")[0] ||
               "User",
           };
 
@@ -338,92 +346,184 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Footer */}
       <footer className="bg-[#0a1628] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="md:col-span-2">
-              <Link href={createPageUrl("Home")} className="inline-block">
-                <div className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+          {/* Mobile */}
+          <div className="sm:hidden space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <Link href={createPageUrl("Home")} className="inline-block">
                   <Image
                     src="/pm_logo.png"
                     alt="Pacific Discovery Network"
-                    width={160}
-                    height={64}
-                    className="h-16 w-40"
+                    width={120}
+                    height={48}
+                    className="h-10 w-auto"
                     priority={false}
                   />
+                </Link>
+
+                <p className="mt-2 text-[11px] leading-5 text-gray-400 max-w-[240px]">
+                  Discovering, connecting with, and supporting Pacific-owned businesses.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1 shrink-0 pt-1">
+                <div className="w-2 h-2 rounded-full bg-[#00c4cc] animate-pulse" />
+                <span className="text-[11px] text-gray-500">Live</span>
+              </div>
+            </div>
+
+            <div className="divide-y divide-white/10 rounded-xl border border-white/10 overflow-hidden bg-white/5">
+              <details className="group">
+                <summary className="list-none cursor-pointer px-4 py-3 flex items-center justify-between text-sm font-medium text-white">
+                  <span>Legal</span>
+                  <ChevronDown className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="px-4 pb-3 grid grid-cols-2 gap-x-4 gap-y-2">
+                  {[
+                    ["Terms", "Terms"],
+                    ["Privacy", "Privacy"],
+                    ["Cookies", "Cookies"],
+                    ["Data", "Data Protection"],
+                    ["Accessibility", "Accessibility"],
+                  ].map(([page, label]) => (
+                    <Link
+                      key={page}
+                      href={createPageUrl(page)}
+                      className="text-[12px] text-gray-400 hover:text-white transition-colors"
+                    >
+                      {label}
+                    </Link>
+                  ))}
                 </div>
-              </Link>
+              </details>
 
-              <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-                Pacific Discovery Network is a premium platform for discovering,
-                connecting with, and supporting Pacific-owned businesses across
-                regions, industries, and communities.
+              <details className="group">
+                <summary className="list-none cursor-pointer px-4 py-3 flex items-center justify-between text-sm font-medium text-white">
+                  <span>Support</span>
+                  <ChevronDown className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="px-4 pb-3 grid grid-cols-2 gap-x-4 gap-y-2">
+                  {[
+                    ["Contact", "Contact"],
+                    ["Help", "Help Centre"],
+                    ["Guidelines", "Guidelines"],
+                  ].map(([page, label]) => (
+                    <Link
+                      key={page}
+                      href={createPageUrl(page)}
+                      className="text-[12px] text-gray-400 hover:text-white transition-colors"
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                  <Link
+                    href={createPageUrl("AdminLogin")}
+                    className="text-[12px] text-gray-400 hover:text-white transition-colors"
+                  >
+                    Admin
+                  </Link>
+                </div>
+              </details>
+            </div>
+
+            <div className="pt-1">
+              <p className="text-[11px] text-gray-500 leading-4">
+                &copy; 2026 Pacific Discovery Network. All rights reserved.
               </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-4">
-                Legal
-              </h4>
-              <ul className="space-y-2">
-                {[
-                  ["Terms", "Terms & Conditions"],
-                  ["Privacy", "Privacy Policy"],
-                  ["Cookies", "Cookie Policy"],
-                  ["Data", "Data Protection"],
-                  ["Accessibility", "Accessibility"],
-                ].map(([page, label]) => (
-                  <li key={page}>
-                    <Link
-                      href={createPageUrl(page)}
-                      className="text-gray-400 text-sm hover:text-white transition-colors"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-4">
-                Support
-              </h4>
-              <ul className="space-y-2">
-                {[
-                  ["Contact", "Contact Us"],
-                  ["Help", "Help Centre"],
-                  ["Guidelines", "Community Guidelines"],
-                ].map(([page, label]) => (
-                  <li key={page}>
-                    <Link
-                      href={createPageUrl(page)}
-                      className="text-gray-400 text-sm hover:text-white transition-colors"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-xs">
-              © 2026 Pacific Discovery Network. All rights reserved.
-            </p>
+          {/* Desktop / tablet */}
+          <div className="hidden sm:block">
+            <div className="grid sm:grid-cols-4 gap-8">
+              <div className="sm:col-span-2">
+                <Link href={createPageUrl("Home")} className="inline-block">
+                  <div className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
+                    <Image
+                      src="/pm_logo.png"
+                      alt="Pacific Discovery Network"
+                      width={120}
+                      height={48}
+                      className="h-12 w-30 sm:h-16 sm:w-40"
+                      priority={false}
+                    />
+                  </div>
+                </Link>
 
-            <div className="flex items-center gap-4">
-              <Link
-                href={createPageUrl("AdminLogin")}
-                className="text-gray-500 text-xs hover:text-gray-300 transition-colors"
-              >
-                Admin
-              </Link>
+                <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+                  Pacific Discovery Network is a premium platform for discovering,
+                  connecting with, and supporting Pacific-owned businesses across
+                  regions, industries, and communities.
+                </p>
+              </div>
 
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-[#00c4cc] animate-pulse"></div>
-                <span className="text-gray-500 text-xs">Discovery platform live</span>
+              <div>
+                <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-3">
+                  Legal
+                </h4>
+                <ul className="space-y-2">
+                  {[
+                    ["Terms", "Terms & Conditions"],
+                    ["Privacy", "Privacy Policy"],
+                    ["Cookies", "Cookie Policy"],
+                    ["Data", "Data Protection"],
+                    ["Accessibility", "Accessibility"],
+                  ].map(([page, label]) => (
+                    <li key={page}>
+                      <Link
+                        href={createPageUrl(page)}
+                        className="text-gray-400 text-sm hover:text-white transition-colors"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-3">
+                  Support
+                </h4>
+                <ul className="space-y-2">
+                  {[
+                    ["Contact", "Contact Us"],
+                    ["Help", "Help Centre"],
+                    ["Guidelines", "Community Guidelines"],
+                  ].map(([page, label]) => (
+                    <li key={page}>
+                      <Link
+                        href={createPageUrl(page)}
+                        className="text-gray-400 text-sm hover:text-white transition-colors"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 pt-6 mt-8">
+              <div className="flex justify-between items-center gap-4">
+                <p className="text-gray-500 text-xs">
+                  &copy; 2026 Pacific Discovery Network. All rights reserved.
+                </p>
+
+                <div className="flex items-center gap-4">
+                  <Link
+                    href={createPageUrl("AdminLogin")}
+                    className="text-gray-500 text-xs hover:text-gray-300 transition-colors"
+                  >
+                    Admin
+                  </Link>
+
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-[#00c4cc] animate-pulse"></div>
+                    <span className="text-gray-500 text-xs">Discovery platform live</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
