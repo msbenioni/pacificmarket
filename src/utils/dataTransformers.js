@@ -70,7 +70,8 @@ export function sanitizeBusinessPayload(formData) {
     "visibility_mode",
     "status",
     "is_verified",
-    "is_claimed"
+    "is_claimed",
+    "referred_by_business_id"
   ];
 
   const payload = {};

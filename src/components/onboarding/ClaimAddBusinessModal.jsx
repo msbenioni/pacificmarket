@@ -50,6 +50,7 @@ const ALLOWED_BUSINESS_FIELDS = [
   "logo_url",
   "banner_url",
   "mobile_banner_url",
+  "referred_by_business_id",
 ];
 
 function pickAllowedBusinessFields(input) {
@@ -247,45 +248,24 @@ export function ClaimAddBusinessModal({
         updated_at: new Date().toISOString(),
         status: "pending",
         visibility_tier: "none",
+        visibility_mode: "public",
+        is_verified: false,
+        is_claimed: false,
+        subscription_tier: "free",
+        source: "claim",
       };
 
-      const savedRow = await createBusinessWithBranding({
-        supabase,
-        businessesData: createPayload,
+      console.log("💾 ClaimAddBusinessModal calling createBusinessWithBranding with:", {
+        payload: createPayload,
         files,
         removals,
-        allowCustomBranding: true,
-        createRow: async (payloadToCreate) => {
-          const { data, error } = await supabase
-            .from("businesses")
-            .insert(payloadToCreate)
-            .select()
-            .single();
+      });
 
-          if (error) {
-            console.error("Database insert error:", error);
-            throw error;
-          }
-
-          return data;
-        },
-        updateRow: async (businessId, brandingPayload) => {
-          const { data, error } = await supabase
-            .from("businesses")
-            .update({
-              ...brandingPayload,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", businessId)
-            .select()
-            .single();
-
-          if (error) {
-            throw error;
-          }
-
-          return data;
-        },
+      const savedRow = await createBusinessWithBranding({
+        payload: createPayload,
+        files,
+        removals,
+        userId: userRes.user.id,
       });
 
       console.log("💾 ClaimAddBusinessModal DB returned row:", {
@@ -297,54 +277,55 @@ export function ClaimAddBusinessModal({
         },
       });
 
+      // Business created successfully - send notifications and create claim
+      console.log('Business created:', savedRow);
+
+      // Send business-added notification (non-blocking)
       try {
-        // Business created successfully
-        console.log('Business created:', savedRow);
+        await fetch("/api/notifications/business-added", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            businessId: savedRow.id,
+            userId: userRes.user.id,
+          }),
+        });
+      } catch (notifError) {
+        console.error("Failed to send business added notification:", notifError);
+      }
 
-        try {
-          await fetch("/api/notifications/business-added", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              businessId: savedRow.id,
-              userId: userRes.user.id,
-            }),
-          });
-        } catch (notifError) {
-          console.error("Failed to send business added notification:", notifError);
-        }
+      // Create approved direct claim request (non-blocking)
+      try {
+        const { error: claimError } = await supabase.from("claim_requests").insert({
+          business_id: savedRow.id,
+          user_id: userRes.user.id,
+          status: "approved",
+          business_email: clean.business_email || userRes.user.email,
+          business_phone: clean.business_phone || null,
+          role: "owner",
+          created_at: new Date().toISOString(),
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: userRes.user.id,
+          claim_type: "direct",
+        });
 
-        try {
-          const { error: claimError } = await supabase.from("claim_requests").insert({
-            business_id: savedRow.id,
-            user_id: userRes.user.id,
-            status: "approved",
-            business_email: clean.business_email || userRes.user.email,
-            business_phone: clean.business_phone || null,
-            role: "owner",
-            created_at: new Date().toISOString(),
-            reviewed_at: new Date().toISOString(),
-            reviewed_by: userRes.user.id,
-            claim_type: "direct",
-          });
-
-          if (claimError) {
-            console.error(
-              "Failed to create claim request for new business:",
-              claimError
-            );
-          } else {
-            console.log(
-              "Created approved claim request for new business:",
-              savedRow.id
-            );
-          }
-        } catch (claimError) {
+        if (claimError) {
           console.error(
-            "Error creating claim request for new business:",
+            "Failed to create claim request for new business:",
             claimError
           );
+        } else {
+          console.log(
+            "Created approved claim request for new business:",
+            savedRow.id
+          );
         }
+      } catch (claimError) {
+        console.error(
+          "Error creating claim request for new business:",
+          claimError
+        );
+      }
 
       toast({
         title: "Business Added",
