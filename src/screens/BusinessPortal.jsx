@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { createPageUrl } from "@/utils";
-import {
-  AlertCircle,
-  ChevronRight,
-} from "lucide-react";
+import { CheckCircle, UserCircle2, AlertCircle, ArrowRight, ChevronRight } from "lucide-react";
 import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
 import HeroStandard from "../components/shared/HeroStandard";
 import {
@@ -40,6 +37,7 @@ import { PORTAL_TABS, getTabStatus } from "@/constants/portalTabs";
 import { useBusinessPortalData } from "@/hooks/useBusinessPortalData";
 import { useBusinessOperations } from "@/hooks/useBusinessOperations";
 import { usePortalState } from "@/hooks/usePortalState";
+import { useProfileCompletion } from "@/hooks/useProfileCompletion";
 
 export default function BusinessPortal() {
   const searchParams = useSearchParams();
@@ -60,6 +58,15 @@ export default function BusinessPortal() {
     loading,
     refetchPortalData,
   } = useBusinessPortalData();
+
+  // Profile completion check
+  const {
+    isCheckingProfile,
+    profileIncomplete,
+    profileData,
+    getProfileCompletionStatus,
+    isProfileComplete
+  } = useProfileCompletion(user);
 
   const {
     editingBusinessId,
@@ -100,9 +107,8 @@ export default function BusinessPortal() {
 
   // Handle claim flow - show claim modal if coming from claim flow
   useEffect(() => {
-    if (isClaimFlow && user && !loading) {
-      // Show claim modal with the business details
-      setClaimAddModal('claim');
+    if (isClaimFlow && user && !loading && isProfileComplete) {
+      handleClaimFlow();
       
       // Clear URL parameters to avoid showing modal again on refresh
       const newUrl = window.location.pathname;
@@ -114,7 +120,7 @@ export default function BusinessPortal() {
         variant: "info"
       });
     }
-  }, [isClaimFlow, user, loading, businessName, setClaimAddModal, toast]);
+  }, [isClaimFlow, user, loading, businessName, isProfileComplete]);
 
   const {
     onboardingStatus,
@@ -136,7 +142,44 @@ export default function BusinessPortal() {
   };
 
   const handleShowAddBusiness = () => {
+    if (!isProfileComplete) {
+      toast({
+        title: "Profile Incomplete",
+        description: "Please complete your profile settings before adding a business.",
+        variant: "warning",
+      });
+      return;
+    }
     setShowAddBusiness(true);
+  };
+
+  const handleClaimFlow = () => {
+    if (!isProfileComplete) {
+      toast({
+        title: "Profile Incomplete", 
+        description: "Please complete your profile settings before claiming a business.",
+        variant: "warning",
+      });
+      return;
+    }
+    // Proceed with claim flow
+    setClaimAddModal('claim');
+  };
+
+  const handleBusinessAction = (action, data) => {
+    switch (action) {
+      case "delete":
+        handleDeleteBusiness(data.businessId);
+        break;
+      case "addOwner":
+        setAddOwnerModal(data.businessId);
+        break;
+      case "addBusiness":
+        handleAddBusiness(data);
+        break;
+      default:
+        console.warn(`Unknown business action: ${action}`);
+    }
   };
 
   if (onboardingLoading) {
@@ -161,6 +204,97 @@ export default function BusinessPortal() {
             className="inline-flex items-center gap-2 bg-[#0a1628] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-[#122040]"
           >
             Sign In <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Show profile completion prompt if profile is incomplete
+  if (isCheckingProfile) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#0d4f4f] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (profileIncomplete) {
+    const profileStatus = getProfileCompletionStatus();
+    return (
+      <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white border border-gray-100 rounded-2xl p-8 text-center">
+          <UserCircle2 className="w-12 h-12 text-[#0d4f4f] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[#0a1628] mb-2">Complete Your Profile</h2>
+          <p className="text-gray-500 mb-6">
+            Before you can claim or add businesses, please complete your profile settings.
+          </p>
+          
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="text-sm text-gray-600 mb-2">Profile Completion</div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-gray-500">Progress</span>
+              <span className="text-xs font-semibold text-[#0d4f4f]">
+                {profileStatus?.completionPercentage || 0}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-[#0d4f4f] h-2 rounded-full transition-all duration-300"
+                style={{ width: `${profileStatus?.completionPercentage || 0}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 text-left mb-6">
+            <div className="flex items-center gap-2">
+              {profileStatus?.displayName ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+              )}
+              <span className="text-sm text-gray-600">Display Name</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {profileStatus?.city ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+              )}
+              <span className="text-sm text-gray-600">City</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {profileStatus?.country ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+              )}
+              <span className="text-sm text-gray-600">Country</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {profileStatus?.culturalIdentity ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+              )}
+              <span className="text-sm text-gray-600">Cultural Identity</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {profileStatus?.languagesSpoken ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+              )}
+              <span className="text-sm text-gray-600">Languages Spoken</span>
+            </div>
+          </div>
+
+          <Link
+            href={createPageUrl("ProfileSettings")}
+            className="inline-flex items-center gap-2 bg-[#0d4f4f] hover:bg-[#1a6b6b] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors w-full justify-center"
+          >
+            Complete Profile
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
@@ -231,39 +365,14 @@ export default function BusinessPortal() {
               insightsSubmitting={insightsSubmitting}
               tierInfo={tierInfo}
               checkoutLoading={checkoutLoading}
-              onBusinessAction={(action, businessId, data) => {
-                switch (action) {
-                  case "edit":
-                    startEditingBusiness(businesses.find(b => b.id === businessId));
-                    break;
-                  case "cancel":
-                    cancelEditingBusiness();
-                    break;
-                  case "save":
-                    return saveBusiness(data);
-                  case "draftChange":
-                    updateDraftBusiness(data);
-                    break;
-                  case "delete":
-                    handleDeleteBusiness(businessId);
-                    break;
-                  case "addOwner":
-                    setAddOwnerModal(businessId);
-                    break;
-                  case "addBusiness":
-                    // Handle new business addition
-                    handleAddBusiness(data);
-                    break;
-                }
-              }}
-              onClaimAddAction={(action) => {
-                setClaimAddModal(action);
-              }}
-              onUpgradeClick={createCheckoutSession}
+              onBusinessAction={handleBusinessAction}
+              onClaimAddAction={handleClaimAddAction}
+              onUpgradeClick={handleUpgradeClick}
               showAddBusiness={showAddBusiness}
               onAddBusinessSuccess={handleAddBusinessSuccess}
               onAddBusinessCancel={handleAddBusinessCancel}
               onShowAddBusiness={handleShowAddBusiness}
+              isProfileComplete={isProfileComplete}
             />
           )}
 

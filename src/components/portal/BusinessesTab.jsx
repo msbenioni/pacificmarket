@@ -3,6 +3,7 @@
 import { Plus, Building2, Crown } from "lucide-react";
 import { shouldShowUpgradePrompt } from "@/utils/businessHelpers";
 import { createPageUrl } from "@/utils";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 import BusinessCard from "./BusinessCard";
 import AddBusinessCard from "./AddBusinessCard";
 import EmptyState from "./EmptyState";
@@ -24,7 +25,9 @@ export default function BusinessesTab({
   onAddBusinessSuccess,
   onAddBusinessCancel,
   onShowAddBusiness,
+  isProfileComplete,
 }) {
+  const { toast } = useToast();
   const handleEmptyStateAction = (action) => {
     switch (action) {
       case "completeProfile":
@@ -32,9 +35,27 @@ export default function BusinessesTab({
         window.location.href = createPageUrl("ProfileSettings");
         break;
       case "claim":
+        if (!isProfileComplete) {
+          // Show warning toast for incomplete profile
+          toast({
+            title: "Profile Incomplete",
+            description: "Please complete your profile settings before claiming a business.",
+            variant: "warning",
+          });
+          return;
+        }
         onClaimAddAction("claim");
         break;
       case "add":
+        if (!isProfileComplete) {
+          // Show warning toast for incomplete profile
+          toast({
+            title: "Profile Incomplete",
+            description: "Please complete your profile settings before adding a business.",
+            variant: "warning",
+          });
+          return;
+        }
         onShowAddBusiness();
         break;
       default:

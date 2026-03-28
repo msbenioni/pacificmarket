@@ -90,7 +90,7 @@ export default function BusinessLogin() {
       
       // Always use production URL for email redirects
       const appUrl = process.env.NEXT_PUBLIC_APP_PROD_URL || "https://pacificdiscoverynetwork.com";
-      const signupRedirectUrl = process.env.NEXT_PUBLIC_SIGNUP_REDIRECT_URL || `${appUrl}/BusinessPortal`;
+      const signupRedirectUrl = process.env.NEXT_PUBLIC_SIGNUP_REDIRECT_URL || `${appUrl}/ProfileSettings`;
       
       if (mode === "signin") {
         // Sign in with Supabase
@@ -140,6 +140,7 @@ export default function BusinessLogin() {
         if (isClaimFlow) {
           router.push(`${createPageUrl("BusinessPortal")}?claim=true&business=${businessId}&name=${encodeURIComponent(businessName || '')}`);
         } else {
+          // Redirect to BusinessPortal (which will check profile completion and redirect to ProfileSettings if needed)
           router.push(createPageUrl("BusinessPortal"));
         }
       } else {

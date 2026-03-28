@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import {
   Lock,
@@ -106,6 +107,7 @@ function InsightsAccordionSection({
 }
 
 export default function ProfileSettings() {
+  const router = useRouter();
   const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
   const { toast } = useToast();
   
@@ -153,6 +155,15 @@ export default function ProfileSettings() {
     languagesSpoken.length > 0;
 
   const showUnlockedState = profileFoundationSaved && isStep2Complete;
+
+  useEffect(() => {
+    if (showUnlockedState && !loading) {
+      const timer = setTimeout(() => {
+        router.push(createPageUrl("BusinessPortal"));
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showUnlockedState, loading, router]);
 
   useEffect(() => {
     const loadUserData = async () => {
