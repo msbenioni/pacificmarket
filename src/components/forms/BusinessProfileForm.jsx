@@ -632,7 +632,7 @@ export default function BusinessProfileForm({
               errors={errors}
               mode={mode}
               tierInfo={subscriptionTier}
-              onUpgrade={handleUpgrade}
+              onUpgrade={onUpgrade}
               sectionKey={section.key}
             >
               {renderSectionContent(section.key)}
