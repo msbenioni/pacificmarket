@@ -157,15 +157,6 @@ export default function ProfileSettings() {
   const showUnlockedState = profileFoundationSaved && isStep2Complete;
 
   useEffect(() => {
-    if (showUnlockedState && !loading) {
-      const timer = setTimeout(() => {
-        router.push(createPageUrl("BusinessPortal"));
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showUnlockedState, loading, router]);
-
-  useEffect(() => {
     const loadUserData = async () => {
       try {
         const { getSupabase } = await import("@/lib/supabase/client");

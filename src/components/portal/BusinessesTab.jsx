@@ -35,27 +35,9 @@ export default function BusinessesTab({
         window.location.href = createPageUrl("ProfileSettings");
         break;
       case "claim":
-        if (!isProfileComplete) {
-          // Show warning toast for incomplete profile
-          toast({
-            title: "Profile Incomplete",
-            description: "Please complete your profile settings before claiming a business.",
-            variant: "warning",
-          });
-          return;
-        }
         onClaimAddAction("claim");
         break;
       case "add":
-        if (!isProfileComplete) {
-          // Show warning toast for incomplete profile
-          toast({
-            title: "Profile Incomplete",
-            description: "Please complete your profile settings before adding a business.",
-            variant: "warning",
-          });
-          return;
-        }
         onShowAddBusiness();
         break;
       default:
