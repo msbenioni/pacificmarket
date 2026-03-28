@@ -51,10 +51,11 @@ export default function ContactDetailsSection({ form, handleInputChange, inputCl
           value={form.business_website || ""}
           onChange={(e) => handleInputChange("business_website", e.target.value)}
           className={inputCls}
-          placeholder="https://www.yourbusiness.com"
+          placeholder="e.g., https://www.yourbusiness.com"
+          title="Please enter a valid URL starting with https://"
         />
         <p className="text-xs text-gray-500 mt-1">
-          Your business website URL
+          Your business website URL (e.g., https://www.yourbusiness.com)
         </p>
       </div>
 

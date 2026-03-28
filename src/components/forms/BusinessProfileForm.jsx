@@ -442,14 +442,25 @@ export default function BusinessProfileForm({
       });
 
       // Validate save result and reconcile form state
-      if (!saveResult || typeof saveResult !== 'object') {
-        throw new Error("Save completed but no updated record was returned. Please refresh and verify.");
+      console.log("Save result received:", saveResult);
+      console.log("Save result type:", typeof saveResult);
+      console.log("Save result keys:", saveResult ? Object.keys(saveResult) : "null/undefined");
+      
+      // More flexible validation - accept various successful save result formats
+      if (!saveResult) {
+        throw new Error("Save completed but no result was returned. Please refresh and verify.");
       }
-
-      validateUploadedMediaPersistence(saveResult);
-
-      // Reconcile form state with saved data
-      reconcileSavedBusiness(saveResult);
+      
+      // Accept object, array, or boolean as valid save results
+      if (typeof saveResult !== 'object' && typeof saveResult !== 'boolean') {
+        throw new Error("Unexpected save result format. Please refresh and verify.");
+      }
+      
+      // If it's an object, proceed with reconciliation
+      if (typeof saveResult === 'object' && saveResult !== null) {
+        validateUploadedMediaPersistence(saveResult);
+        reconcileSavedBusiness(saveResult);
+      }
 
       setSaveSuccess(true);
       if (saveSuccessTimeoutRef.current) {
