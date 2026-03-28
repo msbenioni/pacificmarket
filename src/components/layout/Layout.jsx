@@ -130,6 +130,7 @@ export default function Layout({ children, currentPageName }) {
                 height={64}
                 className="h-16 w-40 transition-opacity duration-300"
                 priority={false}
+                loading="eager"
               />
             </Link>
 
@@ -359,6 +360,7 @@ export default function Layout({ children, currentPageName }) {
                     height={64}
                     className="h-14 w-auto"
                     priority={false}
+                    loading="eager"
                   />
                 </Link>
 
@@ -447,6 +449,7 @@ export default function Layout({ children, currentPageName }) {
                       height={48}
                       className="h-12 w-30 sm:h-16 sm:w-40"
                       priority={false}
+                      loading="eager"
                     />
                   </div>
                 </Link>
