@@ -180,6 +180,22 @@ export default function BusinessProfileForm({
   const [errors, setErrors] = useState({ submit: undefined });
   const saveSuccessTimeoutRef = useRef(null);
 
+  // Tier information for upgrade prompts
+  const tierInfo = {
+    [SUBSCRIPTION_TIER.VAKA]: {
+      label: getTierDisplayName(SUBSCRIPTION_TIER.VAKA),
+      color: "text-gray-500 bg-gray-100",
+    },
+    [SUBSCRIPTION_TIER.MANA]: {
+      label: getTierDisplayName(SUBSCRIPTION_TIER.MANA),
+      color: "text-[#0d4f4f] bg-[#0d4f4f]/10",
+    },
+    [SUBSCRIPTION_TIER.MOANA]: {
+      label: getTierDisplayName(SUBSCRIPTION_TIER.MOANA),
+      color: "text-[#c9a84c] bg-[#c9a84c]/10",
+    },
+  };
+
   // Initialize form with existing data
   useEffect(() => {
     if (initialData) {
