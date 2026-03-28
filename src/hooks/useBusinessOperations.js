@@ -277,7 +277,7 @@ export function useBusinessOperations(refetchPortalData) {
         is_claimed: true,
         created_at: new Date().toISOString(),
         // Set required visibility fields for new businesses
-        visibility_tier: "pacific-businesses", // Default to pacific-businesses for new businesses
+        visibility_tier: "none", // Default to none - visible in directory but not homepage
         visibility_mode: "auto", // Default to auto mode
       };
 
