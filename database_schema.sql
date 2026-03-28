@@ -1,5 +1,5 @@
 -- Pacific Discovery Network Database Schema
--- Generated on: 2026-03-28T23:21:37.576Z
+-- Generated on: 2026-03-28T23:36:10.825Z
 -- Connection: postgresql://postgres:***@db.mnmisjprswpuvcojnbip.supabase.co:5432/postgres
 
 
@@ -1040,77 +1040,36 @@ END;
 
 
       DECLARE
-          v_new_business RECORD;
-          v_referrer_business RECORD;
-          v_new_expiry_date TIMESTAMPTZ;
-          v_referrer_expiry_date TIMESTAMPTZ;
+          v_canonical_result JSON;
           v_result JSON;
       BEGIN
-          SELECT * INTO v_new_business FROM public.businesses WHERE id = p_new_business_id;
-          IF NOT FOUND THEN
-              RETURN json_build_object('success', false, 'error', 'New business not found');
+          -- Delegate to the canonical function (single source of truth)
+          v_canonical_result := public.apply_referral_reward_for_business(p_new_business_id);
+
+          -- If it failed, return the error as-is
+          IF (v_canonical_result->>'success')::boolean IS NOT TRUE THEN
+              RETURN v_canonical_result;
           END IF;
-          IF v_new_business.status != 'active' THEN
-              RETURN json_build_object('success', false, 'error', 'Business must be active before referral rewards can be applied');
-          END IF;
-          IF v_new_business.referred_by_business_id IS NULL THEN
-              RETURN json_build_object('success', false, 'error', 'No referral found for this business');
-          END IF;
-          IF v_new_business.referral_reward_applied = true THEN
-              RETURN json_build_object('success', false, 'error', 'Referral reward already applied');
-          END IF;
-          IF v_new_business.referred_by_business_id = p_new_business_id THEN
-              RETURN json_build_object('success', false, 'error', 'Self-referral not allowed');
-          END IF;
-          
-          SELECT * INTO v_referrer_business FROM public.businesses WHERE id = v_new_business.referred_by_business_id;
-          IF NOT FOUND THEN
-              RETURN json_build_object('success', false, 'error', 'Referrer business not found');
-          END IF;
-          IF v_referrer_business.status != 'active' THEN
-              RETURN json_build_object('success', false, 'error', 'Referrer business must be active to receive rewards');
-          END IF;
-          
-          IF v_new_business.tier_expires_at IS NOT NULL AND v_new_business.tier_expires_at > now() THEN
-              v_new_expiry_date := v_new_business.tier_expires_at + interval '1 month';
-          ELSE
-              v_new_expiry_date := now() + interval '1 month';
-          END IF;
-          IF v_referrer_business.tier_expires_at IS NOT NULL AND v_referrer_business.tier_expires_at > now() THEN
-              v_referrer_expiry_date := v_referrer_business.tier_expires_at + interval '1 month';
-          ELSE
-              v_referrer_expiry_date := now() + interval '1 month';
-          END IF;
-          
-          UPDATE public.businesses SET 
-              subscription_tier = 'moana',
-              visibility_tier = CASE WHEN visibility_mode = 'manual' THEN visibility_tier ELSE 'homepage' END,
-              tier_expires_at = v_new_expiry_date,
-              referral_reward_applied = true,
-              referral_reward_applied_at = now(),
-              updated_at = now()
-          WHERE id = p_new_business_id;
-          
-          UPDATE public.businesses SET 
-              subscription_tier = 'moana',
-              visibility_tier = CASE WHEN visibility_mode = 'manual' THEN visibility_tier ELSE 'homepage' END,
-              tier_expires_at = v_referrer_expiry_date,
-              referral_count = referral_count + 1,
-              updated_at = now()
-          WHERE id = v_new_business.referred_by_business_id;
-          
+
+          -- Remap response fields for backward compatibility with admin API route
+          -- API expects: new_business_expiry, referrer_business_expiry, new_business_name, referrer_business_name
           v_result := json_build_object(
               'success', true,
-              'message', 'Referral reward applied successfully',
-              'new_business_expiry', v_new_expiry_date,
-              'referrer_business_expiry', v_referrer_expiry_date,
-              'new_business_name', v_new_business.business_name,
-              'referrer_business_name', v_referrer_business.business_name
+              'message', COALESCE(v_canonical_result->>'message', 'Referral reward applied successfully'),
+              'new_business_expiry', v_canonical_result->>'referred_expiry_date',
+              'referrer_business_expiry', v_canonical_result->>'referrer_expiry_date',
+              'new_business_name', v_canonical_result->>'referred_business_name',
+              'referrer_business_name', v_canonical_result->>'referrer_business_name'
           );
+
           RETURN v_result;
       EXCEPTION
           WHEN OTHERS THEN
-              RETURN json_build_object('success', false, 'error', SQLERRM, 'detail', SQLSTATE);
+              RETURN json_build_object(
+                  'success', false,
+                  'error', SQLERRM,
+                  'detail', SQLSTATE
+              );
       END;
       
 
@@ -1700,6 +1659,73 @@ BEGIN
   RETURN NEW;
 END;
 
+
+-- Function: expire_moana_tiers
+
+
+      DECLARE
+          v_expired_count INTEGER;
+          v_result JSON;
+      BEGIN
+          -- Downgrade businesses whose moana tier has expired
+          -- Only affects businesses in auto visibility mode
+          WITH expired AS (
+              UPDATE public.businesses
+              SET 
+                  subscription_tier = 'vaka',
+                  visibility_tier = CASE 
+                      WHEN visibility_mode = 'manual' THEN visibility_tier 
+                      ELSE 'none' 
+                  END,
+                  updated_at = now()
+              WHERE subscription_tier = 'moana'
+                AND tier_expires_at IS NOT NULL
+                AND tier_expires_at < now()
+                AND status = 'active'
+              RETURNING id, business_name, tier_expires_at
+          )
+          SELECT COUNT(*) INTO v_expired_count FROM expired;
+
+          -- Log results
+          IF v_expired_count > 0 THEN
+              -- Also log each expiry to audit_logs for traceability
+              INSERT INTO public.audit_logs (table_name, record_id, action, new_data, user_id)
+              SELECT 
+                  'businesses',
+                  b.id,
+                  'tier_expired',
+                  jsonb_build_object(
+                      'previous_tier', 'moana',
+                      'new_tier', 'vaka',
+                      'expired_at', b.tier_expires_at,
+                      'processed_at', now()
+                  ),
+                  NULL
+              FROM public.businesses b
+              WHERE b.subscription_tier = 'vaka'
+                AND b.updated_at >= now() - interval '1 minute'
+                AND b.tier_expires_at IS NOT NULL
+                AND b.tier_expires_at < now();
+
+              RAISE LOG 'Expired % moana tier(s)', v_expired_count;
+          END IF;
+
+          v_result := json_build_object(
+              'success', true,
+              'expired_count', v_expired_count,
+              'processed_at', now()
+          );
+          RETURN v_result;
+      EXCEPTION
+          WHEN OTHERS THEN
+              v_result := json_build_object(
+                  'success', false,
+                  'error', SQLERRM,
+                  'detail', SQLSTATE
+              );
+              RETURN v_result;
+      END;
+      
 
 -- Function: generate_order_number
 
@@ -2525,32 +2551,6 @@ END;
 DECLARE
   v_status subscription_status;
   v_trial_ends_at timestamptz;
-BEGIN
-  SELECT service_subscription_status, trial_ends_at
-  INTO v_status, v_trial_ends_at
-  FROM public.sellers
-  WHERE id = p_seller_id;
-
-  -- Check if in trial period
-  IF v_status = 'trial' AND v_trial_ends_at > now() THEN
-    RETURN true;
-  END IF;
-
-  -- Check if active subscription
-  IF v_status = 'active' THEN
-    RETURN true;
-  END IF;
-
-  RETURN false;
-END;
-
-
--- Function: is_service_subscription_active
-
-
-DECLARE
-  v_status subscription_status;
-  v_trial_ends_at timestamptz;
   v_manual_override BOOLEAN;
 BEGIN
   SELECT service_subscription_status, trial_ends_at, manual_subscription_override
@@ -2574,6 +2574,32 @@ BEGIN
   END IF;
 
   RETURN FALSE;
+END;
+
+
+-- Function: is_service_subscription_active
+
+
+DECLARE
+  v_status subscription_status;
+  v_trial_ends_at timestamptz;
+BEGIN
+  SELECT service_subscription_status, trial_ends_at
+  INTO v_status, v_trial_ends_at
+  FROM public.sellers
+  WHERE id = p_seller_id;
+
+  -- Check if in trial period
+  IF v_status = 'trial' AND v_trial_ends_at > now() THEN
+    RETURN true;
+  END IF;
+
+  -- Check if active subscription
+  IF v_status = 'active' THEN
+    RETURN true;
+  END IF;
+
+  RETURN false;
 END;
 
 
@@ -2988,33 +3014,81 @@ END;
 -- Function: trigger_apply_referral_reward_on_activation
 
 
-DECLARE
-    v_result JSON;
-BEGIN
-    -- Only apply reward if status changed to 'active' and business has a referrer
-    IF NEW.status = 'active' 
-       AND OLD.status != 'active' 
-       AND NEW.referred_by_business_id IS NOT NULL THEN
-        
-        -- Apply the referral reward
-        v_result := public.apply_referral_reward_for_business(NEW.id);
-        
-        -- Log the result for debugging
-        IF v_result->>'success' = 'true' THEN
-            RAISE LOG 'Referral reward applied: %', v_result;
-        ELSE
-            RAISE WARNING 'Referral reward application failed: %', v_result;
-        END IF;
-    END IF;
-    
-    RETURN NEW;
-EXCEPTION
-    WHEN OTHERS THEN
-        -- Log error but don't fail the update
-        RAISE WARNING 'Failed to apply referral reward in trigger: %', SQLERRM;
-        RETURN NEW;
-END;
-
+      DECLARE
+          v_result JSON;
+      BEGIN
+          -- Only apply reward if status changed to 'active' and business has a referrer
+          IF NEW.status = 'active' 
+             AND OLD.status != 'active' 
+             AND NEW.referred_by_business_id IS NOT NULL THEN
+              
+              -- Apply the referral reward
+              v_result := public.apply_referral_reward_for_business(NEW.id);
+              
+              -- Log the result for debugging
+              IF (v_result->>'success')::boolean = true THEN
+                  RAISE LOG 'Referral reward applied for business %: %', NEW.id, v_result;
+                  
+                  -- Log success to audit_logs
+                  INSERT INTO public.audit_logs (table_name, record_id, action, new_data)
+                  VALUES (
+                      'businesses',
+                      NEW.id,
+                      'referral_reward_applied',
+                      jsonb_build_object(
+                          'result', v_result::text,
+                          'referred_business_id', NEW.id,
+                          'referrer_business_id', NEW.referred_by_business_id,
+                          'triggered_by', 'on_activation'
+                      )
+                  );
+              ELSE
+                  RAISE WARNING 'Referral reward application FAILED for business %: %', NEW.id, v_result;
+                  
+                  -- Log failure to audit_logs so it is NOT silently lost
+                  INSERT INTO public.audit_logs (table_name, record_id, action, new_data)
+                  VALUES (
+                      'businesses',
+                      NEW.id,
+                      'referral_reward_failed',
+                      jsonb_build_object(
+                          'error', v_result->>'error',
+                          'reason', v_result->>'reason',
+                          'referred_business_id', NEW.id,
+                          'referrer_business_id', NEW.referred_by_business_id,
+                          'triggered_by', 'on_activation'
+                      )
+                  );
+              END IF;
+          END IF;
+          
+          RETURN NEW;
+      EXCEPTION
+          WHEN OTHERS THEN
+              -- Log error to audit_logs instead of silently swallowing
+              BEGIN
+                  INSERT INTO public.audit_logs (table_name, record_id, action, new_data)
+                  VALUES (
+                      'businesses',
+                      NEW.id,
+                      'referral_reward_exception',
+                      jsonb_build_object(
+                          'error', SQLERRM,
+                          'sqlstate', SQLSTATE,
+                          'referred_business_id', NEW.id,
+                          'referrer_business_id', NEW.referred_by_business_id,
+                          'triggered_by', 'on_activation'
+                      )
+                  );
+              EXCEPTION WHEN OTHERS THEN
+                  -- If even logging fails, just warn
+                  RAISE WARNING 'Failed to log referral trigger error: %', SQLERRM;
+              END;
+              
+              RAISE WARNING 'Referral reward trigger exception for business %: %', NEW.id, SQLERRM;
+              RETURN NEW;
+      END;
+      
 
 -- Function: trigger_create_pending_referral_reward
 
