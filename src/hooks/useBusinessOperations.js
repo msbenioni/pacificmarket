@@ -276,6 +276,9 @@ export function useBusinessOperations(refetchPortalData) {
         status: "pending",
         is_claimed: true,
         created_at: new Date().toISOString(),
+        // Set required visibility fields for new businesses
+        visibility_tier: "pacific-businesses", // Default to pacific-businesses for new businesses
+        visibility_mode: "auto", // Default to auto mode
       };
 
       // Validate business handle format and uniqueness
