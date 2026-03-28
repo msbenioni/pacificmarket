@@ -419,6 +419,8 @@ export default function BusinessProfileForm({
       // Client-side validation first
       const validation = validateForm({ form, mode });
       
+      console.log("BusinessProfileForm: Validation result:", validation);
+      
       if (!validation.isValid) {
         console.log("BusinessProfileForm: Client validation failed:", validation);
         
@@ -616,6 +618,48 @@ export default function BusinessProfileForm({
           firstInvalidSection = "core";
         }
       }
+
+      // Location validation - Country
+      if (!form.country || !form.country.trim()) {
+        fieldErrors.country = "Country is required";
+        if (!firstInvalidField) {
+          firstInvalidField = "country";
+          firstInvalidSection = "location";
+        }
+      }
+
+      // Location validation - City
+      if (!form.city || !form.city.trim()) {
+        fieldErrors.city = "City is required";
+        if (!firstInvalidField) {
+          firstInvalidField = "city";
+          firstInvalidSection = "location";
+        }
+      }
+
+      // Contact validation - Email
+      if (!form.business_email || !form.business_email.trim()) {
+        fieldErrors.business_email = "Business email is required";
+        if (!firstInvalidField) {
+          firstInvalidField = "business_email";
+          firstInvalidSection = "contact";
+        }
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.business_email.trim())) {
+        fieldErrors.business_email = "Please enter a valid email address";
+        if (!firstInvalidField) {
+          firstInvalidField = "business_email";
+          firstInvalidSection = "contact";
+        }
+      }
+
+      // Referral validation (only in create mode)
+      if (!form.referred_by_business_id || !form.referred_by_business_id.trim()) {
+        fieldErrors.referred_by_business_id = "Please select a referring business or choose 'No referral'";
+        if (!firstInvalidField) {
+          firstInvalidField = "referred_by_business_id";
+          firstInvalidSection = "referral";
+        }
+      }
     }
 
     // Map field errors to sections
@@ -705,6 +749,7 @@ export default function BusinessProfileForm({
             inputCls={inputCls}
             selectCls={selectCls}
             labelCls={labelCls}
+            fieldErrors={errors.fields || {}}
           />
         );
       
@@ -752,6 +797,7 @@ export default function BusinessProfileForm({
             inputCls={inputCls}
             textareaCls={textareaCls}
             labelCls={labelCls}
+            fieldErrors={errors.fields || {}}
           />
         );
       
@@ -764,6 +810,7 @@ export default function BusinessProfileForm({
               onChange={(value) => handleInputChange("referred_by_business_id", value)}
               disabled={submitting}
               excludeBusinessId={businessId}
+              fieldErrors={errors.fields || {}}
             />
           );
         }

@@ -1,6 +1,6 @@
 import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 
-export default function LocationSection({ form, handleInputChange, inputCls, selectCls, labelCls }) {
+export default function LocationSection({ form, handleInputChange, inputCls, selectCls, labelCls, fieldErrors = {} }) {
   return (
     <div className="space-y-3 sm:space-y-4">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -9,7 +9,7 @@ export default function LocationSection({ form, handleInputChange, inputCls, sel
           <select
             value={form.country || ""}
             onChange={(e) => handleInputChange("country", e.target.value)}
-            className={selectCls}
+            className={`${selectCls} ${fieldErrors.country ? 'border-red-500 focus:border-red-500' : ''}`}
             required
           >
             <option value="">Select country</option>
@@ -19,6 +19,9 @@ export default function LocationSection({ form, handleInputChange, inputCls, sel
               </option>
             ))}
           </select>
+          {fieldErrors.country && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.country}</p>
+          )}
         </div>
 
         <div>
@@ -45,10 +48,13 @@ export default function LocationSection({ form, handleInputChange, inputCls, sel
           type="text"
           value={form.city || ""}
           onChange={(e) => handleInputChange("city", e.target.value)}
-          className={inputCls}
+          className={`${inputCls} ${fieldErrors.city ? 'border-red-500 focus:border-red-500' : ''}`}
           placeholder="Enter your city"
           required
         />
+        {fieldErrors.city && (
+          <p className="mt-1 text-xs text-red-600">{fieldErrors.city}</p>
+        )}
       </div>
 
       <div>

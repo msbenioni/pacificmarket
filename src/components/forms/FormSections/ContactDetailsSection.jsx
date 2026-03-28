@@ -1,4 +1,4 @@
-export default function ContactDetailsSection({ form, handleInputChange, inputCls, textareaCls, labelCls }) {
+export default function ContactDetailsSection({ form, handleInputChange, inputCls, textareaCls, labelCls, fieldErrors = {} }) {
   return (
     <div className="space-y-4">
       <div>
@@ -21,10 +21,13 @@ export default function ContactDetailsSection({ form, handleInputChange, inputCl
           type="email"
           value={form.business_email || ""}
           onChange={(e) => handleInputChange("business_email", e.target.value)}
-          className={inputCls}
+          className={`${inputCls} ${fieldErrors.business_email ? 'border-red-500 focus:border-red-500' : ''}`}
           placeholder="contact@yourbusiness.com"
           required
         />
+        {fieldErrors.business_email && (
+          <p className="mt-1 text-xs text-red-600">{fieldErrors.business_email}</p>
+        )}
         <p className="text-xs text-gray-500 mt-1">
           Official business email address for customer inquiries
         </p>

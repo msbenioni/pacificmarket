@@ -7,7 +7,7 @@ import { Building2, ChevronDown } from "lucide-react";
  * Referral dropdown component for business creation flow
  * Allows users to select a referring business from approved businesses
  */
-export function ReferralDropdown({ value, onChange, disabled = false, excludeBusinessId = null }) {
+export function ReferralDropdown({ value, onChange, disabled = false, excludeBusinessId = null, fieldErrors = {} }) {
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -60,7 +60,11 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
           value={value || ""}
           onChange={(e) => onChange(e.target.value ? e.target.value : null)}
           disabled={disabled || loading}
-          className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d4f4f] focus:border-transparent appearance-none bg-white"
+          className={`w-full px-3 py-2 pr-8 border rounded-lg focus:ring-2 focus:ring-[#0d4f4f] focus:border-transparent appearance-none bg-white ${
+            fieldErrors.referred_by_business_id 
+              ? 'border-red-500 focus:border-red-500' 
+              : 'border-gray-300'
+          }`}
         >
           <option value="">No referral</option>
           {businesses.map((business) => (
@@ -70,6 +74,10 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
             </option>
           ))}
         </select>
+        
+        {fieldErrors.referred_by_business_id && (
+          <p className="mt-1 text-xs text-red-600">{fieldErrors.referred_by_business_id}</p>
+        )}
         
         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
           {loading ? (
