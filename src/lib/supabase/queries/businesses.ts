@@ -62,7 +62,7 @@ const BUSINESS_PUBLIC_FIELDS = `
   mentorship_offering,
   open_to_future_contact,
   business_acquisition_interest,
-  team_size,
+  team_size_band,
   social_links,
   tags
 `;
@@ -392,7 +392,7 @@ const BUSINESS_ADMIN_FIELDS = `
   mentorship_offering,
   open_to_future_contact,
   business_acquisition_interest,
-  team_size,
+  team_size_band,
   social_links,
   tags,
   -- Join to get referrer business info
