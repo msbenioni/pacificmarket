@@ -241,7 +241,9 @@ export function useBusinessOperations(refetchPortalData) {
   };
 
   const handleAddBusiness = async (businessData) => {
-    console.log("handleAddBusiness called with:", businessData);
+    console.log("useBusinessOperations.handleAddBusiness called with:", businessData);
+    console.log("useBusinessOperations: businessesData:", businessData.businessesData);
+    console.log("useBusinessOperations: visibility_tier:", businessData.businessesData.visibility_tier);
     
     if (!businessData || !businessData.businessesData) {
       console.error("Invalid business data structure");

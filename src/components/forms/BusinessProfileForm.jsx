@@ -453,6 +453,10 @@ export default function BusinessProfileForm({
       
       const { businessesData, businessInsightsData } = transformBusinessFormData(form);
 
+      console.log("BusinessProfileForm: Form data before transform:", form);
+      console.log("BusinessProfileForm: businessesData after transform:", businessesData);
+      console.log("BusinessProfileForm: visibility_tier in businessesData:", businessesData.visibility_tier);
+
       console.log("BusinessProfileForm: About to call onSave with:", {
         businessId,
         businessesDataKeys: Object.keys(businessesData),
@@ -633,6 +637,15 @@ export default function BusinessProfileForm({
         fieldErrors.city = "City is required";
         if (!firstInvalidField) {
           firstInvalidField = "city";
+          firstInvalidSection = "location";
+        }
+      }
+
+      // Industry validation
+      if (!form.industry || !form.industry.trim()) {
+        fieldErrors.industry = "Industry is required";
+        if (!firstInvalidField) {
+          firstInvalidField = "industry";
           firstInvalidSection = "location";
         }
       }

@@ -29,7 +29,7 @@ export default function LocationSection({ form, handleInputChange, inputCls, sel
           <select
             value={form.industry || ""}
             onChange={(e) => handleInputChange("industry", e.target.value)}
-            className={selectCls}
+            className={`${selectCls} ${fieldErrors.industry ? 'border-red-500 focus:border-red-500' : ''}`}
             required
           >
             <option value="">Select industry</option>
@@ -39,6 +39,9 @@ export default function LocationSection({ form, handleInputChange, inputCls, sel
               </option>
             ))}
           </select>
+          {fieldErrors.industry && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.industry}</p>
+          )}
         </div>
       </div>
 
