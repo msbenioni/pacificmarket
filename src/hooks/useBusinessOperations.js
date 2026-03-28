@@ -11,6 +11,7 @@ import { sanitizeBusinessPayload, validateBusinessData, isBusinessHandleAvailabl
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
+import { notifyNewBusinessCreated } from "@/utils/notifyAdmin";
 
 export function useBusinessOperations(refetchPortalData) {
   const { toast } = useToast();
@@ -323,6 +324,13 @@ export function useBusinessOperations(refetchPortalData) {
       });
 
       console.log("Business created successfully:", newBusiness);
+
+      // Send admin notification (non-blocking)
+      if (newBusiness && user) {
+        notifyNewBusinessCreated(newBusiness, user).catch(error => {
+          console.error("Failed to send admin notification:", error);
+        });
+      }
 
       await refetchPortalData();
       

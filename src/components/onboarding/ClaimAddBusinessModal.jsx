@@ -14,6 +14,7 @@ import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, ChevronLeft } from "lucide-react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
+import { notifyNewBusinessClaim } from "@/utils/notifyAdmin";
 
 // Whitelist of allowed fields that match the exact database schema
 const ALLOWED_BUSINESS_FIELDS = [
@@ -189,6 +190,13 @@ export function ClaimAddBusinessModal({
 
       if (insertErr) throw insertErr;
 
+      // Send admin notification for new claim (non-blocking)
+      notifyNewBusinessClaim(inserted, pickedBusiness, userRes.user).catch(
+        (error) => {
+          console.error("Failed to send admin notification:", error);
+        }
+      );
+
       toast({
         title: "Claim Submitted",
         description:
@@ -316,6 +324,11 @@ export function ClaimAddBusinessModal({
 
       // Business created successfully - send notifications and create claim
       console.log('Business created:', savedRow);
+
+      // Send admin notification for new business (non-blocking)
+      notifyNewBusinessCreated(savedRow, userRes.user).catch(error => {
+        console.error("Failed to send admin notification:", error);
+      });
 
       // Send business-added notification (non-blocking)
       try {
