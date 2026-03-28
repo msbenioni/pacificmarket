@@ -26,9 +26,9 @@ BEGIN
         RETURN v_result;
     END IF;
     
-    -- Fail if business is not active/approved (must be approved to receive rewards)
+    -- Fail if business is not active (must be active to receive rewards)
     IF v_new_business.status != 'active' THEN
-        v_result := json_build_object('success', false, 'error', 'Business must be approved before referral rewards can be applied');
+        v_result := json_build_object('success', false, 'error', 'Business must be active before referral rewards can be applied');
         RETURN v_result;
     END IF;
     
@@ -61,9 +61,9 @@ BEGIN
         RETURN v_result;
     END IF;
     
-    -- Fail if referrer is not active/approved
+    -- Fail if referrer is not active
     IF v_referrer_business.status != 'active' THEN
-        v_result := json_build_object('success', false, 'error', 'Referrer business must be approved to receive rewards');
+        v_result := json_build_object('success', false, 'error', 'Referrer business must be active to receive rewards');
         RETURN v_result;
     END IF;
     

@@ -85,7 +85,7 @@ export type Business = {
   // Metadata
   source: 'user' | 'admin' | 'import' | 'claim';
   profile_completeness: number;
-  referral_code: string | null;
+  referral_code: string | null; // TODO: Legacy field - unused in business-to-business referral system
 
   // Timestamps
   created_at: string;

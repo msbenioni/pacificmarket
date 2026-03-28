@@ -137,7 +137,7 @@ export default function AdminBusinessMobileCard({
         {/* Referral Reward Button */}
         {business.referred_by_business_id && 
          !business.referral_reward_applied && 
-         business.status === BUSINESS_STATUS.APPROVED && (
+         business.status === 'active' && (
           <button
             onClick={() => onApplyReferralReward && onApplyReferralReward(business.id)}
             disabled={applyingReferralReward === business.id}
