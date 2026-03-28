@@ -355,9 +355,9 @@ export default function Layout({ children, currentPageName }) {
                   <Image
                     src="/pm_logo.png"
                     alt="Pacific Discovery Network"
-                    width={120}
-                    height={48}
-                    className="h-10 w-auto"
+                    width={160}
+                    height={64}
+                    className="h-14 w-auto"
                     priority={false}
                   />
                 </Link>
