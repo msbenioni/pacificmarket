@@ -63,7 +63,7 @@ export async function POST(request, context) {
     if (!result.success) {
       return Response.json({ 
         error: result.error || result.details || result.detail || 'Failed to apply referral reward',
-        details: result.details || result.detail || error.message 
+        details: result.details || result.detail || 'RPC function returned error'
       }, { status: 400 });
     }
 
@@ -82,7 +82,7 @@ export async function POST(request, context) {
     console.error('Referral reward API error:', error);
     return Response.json({ 
       error: 'Internal server error', 
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
