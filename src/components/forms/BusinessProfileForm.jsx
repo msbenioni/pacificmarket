@@ -620,13 +620,13 @@ export default function BusinessProfileForm({
               icon={section.icon}
               isOpen={expandedSections.has(section.key)}
               onToggle={() => toggleSection(section.key)}
-              onSaveSection={saveSection}
-              saving={submitting}
+              onSaveSection={() => saveSection(section.key)}
+              saving={savingSection === section.key}
               formData={form}
               errors={errors}
               mode={mode}
-              tierInfo={section.key === "brand" ? { label: subscriptionTier } : null}
-              onUpgrade={section.key === "brand" ? onUpgrade : null}
+              tierInfo={tierInfo}
+              onUpgrade={handleUpgrade}
               sectionKey={section.key}
             >
               {renderSectionContent(section.key)}
