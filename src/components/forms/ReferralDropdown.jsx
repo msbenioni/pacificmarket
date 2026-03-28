@@ -51,7 +51,7 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
   return (
     <div className="space-y-2">
       <label htmlFor="referred_by_business_id" className="block text-sm font-medium text-gray-700">
-        Who referred you?
+        Who referred you? *
       </label>
       
       <div className="relative">
@@ -65,8 +65,9 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
               ? 'border-red-500 focus:border-red-500' 
               : 'border-gray-300'
           }`}
+          required
         >
-          <option value="">No referral</option>
+          <option value="">Select a referring business</option>
           {businesses.map((business) => (
             <option key={business.id} value={business.id}>
               {business.business_name}
@@ -89,7 +90,7 @@ export function ReferralDropdown({ value, onChange, disabled = false, excludeBus
       </div>
 
       <p className="text-xs text-gray-500">
-        Optional — select the business that invited you to join.
+        Required — select the business that invited you to join.
       </p>
 
       {businesses.length === 0 && !loading && !error && (
