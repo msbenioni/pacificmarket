@@ -176,6 +176,7 @@ export default function BusinessProfileForm({
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [savingSection, setSavingSection] = useState(null);
   const [errors, setErrors] = useState({ submit: undefined });
   const saveSuccessTimeoutRef = useRef(null);
 
@@ -467,11 +468,16 @@ export default function BusinessProfileForm({
   };
 
   // Save Handlers
-  const saveSection = async () => {
-    await performSave({
-      saveAll: false,
-      errorMessage: "Failed to save section. Please try again.",
-    });
+  const saveSection = async (sectionKey) => {
+    setSavingSection(sectionKey);
+    try {
+      await performSave({
+        saveAll: false,
+        errorMessage: "Failed to save section. Please try again.",
+      });
+    } finally {
+      setSavingSection(null);
+    }
   };
 
   const handleSubmit = async (e) => {
