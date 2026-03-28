@@ -414,16 +414,10 @@ export default function BusinessProfileForm({
     setErrors({ submit: undefined, fields: {} });
 
     try {
-      console.log("BusinessProfileForm: performSave called with businessId:", businessId);
-      console.log("BusinessProfileForm: form state:", form);
-      
       // Client-side validation first
       const validation = validateForm({ form, mode });
       
-      console.log("BusinessProfileForm: Validation result:", validation);
-      
       if (!validation.isValid) {
-        console.log("BusinessProfileForm: Client validation failed:", validation);
         
         // Set field errors
         setErrors(prev => ({
@@ -453,16 +447,6 @@ export default function BusinessProfileForm({
       }
       
       const { businessesData, businessInsightsData } = transformBusinessFormData(form);
-
-      console.log("BusinessProfileForm: Form data before transform:", form);
-      console.log("BusinessProfileForm: businessesData after transform:", businessesData);
-      console.log("BusinessProfileForm: visibility_tier in businessesData:", businessesData.visibility_tier);
-
-      console.log("BusinessProfileForm: About to call onSave with:", {
-        businessId,
-        businessesDataKeys: Object.keys(businessesData),
-        businessInsightsDataKeys: Object.keys(businessInsightsData)
-      });
 
       const saveResult = await onSave({
         businessId: businessId, // Use the prop
