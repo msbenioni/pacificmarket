@@ -160,6 +160,10 @@ export default function BusinessPortal() {
     setClaimAddModal(action);
   };
 
+  const handleUpgradeClick = () => {
+    createCheckoutSession();
+  };
+
   const handleBusinessAction = (action, data) => {
     switch (action) {
       case "delete":
