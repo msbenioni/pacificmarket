@@ -584,14 +584,12 @@ export default function BusinessProfileForm({
         // Only show referral dropdown during creation, not editing
         if (mode === 'create') {
           return (
-            <FormSection>
-              <ReferralDropdown
-                value={form.referred_by_business_id}
-                onChange={(value) => handleInputChange("referred_by_business_id", value)}
-                disabled={submitting}
-                excludeBusinessId={businessId}
-              />
-            </FormSection>
+            <ReferralDropdown
+              value={form.referred_by_business_id}
+              onChange={(value) => handleInputChange("referred_by_business_id", value)}
+              disabled={submitting}
+              excludeBusinessId={businessId}
+            />
           );
         }
         return null;
@@ -614,11 +612,20 @@ export default function BusinessProfileForm({
     }
   };
 
+  // Build visible sections array based on mode
+  const visibleSections = [...SECTIONS, ...(showAdminFields ? ADMIN_SECTIONS : [])].filter(section => {
+    // Only show referral section in create mode
+    if (section.key === "referral") {
+      return mode === 'create';
+    }
+    return true;
+  });
+
   return (
     <div className="rounded-2xl bg-white overflow-hidden max-w-full">
       <form onSubmit={handleSubmit} className="p-3 sm:p-8">
         <div className="space-y-3 sm:space-y-4 overflow-x-hidden">
-          {[...SECTIONS, ...(showAdminFields ? ADMIN_SECTIONS : [])].map((section) => (
+          {visibleSections.map((section) => (
             <FormSection
               key={section.key}
               title={section.label}

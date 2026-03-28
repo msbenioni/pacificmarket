@@ -68,6 +68,14 @@ export function FormSection({
 }) {
   const showSaveButton = mode === "edit"; // Only show save button in edit mode
   
+  // Debug warnings
+  if (!title && process.env.NODE_ENV === 'development') {
+    console.warn('FormSection: Missing title prop');
+  }
+  if (!children && process.env.NODE_ENV === 'development') {
+    console.warn('FormSection: Missing children prop');
+  }
+  
   // Check if this section should show tier info (only brand/media section)
   const shouldShowTierInfo = sectionKey === "brand" && tierInfo && mode === "edit";
   const isVakaTier = tierInfo === "vaka";
@@ -81,13 +89,17 @@ export function FormSection({
           className="flex w-full items-start justify-between gap-2 sm:gap-3 text-left transition-colors"
         >
           <div className="flex items-start gap-2 sm:gap-3">
-            <Icon className="mt-0.5 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-[#0d4f4f]" />
+            {Icon ? (
+              <Icon className="mt-0.5 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-[#0d4f4f]" />
+            ) : (
+              <div className="mt-0.5 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 bg-gray-200 rounded" />
+            )}
             <div>
               <h4 className="text-xs sm:text-sm font-semibold text-[#0a1628]">
-                {title}
+                {title || "Section"}
               </h4>
               <p className="mt-1 text-xs leading-4 sm:text-sm sm:leading-5 text-slate-600">
-                {subtitle}
+                {subtitle || ""}
               </p>
               {errors?.submit && (
                 <p className="mt-1 text-xs text-red-600">{errors.submit}</p>
