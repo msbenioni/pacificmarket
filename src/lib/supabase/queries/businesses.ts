@@ -63,8 +63,7 @@ const BUSINESS_PUBLIC_FIELDS = `
   open_to_future_contact,
   business_acquisition_interest,
   team_size_band,
-  social_links,
-  tags
+  social_links
 `;
 
 // Fields for referral dropdown (minimal data)
@@ -394,7 +393,6 @@ const BUSINESS_ADMIN_FIELDS = `
   business_acquisition_interest,
   team_size_band,
   social_links,
-  tags,
   -- Join to get referrer business info
   referrer_business:referred_by_business_id(
     business_name,

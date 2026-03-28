@@ -68,12 +68,6 @@ export default function BusinessPortal() {
     isProfileComplete
   } = useProfileCompletion(user);
 
-  // Create onboarding status for EmptyState
-  const enhancedOnboardingStatus = {
-    ...onboardingStatus,
-    needsProfile: !isProfileComplete
-  };
-
   const {
     editingBusinessId,
     draftBusiness,
@@ -133,6 +127,12 @@ export default function BusinessPortal() {
     loading: onboardingLoading,
     refetch: refetchOnboardingStatus,
   } = useOnboardingStatus();
+
+  // Create onboarding status for EmptyState
+  const enhancedOnboardingStatus = {
+    ...onboardingStatus,
+    needsProfile: !isProfileComplete
+  };
 
   // Handle add business success/cancel
   const handleAddBusinessSuccess = (createdBusiness) => {
