@@ -75,6 +75,9 @@ export function FormSection({
   if (!children && process.env.NODE_ENV === 'development') {
     console.warn('FormSection: Missing children prop');
   }
+  if (!Icon && process.env.NODE_ENV === 'development') {
+    console.warn('FormSection: Missing icon prop for section:', sectionKey);
+  }
   
   // Check if this section should show tier info (only brand/media section)
   const shouldShowTierInfo = sectionKey === "brand" && tierInfo && mode === "edit";
