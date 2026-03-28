@@ -14,7 +14,10 @@ import ClaimDetailsForm from "@/components/forms/ClaimDetailsForm";
 import { Search, ChevronLeft } from "lucide-react";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
-import { notifyNewBusinessClaim } from "@/utils/notifyAdmin";
+import {
+  notifyNewBusinessClaim,
+  notifyNewBusinessCreated,
+} from "@/utils/notifyAdmin";
 
 // Whitelist of allowed fields that match the exact database schema
 const ALLOWED_BUSINESS_FIELDS = [
