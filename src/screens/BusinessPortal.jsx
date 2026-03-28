@@ -135,12 +135,13 @@ export default function BusinessPortal() {
   };
 
   // Handle add business success/cancel
-  const handleAddBusinessSuccess = (createdBusiness) => {
+  const handleAddBusinessSuccess = async (createdBusiness) => {
     // Close add-business UI
     setShowAddBusiness(false);
     // Refresh portal data to show the new business
-    refetchPortalData();
-    // Future: could use createdBusiness for optimistic UI updates
+    await refetchPortalData();
+    // Return the created business for the callback chain
+    return createdBusiness;
   };
 
   const handleAddBusinessCancel = () => {
@@ -173,8 +174,8 @@ export default function BusinessPortal() {
         setAddOwnerModal(businessId);
         break;
       case "addBusiness":
-        handleAddBusiness(data);
-        break;
+        const result = await handleAddBusiness(data);
+        return result;
       case "save":
         try {
           const result = await saveBusiness(data);
@@ -272,8 +273,8 @@ export default function BusinessPortal() {
 
           {activeTab === "my-businesses" && (
             <BusinessesTab
-              businesses={businesses}
               user={user}
+              businesses={businesses}
               onboardingStatus={enhancedOnboardingStatus}
               editingBusinessId={editingBusinessId}
               draftBusiness={draftBusiness}
@@ -288,6 +289,7 @@ export default function BusinessPortal() {
               onAddBusinessSuccess={handleAddBusinessSuccess}
               onAddBusinessCancel={handleAddBusinessCancel}
               onShowAddBusiness={handleShowAddBusiness}
+              handleAddBusiness={handleAddBusiness}
               isProfileComplete={isProfileComplete}
             />
           )}

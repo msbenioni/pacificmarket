@@ -274,9 +274,16 @@ export function useBusinessOperations(refetchPortalData) {
         ...businessesData,
         owner_user_id: user.id,
         status: "pending",
+        is_claimed: true,
+        created_at: new Date().toISOString(),
       };
 
-      const validationResult = validatePayload({ payload: baseCreatePayload, context: "Create" });
+      // Validate business handle uniqueness
+      const validationResult = await validateBusinessHandle(
+        baseCreatePayload.business_handle,
+        null // null for create (no existing business to exclude)
+      );
+      
       if (!validationResult.isValid) {
         return;
       }
@@ -311,6 +318,9 @@ export function useBusinessOperations(refetchPortalData) {
         description: successMessage,
         variant: "success",
       });
+
+      // Return the created business for proper callback chain
+      return newBusiness;
     } catch (error) {
       console.error("Error creating business:", error);
       toast({
@@ -318,6 +328,7 @@ export function useBusinessOperations(refetchPortalData) {
         description: `Failed to create business: ${error.message || "Unknown error"}`,
         variant: "error",
       });
+      throw error;
     }
   };
 

@@ -9,9 +9,8 @@ import AddBusinessCard from "./AddBusinessCard";
 import EmptyState from "./EmptyState";
 
 export default function BusinessesTab({
-  businesses,
   user,
-  onboardingStatus,
+  businesses,
   editingBusinessId,
   draftBusiness,
   savingEdit,
@@ -25,6 +24,7 @@ export default function BusinessesTab({
   onAddBusinessSuccess,
   onAddBusinessCancel,
   onShowAddBusiness,
+  handleAddBusiness,
   isProfileComplete,
 }) {
   const { toast } = useToast();
@@ -107,7 +107,7 @@ export default function BusinessesTab({
           <div className="space-y-6">
             {showAddBusiness && (
               <AddBusinessCard
-                onAddSuccess={onAddBusinessSuccess}
+                onAddSuccess={handleAddBusiness}
                 onCancel={onAddBusinessCancel}
                 saving={savingEdit}
                 onboardingStatus={onboardingStatus}
