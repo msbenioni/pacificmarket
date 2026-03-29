@@ -10,7 +10,7 @@ export const PDN_DEMO_DATA = {
   business_address: "Auckland, New Zealand",
   
   // Personal details for signature
-  full_name: "Jasmin Benioni",
+  full_name: "Jane Doe",
   job_title: "Founder & Software Developer",
   department: "",
   pronouns: "",
