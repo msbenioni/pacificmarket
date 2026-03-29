@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { Mail, Users, Send, BarChart3, FileText, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, TrendingUp, X, Copy } from "lucide-react";
+import { Mail, Users, Send, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, X, Copy } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { useToast } from "@/components/ui/use-toast";
 import { getAudienceLabel } from "@/lib/email/audience";
@@ -31,8 +31,7 @@ export default function EmailMarketingDashboard() {
   const [stats, setStats] = useState({
     totalSubscribers: 0,
     totalCampaigns: 0,
-    totalSent: 0,
-    avgOpenRate: 0
+    totalSent: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -67,8 +66,7 @@ export default function EmailMarketingDashboard() {
     { id: "campaigns", label: "Campaigns", icon: Mail, category: "creation" },
     { id: "ready", label: "Send Campaign", icon: Send, category: "preparation" },
     { id: "sent", label: "Completed Campaigns", icon: CheckCircle, category: "results" },
-    { id: "subscribers", label: "Subscribers", icon: Users, category: "audience" },
-    { id: "analytics", label: "Analytics", icon: BarChart3, category: "insights" }
+    { id: "subscribers", label: "Subscribers", icon: Users, category: "audience" }
   ];
 
   const getAuthToken = async () => {
@@ -253,17 +251,11 @@ export default function EmailMarketingDashboard() {
       // Calculate stats from real data
       const totalSent = campaignsData.campaigns?.reduce((sum, campaign) => 
         sum + (Number(campaign.recipients) || 0), 0) || 0;
-      
-      const totalOpens = campaignsData.campaigns?.reduce((sum, campaign) => 
-        sum + (Number(campaign.opens) || 0), 0) || 0;
-      
-      const avgOpenRate = totalSent > 0 ? Math.round((totalOpens / totalSent) * 100) : 0;
 
       setStats({
         totalSubscribers: subscribersData.subscribers?.length || 0,
         totalCampaigns: campaignsData.campaigns?.length || 0,
-        totalSent,
-        avgOpenRate
+        totalSent
       });
 
     } catch (error) {
@@ -653,14 +645,13 @@ export default function EmailMarketingDashboard() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Audience</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Rate</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {campaigns.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                     No campaigns yet. Create your first campaign to get started.
                   </td>
                 </tr>
@@ -677,9 +668,6 @@ export default function EmailMarketingDashboard() {
                     <td className="px-4 py-4">{getStatusBadge(campaign.status)}</td>
                     <td className="px-4 py-4 text-sm text-gray-600">
                       {campaign.recipients > 0 ? campaign.recipients.toLocaleString() : '-'}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-600">
-                      {campaign.recipients > 0 ? `${campaign.open_rate || 0}%` : '-'}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
@@ -870,7 +858,6 @@ export default function EmailMarketingDashboard() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Rate</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -888,9 +875,6 @@ export default function EmailMarketingDashboard() {
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-600">
                     {campaign.recipients || 0}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
-                    {campaign.recipients > 0 ? `${campaign.open_rate || 0}%` : '-'}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
@@ -942,7 +926,7 @@ export default function EmailMarketingDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white border border-gray-100 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
@@ -973,17 +957,6 @@ export default function EmailMarketingDashboard() {
             <div>
               <div className="text-2xl font-bold text-[#0a1628]">{subscribers.filter(s => s.source === 'referral').length}</div>
               <div className="text-sm text-gray-600">From Referrals</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-100 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-[#0a1628]">Coming Soon</div>
-              <div className="text-sm text-gray-600">Growth Rate</div>
             </div>
           </div>
         </div>
@@ -1074,104 +1047,6 @@ export default function EmailMarketingDashboard() {
     </div>
   );
 
-  
-  const renderAnalytics = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-[#0a1628]">Email Analytics</h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-100 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Mail className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-[#0a1628]">{stats.totalSent.toLocaleString()}</div>
-              <div className="text-sm text-gray-600">Total Sent</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-100 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Eye className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-[#0a1628]">
-              {stats.totalSent > 0 ? `${stats.avgOpenRate}%` : "Coming Soon"}
-            </div>
-              <div className="text-sm text-gray-600">Avg Open Rate</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-100 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-[#0a1628]">Coming Soon</div>
-              <div className="text-sm text-gray-600">Click Rate</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-100 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Users className="w-5 h-5 text-red-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-[#0a1628]">Coming Soon</div>
-              <div className="text-sm text-gray-600">Unsubscribe</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white border border-gray-100 rounded-xl p-6">
-        <h4 className="font-semibold text-[#0a1628] mb-4">Campaign Performance</h4>
-        {completedCampaigns.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            No completed campaigns yet. Send your first campaign to see performance data.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {completedCampaigns.map((campaign) => (
-              <div key={campaign.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h5 className="font-medium text-[#0a1628]">{campaign.name}</h5>
-                  <span className="text-sm text-gray-500">
-                    {campaign.sent_at ? new Date(campaign.sent_at).toLocaleDateString() : 'Recently'}
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-lg font-semibold text-[#0a1628]">{campaign.recipients || 0}</div>
-                    <div className="text-xs text-gray-600">Sent</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-green-600">{campaign.opens || 0}</div>
-                    <div className="text-xs text-gray-600">Opens</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-blue-600">{campaign.clicks || 0}</div>
-                    <div className="text-xs text-gray-600">Clicks</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-purple-600">
-                      {campaign.open_rate || 0}%
-                    </div>
-                    <div className="text-xs text-gray-600">Open Rate</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-6">
       {/* Header */}
@@ -1205,7 +1080,7 @@ export default function EmailMarketingDashboard() {
       )}
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gradient-to-r from-[#0d4f4f]/10 to-[#0d4f4f]/5 border border-[#0d4f4f]/20 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[#0d4f4f]/20 rounded-full">
@@ -1236,19 +1111,6 @@ export default function EmailMarketingDashboard() {
             <div>
               <div className="text-2xl font-bold text-[#0a1628]">{stats.totalSent.toLocaleString()}</div>
               <div className="text-sm text-gray-600">Emails Sent</div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-r from-purple-500/10 to-purple-500/5 border border-purple-500/20 rounded-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-500/20 rounded-full">
-              <BarChart3 className="w-5 h-5 text-purple-500" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-[#0a1628]">
-              {stats.totalSent > 0 ? `${stats.avgOpenRate}%` : "Coming Soon"}
-            </div>
-              <div className="text-sm text-gray-600">Avg Open Rate</div>
             </div>
           </div>
         </div>
@@ -1283,7 +1145,6 @@ export default function EmailMarketingDashboard() {
         {activeTab === "ready" && renderReadyToSend()}
         {activeTab === "sent" && renderSentCampaigns()}
         {activeTab === "subscribers" && renderSubscribers()}
-        {activeTab === "analytics" && renderAnalytics()}
       </div>
       
       {/* Confirmation Dialog */}
