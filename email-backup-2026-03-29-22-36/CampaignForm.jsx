@@ -186,7 +186,43 @@ const CampaignForm = ({
     }));
   };
 
-  
+  const insertImageTemplate = (templateType) => {
+    let templateHtml = '';
+    
+    switch (templateType) {
+      case 'header':
+        templateHtml = `<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="text-align: center; padding: 20px 0;">
+      <img src="https://pacificdiscoverynetwork.com/pm_logo.png" alt="Pacific Discovery Network" style="max-width: 200px; height: auto;" />
+    </td>
+  </tr>
+</table>`;
+        break;
+      case 'logo':
+        templateHtml = `<img src="https://pacificdiscoverynetwork.com/pm_logo.png" alt="Logo" style="max-width: 150px; height: auto;" />`;
+        break;
+      case 'signature':
+        templateHtml = `<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="padding: 20px 0; border-top: 1px solid #eee;">
+      <img src="https://pacificdiscoverynetwork.com/pm_logo.png" alt="Pacific Discovery Network" style="max-width: 120px; height: auto;" />
+      <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+        Pacific Discovery Network<br>
+        Connecting Pacific Businesses
+      </p>
+    </td>
+  </tr>
+</table>`;
+        break;
+    }
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      html_content: prev.html_content + templateHtml 
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -528,7 +564,34 @@ const CampaignForm = ({
               </div>
             )}
             
+            {/* Quick Image Templates */}
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-700 mb-2">Quick Templates:</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => insertImageTemplate('header')}
+                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                >
+                  Header Image
+                </button>
+                <button
+                  type="button"
+                  onClick={() => insertImageTemplate('logo')}
+                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                >
+                  Logo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => insertImageTemplate('signature')}
+                  className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                  >
+                  Signature
+                </button>
+              </div>
             </div>
+          </div>
 
           {/* Test Email Section */}
           {onTestEmail && (
