@@ -12,6 +12,54 @@ import {
 } from "lucide-react";
 import HeroStandard from "../components/shared/HeroStandard";
 
+// Import demo data and real tool rendering logic
+import { PDN_DEMO_DATA } from "@/constants/demoData";
+import { generateSignatureHTML } from "@/utils/signatureGenerator";
+import { InvoicePreview, calculateInvoiceTotals } from "@/utils/invoiceGenerator";
+import { QRCodePreview } from "@/utils/qrCodeGenerator";
+
+// Demo Components using real tool logic
+function ToolDemoSignature() {
+  const signatureData = {
+    ...PDN_DEMO_DATA,
+    template: "pacific", // Use PDN template
+    include_logo: true,
+    include_socials: true,
+    include_badge: true,
+    include_address: true,
+    include_pronouns: false,
+  };
+
+  return (
+    <div 
+      dangerouslySetInnerHTML={{ __html: generateSignatureHTML(signatureData) }}
+    />
+  );
+}
+
+function ToolDemoInvoice() {
+  const invoiceData = {
+    ...PDN_DEMO_DATA.invoice,
+    brand_primary: PDN_DEMO_DATA.brand_primary,
+    brand_accent: PDN_DEMO_DATA.brand_accent,
+  };
+  
+  const calculations = calculateInvoiceTotals(invoiceData);
+
+  return <InvoicePreview invoice={invoiceData} calculations={calculations} />;
+}
+
+function ToolDemoQR() {
+  return (
+    <QRCodePreview 
+      url={PDN_DEMO_DATA.qr.url}
+      label={PDN_DEMO_DATA.qr.label}
+      size={PDN_DEMO_DATA.qr.size}
+      useCases={PDN_DEMO_DATA.qr.use_cases}
+    />
+  );
+}
+
 export default function Tools() {
   const tools = [
     {
@@ -21,8 +69,8 @@ export default function Tools() {
       benefit:
         "Turn everyday emails into a more professional and consistent brand touchpoint.",
       icon: Mail,
-      image: "/Email_Sig_Gen.png",
-      alt: "Pacific Discovery Network Email Signature Generator preview",
+      demoType: "signature",
+      demoData: PDN_DEMO_DATA,
     },
     {
       title: "Invoice Generator",
@@ -31,8 +79,8 @@ export default function Tools() {
       benefit:
         "Send invoices that look clearer, stronger, and more aligned with your business identity.",
       icon: FileText,
-      image: "/Invoice_Gen.png",
-      alt: "Pacific Discovery Network Invoice Generator preview",
+      demoType: "invoice",
+      demoData: PDN_DEMO_DATA.invoice,
     },
     {
       title: "QR Code Generator",
@@ -40,8 +88,8 @@ export default function Tools() {
         "Generate downloadable QR codes for your profile, website, campaign, packaging, stall signage, or promotional material.",
       benefit: "Help people reach your business faster with a simple scan.",
       icon: QrCode,
-      image: "/QR_Code.png",
-      alt: "Pacific Discovery Network QR Code Generator preview",
+      demoType: "qr",
+      demoData: PDN_DEMO_DATA.qr,
     },
   ];
 
@@ -65,6 +113,19 @@ export default function Tools() {
         "From emails to invoices to QR codes, your business can show up with greater clarity and cohesion.",
     },
   ];
+
+  const renderDemo = (tool) => {
+    switch (tool.demoType) {
+      case "signature":
+        return <ToolDemoSignature />;
+      case "invoice":
+        return <ToolDemoInvoice />;
+      case "qr":
+        return <ToolDemoQR />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="bg-[#f8f9fc]">
@@ -96,10 +157,10 @@ export default function Tools() {
       <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-8 sm:mb-12">
           <span className="text-xs font-semibold uppercase tracking-widest text-[#0d4f4f] mb-3 block">
-            Public demo preview
+            Real tool outputs
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#0a1628] mb-4">
-            Built to make everyday business tasks look better
+            See exactly what you can create with these tools
           </h2>
           <p className="text-sm sm:text-base text-gray-500 max-w-3xl mx-auto leading-6">
             These tools are designed to help businesses present themselves more
@@ -137,14 +198,18 @@ export default function Tools() {
 
               <div className={`${index % 2 === 1 ? "lg:order-1" : ""}`}>
                 <div className="relative rounded-[24px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_50px_rgba(10,22,40,0.08)]">
-                  <div className="relative aspect-[16/10] w-full">
-                    <Image
-                      src={tool.image}
-                      alt={tool.alt}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-                      className="object-cover object-top"
-                    />
+                  <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      </div>
+                      <span className="text-xs text-gray-500 ml-2">Live preview</span>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-white">
+                    {renderDemo(tool)}
                   </div>
                 </div>
               </div>
