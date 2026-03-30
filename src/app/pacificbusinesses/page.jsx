@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: "Pacific Businesses Directory - Pacific Discovery Network",
     description: "Browse verified Pacific Island businesses and discover unique products and services.",
-    url: "https://pacificdiscoverynetwork.com/pacificbusinesses",
+    url: "https://www.pacificdiscoverynetwork.com/pacificbusinesses",
   }
 };
 

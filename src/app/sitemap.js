@@ -5,7 +5,7 @@ export default async function sitemap() {
     // Static pages
     [
       {
-        url: 'https://pacificdiscoverynetwork.com',
+        url: 'https://pacificdiscoverynetwork.com/',
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 1.0,
@@ -69,6 +69,49 @@ export default async function sitemap() {
         lastModified: new Date(),
         changeFrequency: 'monthly',
         priority: 0.6,
+      },
+      // SEO landing pages for ChatGPT discovery
+      {
+        url: 'https://pacificdiscoverynetwork.com/pacific-business-directory/',
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.9,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/pacific-businesses-new-zealand/',
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/pasifika-business-directory-australia/',
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/find-pacific-businesses/',
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/for-businesses/',
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/for-customers/',
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      },
+      {
+        url: 'https://pacificdiscoverynetwork.com/faq/',
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.9,
       },
     ],
     

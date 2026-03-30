@@ -1,0 +1,8 @@
+# Force HTTPS and canonical domain
+http://pacificdiscoverynetwork.com/*  https://pacificdiscoverynetwork.com/:splat  301!
+http://www.pacificdiscoverynetwork.com/*  https://pacificdiscoverynetwork.com/:splat  301!
+https://www.pacificdiscoverynetwork.com/*  https://pacificdiscoverynetwork.com/:splat  301!
+
+# Internal redirects
+/registry    /PacificBusinesses    301!
+/businesses   /PacificBusinesses    301!

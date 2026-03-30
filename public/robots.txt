@@ -1,6 +1,12 @@
 User-agent: *
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
 # Allow search engines to crawl and index the site
 Disallow: /api/
 Disallow: /admin/

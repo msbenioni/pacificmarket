@@ -8,7 +8,7 @@ export const metadata = {
   openGraph: {
     title: "About Pacific Discovery Network",
     description: "Built to make Pacific business easier to discover. Learn our story and mission.",
-    url: "https://pacificdiscoverynetwork.com/about",
+    url: "https://www.pacificdiscoverynetwork.com/about",
   }
 };
 
