@@ -186,7 +186,6 @@ export default function BusinessProfile() {
           alt="Pacific Discovery Network"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f]/80 to-[#0a1628]/80" />
 
         <div className="absolute inset-0 hidden items-center justify-center sm:flex">
           <div className="text-center text-white">
