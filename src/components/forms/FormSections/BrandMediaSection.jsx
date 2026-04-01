@@ -248,23 +248,24 @@ export default function BrandMediaSection({
       {/* Mana / Moana: Upload Area */}
       {isManaOrMoana && (
         <div className="space-y-6">
-          {/* Logo Upload */}
-          <UploadCard
-            label="Logo"
-            businessName={form.business_name || "Business"}
-            displayUrl={logoMediaState.displayUrl}
-            hasUnsavedFile={!!form.logo_file}
-            isMarkedForRemoval={form.logo_remove}
-            isStarterBranding={isStarterLogo}
-            hasPersistedImage={hasPersistedLogo}
-            inputId={logoInputId}
-            onFileChange={(e) => handleFileUpload(e, "logo")}
-            onRemove={() => removeImage("logo")}
-            helpText="200×200px recommended"
-          />
+          {/* All Uploads in One Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Logo Upload */}
+            <UploadCard
+              label="Logo"
+              businessName={form.business_name || "Business"}
+              displayUrl={logoMediaState.displayUrl}
+              hasUnsavedFile={!!form.logo_file}
+              isMarkedForRemoval={form.logo_remove}
+              isStarterBranding={isStarterLogo}
+              hasPersistedImage={hasPersistedLogo}
+              inputId={logoInputId}
+              onFileChange={(e) => handleFileUpload(e, "logo")}
+              onRemove={() => removeImage("logo")}
+              helpText="200×200px recommended"
+            />
 
-          {/* Banner Uploads */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Desktop Banner Upload */}
             <UploadCard
               label="Desktop banner"
               businessName={form.business_name || "Business"}
@@ -281,6 +282,8 @@ export default function BrandMediaSection({
               desktopBannerUrl={bannerMediaState.displayUrl}
               mobileBannerUrl={mobileBannerMediaState.displayUrl}
             />
+
+            {/* Mobile Banner Upload */}
             <UploadCard
               label="Mobile banner"
               businessName={form.business_name || "Business"}
