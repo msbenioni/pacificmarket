@@ -1,15 +1,27 @@
 export function createPageUrl(pageName) {
     // Special cases to preserve case for PascalCase routes
     const pascalCasePages = [
-        "BusinessPortal",
-        "BusinessProfile", 
-        "BusinessLogin",
-        "PacificBusinesses",
+        "About",
+        "Accessibility",
         "AdminDashboard",
         "AdminLogin",
-        "ProfileSettings",
+        "BusinessProfile",
+        "BusinessLogin",
+        "BusinessPortal",
+        "Contact",
+        "Cookies",
+        "Data",
+        "Guidelines",
+        "Help",
+        "Home",
         "InvoiceGenerator",
-        "QRCodeGenerator"
+        "Pricing",
+        "Privacy",
+        "ProfileSettings",
+        "QRCodeGenerator",
+        "PacificBusinesses",
+        "Terms",
+        "Tools"
     ];
     
     if (pascalCasePages.includes(pageName)) {
