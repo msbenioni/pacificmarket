@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import AdminAccessGate from "@/components/admin/AdminAccessGate";
@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   // Local state for business editing
   const [editingBusinessId, setEditingBusinessId] = useState(null);
@@ -61,7 +62,8 @@ export default function AdminDashboard() {
   };
 
   const resetCreateForm = () => {
-    // This will be handled by the content component
+    // Clear the create view parameter to hide the create form
+    router.push('/AdminDashboard');
   };
 
   // Business actions (create, update, delete, status changes)
