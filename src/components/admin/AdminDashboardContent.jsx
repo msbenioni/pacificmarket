@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import PortalShell from "@/components/portal/PortalShell";
 import HeroStandard from "@/components/shared/HeroStandard";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
@@ -34,6 +35,8 @@ export default function AdminDashboardContent({
   claimActions,
   showCreateForm = false,
 }) {
+  const router = useRouter();
+  
   // Local UI state (excluding editing state which is handled by parent)
   const [activeTab, setActiveTab] = useState("businesses");
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,8 +69,8 @@ export default function AdminDashboardContent({
   // Handle create form navigation
   const handleCreateBusiness = () => {
     businessActions.cancelEditingBusiness();
-    // Navigate to create view on same page
-    window.location.href = "/AdminDashboard?view=create";
+    // Navigate to create view on same page (seamless)
+    router.push("/AdminDashboard?view=create");
   };
 
   // Handle reset editing
@@ -123,7 +126,7 @@ export default function AdminDashboardContent({
                 initialData={emptyBusinessForm}
                 onSave={businessActions.createVerifiedBusiness}
                 onCancel={() => {
-                  window.location.href = "/AdminDashboard";
+                  router.push("/AdminDashboard");
                 }}
                 saving={businessActions.savingCreate}
                 mode="create"
