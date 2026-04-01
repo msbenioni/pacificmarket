@@ -13,8 +13,8 @@ export function DesktopBannerPreview({
   businessName = "Business Name",
   className = "" 
 }) {
-  // Use same logic as BusinessBanner: desktop banner takes priority on desktop
-  const hasBanner = isPersistentMediaUrl(bannerUrl, { allowRootRelative: true });
+  // Show uploaded banner if exists, otherwise show fallback
+  const hasBanner = isPersistentMediaUrl(bannerUrl, { allowRootRelative: false });
 
   return (
     <div className={`relative w-full h-32 sm:h-40 md:h-48 lg:h-56 bg-gray-100 ${className}`}>
@@ -47,8 +47,8 @@ export function MobileBannerPreview({
   businessName = "Business Name",
   className = "" 
 }) {
-  // For upload preview, prioritize mobile banner specifically
-  const displayUrl = isPersistentMediaUrl(mobileBannerUrl, { allowRootRelative: true })
+  // Show uploaded mobile banner if exists, otherwise show fallback
+  const displayUrl = isPersistentMediaUrl(mobileBannerUrl, { allowRootRelative: false })
     ? mobileBannerUrl
     : null;
 
