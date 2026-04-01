@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Building2,
   ImageIcon,
@@ -114,23 +114,45 @@ export default function BusinessProfileForm({
   onUpgrade = null
 }) {
   // Generate stable form key for persistence
-  const formKey = mode === "create" 
-    ? "admin_dashboard_business_create_draft"
-    : `admin_dashboard_business_edit_${businessId}`;
+  const formKey = useMemo(() => {
+    const key = mode === "create" 
+      ? "admin_dashboard_business_create_draft"
+      : `admin_dashboard_business_edit_${businessId || 'unknown'}`;
+    
+    console.log(`🔑 Form key: ${key} (mode: ${mode}, businessId: ${businessId})`);
+    return key;
+  }, [mode, businessId]);
 
-  // Merge initial data with defaults
-  const mergedInitialData = {
-    ...BUSINESS_FORM_DEFAULTS,
-    subscription_tier: subscriptionTier,
-    ...(initialData || {}),
-    // Deep merge for nested objects
-    social_links: {
-      ...BUSINESS_FORM_DEFAULTS.social_links,
-      ...(initialData?.social_links || {}),
-    },
+  // Merge initial data with defaults - only for create mode or when no persisted data exists
+  const getInitialData = () => {
+    if (mode === "create" || !initialData) {
+      return {
+        ...BUSINESS_FORM_DEFAULTS,
+        subscription_tier: subscriptionTier,
+        ...(initialData || {}),
+        // Deep merge for nested objects
+        social_links: {
+          ...BUSINESS_FORM_DEFAULTS.social_links,
+          ...(initialData?.social_links || {}),
+        },
+      };
+    }
+    // For edit mode, use the provided initialData (server data)
+    return {
+      ...BUSINESS_FORM_DEFAULTS,
+      ...initialData,
+      // Deep merge for nested objects
+      social_links: {
+        ...BUSINESS_FORM_DEFAULTS.social_links,
+        ...(initialData?.social_links || {}),
+      },
+    };
   };
 
   // Use persistence hook
+  const initialData = getInitialData();
+  console.log(`📋 Initial data:`, initialData);
+  
   const {
     formData: form,
     setFormData: setForm,
@@ -139,10 +161,16 @@ export default function BusinessProfileForm({
     resetForm,
     clearPersistedData,
     hasUnsavedChanges,
-  } = useFormWithPersistence(formKey, mergedInitialData);
+  } = useFormWithPersistence(formKey, initialData);
 
   // Handle restore notifications
-  const { isRestored } = useFormRestore(formKey, mergedInitialData);
+  const { isRestored } = useFormRestore(formKey, initialData);
+  
+  // Debug persistence state
+  useEffect(() => {
+    console.log(`💾 Form data changed:`, form);
+    console.log(`🔍 Has unsaved changes:`, hasUnsavedChanges());
+  }, [form, hasUnsavedChanges]);
 
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
@@ -780,11 +808,16 @@ export default function BusinessProfileForm({
 
   // Handle cancel with confirmation for unsaved changes
   const handleCancel = () => {
+    console.log(`❌ Cancel clicked. Has unsaved: ${hasUnsavedChanges()}`);
     if (hasUnsavedChanges()) {
-      if (confirm("You have unsaved changes. Are you sure you want to cancel? Your draft will be preserved.")) {
+      if (confirm("You have unsaved changes. Are you sure you want to cancel? Your draft will be discarded.")) {
+        console.log(`🗑️ Clearing persisted data for key: ${formKey}`);
+        clearPersistedData();
         onCancel();
       }
     } else {
+      console.log(`🗑️ No unsaved changes, clearing persisted data for key: ${formKey}`);
+      clearPersistedData();
       onCancel();
     }
   };
