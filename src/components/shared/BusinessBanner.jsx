@@ -64,21 +64,8 @@ export default function BusinessBanner({ business, className = "" }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </>
       ) : (
-        <div className={`w-full h-full relative ${bannerProps.className}`}>
-          <img 
-            src="/pacific_logo_banner.png" 
-            alt="Pacific Discovery Network"
-            className="w-full h-full object-cover object-center"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-          <h1 
-            className="absolute inset-0 flex items-center justify-center text-base sm:text-lg lg:text-xl font-bold text-white drop-shadow-lg px-4 text-center"
-            style={{ display: 'none' }}
-          >
+        <div className={`w-full h-full ${bannerProps.className}`}>
+          <h1 className="text-base sm:text-lg lg:text-xl font-bold text-white drop-shadow-lg px-4 text-center">
             {business?.business_name || "Business Name"}
           </h1>
         </div>
