@@ -229,7 +229,7 @@ export function useAdminBusinessActions({
         ...businessesData,
         status: BUSINESS_STATUS.ACTIVE,
         is_verified: true,
-        is_claimed: true,
+        is_claimed: false,
         created_date: new Date().toISOString().split("T")[0],
         updated_at: new Date().toISOString(),
       };
