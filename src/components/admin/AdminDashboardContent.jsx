@@ -37,7 +37,6 @@ export default function AdminDashboardContent({
   const [activeTab, setActiveTab] = useState("businesses");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [filters, setFilters] = useState({
     country: "",
     industry: "",
@@ -63,10 +62,11 @@ export default function AdminDashboardContent({
     businessActions.cancelEditingBusiness();
   };
 
-  // Handle create form toggle
-  const handleToggleCreate = () => {
-    setShowCreateForm((prev) => !prev);
+  // Handle create form navigation
+  const handleCreateBusiness = () => {
     businessActions.cancelEditingBusiness();
+    // Navigate to dedicated create page
+    window.location.href = "/admin/create-business";
   };
 
   // Handle reset editing
@@ -105,8 +105,7 @@ export default function AdminDashboardContent({
             activeFilterCount={activeFilterCount}
             filters={filters}
             setFilters={setFilters}
-            onToggleCreate={handleToggleCreate}
-            showCreateForm={showCreateForm}
+            onToggleCreate={handleCreateBusiness}
             COUNTRIES={COUNTRIES}
             INDUSTRIES={INDUSTRIES}
             primaryButtonCls={primaryButtonCls}
@@ -115,19 +114,16 @@ export default function AdminDashboardContent({
             filterButtonCls={filterButtonCls}
           />
 
-          {(showCreateForm || businessActions.editingBusinessId) && (
+          {businessActions.editingBusinessId && (
             <div className="max-w-6xl mx-auto px-4 py-8">
               <BusinessProfileForm
-                title={businessActions.editingBusinessId ? "Edit Business" : "Create New Business"}
+                title="Edit Business"
                 businessId={businessActions.editingBusinessId}
-                initialData={businessActions.editingBusinessId ? businessActions.draftBusiness : emptyBusinessForm}
-                onSave={businessActions.editingBusinessId ? businessActions.saveBusiness : businessActions.createVerifiedBusiness}
-                onCancel={() => {
-                  setShowCreateForm(false);
-                  businessActions.cancelEditingBusiness();
-                }}
-                saving={businessActions.editingBusinessId ? businessActions.savingEdit : businessActions.savingCreate}
-                mode={businessActions.editingBusinessId ? "edit" : "create"}
+                initialData={businessActions.draftBusiness}
+                onSave={businessActions.saveBusiness}
+                onCancel={businessActions.cancelEditingBusiness}
+                saving={businessActions.savingEdit}
+                mode="edit"
                 showAdminFields={true}
               />
             </div>
@@ -153,8 +149,6 @@ export default function AdminDashboardContent({
                   setBusinessesFilter={setBusinessesFilter}
                   editingBusinessId={businessActions.editingBusinessId}
                   draftBusiness={businessActions.draftBusiness}
-                  showCreateForm={showCreateForm}
-                  setShowCreateForm={setShowCreateForm}
                   savingEdit={businessActions.savingEdit}
                   businessActions={businessActions}
                 />

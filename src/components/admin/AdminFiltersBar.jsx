@@ -9,7 +9,6 @@ export default function AdminFiltersBar({
   filters,
   setFilters,
   onToggleCreate,
-  showCreateForm,
   COUNTRIES,
   INDUSTRIES,
   primaryButtonCls,
@@ -54,7 +53,7 @@ export default function AdminFiltersBar({
 
             <button onClick={onToggleCreate} className={primaryButtonCls}>
               <Plus className="h-4 w-4" />
-              {showCreateForm ? "Close Create" : "Create Listing"}
+              Create Listing
             </button>
           </div>
         </div>

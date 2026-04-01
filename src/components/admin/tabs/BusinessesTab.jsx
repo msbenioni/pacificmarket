@@ -23,8 +23,6 @@ export default function BusinessesTab({
   setBusinessesFilter,
   editingBusinessId,
   draftBusiness,
-  showCreateForm,
-  setShowCreateForm,
   savingEdit,
   businessActions,
 }) {
@@ -46,11 +44,7 @@ export default function BusinessesTab({
     }, {});
   }, [businesses]);
 
-  const handleToggleCreate = () => {
-    setShowCreateForm((prev) => !prev);
-    businessActions.cancelEditingBusiness();
-  };
-
+  
   return (
     <div className="space-y-4">
       <AdminTabFilterBar
@@ -84,7 +78,6 @@ export default function BusinessesTab({
                     businessActions.cancelEditingBusiness();
                   } else {
                     businessActions.startEditingBusiness(business);
-                    setShowCreateForm(false);
                   }
                 }}
                 onDelete={() => businessActions.deleteBusiness(business.id)}
@@ -105,7 +98,6 @@ export default function BusinessesTab({
                 businessActions.cancelEditingBusiness();
               } else {
                 businessActions.startEditingBusiness(business);
-                setShowCreateForm(false);
               }
             }}
             onDelete={(businessId) => businessActions.deleteBusiness(businessId)}

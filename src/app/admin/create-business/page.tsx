@@ -1,83 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PortalShell from "@/components/portal/PortalShell";
 import HeroStandard from "@/components/shared/HeroStandard";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import { emptyBusinessForm } from "@/components/admin/constants/adminDashboardConstants";
-import { loadFormData } from "@/utils/formPersistenceStorage.js";
-import { generateFormKey } from "@/utils/formPersistenceKeys.js";
 
+/**
+ * Dedicated Create Business Page
+ * 
+ * This is the single source of truth for create mode.
+ * The route itself represents "create mode" - no local state needed.
+ * Form persistence handles data restoration automatically.
+ */
 export default function CreateBusinessPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-
-  // Check if there's a draft to show the form immediately
-  useEffect(() => {
-    try {
-      console.log("🔍 Create page: Checking for draft data...");
-      
-      // Check sessionStorage first
-      const sessionStorageFlag = sessionStorage.getItem('pdn_create_page_active');
-      console.log("📍 SessionStorage flag:", sessionStorageFlag || 'NOT_SET');
-      
-      const formKey = generateFormKey({ mode: "create" });
-      console.log("🔑 Form key:", formKey);
-      
-      // Check localStorage directly
-      const { getFormStorageKeys } = require("@/utils/formPersistenceStorage.js");
-      const { formData, metadata, discardMarker } = getFormStorageKeys(formKey);
-      const rawStored = localStorage.getItem(formData);
-      const rawMetadata = localStorage.getItem(metadata);
-      const rawDiscardMarker = localStorage.getItem(discardMarker);
-      
-      console.log("📦 Raw localStorage state:");
-      console.log("  - formData:", rawStored ? 'EXISTS' : 'EMPTY');
-      console.log("  - metadata:", rawMetadata ? 'EXISTS' : 'EMPTY');
-      console.log("  - discardMarker:", rawDiscardMarker ? 'EXISTS' : 'EMPTY');
-      
-      const { data: storedData } = loadFormData(formKey);
-      
-      // If there's stored data, show the form automatically
-      if (storedData) {
-        console.log("📝 Found draft data, showing form automatically");
-        console.log("📊 Draft data keys:", Object.keys(storedData));
-        setShowForm(true);
-        
-        // Set a flag in sessionStorage to remember user was on create page
-        sessionStorage.setItem('pdn_create_page_active', 'true');
-      } else {
-        console.log("📭 No draft data found");
-        
-        // Check if user was previously on create page (even without draft)
-        if (sessionStorageFlag === 'true') {
-          console.log("📍 User was previously on create page, showing form");
-          setShowForm(true);
-        } else {
-          console.log("📍 No previous page state, hiding form");
-          setShowForm(false);
-        }
-      }
-    } catch (error) {
-      console.error("❌ Error checking for draft data:", error);
-      setShowForm(false);
-    }
-  }, []);
 
   const handleSave = async (formData: any) => {
     try {
       setSaving(true);
-
       console.log("Creating business:", formData);
 
       // TODO: replace with your real create action
       await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Clear the create page flag since user successfully created a business
-      console.log("📍 Clearing sessionStorage flag on successful save");
-      sessionStorage.removeItem('pdn_create_page_active');
       
       router.push("/AdminDashboard");
     } catch (error) {
@@ -88,28 +35,7 @@ export default function CreateBusinessPage() {
   };
 
   const handleCancel = () => {
-    console.log("📍 Clearing sessionStorage flag on cancel");
-    sessionStorage.removeItem('pdn_create_page_active');
-    setShowForm(false);
     router.push("/AdminDashboard");
-  };
-
-  const handleShowForm = () => {
-    // Set flag to remember user is on create page
-    sessionStorage.setItem('pdn_create_page_active', 'true');
-    console.log("📍 Set sessionStorage flag: pdn_create_page_active = true");
-    
-    // First check if there's draft data
-    const formKey = generateFormKey({ mode: "create" });
-    const { data: storedData } = loadFormData(formKey);
-    
-    if (storedData) {
-      console.log("📝 Found draft data on manual check, showing form");
-      setShowForm(true);
-    } else {
-      console.log("📭 No draft data, showing empty form");
-      setShowForm(true);
-    }
   };
 
   return (
@@ -122,31 +48,18 @@ export default function CreateBusinessPage() {
           description="Add a new business to the network with full control over visibility and settings."
         />
 
-        {!showForm && (
-          <div className="max-w-6xl mx-auto px-4 py-8">
-            <button
-              onClick={handleShowForm}
-              className="rounded-xl bg-teal-700 px-6 py-3 text-lg font-semibold text-white hover:bg-teal-800 transition-colors"
-            >
-              Create New Business
-            </button>
-          </div>
-        )}
-
-        {showForm && (
-          <div className="max-w-6xl mx-auto px-4 py-8">
-            <BusinessProfileForm
-              title="Create New Business"
-              businessId={null}
-              initialData={emptyBusinessForm as any}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              saving={saving}
-              mode="create"
-              showAdminFields={true}
-            />
-          </div>
-        )}
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <BusinessProfileForm
+            title="Create New Business"
+            businessId={null}
+            initialData={emptyBusinessForm as any}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            saving={saving}
+            mode="create"
+            showAdminFields={true}
+          />
+        </div>
       </div>
     </PortalShell>
   );
