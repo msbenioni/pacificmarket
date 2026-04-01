@@ -3,16 +3,10 @@
  * Centralized key generation for form persistence
  */
 
-export interface FormKeyOptions {
-  mode: 'create' | 'edit';
-  businessId?: string | null;
-  prefix?: string;
-}
-
 /**
  * Generate a stable form key for persistence
  */
-export function generateFormKey(options: FormKeyOptions): string {
+export function generateFormKey(options) {
   const { mode, businessId, prefix = 'admin_dashboard_business' } = options;
   
   if (mode === 'create') {
@@ -32,21 +26,21 @@ export function generateFormKey(options: FormKeyOptions): string {
 /**
  * Generate form key for create mode
  */
-export function generateCreateFormKey(prefix?: string): string {
+export function generateCreateFormKey(prefix) {
   return generateFormKey({ mode: 'create', prefix });
 }
 
 /**
  * Generate form key for edit mode
  */
-export function generateEditFormKey(businessId: string, prefix?: string): string {
+export function generateEditFormKey(businessId, prefix) {
   return generateFormKey({ mode: 'edit', businessId, prefix });
 }
 
 /**
  * Parse a form key to extract metadata
  */
-export function parseFormKey(formKey: string): { mode: 'create' | 'edit'; businessId?: string; prefix: string } {
+export function parseFormKey(formKey) {
   const parts = formKey.split('_');
   
   if (parts[parts.length - 1] === 'draft' && parts[parts.length - 2] === 'create') {
@@ -68,7 +62,7 @@ export function parseFormKey(formKey: string): { mode: 'create' | 'edit'; busine
 /**
  * Validate that a form key matches expected business ID for edit mode
  */
-export function validateEditFormKey(formKey: string, expectedBusinessId: string): boolean {
+export function validateEditFormKey(formKey, expectedBusinessId) {
   try {
     const parsed = parseFormKey(formKey);
     

@@ -6,10 +6,9 @@ import {
   clearAllFormPersistence,
   saveBaselineData, 
   hasUnsavedChanges as checkUnsavedChanges,
-  markFormAsDiscarded,
-  FormMetadata 
-} from '@/utils/formPersistenceStorage';
-import { generateFormKey } from '@/utils/formPersistenceKeys';
+  markFormAsDiscarded
+} from '@/utils/formPersistenceStorage.js';
+import { generateFormKey } from '@/utils/formPersistenceKeys.js';
 
 /**
  * Consolidated form persistence hook

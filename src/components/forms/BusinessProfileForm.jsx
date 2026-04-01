@@ -16,7 +16,7 @@ import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults";
 import { useFormPersistenceV2 } from "@/hooks/useFormPersistenceV2.js";
-import { generateFormKey } from "@/utils/formPersistenceKeys";
+import { generateFormKey } from "@/utils/formPersistenceKeys.js";
 
 // Helper function to generate business handle from name
 function slugifyHandle(value = "") {

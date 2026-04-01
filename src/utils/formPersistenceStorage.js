@@ -3,31 +3,10 @@
  * Centralized storage contract for form draft persistence
  */
 
-export interface FormStorageKeys {
-  formData: string;
-  metadata: string;
-  baseline: string;
-  discardMarker: string;
-}
-
-export interface FormMetadata {
-  createdAt: number;
-  updatedAt: number;
-  formKey: string;
-  mode: 'create' | 'edit';
-  businessId?: string;
-  version: string;
-}
-
-export interface FormDiscardMarker {
-  discardedAt: number;
-  formKey: string;
-}
-
 /**
  * Generate consistent storage keys for a form
  */
-export function getFormStorageKeys(formKey: string): FormStorageKeys {
+export function getFormStorageKeys(formKey) {
   return {
     formData: `form_data_${formKey}`,
     metadata: `form_meta_${formKey}`,
@@ -39,7 +18,7 @@ export function getFormStorageKeys(formKey: string): FormStorageKeys {
 /**
  * Check if a form was recently discarded (to prevent restore)
  */
-export function isFormRecentlyDiscarded(formKey: string, maxAgeMs: number = 15000): boolean {
+export function isFormRecentlyDiscarded(formKey, maxAgeMs = 15000) {
   if (typeof window === 'undefined') return false;
   
   try {
@@ -53,7 +32,7 @@ export function isFormRecentlyDiscarded(formKey: string, maxAgeMs: number = 1500
       return false;
     }
     
-    const discardData: FormDiscardMarker = JSON.parse(marker);
+    const discardData = JSON.parse(marker);
     const now = Date.now();
     const age = now - discardData.discardedAt;
     
@@ -77,12 +56,12 @@ export function isFormRecentlyDiscarded(formKey: string, maxAgeMs: number = 1500
 /**
  * Mark a form as discarded (suppresses next restore attempt)
  */
-export function markFormAsDiscarded(formKey: string): void {
+export function markFormAsDiscarded(formKey) {
   if (typeof window === 'undefined') return;
   
   try {
     const { discardMarker } = getFormStorageKeys(formKey);
-    const marker: FormDiscardMarker = {
+    const marker = {
       discardedAt: Date.now(),
       formKey,
     };
@@ -108,7 +87,7 @@ export function markFormAsDiscarded(formKey: string): void {
 /**
  * Save form data with metadata
  */
-export function saveFormData(formKey: string, data: any, metadata: Partial<FormMetadata>): void {
+export function saveFormData(formKey, data, metadata) {
   if (typeof window === 'undefined') return;
   
   try {
@@ -117,7 +96,7 @@ export function saveFormData(formKey: string, data: any, metadata: Partial<FormM
     // Filter out non-serializable values (File objects, etc.)
     const serializableData = filterSerializableData(data);
     
-    const fullMetadata: FormMetadata = {
+    const fullMetadata = {
       createdAt: Date.now(),
       updatedAt: Date.now(),
       formKey,
@@ -139,7 +118,7 @@ export function saveFormData(formKey: string, data: any, metadata: Partial<FormM
 /**
  * Load form data if it exists and wasn't discarded
  */
-export function loadFormData(formKey: string): { data: any; metadata: FormMetadata | null; isRestored: boolean } {
+export function loadFormData(formKey) {
   if (typeof window === 'undefined') return { data: null, metadata: null, isRestored: false };
   
   try {
@@ -172,7 +151,7 @@ export function loadFormData(formKey: string): { data: any; metadata: FormMetada
 /**
  * Clear draft data only (preserves discard marker)
  */
-export function clearDraftData(formKey: string): void {
+export function clearDraftData(formKey) {
   if (typeof window === 'undefined') return;
   
   try {
@@ -191,7 +170,7 @@ export function clearDraftData(formKey: string): void {
 /**
  * Clear discard marker only
  */
-export function clearDiscardMarker(formKey: string): void {
+export function clearDiscardMarker(formKey) {
   if (typeof window === 'undefined') return;
   
   try {
@@ -207,7 +186,7 @@ export function clearDiscardMarker(formKey: string): void {
 /**
  * Clear all form data and metadata (including discard marker)
  */
-export function clearAllFormPersistence(formKey: string): void {
+export function clearAllFormPersistence(formKey) {
   if (typeof window === 'undefined') return;
   
   try {
@@ -227,14 +206,14 @@ export function clearAllFormPersistence(formKey: string): void {
 /**
  * Legacy function for backward compatibility - use specific functions above
  */
-export function clearFormData(formKey: string): void {
+export function clearFormData(formKey) {
   clearAllFormPersistence(formKey);
 }
 
 /**
  * Save baseline data for dirty state comparison
  */
-export function saveBaselineData(formKey: string, data: any): void {
+export function saveBaselineData(formKey, data) {
   if (typeof window === 'undefined') return;
   
   try {
@@ -251,7 +230,7 @@ export function saveBaselineData(formKey: string, data: any): void {
 /**
  * Load baseline data for dirty state comparison
  */
-export function loadBaselineData(formKey: string): any {
+export function loadBaselineData(formKey) {
   if (typeof window === 'undefined') return null;
   
   try {
@@ -270,7 +249,7 @@ export function loadBaselineData(formKey: string): any {
 /**
  * Filter out non-serializable values from form data
  */
-function filterSerializableData(data: any): any {
+function filterSerializableData(data) {
   if (data === null || data === undefined) return data;
   
   if (data instanceof File) {
@@ -291,7 +270,7 @@ function filterSerializableData(data: any): any {
   }
   
   if (typeof data === 'object') {
-    const filtered: any = {};
+    const filtered = {};
     for (const [key, value] of Object.entries(data)) {
       filtered[key] = filterSerializableData(value);
     }
@@ -304,7 +283,7 @@ function filterSerializableData(data: any): any {
 /**
  * Check if form has unsaved changes by comparing with baseline
  */
-export function hasUnsavedChanges(formKey: string, currentData: any): boolean {
+export function hasUnsavedChanges(formKey, currentData) {
   try {
     const baseline = loadBaselineData(formKey);
     
@@ -324,7 +303,7 @@ export function hasUnsavedChanges(formKey: string, currentData: any): boolean {
 /**
  * Get all form keys that have persisted data
  */
-export function getAllFormKeys(): string[] {
+export function getAllFormKeys() {
   if (typeof window === 'undefined') return [];
   
   const keys = [];
@@ -341,7 +320,7 @@ export function getAllFormKeys(): string[] {
 /**
  * Clear all form data and metadata
  */
-export function clearAllFormData(): void {
+export function clearAllFormData() {
   if (typeof window === 'undefined') return;
   
   const keys = getAllFormKeys();
