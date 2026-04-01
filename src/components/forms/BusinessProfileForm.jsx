@@ -14,7 +14,7 @@ import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
-import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults";
+import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults.js";
 import { useFormPersistenceV2 } from "@/hooks/useFormPersistenceV2.js";
 import { generateFormKey } from "@/utils/formPersistenceKeys.js";
 
