@@ -115,16 +115,19 @@ export default function AdminDashboardContent({
             filterButtonCls={filterButtonCls}
           />
 
-          {showCreateForm && (
-            <div className="mb-6">
+          {(showCreateForm || businessActions.editingBusinessId) && (
+            <div className="max-w-6xl mx-auto px-4 py-8">
               <BusinessProfileForm
-                title="Create New Business"
-                businessId={null}
-                initialData={emptyBusinessForm}
-                onSave={businessActions.createVerifiedBusiness}
-                onCancel={() => setShowCreateForm(false)}
-                saving={businessActions.savingCreate}
-                mode="create"
+                title={businessActions.editingBusinessId ? "Edit Business" : "Create New Business"}
+                businessId={businessActions.editingBusinessId}
+                initialData={businessActions.editingBusinessId ? businessActions.draftBusiness : emptyBusinessForm}
+                onSave={businessActions.editingBusinessId ? businessActions.saveBusiness : businessActions.createVerifiedBusiness}
+                onCancel={() => {
+                  setShowCreateForm(false);
+                  businessActions.cancelEditingBusiness();
+                }}
+                saving={businessActions.editingBusinessId ? businessActions.savingEdit : businessActions.savingCreate}
+                mode={businessActions.editingBusinessId ? "edit" : "create"}
                 showAdminFields={true}
               />
             </div>

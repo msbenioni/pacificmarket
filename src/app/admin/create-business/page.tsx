@@ -1,15 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PortalShell from "@/components/portal/PortalShell";
 import HeroStandard from "@/components/shared/HeroStandard";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import { emptyBusinessForm } from "@/components/admin/constants/adminDashboardConstants";
+import { loadFormData } from "@/utils/formPersistenceStorage.js";
+import { generateFormKey } from "@/utils/formPersistenceKeys.js";
 
 export default function CreateBusinessPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
+  // Check if there's a draft to show the form immediately
+  useEffect(() => {
+    const formKey = generateFormKey({ mode: "create" });
+    const { data: storedData } = loadFormData(formKey);
+    
+    // If there's stored data, show the form automatically
+    if (storedData) {
+      console.log("📝 Found draft data, showing form automatically");
+      setShowForm(true);
+    } else {
+      console.log("📭 No draft data, form hidden by default");
+    }
+  }, []);
 
   const handleSave = async (formData: any) => {
     try {
@@ -29,7 +46,12 @@ export default function CreateBusinessPage() {
   };
 
   const handleCancel = () => {
+    setShowForm(false);
     router.push("/AdminDashboard");
+  };
+
+  const handleShowForm = () => {
+    setShowForm(true);
   };
 
   return (
@@ -42,7 +64,19 @@ export default function CreateBusinessPage() {
           description="Add a new business to the network with full control over visibility and settings."
         />
 
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        {!showForm && (
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            <button
+              onClick={handleShowForm}
+              className="rounded-xl bg-teal-700 px-6 py-3 text-lg font-semibold text-white hover:bg-teal-800 transition-colors"
+            >
+              Create New Business
+            </button>
+          </div>
+        )}
+
+        {showForm && (
+          <div className="max-w-6xl mx-auto px-4 py-8">
             <BusinessProfileForm
               title="Create New Business"
               businessId={null}
@@ -53,7 +87,8 @@ export default function CreateBusinessPage() {
               mode="create"
               showAdminFields={true}
             />
-        </div>
+          </div>
+        )}
       </div>
     </PortalShell>
   );
