@@ -114,6 +114,81 @@ export default function BusinessProfileForm({
   subscriptionTier = SUBSCRIPTION_TIER.VAKA,
   onUpgrade = null
 }) {
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState(0);
+  
+  // Define wizard steps
+  const wizardSteps = useMemo(() => {
+    const baseSteps = [
+      {
+        key: "core",
+        label: "Core Info",
+        icon: Building2,
+        description: "Business name, handle, and description",
+      },
+      {
+        key: "location", 
+        label: "Location",
+        icon: MapPin,
+        description: "Business location and contact details",
+      },
+      {
+        key: "overview",
+        label: "Business Details", 
+        icon: Building2,
+        description: "Industry, size, and operations",
+      },
+      {
+        key: "social",
+        label: "Online Presence",
+        icon: Share2, 
+        description: "Website and social media profiles",
+      },
+      {
+        key: "brand",
+        label: "Brand & Media",
+        icon: ImageIcon,
+        description: "Logo, banner, and visual assets",
+      },
+    ];
+
+    if (showAdminFields) {
+      return [
+        ...baseSteps,
+        {
+          key: "admin",
+          label: "Admin Settings",
+          icon: Shield,
+          description: "Visibility and administrative controls",
+        }
+      ];
+    }
+
+    return baseSteps;
+  }, [showAdminFields]);
+
+  // Navigation functions
+  const goToNextStep = () => {
+    if (currentStep < wizardSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const goToPreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const goToStep = (stepIndex) => {
+    if (stepIndex >= 0 && stepIndex < wizardSteps.length) {
+      setCurrentStep(stepIndex);
+    }
+  };
+
+  // Get current step data
+  const currentStepData = wizardSteps[currentStep];
+  
   // Prepare initial data with proper merging
   const initialFormData = useMemo(() => {
     const baseData = {
@@ -813,15 +888,6 @@ export default function BusinessProfileForm({
     }
   };
 
-  // Build visible sections array based on mode
-  const visibleSections = [...SECTIONS, ...(showAdminFields ? ADMIN_SECTIONS : [])].filter(section => {
-    // Only show referral section in create mode
-    if (section.key === "referral") {
-      return mode === 'create';
-    }
-    return true;
-  });
-
   // Handle cancel with confirmation for unsaved changes
   const handleCancel = async () => {
     console.log(`❌ Cancel clicked. Has unsaved: ${hasUnsavedChanges()}`);
@@ -844,6 +910,57 @@ export default function BusinessProfileForm({
     }
   };
 
+  // Progress Bar Component
+  const ProgressBar = () => (
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Step {currentStep + 1} of {wizardSteps.length}</h3>
+        <span className="text-sm text-gray-500">{currentStepData.label}</span>
+      </div>
+      
+      {/* Progress Steps */}
+      <div className="flex items-center space-x-2">
+        {wizardSteps.map((step, index) => (
+          <div key={step.key} className="flex items-center flex-1">
+            <button
+              onClick={() => goToStep(index)}
+              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                index === currentStep
+                  ? "bg-teal-600 text-white"
+                  : index < currentStep
+                  ? "bg-teal-100 text-teal-600 hover:bg-teal-200"
+                  : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+              }`}
+            >
+              {index < currentStep ? "✓" : index + 1}
+            </button>
+            
+            {index < wizardSteps.length - 1 && (
+              <div className={`flex-1 h-1 mx-2 ${
+                index < currentStep ? "bg-teal-200" : "bg-gray-200"
+              }`} />
+            )}
+          </div>
+        ))}
+      </div>
+      
+      {/* Step Labels */}
+      <div className="flex items-center justify-between mt-3">
+        {wizardSteps.map((step, index) => (
+          <div
+            key={step.key}
+            className={`flex-1 text-center text-xs ${
+              index === currentStep ? "text-teal-600 font-medium" : "text-gray-500"
+            }`}
+            style={{ maxWidth: `${100 / wizardSteps.length}%` }}
+          >
+            <div className="truncate">{step.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="rounded-2xl bg-white overflow-hidden max-w-full">
       <form onSubmit={handleSubmit} className="p-3 sm:p-8">
@@ -856,67 +973,76 @@ export default function BusinessProfileForm({
           </div>
         )}
 
-        {/* Global validation message */}
-        {errors.submit && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-            <p className="text-red-800 text-sm font-medium">{errors.submit}</p>
-          </div>
-        )}
+        {/* Form Header */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
+          <p className="text-gray-600">
+            {mode === 'create' 
+              ? 'Fill in the information below to create a new business listing'
+              : 'Update the business information below'
+            }
+          </p>
+        </div>
 
-        {/* Unsaved changes indicator */}
-        {hasUnsavedChanges() && (
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <p className="text-amber-800 text-sm font-medium">
-              💾 Unsaved changes are being stored locally
-            </p>
-          </div>
-        )}
-        
-        <div className="space-y-3 sm:space-y-4 overflow-x-hidden">
-          {visibleSections.map((section) => (
-            <div key={section.key} data-section={section.key}>
-              <FormSection
-                title={section.label}
-                subtitle={section.description}
-                icon={section.icon}
-                isOpen={expandedSections.has(section.key)}
-                onToggle={() => toggleSection(section.key)}
-                onSaveSection={() => saveSection(section.key)}
-                saving={savingSection === section.key}
-                formData={form}
-                errors={errors}
-                mode={mode}
-                tierInfo={subscriptionTier}
-                onUpgrade={onUpgrade}
-                sectionKey={section.key}
-              >
-                {renderSectionContent(section.key)}
-              </FormSection>
+        {/* Progress Bar */}
+        <ProgressBar />
+
+        {/* Current Step Content */}
+        <div className="mb-8">
+          <div className="flex items-center mb-6">
+            <currentStepData.icon className="w-6 h-6 text-teal-600 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">{currentStepData.label}</h3>
+              <p className="text-sm text-gray-500">{currentStepData.description}</p>
             </div>
-          ))}
+          </div>
+          
+          {/* Render current step content */}
+          <div className="space-y-6">
+            {renderSectionContent(currentStepData.key)}
+          </div>
+        </div>
 
-          {/* Global Save Actions */}
-          <div className="flex justify-end items-center pt-6 border-t border-slate-200">
-            <div className="flex gap-3">
-              {saveSuccess && (
-                <span className="text-green-600 text-sm font-medium">Saved successfully!</span>
-              )}
+        {/* Navigation Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={currentStep === 0 ? handleCancel : goToPreviousStep}
+            className="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+          >
+            {currentStep === 0 ? 'Cancel' : 'Back'}
+          </button>
+          
+          <div className="flex gap-4">
+            {currentStep > 0 && (
               <button
                 type="button"
-                onClick={handleCancel}
-                className="px-6 py-3 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
-                disabled={submitting}
+                onClick={goToNextStep}
+                className="px-6 py-3 border border-teal-600 text-teal-600 rounded-xl hover:bg-teal-50 transition-colors font-medium"
               >
-                Cancel
+                Next
               </button>
+            )}
+            
+            {currentStep === wizardSteps.length - 1 && (
               <button
                 type="submit"
-                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#0d4f4f] px-6 py-3 text-sm font-bold text-white hover:bg-[#1a6b6b] disabled:opacity-50 transition-colors sm:w-auto"
-                disabled={submitting}
+                disabled={submitting || saving}
+                className="px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
-                {submitting ? "Saving..." : mode === "create" ? "Create Business" : "Save Changes"}
+                {submitting ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V8c0 2.5 1.23 4.88 3.29 6.58l1.41 1.41A10.96 10.96 0 0112 20c4.42 0 8.5-1.72 11.58-4.58l1.41-1.41A9.96 9.96 0 0020 12z"></path>
+                    </svg>
+                    {mode === 'create' ? 'Creating...' : 'Saving...'}
+                  </span>
+                ) : (
+                  <span>{mode === 'create' ? 'Create Business' : 'Save Changes'}</span>
+                )}
               </button>
-            </div>
+            )}
           </div>
         </div>
       </form>
