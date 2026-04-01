@@ -15,7 +15,7 @@ import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults";
-import { useFormWithPersistence, useFormRestore } from "@/hooks/useTabPersistenceWarning";
+import { useFormPersistenceV2 } from "@/hooks/useFormPersistenceV2";
 
 // Helper function to generate business handle from name
 function slugifyHandle(value = "") {
@@ -113,22 +113,16 @@ export default function BusinessProfileForm({
   subscriptionTier = SUBSCRIPTION_TIER.VAKA,
   onUpgrade = null
 }) {
-  // Generate stable form key for persistence
-  const formKey = useMemo(() => {
-    const key = mode === "create" 
-      ? "admin_dashboard_business_create_draft"
-      : `admin_dashboard_business_edit_${businessId || 'unknown'}`;
+  // Prepare initial data with proper merging
+  const initialFormData = useMemo(() => {
+    const baseData = {
+      ...BUSINESS_FORM_DEFAULTS,
+      subscription_tier: subscriptionTier,
+    };
     
-    console.log(`🔑 Form key: ${key} (mode: ${mode}, businessId: ${businessId})`);
-    return key;
-  }, [mode, businessId]);
-
-  // Merge initial data with defaults - only for create mode or when no persisted data exists
-  const getInitialData = () => {
     if (mode === "create" || !initialData) {
       return {
-        ...BUSINESS_FORM_DEFAULTS,
-        subscription_tier: subscriptionTier,
+        ...baseData,
         ...(initialData || {}),
         // Deep merge for nested objects
         social_links: {
@@ -137,9 +131,10 @@ export default function BusinessProfileForm({
         },
       };
     }
-    // For edit mode, use the provided initialData (server data)
+    
+    // For edit mode, merge server data with defaults
     return {
-      ...BUSINESS_FORM_DEFAULTS,
+      ...baseData,
       ...initialData,
       // Deep merge for nested objects
       social_links: {
@@ -147,30 +142,33 @@ export default function BusinessProfileForm({
         ...(initialData?.social_links || {}),
       },
     };
-  };
+  }, [mode, initialData, subscriptionTier]);
 
-  // Use persistence hook
-  const initialData = getInitialData();
-  console.log(`📋 Initial data:`, initialData);
-  
+  // Use the new consolidated persistence hook
   const {
     formData: form,
     setFormData: setForm,
     updateFormData,
     updateField,
-    resetForm,
+    discardDraft,
     clearPersistedData,
     hasUnsavedChanges,
-  } = useFormWithPersistence(formKey, initialData);
-
-  // Handle restore notifications
-  const { isRestored } = useFormRestore(formKey, initialData);
-  
-  // Debug persistence state
-  useEffect(() => {
-    console.log(`💾 Form data changed:`, form);
-    console.log(`🔍 Has unsaved changes:`, hasUnsavedChanges());
-  }, [form, hasUnsavedChanges]);
+    isRestored,
+    metadata,
+    markSaveSuccess,
+    markSaveFailure,
+  } = useFormPersistenceV2({
+    formKey: mode === "create" ? "admin_dashboard_business_create_draft" : `admin_dashboard_business_edit_${businessId || 'unknown'}`,
+    initialData: initialFormData,
+    mode,
+    businessId,
+    onSaveSuccess: () => {
+      console.log(`✅ Save success handled for ${mode} mode`);
+    },
+    onSaveFailure: (error) => {
+      console.log(`❌ Save failure handled for ${mode} mode:`, error);
+    },
+  });
 
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
@@ -471,7 +469,7 @@ export default function BusinessProfileForm({
       }
 
       // Clear persisted data after successful save
-      clearPersistedData();
+      markSaveSuccess();
 
       setSaveSuccess(true);
       if (saveSuccessTimeoutRef.current) {
@@ -480,6 +478,7 @@ export default function BusinessProfileForm({
       saveSuccessTimeoutRef.current = setTimeout(() => setSaveSuccess(false), 2500);
     } catch (error) {
       console.error("Failed to save business profile:", error);
+      markSaveFailure(error);
       setErrors((prev) => ({
         ...prev,
         submit: errorMessage,
@@ -811,13 +810,12 @@ export default function BusinessProfileForm({
     console.log(`❌ Cancel clicked. Has unsaved: ${hasUnsavedChanges()}`);
     if (hasUnsavedChanges()) {
       if (confirm("You have unsaved changes. Are you sure you want to cancel? Your draft will be discarded.")) {
-        console.log(`🗑️ Clearing persisted data for key: ${formKey}`);
-        clearPersistedData();
+        console.log(`🗑️ Discarding draft for ${mode} mode`);
+        discardDraft();
         onCancel();
       }
     } else {
-      console.log(`🗑️ No unsaved changes, clearing persisted data for key: ${formKey}`);
-      clearPersistedData();
+      console.log(`🗑️ No unsaved changes, proceeding with cancel`);
       onCancel();
     }
   };

@@ -29,10 +29,6 @@ export default function CreateBusinessPage() {
   };
 
   const handleCancel = () => {
-    // Clear the persisted draft data when canceling
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('form_data_admin_dashboard_business_create_draft');
-    }
     router.push("/AdminDashboard");
   };
 
@@ -50,7 +46,7 @@ export default function CreateBusinessPage() {
             <BusinessProfileForm
               title="Create New Business"
               businessId={null}
-              initialData={emptyBusinessForm}
+              initialData={emptyBusinessForm as any}
               onSave={handleSave}
               onCancel={handleCancel}
               saving={saving}

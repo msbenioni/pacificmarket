@@ -2,13 +2,12 @@
 
 import { useState, useMemo } from "react";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
-import { useFormManager } from "@/hooks/useFormPersistence";
+import { getAllFormKeys, clearAllFormData } from "@/utils/formPersistenceStorage";
 
 export default function FormPersistenceDemo() {
   const [showForm, setShowForm] = useState(false);
-  const { getAllPersistedForms, clearAllPersistedForms } = useFormManager();
 
-  const persistedForms = useMemo(() => getAllPersistedForms(), [getAllPersistedForms]);
+  const persistedForms = useMemo(() => getAllFormKeys(), []);
 
   const handleSave = async (formData) => {
     console.log("Saved:", formData);
@@ -40,7 +39,7 @@ export default function FormPersistenceDemo() {
             <button
               onClick={() => {
                 if (confirm("Clear all saved drafts?")) {
-                  clearAllPersistedForms();
+                  clearAllFormData();
                   window.location.reload();
                 }
               }}
@@ -70,7 +69,7 @@ export default function FormPersistenceDemo() {
         )}
 
         {showForm && (
-          <BusinessProfileFormFixed
+          <BusinessProfileForm
             title="Create New Business"
             businessId={null}
             onSave={handleSave}
