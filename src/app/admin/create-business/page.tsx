@@ -16,12 +16,21 @@ export default function CreateBusinessPage() {
 
   // Check if there's a draft to show the form immediately
   useEffect(() => {
+    console.log("🔍 Create page: Checking for draft data...");
     const formKey = generateFormKey({ mode: "create" });
+    console.log("🔑 Form key:", formKey);
+    
+    // Check localStorage directly
+    const { formData } = require("@/utils/formPersistenceStorage.js").getFormStorageKeys(formKey);
+    const rawStored = localStorage.getItem(formData);
+    console.log("📦 Raw localStorage data:", rawStored ? "EXISTS" : "EMPTY");
+    
     const { data: storedData } = loadFormData(formKey);
     
     // If there's stored data, show the form automatically
     if (storedData) {
       console.log("📝 Found draft data, showing form automatically");
+      console.log("📊 Draft data keys:", Object.keys(storedData));
       setShowForm(true);
     } else {
       console.log("📭 No draft data, form hidden by default");

@@ -11,6 +11,7 @@ export function useAdminBusinessActions({
   businesses,
   setBusinesses,
   editingBusinessId,
+  setEditingBusinessId,
   setDraftBusiness,
   cancelEditingBusiness,
   resetCreateForm,
