@@ -39,24 +39,34 @@ export function getFormStorageKeys(formKey: string): FormStorageKeys {
 /**
  * Check if a form was recently discarded (to prevent restore)
  */
-export function isFormRecentlyDiscarded(formKey: string, maxAgeMs: number = 5000): boolean {
+export function isFormRecentlyDiscarded(formKey: string, maxAgeMs: number = 15000): boolean {
   if (typeof window === 'undefined') return false;
   
   try {
     const { discardMarker } = getFormStorageKeys(formKey);
     const marker = localStorage.getItem(discardMarker);
     
-    if (!marker) return false;
+    console.log(`🔍 Checking discard marker for ${formKey}:`, marker ? 'found' : 'not found');
+    
+    if (!marker) {
+      console.log(`📭 No discard marker found for ${formKey}`);
+      return false;
+    }
     
     const discardData: FormDiscardMarker = JSON.parse(marker);
     const now = Date.now();
+    const age = now - discardData.discardedAt;
+    
+    console.log(`⏰ Discard marker age for ${formKey}: ${age}ms (max: ${maxAgeMs}ms)`);
     
     // Clean up expired markers
-    if (now - discardData.discardedAt > maxAgeMs) {
+    if (age > maxAgeMs) {
+      console.log(`🧹 Discard marker expired for ${formKey}, removing`);
       localStorage.removeItem(discardMarker);
       return false;
     }
     
+    console.log(`🚫 Form ${formKey} was recently discarded (${age}ms ago)`);
     return true;
   } catch (error) {
     console.warn('Error checking discard marker:', error);
@@ -79,16 +89,17 @@ export function markFormAsDiscarded(formKey: string): void {
     
     localStorage.setItem(discardMarker, JSON.stringify(marker));
     
-    // Auto-cleanup after 10 seconds
+    // Auto-cleanup after 20 seconds (longer than check window)
     setTimeout(() => {
       try {
         localStorage.removeItem(discardMarker);
+        console.log(`🧹 Auto-cleanup: Discard marker removed for ${formKey}`);
       } catch (error) {
         // Ignore cleanup errors
       }
-    }, 10000);
+    }, 20000);
     
-    console.log(`🗑️ Form ${formKey} marked as discarded`);
+    console.log(`🗑️ Form ${formKey} marked as discarded (will prevent restore for 15 seconds)`);
   } catch (error) {
     console.warn('Error setting discard marker:', error);
   }
@@ -132,7 +143,7 @@ export function loadFormData(formKey: string): { data: any; metadata: FormMetada
   if (typeof window === 'undefined') return { data: null, metadata: null, isRestored: false };
   
   try {
-    // Check if form was recently discarded
+    // Check if form was recently discarded FIRST
     if (isFormRecentlyDiscarded(formKey)) {
       console.log(`🚫 Form ${formKey} was recently discarded, skipping restore`);
       return { data: null, metadata: null, isRestored: false };
@@ -143,6 +154,7 @@ export function loadFormData(formKey: string): { data: any; metadata: FormMetada
     const storedMeta = localStorage.getItem(metaKey);
     
     if (!stored) {
+      console.log(`📭 No stored data found for ${formKey}`);
       return { data: null, metadata: null, isRestored: false };
     }
     

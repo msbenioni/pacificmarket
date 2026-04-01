@@ -152,23 +152,27 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
   
   // Discard draft (cancel behavior)
   const discardDraft = useCallback(() => {
-    console.log(`🗑️ Discarding draft for ${stableFormKey}`);
+    console.log(`🗑️ DISCARD DRAFT STARTED for ${stableFormKey}`);
     
     // Mark as discarded to prevent immediate restore
     markFormAsDiscarded(stableFormKey);
+    console.log(`✅ Discard marker set for ${stableFormKey}`);
     
     // Clear all persisted data
     clearFormData(stableFormKey);
+    console.log(`✅ Form data cleared for ${stableFormKey}`);
     
     // Reset form to initial data
     setFormData(initialData);
     setIsRestored(false);
     setMetadata(null);
+    console.log(`✅ Form state reset for ${stableFormKey}`);
     
     // Reset baseline
     saveBaselineData(stableFormKey, initialData);
+    console.log(`✅ Baseline reset for ${stableFormKey}`);
     
-    console.log(`✅ Draft discarded successfully for ${stableFormKey}`);
+    console.log(`🎉 DRAFT DISCARD COMPLETED for ${stableFormKey}`);
   }, [stableFormKey, initialData]);
   
   // Clear persisted data (after successful save)
