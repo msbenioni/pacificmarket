@@ -1,4 +1,5 @@
 import { BUSINESS_STAGE, AGE_RANGES, GENDER_OPTIONS } from "@/constants/unifiedConstants";
+import { ReferralDropdown } from "../ReferralDropdown";
 
 export default function BusinessOverviewSection({ 
   form, 
@@ -6,7 +7,11 @@ export default function BusinessOverviewSection({
   inputCls, 
   selectCls, 
   labelCls,
-  textareaCls 
+  textareaCls,
+  mode = "create",
+  businessId = null,
+  submitting = false,
+  fieldErrors = {}
 }) {
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -66,55 +71,17 @@ export default function BusinessOverviewSection({
               <option value="1">Just me</option>
               <option value="2-5">2-5 people</option>
               <option value="6-10">6-10 people</option>
-              <option value="11-20">11-20 people</option>
-              <option value="21-50">21-50 people</option>
-              <option value="51+">51+ people</option>
+              <option value="11-25">11-25 people</option>
+              <option value="26-50">26-50 people</option>
+              <option value="51-100">51-100 people</option>
+              <option value="100+">100+ people</option>
             </select>
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className={labelCls}>Business Registration Status</label>
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.is_business_registered || false}
-                  onChange={(e) => handleInputChange("is_business_registered", e.target.checked)}
-                  className="w-4 h-4 text-[#0d4f4f] border-slate-300 rounded focus:ring-[#0d4f4f]"
-                />
-                <div className="flex-1">
-                  <span className="text-sm font-medium text-slate-700">My business is officially registered</span>
-                  <p className="text-xs text-slate-500 mt-1">Registered with government authorities (e.g., Companies Office, business registration, tax registration)</p>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label className={labelCls}>Business Structure</label>
-            <select
-              value={form.business_structure || ""}
-              onChange={(e) => handleInputChange("business_structure", e.target.value)}
-              className={selectCls}
-            >
-              <option value="">Select Structure</option>
-              <option value="sole-proprietorship">Sole Proprietorship</option>
-              <option value="partnership">Partnership</option>
-              <option value="llc">LLC</option>
-              <option value="corporation">Corporation</option>
-              <option value="non-profit">Non-Profit</option>
-              <option value="cooperative">Cooperative</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <div>
             <label className={labelCls}>Age Range</label>
             <select
@@ -148,6 +115,19 @@ export default function BusinessOverviewSection({
           </div>
         </div>
       </div>
+      
+      {/* Referral Section - Only show during creation */}
+      {mode === 'create' && (
+        <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
+          <ReferralDropdown
+            value={form.referred_by_business_id}
+            onChange={(value) => handleInputChange("referred_by_business_id", value)}
+            disabled={submitting}
+            excludeBusinessId={businessId}
+            fieldErrors={fieldErrors}
+          />
+        </div>
+      )}
     </div>
   );
 }

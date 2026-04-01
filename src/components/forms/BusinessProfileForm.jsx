@@ -847,6 +847,10 @@ export default function BusinessProfileForm({
             selectCls={selectCls}
             labelCls={labelCls}
             textareaCls={textareaCls}
+            mode={mode}
+            businessId={businessId}
+            submitting={submitting}
+            fieldErrors={errors.fields || {}}
           />
         );
       
@@ -885,21 +889,6 @@ export default function BusinessProfileForm({
             fieldErrors={errors.fields || {}}
           />
         );
-      
-      case "referral":
-        // Only show referral dropdown during creation, not editing
-        if (mode === 'create') {
-          return (
-            <ReferralDropdown
-              value={form.referred_by_business_id}
-              onChange={(value) => handleInputChange("referred_by_business_id", value)}
-              disabled={submitting}
-              excludeBusinessId={businessId}
-              fieldErrors={errors.fields || {}}
-            />
-          );
-        }
-        return null;
       
       case "admin":
         return (

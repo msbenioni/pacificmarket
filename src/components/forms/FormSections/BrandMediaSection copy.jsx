@@ -177,8 +177,8 @@ export default function BrandMediaSection({
             </p>
           </div>
 
-          {/* Banner Previews */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Banners */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
               <div className="mb-2">
                 <label className={labelCls}>Starter desktop banner</label>
