@@ -196,7 +196,7 @@ export default function BusinessProfile() {
           </div>
         </div>
 
-        {business.is_verified && (
+        {business.is_verified && business.is_claimed && (
           <div className="absolute bottom-8 right-8 z-20 hidden sm:flex">
             <span
               aria-label="Verified"
@@ -263,7 +263,7 @@ export default function BusinessProfile() {
                     </div>
                   )}
 
-                  {business.is_verified && (
+                  {business.is_verified && business.is_claimed && (
                     <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:hidden">
                       <span
                         aria-label="Verified"
