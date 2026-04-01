@@ -18,14 +18,25 @@ export default function CreateBusinessPage() {
   useEffect(() => {
     try {
       console.log("🔍 Create page: Checking for draft data...");
+      
+      // Check sessionStorage first
+      const sessionStorageFlag = sessionStorage.getItem('pdn_create_page_active');
+      console.log("📍 SessionStorage flag:", sessionStorageFlag || 'NOT_SET');
+      
       const formKey = generateFormKey({ mode: "create" });
       console.log("🔑 Form key:", formKey);
       
       // Check localStorage directly
       const { getFormStorageKeys } = require("@/utils/formPersistenceStorage.js");
-      const { formData } = getFormStorageKeys(formKey);
+      const { formData, metadata, discardMarker } = getFormStorageKeys(formKey);
       const rawStored = localStorage.getItem(formData);
-      console.log("📦 Raw localStorage data:", rawStored ? "EXISTS" : "EMPTY");
+      const rawMetadata = localStorage.getItem(metadata);
+      const rawDiscardMarker = localStorage.getItem(discardMarker);
+      
+      console.log("📦 Raw localStorage state:");
+      console.log("  - formData:", rawStored ? 'EXISTS' : 'EMPTY');
+      console.log("  - metadata:", rawMetadata ? 'EXISTS' : 'EMPTY');
+      console.log("  - discardMarker:", rawDiscardMarker ? 'EXISTS' : 'EMPTY');
       
       const { data: storedData } = loadFormData(formKey);
       
@@ -38,14 +49,14 @@ export default function CreateBusinessPage() {
         // Set a flag in sessionStorage to remember user was on create page
         sessionStorage.setItem('pdn_create_page_active', 'true');
       } else {
-        console.log("📭 No draft data, form hidden by default");
+        console.log("📭 No draft data found");
         
         // Check if user was previously on create page (even without draft)
-        const wasOnCreatePage = sessionStorage.getItem('pdn_create_page_active') === 'true';
-        if (wasOnCreatePage) {
+        if (sessionStorageFlag === 'true') {
           console.log("📍 User was previously on create page, showing form");
           setShowForm(true);
         } else {
+          console.log("📍 No previous page state, hiding form");
           setShowForm(false);
         }
       }
@@ -65,6 +76,7 @@ export default function CreateBusinessPage() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Clear the create page flag since user successfully created a business
+      console.log("📍 Clearing sessionStorage flag on successful save");
       sessionStorage.removeItem('pdn_create_page_active');
       
       router.push("/AdminDashboard");
@@ -76,6 +88,8 @@ export default function CreateBusinessPage() {
   };
 
   const handleCancel = () => {
+    console.log("📍 Clearing sessionStorage flag on cancel");
+    sessionStorage.removeItem('pdn_create_page_active');
     setShowForm(false);
     router.push("/AdminDashboard");
   };
@@ -83,6 +97,7 @@ export default function CreateBusinessPage() {
   const handleShowForm = () => {
     // Set flag to remember user is on create page
     sessionStorage.setItem('pdn_create_page_active', 'true');
+    console.log("📍 Set sessionStorage flag: pdn_create_page_active = true");
     
     // First check if there's draft data
     const formKey = generateFormKey({ mode: "create" });
