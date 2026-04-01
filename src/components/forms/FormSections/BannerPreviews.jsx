@@ -20,7 +20,7 @@ export function DesktopBannerPreview({
   const hasBanner = isPersistentMediaUrl(bannerUrl, { allowRootRelative: false });
 
   return (
-    <div className={`relative w-full h-32 sm:h-40 md:h-48 lg:h-56 bg-gray-100 ${className}`}>
+    <div className={`relative w-full max-w-[400px] h-[100px] bg-gray-100 ${className}`} style={{ aspectRatio: '4/1' }}>
       {hasBanner ? (
         <>
           <img
@@ -32,7 +32,7 @@ export function DesktopBannerPreview({
         </>
       ) : (
         <div className="w-full h-full bg-[#0d4f4f] flex items-center justify-center">
-          <h1 className="text-base sm:text-lg lg:text-xl font-bold text-white drop-shadow-lg px-4 text-center">
+          <h1 className="text-sm font-bold text-white drop-shadow-lg px-2 text-center">
             {businessName}
           </h1>
         </div>

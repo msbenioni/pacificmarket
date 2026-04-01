@@ -16,7 +16,7 @@ export default function ImagePreview({
 
   if (bannerType === 'desktop') {
     return (
-      <div className={`relative w-full h-32 bg-gray-100 ${className}`}>
+      <div className={`relative w-full max-w-[400px] h-[100px] bg-gray-100 ${className}`} style={{ aspectRatio: '4/1' }}>
         <img
           src={previewUrl}
           alt={`${businessName} desktop banner preview`}

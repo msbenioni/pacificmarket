@@ -401,7 +401,7 @@ function UploadCard({
               <ImagePreview 
                 file={uploadedFile}
                 label={label}
-                className={bannerType === 'desktop' ? "!h-32 !w-64" : bannerType === 'mobile' ? "!h-24 !w-48 !rounded-t-[12px]" : imageClassName}
+                className={bannerType === 'desktop' ? "!max-w-[400px] !h-[100px]" : bannerType === 'mobile' ? "!h-24 !w-48 !rounded-t-[12px]" : imageClassName}
                 bannerType={bannerType}
                 businessName={businessName}
               />
@@ -411,7 +411,7 @@ function UploadCard({
                 <DesktopBannerPreview 
                   bannerUrl={desktopBannerUrl}
                   businessName={businessName}
-                  className="!h-32 !w-64"
+                  className="!max-w-[400px] !h-[100px]"
                 />
               </>
             ) : bannerType === 'mobile' ? (
