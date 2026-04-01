@@ -6,8 +6,9 @@
  * Updated: Fixed module caching issues v3
  */
 
-// Import unified parsing functions
+// Import unified parsing functions and constants
 import { parseIdentities, dedupe } from "@/utils/parsingUtils";
+import { getCountryDisplayName } from "@/constants/unifiedConstants";
 
 /**
  * Get resolved cultural and language data for a business
@@ -67,8 +68,9 @@ export function getBusinessCulturalData(business, userProfile = null) {
     let finalCulturalSource = culturalSource;
     
     if (finalCulturalParsed.length === 0 && business?.country) {
-      // Use country as cultural identity fallback
-      finalCulturalParsed = [business.country];
+      // Use country display name as cultural identity fallback
+      const countryDisplayName = getCountryDisplayName(business.country);
+      finalCulturalParsed = [countryDisplayName];
       finalCulturalSource = "country_fallback";
     }
 
