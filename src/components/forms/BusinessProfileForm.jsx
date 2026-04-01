@@ -1020,7 +1020,7 @@ export default function BusinessProfileForm({
           </button>
           
           <div className="flex gap-4">
-            {currentStep > 0 && (
+            {currentStep >= 0 && currentStep < wizardSteps.length - 1 && (
               <button
                 type="button"
                 onClick={goToNextStep}
