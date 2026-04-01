@@ -38,7 +38,7 @@ import SocialMediaSection from "./FormSections/SocialMediaSection";
 import ContactDetailsSection from "./FormSections/ContactDetailsSection";
 import AdminVisibilitySection from "./FormSections/AdminVisibilitySection";
 import { ReferralDropdown } from "./ReferralDropdown";
-import { inputCls, textareaCls, selectCls, labelCls, helperCls, FormSection } from "./shared/FormComponents";
+import { inputCls, textareaCls, selectCls, labelCls, mandatoryLabelCls, helperCls, sectionErrorCls, sectionWarningCls, FormSection } from "./shared/FormComponents";
 
 // Form Sections Configuration
 const SECTIONS = [
@@ -760,6 +760,19 @@ export default function BusinessProfileForm({
     };
   };
 
+  // Helper function to check if section has errors
+  const hasSectionErrors = (sectionKey) => {
+    return errors.submit && errors.sectionErrors && errors.sectionErrors[sectionKey];
+  };
+
+  // Helper function to get section styling based on errors
+  const getSectionClassName = (sectionKey) => {
+    if (hasSectionErrors(sectionKey)) {
+      return sectionErrorCls;
+    }
+    return "";
+  };
+
   // Save Handlers
   const saveSection = async (sectionKey) => {
     setSavingSection(sectionKey);
@@ -787,19 +800,23 @@ export default function BusinessProfileForm({
 
   // Render Section Content
   const renderSectionContent = (sectionKey) => {
+    const sectionClassName = getSectionClassName(sectionKey);
+    
     switch (sectionKey) {
       case "core":
         return (
-          <CoreInfoSection
-            form={form}
-            handleInputChange={handleInputChange}
-            inputCls={inputCls}
-            textareaCls={textareaCls}
-            labelCls={labelCls}
-            selectCls={selectCls}
-            showAdminFields={showAdminFields}
-            fieldErrors={errors.fields || {}}
-          />
+          <div className={sectionClassName}>
+            <CoreInfoSection
+              form={form}
+              handleInputChange={handleInputChange}
+              inputCls={inputCls}
+              textareaCls={textareaCls}
+              labelCls={labelCls}
+              selectCls={selectCls}
+              showAdminFields={showAdminFields}
+              fieldErrors={errors.fields || {}}
+            />
+          </div>
         );
       
       case "brand":
@@ -818,40 +835,44 @@ export default function BusinessProfileForm({
       
       case "location":
         return (
-          <div className="space-y-6">
-            <LocationSection
-              form={form}
-              handleInputChange={handleInputChange}
-              inputCls={inputCls}
-              selectCls={selectCls}
-              labelCls={labelCls}
-              fieldErrors={errors.fields || {}}
-            />
-            <ContactDetailsSection
-              form={form}
-              handleInputChange={handleInputChange}
-              inputCls={inputCls}
-              textareaCls={textareaCls}
-              labelCls={labelCls}
-              fieldErrors={errors.fields || {}}
-            />
+          <div className={sectionClassName}>
+            <div className="space-y-6">
+              <LocationSection
+                form={form}
+                handleInputChange={handleInputChange}
+                inputCls={inputCls}
+                selectCls={selectCls}
+                labelCls={labelCls}
+                fieldErrors={errors.fields || {}}
+              />
+              <ContactDetailsSection
+                form={form}
+                handleInputChange={handleInputChange}
+                inputCls={inputCls}
+                textareaCls={textareaCls}
+                labelCls={labelCls}
+                fieldErrors={errors.fields || {}}
+              />
+            </div>
           </div>
         );
       
       case "overview":
         return (
-          <BusinessOverviewSection
-            form={form}
-            handleInputChange={handleInputChange}
-            inputCls={inputCls}
-            selectCls={selectCls}
-            labelCls={labelCls}
-            textareaCls={textareaCls}
-            mode={mode}
-            businessId={businessId}
-            submitting={submitting}
-            fieldErrors={errors.fields || {}}
-          />
+          <div className={sectionClassName}>
+            <BusinessOverviewSection
+              form={form}
+              handleInputChange={handleInputChange}
+              inputCls={inputCls}
+              selectCls={selectCls}
+              labelCls={labelCls}
+              textareaCls={textareaCls}
+              mode={mode}
+              businessId={businessId}
+              submitting={submitting}
+              fieldErrors={errors.fields || {}}
+            />
+          </div>
         );
       
       case "community":

@@ -11,7 +11,14 @@ export const selectCls = "w-full min-h-[44px] border border-slate-300 rounded-xl
 
 export const labelCls = "block text-xs font-semibold uppercase tracking-wider text-slate-700 sm:text-xs";
 
+export const mandatoryLabelCls = "block text-xs font-semibold uppercase tracking-wider text-slate-700 sm:text-xs after:content-['*'] after:text-red-500 after:ml-1";
+
 export const helperCls = "mt-1 text-xs text-slate-500 sm:text-xs";
+
+// Section highlighting styles
+export const sectionErrorCls = "border-2 border-red-300 bg-red-50 rounded-xl p-4 sm:p-6";
+
+export const sectionWarningCls = "border-2 border-amber-300 bg-amber-50 rounded-xl p-4 sm:p-6";
 
 // Mobile-optimized badge styles
 export const badgeCls = "rounded-full border px-2 py-0.5 text-[11px] font-medium sm:text-[10px] sm:px-1.5 sm:py-0.5";

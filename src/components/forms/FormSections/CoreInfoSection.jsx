@@ -24,7 +24,7 @@ export default function CoreInfoSection({
       {/* First Row: Business Name, Handle, Role */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className={labelCls}>Business Name *</label>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 sm:text-xs after:content-['*'] after:text-red-500 after:ml-1">Business Name</label>
           <input
             type="text"
             value={form.business_name || ""}
@@ -39,7 +39,7 @@ export default function CoreInfoSection({
         </div>
 
         <div>
-          <label className={labelCls}>Business Handle</label>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 sm:text-xs after:content-['*'] after:text-red-500 after:ml-1">Business Handle</label>
           <input
             type="text"
             value={form.business_handle || ""}
@@ -83,7 +83,7 @@ export default function CoreInfoSection({
 
       {/* Third Row: Description (full width) */}
       <div>
-        <label className={labelCls}>Business Description *</label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 sm:text-xs after:content-['*'] after:text-red-500 after:ml-1">Business Description</label>
         <textarea
           value={form.description || ""}
           onChange={(e) => handleInputChange("description", e.target.value)}
