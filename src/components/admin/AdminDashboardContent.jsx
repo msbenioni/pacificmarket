@@ -32,6 +32,7 @@ export default function AdminDashboardContent({
   dashboardLoading,
   businessActions,
   claimActions,
+  showCreateForm = false,
 }) {
   // Local UI state (excluding editing state which is handled by parent)
   const [activeTab, setActiveTab] = useState("businesses");
@@ -65,8 +66,8 @@ export default function AdminDashboardContent({
   // Handle create form navigation
   const handleCreateBusiness = () => {
     businessActions.cancelEditingBusiness();
-    // Navigate to dedicated create page
-    window.location.href = "/admin/create-business";
+    // Navigate to create view on same page
+    window.location.href = "/AdminDashboard?view=create";
   };
 
   // Handle reset editing
@@ -113,6 +114,23 @@ export default function AdminDashboardContent({
             mobileButtonCls={mobileButtonCls}
             filterButtonCls={filterButtonCls}
           />
+
+          {showCreateForm && (
+            <div className="max-w-6xl mx-auto px-4 py-8">
+              <BusinessProfileForm
+                title="Create New Business"
+                businessId={null}
+                initialData={emptyBusinessForm}
+                onSave={businessActions.createVerifiedBusiness}
+                onCancel={() => {
+                  window.location.href = "/AdminDashboard";
+                }}
+                saving={businessActions.savingCreate}
+                mode="create"
+                showAdminFields={true}
+              />
+            </div>
+          )}
 
           {businessActions.editingBusinessId && (
             <div className="max-w-6xl mx-auto px-4 py-8">

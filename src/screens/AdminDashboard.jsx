@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import AdminAccessGate from "@/components/admin/AdminAccessGate";
@@ -23,10 +24,15 @@ import { useAdminClaimActions } from "@/hooks/admin/useAdminClaimActions";
 export default function AdminDashboard() {
   const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   
   // Local state for business editing
   const [editingBusinessId, setEditingBusinessId] = useState(null);
   const [draftBusiness, setDraftBusiness] = useState(null);
+  
+  // Get current view from query params
+  const currentView = searchParams.get('view');
+  const showCreateForm = currentView === 'create';
   
   // Toast helper functions for consistent API
   const showSuccess = (title, description) =>
@@ -127,6 +133,7 @@ export default function AdminDashboard() {
         dashboardLoading={dashboardLoading}
         businessActions={businessActionsWithState}
         claimActions={claimActions}
+        showCreateForm={showCreateForm}
       />
       {DialogComponent}
     </>
