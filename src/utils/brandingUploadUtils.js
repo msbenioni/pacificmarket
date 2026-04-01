@@ -135,12 +135,17 @@ export const uploadBusinessBrandingFiles = async ({ supabase, businessId, files 
         continue;
       }
 
-      uploadedUrls[field] = await uploadBusinessMediaFile({
-        supabase,
-        businessId,
-        field,
-        file,
-      });
+      try {
+        uploadedUrls[field] = await uploadBusinessMediaFile({
+          supabase,
+          businessId,
+          field,
+          file,
+        });
+      } catch (fileError) {
+        console.error(`Failed to upload ${field}:`, fileError);
+        // Continue with other files - don't fail the entire upload process
+      }
     }
 
     return uploadedUrls;
@@ -254,31 +259,37 @@ export const prepareBusinessBrandingPayload = async ({
       sanitizedData.mobile_banner_url = null;
     }
     
-    // Step 3: Upload new files if present
+    // Step 3: Upload new files if present (non-blocking)
     let uploadedUrls = {};
     const hasFiles = files.logo_file || files.banner_file || files.mobile_banner_file;
     
     if (hasFiles) {
-      uploadedUrls = await uploadBusinessBrandingFiles({
-        supabase,
-        businessId,
-        files
-      });
-      
-      // Validate that files uploaded successfully
-      const uploadValidationErrors = [];
-      if (files.logo_file && !uploadedUrls.logo_url) {
-        uploadValidationErrors.push("Logo file was provided but no URL was returned from upload");
-      }
-      if (files.banner_file && !uploadedUrls.banner_url) {
-        uploadValidationErrors.push("Banner file was provided but no URL was returned from upload");
-      }
-      if (files.mobile_banner_file && !uploadedUrls.mobile_banner_url) {
-        uploadValidationErrors.push("Mobile banner file was provided but no URL was returned from upload");
-      }
-      
-      if (uploadValidationErrors.length > 0) {
-        throw new Error(`Upload validation failed: ${uploadValidationErrors.join(', ')}`);
+      try {
+        uploadedUrls = await uploadBusinessBrandingFiles({
+          supabase,
+          businessId,
+          files
+        });
+        
+        // Validate that files uploaded successfully
+        const uploadValidationErrors = [];
+        if (files.logo_file && !uploadedUrls.logo_url) {
+          uploadValidationErrors.push("Logo file was provided but no URL was returned from upload");
+        }
+        if (files.banner_file && !uploadedUrls.banner_url) {
+          uploadValidationErrors.push("Banner file was provided but no URL was returned from upload");
+        }
+        if (files.mobile_banner_file && !uploadedUrls.mobile_banner_url) {
+          uploadValidationErrors.push("Mobile banner file was provided but no URL was returned from upload");
+        }
+        
+        if (uploadValidationErrors.length > 0) {
+          console.warn("File upload validation failed:", uploadValidationErrors.join(', '));
+          // Don't throw error - business should still be created
+        }
+      } catch (uploadError) {
+        console.error("File upload failed, but continuing with business creation:", uploadError);
+        // Don't throw error - business should still be created without images
       }
     }
     
