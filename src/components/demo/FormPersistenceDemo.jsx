@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import BusinessProfileFormFixed from "@/components/forms/BusinessProfileFormFixed";
+import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import { useFormManager } from "@/hooks/useFormPersistence";
 
 export default function FormPersistenceDemo() {

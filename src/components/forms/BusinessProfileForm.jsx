@@ -14,6 +14,18 @@ import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
+import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults";
+import { useFormWithPersistence, useFormRestore } from "@/hooks/useFormPersistence";
+
+// Helper function to generate business handle from name
+function slugifyHandle(value = "") {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 // Import section components
 import CoreInfoSection from "./FormSections/CoreInfoSection";
@@ -101,78 +113,36 @@ export default function BusinessProfileForm({
   subscriptionTier = SUBSCRIPTION_TIER.VAKA,
   onUpgrade = null
 }) {
-  // Unified form state with new field names
-  const [form, setForm] = useState({
-    // Core Business Info
-    business_name: "",
-    business_handle: "",
-    tagline: "",
-    description: "",
-    role: "",
-    
-    // Business Contact & Website
-    business_contact_person: "",
-    business_email: "",
-    business_phone: "",
-    business_website: "",
-    business_hours: "",
-    
-    // Location
-    country: "",
-    city: "",
-    address: "",
-    suburb: "",
-    state_region: "",
-    postal_code: "",
-    industry: "",
-    
-    // Brand Media
-    logo_url: "",
-    banner_url: "",
-    mobile_banner_url: "",
-    logo_file: null,
-    banner_file: null,
-    mobile_banner_file: null,
-    logo_remove: false,
-    banner_remove: false,
-    mobile_banner_remove: false,
-    
-    // Admin & Visibility
-    visibility_tier: VISIBILITY_TIER.NONE,
-    visibility_mode: "auto",
-    
-    // Business Overview
-    year_started: null,
-    business_stage: "",
-    business_structure: "",
-    team_size_band: "",
-    is_business_registered: false,
-    founder_story: "",
-    age_range: "",
-    gender: "",
-    
-    // Community & Opportunities
-    collaboration_interest: false,
-    mentorship_offering: false,
-    open_to_future_contact: false,
-    business_acquisition_interest: false,
-    
-    // Social Media
-    social_links: {
-      facebook: "",
-      instagram: "",
-      twitter: "",
-      linkedin: "",
-      youtube: "",
-      tiktok: "",
-    },
-    
-    // Referral
-    referred_by_business_id: "",
-    
-    // System fields
+  // Generate stable form key for persistence
+  const formKey = mode === "create" 
+    ? "admin_dashboard_business_create_draft"
+    : `admin_dashboard_business_edit_${businessId}`;
+
+  // Merge initial data with defaults
+  const mergedInitialData = {
+    ...BUSINESS_FORM_DEFAULTS,
     subscription_tier: subscriptionTier,
-  });
+    ...(initialData || {}),
+    // Deep merge for nested objects
+    social_links: {
+      ...BUSINESS_FORM_DEFAULTS.social_links,
+      ...(initialData?.social_links || {}),
+    },
+  };
+
+  // Use persistence hook
+  const {
+    formData: form,
+    setFormData: setForm,
+    updateFormData,
+    updateField,
+    resetForm,
+    clearPersistedData,
+    hasUnsavedChanges,
+  } = useFormWithPersistence(formKey, mergedInitialData);
+
+  // Handle restore notifications
+  const { isRestored } = useFormRestore(formKey, mergedInitialData);
 
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
@@ -181,33 +151,12 @@ export default function BusinessProfileForm({
   const [errors, setErrors] = useState({ submit: undefined, fields: {} });
   const saveSuccessTimeoutRef = useRef(null);
 
-  // Initialize form with existing data
+  // Sync subscriptionTier prop to form state when it changes
   useEffect(() => {
-    if (initialData) {
-      // Use only final field names - no legacy mapping needed
-      const mappedData = {
-        ...initialData,
-        // Ensure social_links doesn't include website
-        social_links: {
-          facebook: initialData.social_links?.facebook || "",
-          instagram: initialData.social_links?.instagram || "",
-          twitter: initialData.social_links?.twitter || "",
-          linkedin: initialData.social_links?.linkedin || "",
-          youtube: initialData.social_links?.youtube || "",
-          tiktok: initialData.social_links?.tiktok || "",
-        },
-      };
-      
-      setForm((prev) => ({ ...prev, ...mappedData }));
+    if (form.subscription_tier !== subscriptionTier) {
+      updateField("subscription_tier", subscriptionTier);
     }
-  }, [initialData]);
-
-  // Sync subscriptionTier prop to form state when it changes (only if not already set by initialData)
-  useEffect(() => {
-    if (!initialData?.subscription_tier && form.subscription_tier !== subscriptionTier) {
-      setForm((prev) => ({ ...prev, subscription_tier: subscriptionTier }));
-    }
-  }, [subscriptionTier, initialData?.subscription_tier, form.subscription_tier]);
+  }, [subscriptionTier, form.subscription_tier, updateField]);
 
   // Section Management
   const toggleSection = (sectionKey) => {
@@ -233,19 +182,23 @@ export default function BusinessProfileForm({
 
   // Form Handlers
   const handleInputChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    updateField(field, value);
+    
+    // Auto-generate handle from business name if handle is empty
+    if (field === "business_name" && value && !form.business_handle) {
+      const generatedHandle = slugifyHandle(value);
+      updateField("business_handle", generatedHandle);
+    }
   };
 
   const toggleArrayItem = (field, item) => {
-    setForm((prev) => {
-      const currentArray = prev[field] || [];
+    const currentArray = form[field] || [];
 
-      if (currentArray.includes(item)) {
-        return { ...prev, [field]: currentArray.filter((i) => i !== item) };
-      }
-
-      return { ...prev, [field]: [...currentArray, item] };
-    });
+    if (currentArray.includes(item)) {
+      updateField(field, currentArray.filter((i) => i !== item));
+    } else {
+      updateField(field, [...currentArray, item]);
+    }
   };
 
   // File Upload Handlers
@@ -255,27 +208,24 @@ export default function BusinessProfileForm({
 
     try {
       if (type === "logo") {
-        setForm((prev) => ({
-          ...prev,
+        updateFormData({
           logo_file: file,
           logo_remove: false,
-        }));
+        });
       }
 
       if (type === "banner") {
-        setForm((prev) => ({
-          ...prev,
+        updateFormData({
           banner_file: file,
           banner_remove: false,
-        }));
+        });
       }
 
       if (type === "mobile_banner") {
-        setForm((prev) => ({
-          ...prev,
+        updateFormData({
           mobile_banner_file: file,
           mobile_banner_remove: false,
-        }));
+        });
       }
     } catch (error) {
       console.error("Error handling file upload:", error);
@@ -284,82 +234,66 @@ export default function BusinessProfileForm({
 
   const removeImage = (type) => {
     if (type === "logo") {
-      setForm((prev) => {
-        // If there's a local file, clear it and keep persisted image.
-        if (prev.logo_file) {
-          return {
-            ...prev,
-            logo_file: null,
-            logo_remove: false, // Don't remove persisted image
-          };
-        }
-        // If there's a persisted image, mark it for removal.
-        // Starter root-relative assets are not treated as removable persisted media.
-        if (isPersistentMediaUrl(prev.logo_url, { allowRootRelative: false })) {
-          return {
-            ...prev,
-            logo_file: null,
-            logo_remove: true,
-          };
-        }
-        // No image to remove
-        return prev;
-      });
+      // If there's a local file, clear it and keep persisted image.
+      if (form.logo_file) {
+        updateFormData({
+          logo_file: null,
+          logo_remove: false, // Don't remove persisted image
+        });
+        return;
+      }
+      // If there's a persisted image, mark it for removal.
+      // Starter root-relative assets are not treated as removable persisted media.
+      if (isPersistentMediaUrl(form.logo_url, { allowRootRelative: false })) {
+        updateFormData({
+          logo_file: null,
+          logo_remove: true,
+        });
+      }
     }
 
     if (type === "banner") {
-      setForm((prev) => {
-        // If there's a local file, clear it and keep persisted image.
-        if (prev.banner_file) {
-          return {
-            ...prev,
-            banner_file: null,
-            banner_remove: false, // Don't remove persisted image
-          };
-        }
-        // If there's a persisted image, mark it for removal.
-        // Starter root-relative assets are not treated as removable persisted media.
-        if (isPersistentMediaUrl(prev.banner_url, { allowRootRelative: false })) {
-          return {
-            ...prev,
-            banner_file: null,
-            banner_remove: true,
-          };
-        }
-        // No image to remove
-        return prev;
-      });
+      // If there's a local file, clear it and keep persisted image.
+      if (form.banner_file) {
+        updateFormData({
+          banner_file: null,
+          banner_remove: false, // Don't remove persisted image
+        });
+        return;
+      }
+      // If there's a persisted image, mark it for removal.
+      // Starter root-relative assets are not treated as removable persisted media.
+      if (isPersistentMediaUrl(form.banner_url, { allowRootRelative: false })) {
+        updateFormData({
+          banner_file: null,
+          banner_remove: true,
+        });
+      }
     }
 
     if (type === "mobile_banner") {
-      setForm((prev) => {
-        // If there's a local file, clear it and keep persisted image.
-        if (prev.mobile_banner_file) {
-          return {
-            ...prev,
-            mobile_banner_file: null,
-            mobile_banner_remove: false, // Don't remove persisted image
-          };
-        }
-        // If there's a persisted image, mark it for removal.
-        // Starter root-relative assets are not treated as removable persisted media.
-        if (isPersistentMediaUrl(prev.mobile_banner_url, { allowRootRelative: false })) {
-          return {
-            ...prev,
-            mobile_banner_file: null,
-            mobile_banner_remove: true,
-          };
-        }
-        // No image to remove
-        return prev;
-      });
+      // If there's a local file, clear it and keep persisted image.
+      if (form.mobile_banner_file) {
+        updateFormData({
+          mobile_banner_file: null,
+          mobile_banner_remove: false, // Don't remove persisted image
+        });
+        return;
+      }
+      // If there's a persisted image, mark it for removal.
+      // Starter root-relative assets are not treated as removable persisted media.
+      if (isPersistentMediaUrl(form.mobile_banner_url, { allowRootRelative: false })) {
+        updateFormData({
+          mobile_banner_file: null,
+          mobile_banner_remove: true,
+        });
+      }
     }
   };
 
   // Helper to reconcile form state with saved business data
   const reconcileSavedBusiness = (savedBusiness) => {
-    setForm(prev => ({
-      ...prev,
+    updateFormData({
       // Update persisted URLs from saved row (explicit assignment)
       logo_url: savedBusiness.logo_url ?? "",
       banner_url: savedBusiness.banner_url ?? "",
@@ -373,18 +307,18 @@ export default function BusinessProfileForm({
       banner_remove: false,
       mobile_banner_remove: false,
       // Explicitly reconcile other important fields
-      business_name: savedBusiness.business_name ?? prev.business_name,
-      description: savedBusiness.description ?? prev.description,
-      tagline: savedBusiness.tagline ?? prev.tagline,
-      business_email: savedBusiness.business_email ?? prev.business_email,
-      business_website: savedBusiness.business_website ?? prev.business_website,
-      business_phone: savedBusiness.business_phone ?? prev.business_phone,
-      business_hours: savedBusiness.business_hours ?? prev.business_hours,
+      business_name: savedBusiness.business_name ?? form.business_name,
+      description: savedBusiness.description ?? form.description,
+      tagline: savedBusiness.tagline ?? form.tagline,
+      business_email: savedBusiness.business_email ?? form.business_email,
+      business_website: savedBusiness.business_website ?? form.business_website,
+      business_phone: savedBusiness.business_phone ?? form.business_phone,
+      business_hours: savedBusiness.business_hours ?? form.business_hours,
       // Explicitly reconcile admin visibility fields
-      visibility_tier: savedBusiness.visibility_tier ?? prev.visibility_tier,
-      visibility_mode: savedBusiness.visibility_mode ?? prev.visibility_mode,
-      subscription_tier: savedBusiness.subscription_tier ?? prev.subscription_tier,
-    }));
+      visibility_tier: savedBusiness.visibility_tier ?? form.visibility_tier,
+      visibility_mode: savedBusiness.visibility_mode ?? form.visibility_mode,
+      subscription_tier: savedBusiness.subscription_tier ?? form.subscription_tier,
+    });
   };
 
   const validateUploadedMediaPersistence = (saveResult) => {
@@ -507,6 +441,9 @@ export default function BusinessProfileForm({
       } else {
         console.log("Save succeeded but no business data to reconcile");
       }
+
+      // Clear persisted data after successful save
+      clearPersistedData();
 
       setSaveSuccess(true);
       if (saveSuccessTimeoutRef.current) {
@@ -841,13 +778,42 @@ export default function BusinessProfileForm({
     return true;
   });
 
+  // Handle cancel with confirmation for unsaved changes
+  const handleCancel = () => {
+    if (hasUnsavedChanges()) {
+      if (confirm("You have unsaved changes. Are you sure you want to cancel? Your draft will be preserved.")) {
+        onCancel();
+      }
+    } else {
+      onCancel();
+    }
+  };
+
   return (
     <div className="rounded-2xl bg-white overflow-hidden max-w-full">
       <form onSubmit={handleSubmit} className="p-3 sm:p-8">
+        {/* Restore notification */}
+        {isRestored && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <p className="text-blue-800 text-sm font-medium">
+              📝 Draft restored from previous session
+            </p>
+          </div>
+        )}
+
         {/* Global validation message */}
         {errors.submit && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
             <p className="text-red-800 text-sm font-medium">{errors.submit}</p>
+          </div>
+        )}
+
+        {/* Unsaved changes indicator */}
+        {hasUnsavedChanges() && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <p className="text-amber-800 text-sm font-medium">
+              💾 Unsaved changes are being stored locally
+            </p>
           </div>
         )}
         
@@ -882,7 +848,7 @@ export default function BusinessProfileForm({
               )}
               <button
                 type="button"
-                onClick={onCancel}
+                onClick={handleCancel}
                 className="px-6 py-3 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
                 disabled={submitting}
               >

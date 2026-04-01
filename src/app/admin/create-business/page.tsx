@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PortalShell from "@/components/portal/PortalShell";
 import HeroStandard from "@/components/shared/HeroStandard";
-import BusinessProfileFormStable from "@/components/forms/BusinessProfileFormStable";
-import ClientOnlyFormWrapper from "@/components/forms/ClientOnlyFormWrapper";
+import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import { emptyBusinessForm } from "@/components/admin/constants/adminDashboardConstants";
 
 export default function CreateBusinessPage() {
@@ -48,8 +47,7 @@ export default function CreateBusinessPage() {
         />
 
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <ClientOnlyFormWrapper>
-            <BusinessProfileFormStable
+            <BusinessProfileForm
               title="Create New Business"
               businessId={null}
               initialData={emptyBusinessForm}
@@ -59,7 +57,6 @@ export default function CreateBusinessPage() {
               mode="create"
               showAdminFields={true}
             />
-          </ClientOnlyFormWrapper>
         </div>
       </div>
     </PortalShell>
