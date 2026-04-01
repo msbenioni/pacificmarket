@@ -275,12 +275,12 @@ export default function BusinessProfileForm({
   const [errors, setErrors] = useState({ submit: undefined, fields: {} });
   const saveSuccessTimeoutRef = useRef(null);
 
-  // Sync subscriptionTier prop to form state when it changes
-  useEffect(() => {
-    if (form.subscription_tier !== subscriptionTier) {
-      updateField("subscription_tier", subscriptionTier);
-    }
-  }, [subscriptionTier, form.subscription_tier, updateField]);
+  // Note: Removed subscriptionTier sync to allow admin control in create mode
+  // useEffect(() => {
+  //   if (form.subscription_tier !== subscriptionTier) {
+  //     updateField("subscription_tier", subscriptionTier);
+  //   }
+  // }, [subscriptionTier, form.subscription_tier, updateField]);
 
   // Section Management
   const toggleSection = (sectionKey) => {
@@ -468,12 +468,14 @@ export default function BusinessProfileForm({
   };
 
   const performSave = async ({ saveAll = false, errorMessage }) => {
+    console.log("🚀 performSave called");
     setSubmitting(true);
     setErrors({ submit: undefined, fields: {} });
 
     try {
       // Client-side validation first
       const validation = validateForm({ form, mode });
+      console.log("🔍 Validation result:", validation);
       
       if (!validation.isValid) {
         
