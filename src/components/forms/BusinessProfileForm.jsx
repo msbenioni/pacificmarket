@@ -189,6 +189,12 @@ export default function BusinessProfileForm({
   // Get current step data
   const currentStepData = wizardSteps[currentStep];
   
+  // Debug logging to track current step
+  console.log(`🔍 Current Step: ${currentStep + 1} of ${wizardSteps.length} (${currentStepData.label})`);
+  console.log(`🔍 Next button should show: ${currentStep > 0 && currentStep < wizardSteps.length - 1}`);
+  console.log(`🔍 Save button should show: ${currentStep === wizardSteps.length - 1}`);
+  console.log(`🔍 showAdminFields: ${showAdminFields}`);
+  
   // Prepare initial data with proper merging
   const initialFormData = useMemo(() => {
     const baseData = {
