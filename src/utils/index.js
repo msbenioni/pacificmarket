@@ -1,10 +1,20 @@
 export function createPageUrl(pageName) {
-    // Special cases to preserve case
-    if (pageName === "BusinessPortal") {
-        return '/BusinessPortal';
+    // Special cases to preserve case for PascalCase routes
+    const pascalCasePages = [
+        "BusinessPortal",
+        "BusinessProfile", 
+        "BusinessLogin",
+        "PacificBusinesses",
+        "AdminDashboard",
+        "AdminLogin",
+        "ProfileSettings",
+        "InvoiceGenerator",
+        "QRCodeGenerator"
+    ];
+    
+    if (pascalCasePages.includes(pageName)) {
+        return '/' + pageName;
     }
-    if (pageName === "BusinessProfile") {
-        return '/BusinessProfile';
-    }
+    
     return '/' + pageName.toLowerCase().replace(/ /g, '-');
 }
