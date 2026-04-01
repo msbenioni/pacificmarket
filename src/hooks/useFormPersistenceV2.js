@@ -6,7 +6,8 @@ import {
   clearAllFormPersistence,
   saveBaselineData, 
   hasUnsavedChanges as checkUnsavedChanges,
-  markFormAsDiscarded
+  markFormAsDiscarded,
+  getFormStorageKeys
 } from '@/utils/formPersistenceStorage.js';
 import { generateFormKey } from '@/utils/formPersistenceKeys.js';
 
@@ -63,6 +64,24 @@ export function useFormPersistenceV2(options) {
     initializedRef.current = true;
     
     console.log(`🔧 Initializing form persistence for ${stableFormKey} (mode: ${mode})`);
+    
+    // DEBUG: Check what exists in localStorage for create mode
+    if (mode === 'create' && stableFormKey === 'admin_dashboard_business_create_draft') {
+      const { formData, metadata, baseline, discardMarker } = getFormStorageKeys(stableFormKey);
+      console.log(`🔍 DEBUG - Checking localStorage for create form:`);
+      console.log(`  - formData key: ${formData}`, localStorage.getItem(formData) ? 'EXISTS' : 'EMPTY');
+      console.log(`  - metadata key: ${metadata}`, localStorage.getItem(metadata) ? 'EXISTS' : 'EMPTY');
+      console.log(`  - baseline key: ${baseline}`, localStorage.getItem(baseline) ? 'EXISTS' : 'EMPTY');
+      console.log(`  - discardMarker key: ${discardMarker}`, localStorage.getItem(discardMarker) ? 'EXISTS' : 'EMPTY');
+      
+      // If there's old data but no discard marker, it might be from before our fix
+      // Force clear it to ensure clean state
+      if (localStorage.getItem(formData) && !localStorage.getItem(discardMarker)) {
+        console.log(`🧹 DETECTED OLD CREATE DATA - Force clearing to ensure clean state`);
+        clearAllFormPersistence(stableFormKey);
+        console.log(`✅ Old create data force cleared`);
+      }
+    }
     
     const { data: storedData, metadata: storedMetadata, isRestored: wasRestored } = loadFormData(stableFormKey);
     
