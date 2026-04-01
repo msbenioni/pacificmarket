@@ -16,6 +16,7 @@ import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults";
 import { useFormPersistenceV2 } from "@/hooks/useFormPersistenceV2";
+import { generateFormKey } from "@/utils/formPersistenceKeys";
 
 // Helper function to generate business handle from name
 function slugifyHandle(value = "") {
@@ -144,6 +145,22 @@ export default function BusinessProfileForm({
     };
   }, [mode, initialData, subscriptionTier]);
 
+  // Generate stable form key using centralized utility
+  const formKey = useMemo(() => {
+    try {
+      if (mode === "create") {
+        return generateFormKey({ mode: "create" });
+      } else if (mode === "edit" && businessId) {
+        return generateFormKey({ mode: "edit", businessId });
+      } else {
+        throw new Error(`Invalid mode/businessId combination: mode=${mode}, businessId=${businessId}`);
+      }
+    } catch (error) {
+      console.error("Error generating form key:", error);
+      return `admin_dashboard_business_${mode}_${businessId || 'unknown'}`;
+    }
+  }, [mode, businessId]);
+
   // Use the new consolidated persistence hook
   const {
     formData: form,
@@ -158,7 +175,7 @@ export default function BusinessProfileForm({
     markSaveSuccess,
     markSaveFailure,
   } = useFormPersistenceV2({
-    formKey: mode === "create" ? "admin_dashboard_business_create_draft" : `admin_dashboard_business_edit_${businessId || 'unknown'}`,
+    formKey,
     initialData: initialFormData,
     mode,
     businessId,

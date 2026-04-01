@@ -170,9 +170,44 @@ export function loadFormData(formKey: string): { data: any; metadata: FormMetada
 }
 
 /**
- * Clear all form data and metadata
+ * Clear draft data only (preserves discard marker)
  */
-export function clearFormData(formKey: string): void {
+export function clearDraftData(formKey: string): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const { formData, metadata, baseline } = getFormStorageKeys(formKey);
+    
+    localStorage.removeItem(formData);
+    localStorage.removeItem(metadata);
+    localStorage.removeItem(baseline);
+    
+    console.log(`🗑️ Cleared draft data for form ${formKey} (discard marker preserved)`);
+  } catch (error) {
+    console.warn('Error clearing draft data:', error);
+  }
+}
+
+/**
+ * Clear discard marker only
+ */
+export function clearDiscardMarker(formKey: string): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const { discardMarker } = getFormStorageKeys(formKey);
+    localStorage.removeItem(discardMarker);
+    
+    console.log(`🧹 Cleared discard marker for form ${formKey}`);
+  } catch (error) {
+    console.warn('Error clearing discard marker:', error);
+  }
+}
+
+/**
+ * Clear all form data and metadata (including discard marker)
+ */
+export function clearAllFormPersistence(formKey: string): void {
   if (typeof window === 'undefined') return;
   
   try {
@@ -183,10 +218,17 @@ export function clearFormData(formKey: string): void {
     localStorage.removeItem(baseline);
     localStorage.removeItem(discardMarker);
     
-    console.log(`🗑️ Cleared all data for form ${formKey}`);
+    console.log(`🗑️ Cleared all persistence data for form ${formKey}`);
   } catch (error) {
-    console.warn('Error clearing form data:', error);
+    console.warn('Error clearing all form persistence:', error);
   }
+}
+
+/**
+ * Legacy function for backward compatibility - use specific functions above
+ */
+export function clearFormData(formKey: string): void {
+  clearAllFormPersistence(formKey);
 }
 
 /**
@@ -304,6 +346,6 @@ export function clearAllFormData(): void {
   
   const keys = getAllFormKeys();
   keys.forEach(formKey => {
-    clearFormData(formKey);
+    clearAllFormPersistence(formKey);
   });
 }

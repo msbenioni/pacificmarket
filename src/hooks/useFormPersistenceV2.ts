@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { 
   saveFormData, 
   loadFormData, 
-  clearFormData, 
+  clearDraftData,
+  clearAllFormPersistence,
   saveBaselineData, 
   hasUnsavedChanges as checkUnsavedChanges,
   markFormAsDiscarded,
@@ -66,6 +67,11 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
   const baselineSetRef = useRef(false);
   const restoreLoggedRef = useRef(false);
   
+  // Refs to suppress autosave during critical operations
+  const isDiscardingRef = useRef(false);
+  const isClearingAfterSaveRef = useRef(false);
+  const skipNextAutosaveRef = useRef(false);
+  
   // Generate stable form key with validation
   const stableFormKey = useMemo(() => {
     try {
@@ -121,6 +127,23 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
     // Don't save on initial mount
     if (!initializedRef.current) return;
     
+    // Suppress autosave during critical operations
+    if (isDiscardingRef.current) {
+      console.log(`🚫 Autosave suppressed: discard in progress for ${stableFormKey}`);
+      return;
+    }
+    
+    if (isClearingAfterSaveRef.current) {
+      console.log(`🚫 Autosave suppressed: clear-after-save in progress for ${stableFormKey}`);
+      return;
+    }
+    
+    if (skipNextAutosaveRef.current) {
+      console.log(`🚫 Autosave suppressed: skip flag set for ${stableFormKey}`);
+      skipNextAutosaveRef.current = false;
+      return;
+    }
+    
     // Don't save if data equals initial data and no previous draft existed
     if (!isRestored && JSON.stringify(formData) === JSON.stringify(initialData)) {
       return;
@@ -154,13 +177,16 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
   const discardDraft = useCallback(() => {
     console.log(`🗑️ DISCARD DRAFT STARTED for ${stableFormKey}`);
     
+    // Set discard flag to suppress autosave
+    isDiscardingRef.current = true;
+    
     // Mark as discarded to prevent immediate restore
     markFormAsDiscarded(stableFormKey);
     console.log(`✅ Discard marker set for ${stableFormKey}`);
     
-    // Clear all persisted data
-    clearFormData(stableFormKey);
-    console.log(`✅ Form data cleared for ${stableFormKey}`);
+    // Clear draft data ONLY (preserves discard marker)
+    clearDraftData(stableFormKey);
+    console.log(`✅ Draft data cleared for ${stableFormKey} (discard marker preserved)`);
     
     // Reset form to initial data
     setFormData(initialData);
@@ -172,18 +198,35 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
     saveBaselineData(stableFormKey, initialData);
     console.log(`✅ Baseline reset for ${stableFormKey}`);
     
+    // Clear discard flag after a short delay
+    setTimeout(() => {
+      isDiscardingRef.current = false;
+      console.log(`🔓 Discard flag cleared for ${stableFormKey}`);
+    }, 1000);
+    
     console.log(`🎉 DRAFT DISCARD COMPLETED for ${stableFormKey}`);
   }, [stableFormKey, initialData]);
   
   // Clear persisted data (after successful save)
   const clearPersistedData = useCallback(() => {
     console.log(`🧹 Clearing persisted data for ${stableFormKey}`);
-    clearFormData(stableFormKey);
+    
+    // Set clear flag to suppress autosave
+    isClearingAfterSaveRef.current = true;
+    
+    // Clear ALL persistence data (including discard marker)
+    clearAllFormPersistence(stableFormKey);
     setIsRestored(false);
     setMetadata(null);
     
     // Update baseline to current data (since it was saved successfully)
     saveBaselineData(stableFormKey, formData);
+    
+    // Clear flag after a short delay
+    setTimeout(() => {
+      isClearingAfterSaveRef.current = false;
+      console.log(`🔓 Clear-after-save flag cleared for ${stableFormKey}`);
+    }, 1000);
   }, [stableFormKey, formData]);
   
   // Mark save success
