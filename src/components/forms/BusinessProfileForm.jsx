@@ -818,14 +818,24 @@ export default function BusinessProfileForm({
       
       case "location":
         return (
-          <LocationSection
-            form={form}
-            handleInputChange={handleInputChange}
-            inputCls={inputCls}
-            selectCls={selectCls}
-            labelCls={labelCls}
-            fieldErrors={errors.fields || {}}
-          />
+          <div className="space-y-6">
+            <LocationSection
+              form={form}
+              handleInputChange={handleInputChange}
+              inputCls={inputCls}
+              selectCls={selectCls}
+              labelCls={labelCls}
+              fieldErrors={errors.fields || {}}
+            />
+            <ContactDetailsSection
+              form={form}
+              handleInputChange={handleInputChange}
+              inputCls={inputCls}
+              textareaCls={textareaCls}
+              labelCls={labelCls}
+              fieldErrors={errors.fields || {}}
+            />
+          </div>
         );
       
       case "overview":
