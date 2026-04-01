@@ -1010,7 +1010,7 @@ export default function BusinessProfileForm({
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8 pt-6 border-t border-gray-200">
           <button
             type="button"
             onClick={currentStep === 0 ? handleCancel : goToPreviousStep}
