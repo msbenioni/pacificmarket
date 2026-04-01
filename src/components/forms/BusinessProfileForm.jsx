@@ -1048,6 +1048,7 @@ export default function BusinessProfileForm({
                 type="submit"
                 disabled={submitting || saving}
                 className="px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                onClick={() => console.log("🔘 Save button clicked!")}
               >
                 {submitting ? (
                   <span className="flex items-center justify-center">

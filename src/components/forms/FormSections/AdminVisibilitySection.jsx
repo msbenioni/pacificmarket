@@ -15,9 +15,16 @@ export default function AdminVisibilitySection({
 
   const handleVisibilityTierChange = (e) => {
     const { value } = e.target;
+    console.log(" Changing visibility tier to:", value);
     // When admin manually changes visibility, set mode to manual
     handleInputChange("visibility_tier", value);
     handleInputChange("visibility_mode", "manual");
+  };
+
+  const handleSubscriptionTierChange = (e) => {
+    const { value } = e.target;
+    console.log(" Changing subscription tier to:", value);
+    handleInputChange("subscription_tier", value);
   };
 
   const isManualMode = form.visibility_mode === 'manual';
@@ -33,7 +40,7 @@ export default function AdminVisibilitySection({
           id="subscription_tier"
           name="subscription_tier"
           value={form.subscription_tier || SUBSCRIPTION_TIER.VAKA}
-          onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
+          onChange={handleSubscriptionTierChange}
           className={selectCls}
         >
           <option value={SUBSCRIPTION_TIER.VAKA}>Vaka (Free)</option>
