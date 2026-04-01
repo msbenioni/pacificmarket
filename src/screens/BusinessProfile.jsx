@@ -181,7 +181,12 @@ export default function BusinessProfile() {
       )}
 
       <div className="relative overflow-hidden bg-[#03131f]">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f] to-[#0a1628]" />
+        <img 
+          src="/pacific_logo_banner.png" 
+          alt="Pacific Discovery Network"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0d4f4f]/80 to-[#0a1628]/80" />
 
         <div className="absolute inset-0 hidden items-center justify-center sm:flex">
           <div className="text-center text-white">
