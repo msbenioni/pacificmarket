@@ -47,10 +47,9 @@ export function MobileBannerPreview({
   businessName = "Business Name",
   className = "" 
 }) {
-  // Use same priority logic as getBannerUrl: mobile first, then desktop
-  const displayUrl = (isPersistentMediaUrl(mobileBannerUrl, { allowRootRelative: true }) ||
-                     isPersistentMediaUrl(bannerUrl, { allowRootRelative: true }))
-    ? (mobileBannerUrl || bannerUrl)
+  // For upload preview, prioritize mobile banner specifically
+  const displayUrl = isPersistentMediaUrl(mobileBannerUrl, { allowRootRelative: true })
+    ? mobileBannerUrl
     : null;
 
   return (
