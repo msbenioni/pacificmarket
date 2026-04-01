@@ -62,16 +62,26 @@ export function getBusinessCulturalData(business, userProfile = null) {
     const culturalParsed = dedupe(parseIdentities(culturalInput)).filter(Boolean);
     const languagesParsed = dedupe(parseIdentities(languagesInput)).filter(Boolean);
 
+    // Fallback: if no cultural identity, use country as cultural identity
+    let finalCulturalParsed = culturalParsed;
+    let finalCulturalSource = culturalSource;
+    
+    if (finalCulturalParsed.length === 0 && business?.country) {
+      // Use country as cultural identity fallback
+      finalCulturalParsed = [business.country];
+      finalCulturalSource = "country_fallback";
+    }
+
     return {
-      culturalIdentitiesRaw: culturalParsed,
-      culturalIdentitiesDisplay: culturalParsed,
-      primaryCulturalIdentity: culturalParsed[0] || null,
+      culturalIdentitiesRaw: finalCulturalParsed,
+      culturalIdentitiesDisplay: finalCulturalParsed,
+      primaryCulturalIdentity: finalCulturalParsed[0] || null,
       languagesRaw: languagesParsed,
       languagesDisplay: languagesParsed,
       primaryLanguage: languagesParsed[0] || null,
-      hasCulturalInfo: !!(culturalParsed.length > 0 || languagesParsed.length > 0),
+      hasCulturalInfo: !!(finalCulturalParsed.length > 0 || languagesParsed.length > 0),
       sources: {
-        cultural: culturalSource,
+        cultural: finalCulturalSource,
         languages: languagesSource
       }
     };
