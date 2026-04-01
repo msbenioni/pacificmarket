@@ -728,7 +728,7 @@ export default function BusinessProfileForm({
       }
 
       // Referral validation (only in create mode)
-      if (!form.referred_by_business_id || !form.referred_by_business_id.trim()) {
+      if (!form.referred_by_business_id || (!form.referred_by_business_id.trim() && form.referred_by_business_id !== "none")) {
         fieldErrors.referred_by_business_id = "Please select a referring business or choose 'No referral'";
         if (!firstInvalidField) {
           firstInvalidField = "referred_by_business_id";
