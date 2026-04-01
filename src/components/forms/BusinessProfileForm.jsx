@@ -506,6 +506,22 @@ export default function BusinessProfileForm({
       
       const { businessesData, businessInsightsData } = transformBusinessFormData(form);
 
+      console.log("🔄 Attempting to save business with payload:", {
+        businessId,
+        businessesData,
+        businessInsightsData,
+        files: {
+          logo_file: form.logo_file,
+          banner_file: form.banner_file,
+          mobile_banner_file: form.mobile_banner_file,
+        },
+        removals: {
+          logo_remove: form.logo_remove,
+          banner_remove: form.banner_remove,
+          mobile_banner_remove: form.mobile_banner_remove,
+        },
+      });
+
       const saveResult = await onSave({
         businessId: businessId, // Use the prop
         businessesData,
@@ -520,13 +536,10 @@ export default function BusinessProfileForm({
           banner_remove: form.banner_remove,
           mobile_banner_remove: form.mobile_banner_remove,
         },
-        saveAll,
       });
 
-      // Validate save result and reconcile form state
-      console.log("Save result received:", saveResult);
-      console.log("Save result type:", typeof saveResult);
-      
+      console.log("✅ Save completed successfully:", saveResult);
+
       // Handle normalized result contract
       if (!saveResult) {
         console.error("Save result is falsy:", saveResult);
