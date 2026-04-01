@@ -171,15 +171,16 @@ export default function BusinessProfileForm({
     clearPersistedData,
     hasUnsavedChanges,
     isRestored,
-    metadata,
     markSaveSuccess,
     markSaveFailure,
+    expandedSections,
+    setExpandedSections,
   } = useFormPersistenceV2({
     formKey,
-    initialData: initialFormData,
+    initialData: initialData || BUSINESS_FORM_DEFAULTS,
     mode,
     businessId,
-    onSaveSuccess: () => {
+    onSaveSuccess: (saveResult) => {
       console.log(`✅ Save success handled for ${mode} mode`);
     },
     onSaveFailure: (error) => {
@@ -187,7 +188,6 @@ export default function BusinessProfileForm({
     },
   });
 
-  const [expandedSections, setExpandedSections] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [savingSection, setSavingSection] = useState(null);

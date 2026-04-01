@@ -21,14 +21,13 @@ export function useFormPersistenceV2(options) {
     initialData, 
     mode = 'create', 
     businessId,
-    onSaveSuccess,
-    onSaveFailure
   } = options;
   
   // State management
   const [formData, setFormData] = useState(initialData);
   const [isRestored, setIsRestored] = useState(false);
   const [metadata, setMetadata] = useState(null);
+  const [expandedSections, setExpandedSections] = useState(new Set());
   
   // Refs to prevent duplicate operations
   const initializedRef = useRef(false);
@@ -67,6 +66,7 @@ export function useFormPersistenceV2(options) {
     
     // DEBUG: Check what exists in localStorage for create mode
     if (mode === 'create' && stableFormKey === 'admin_dashboard_business_create_draft') {
+      const { getFormStorageKeys } = require("@/utils/formPersistenceStorage.js");
       const { formData, metadata, baseline, discardMarker } = getFormStorageKeys(stableFormKey);
       console.log(`🔍 DEBUG - Checking localStorage for create form:`);
       console.log(`  - formData key: ${formData}`, localStorage.getItem(formData) ? 'EXISTS' : 'EMPTY');
@@ -90,6 +90,12 @@ export function useFormPersistenceV2(options) {
       setFormData(storedData);
       setIsRestored(true);
       setMetadata(storedMetadata);
+      
+      // Restore expanded sections if they exist in metadata
+      if (storedMetadata.expandedSections) {
+        console.log(`📂 Restored expanded sections:`, storedMetadata.expandedSections);
+        setExpandedSections(new Set(storedMetadata.expandedSections));
+      }
       
       // Auto-hide restore notification after 5 seconds
       setTimeout(() => setIsRestored(false), 5000);
@@ -142,6 +148,7 @@ export function useFormPersistenceV2(options) {
     const metadata = {
       mode,
       businessId,
+      expandedSections: Array.from(expandedSections),
     };
     
     saveFormData(stableFormKey, formData, metadata);
@@ -261,6 +268,8 @@ export function useFormPersistenceV2(options) {
     // Form state
     formData,
     setFormData,
+    expandedSections,
+    setExpandedSections,
     
     // Form updates
     updateFormData,
