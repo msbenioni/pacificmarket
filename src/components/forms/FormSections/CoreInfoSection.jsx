@@ -1,5 +1,4 @@
 import { generateBusinessHandle } from "@/utils/businessHandleGenerator";
-import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 export default function CoreInfoSection({ 
   form, 
@@ -92,25 +91,6 @@ export default function CoreInfoSection({
           <option value="other">Other</option>
         </select>
       </div>
-
-      {/* Admin-only subscription tier field */}
-      {showAdminFields && (
-        <div>
-          <label className={labelCls}>Subscription Tier (Admin Only)</label>
-          <select
-            value={form.subscription_tier || SUBSCRIPTION_TIER.VAKA}
-            onChange={(e) => handleInputChange("subscription_tier", e.target.value)}
-            className={selectCls}
-          >
-            <option value={SUBSCRIPTION_TIER.VAKA}>Vaka (Starter)</option>
-            <option value={SUBSCRIPTION_TIER.MANA}>Mana (Professional)</option>
-            <option value={SUBSCRIPTION_TIER.MOANA}>Moana (Premium)</option>
-          </select>
-          <p className="text-xs text-gray-500 mt-1">
-            Change the business subscription tier. This affects branding features and visibility.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
