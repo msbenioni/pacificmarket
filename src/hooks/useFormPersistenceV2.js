@@ -21,6 +21,8 @@ export function useFormPersistenceV2(options) {
     initialData, 
     mode = 'create', 
     businessId,
+    onSaveSuccess,
+    onSaveFailure,
   } = options;
   
   // State management
