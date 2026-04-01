@@ -34,8 +34,20 @@ export default function CreateBusinessPage() {
         console.log("📝 Found draft data, showing form automatically");
         console.log("📊 Draft data keys:", Object.keys(storedData));
         setShowForm(true);
+        
+        // Set a flag in sessionStorage to remember user was on create page
+        sessionStorage.setItem('pdn_create_page_active', 'true');
       } else {
         console.log("📭 No draft data, form hidden by default");
+        
+        // Check if user was previously on create page (even without draft)
+        const wasOnCreatePage = sessionStorage.getItem('pdn_create_page_active') === 'true';
+        if (wasOnCreatePage) {
+          console.log("📍 User was previously on create page, showing form");
+          setShowForm(true);
+        } else {
+          setShowForm(false);
+        }
       }
     } catch (error) {
       console.error("❌ Error checking for draft data:", error);
@@ -52,6 +64,9 @@ export default function CreateBusinessPage() {
       // TODO: replace with your real create action
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
+      // Clear the create page flag since user successfully created a business
+      sessionStorage.removeItem('pdn_create_page_active');
+      
       router.push("/AdminDashboard");
     } catch (error) {
       console.error("Error creating business:", error);
@@ -66,6 +81,9 @@ export default function CreateBusinessPage() {
   };
 
   const handleShowForm = () => {
+    // Set flag to remember user is on create page
+    sessionStorage.setItem('pdn_create_page_active', 'true');
+    
     // First check if there's draft data
     const formKey = generateFormKey({ mode: "create" });
     const { data: storedData } = loadFormData(formKey);
