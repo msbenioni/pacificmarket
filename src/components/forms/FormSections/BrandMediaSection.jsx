@@ -4,6 +4,7 @@ import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { useMediaState } from "@/hooks/useMediaState";
 import { DesktopBannerPreview, MobileBannerPreview } from "./BannerPreviews";
 import { getBannerHelpText, getBannerGuideText } from "@/constants/bannerDimensions";
+import ImagePreview from "./ImagePreview";
 
 export default function BrandMediaSection({
   form,
@@ -263,6 +264,7 @@ export default function BrandMediaSection({
               onFileChange={(e) => handleFileUpload(e, "logo")}
               onRemove={() => removeImage("logo")}
               helpText="200×200px recommended"
+              uploadedFile={form.logo_file}
             />
 
             {/* Desktop Banner Upload */}
@@ -281,6 +283,7 @@ export default function BrandMediaSection({
               bannerType="desktop"
               desktopBannerUrl={bannerMediaState.displayUrl}
               mobileBannerUrl={mobileBannerMediaState.displayUrl}
+              uploadedFile={form.banner_file}
             />
 
             {/* Mobile Banner Upload */}
@@ -299,6 +302,7 @@ export default function BrandMediaSection({
               bannerType="mobile"
               desktopBannerUrl={bannerMediaState.displayUrl}
               mobileBannerUrl={mobileBannerMediaState.displayUrl}
+              uploadedFile={form.mobile_banner_file}
             />
           </div>
         </div>
@@ -323,6 +327,7 @@ function UploadCard({
   bannerType = null, // 'desktop' | 'mobile' | 'featured' | null
   desktopBannerUrl = null,
   mobileBannerUrl = null,
+  uploadedFile = null, // Add the actual file for better preview
 }) {
   const hasImage = !!displayUrl && !isMarkedForRemoval;
 
@@ -391,7 +396,16 @@ function UploadCard({
       <div className="space-y-3">
         {hasImage ? (
           <div className="relative inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-            {bannerType === 'desktop' ? (
+            {uploadedFile && uploadedFile instanceof File ? (
+              // Show uploaded file preview directly
+              <ImagePreview 
+                file={uploadedFile}
+                label={label}
+                className={bannerType === 'desktop' ? "!h-32 !w-64" : bannerType === 'mobile' ? "!h-24 !w-48 !rounded-t-[12px]" : imageClassName}
+                bannerType={bannerType}
+                businessName={businessName}
+              />
+            ) : bannerType === 'desktop' ? (
               <>
                 {console.log("🔍 UploadCard desktop:", { desktopBannerUrl, displayUrl, businessName })}
                 <DesktopBannerPreview 
