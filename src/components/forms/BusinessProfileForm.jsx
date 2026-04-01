@@ -15,7 +15,7 @@ import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
 import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults";
-import { useFormWithPersistence, useFormRestore } from "@/hooks/useFormPersistence";
+import { useFormWithPersistence, useFormRestore } from "@/hooks/useTabPersistenceWarning";
 
 // Helper function to generate business handle from name
 function slugifyHandle(value = "") {
