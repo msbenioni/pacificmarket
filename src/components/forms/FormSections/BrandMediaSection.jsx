@@ -62,83 +62,86 @@ export default function BrandMediaSection({
 
   return (
     <div className="space-y-6">
-      {/* Plan Info */}
-      <div
-        className={`rounded-2xl border p-4 sm:p-5 ${
-          isVaka
-            ? "border-blue-200 bg-blue-50"
-            : "border-emerald-200 bg-emerald-50"
-        }`}
-      >
-        <div className="flex items-start gap-3">
-          <Info
-            className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-              isVaka ? "text-blue-600" : "text-emerald-600"
-            }`}
-          />
-          <div className="text-sm">
-            <h4
-              className={`mb-2 font-semibold ${
-                isVaka ? "text-blue-900" : "text-emerald-900"
+      {/* Plan Info and Image Guide Side by Side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Plan Info */}
+        <div
+          className={`rounded-2xl border p-4 sm:p-5 ${
+            isVaka
+              ? "border-blue-200 bg-blue-50"
+              : "border-emerald-200 bg-emerald-50"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <Info
+              className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
+                isVaka ? "text-blue-600" : "text-emerald-600"
               }`}
-            >
-              {isVaka ? "Starter branding included" : "Custom branding enabled"}
-            </h4>
+            />
+            <div className="text-sm">
+              <h4
+                className={`mb-2 font-semibold ${
+                  isVaka ? "text-blue-900" : "text-emerald-900"
+                }`}
+              >
+                {isVaka ? "Starter branding included" : "Custom branding enabled"}
+              </h4>
 
-            {isVaka ? (
-              <div className="space-y-1 text-blue-800">
-                <p>
-                  We automatically create a professional starter logo and banner
-                  set for your business so your profile looks polished from day
-                  one.
-                </p>
-                <p>
-                  Upgrade to <strong>Mana</strong> or <strong>Moana</strong> to
-                  upload your own custom branding.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-1 text-emerald-800">
-                <p>
-                  Upload your own logo and banners to fully match your brand
-                  across your profile, cards, and featured sections.
-                </p>
-                <p>
-                  Until you upload your own images, your starter branding can be
-                  used as a fallback.
-                </p>
-              </div>
-            )}
+              {isVaka ? (
+                <div className="space-y-1 text-blue-800">
+                  <p>
+                    We automatically create a professional starter logo and banner
+                    set for your business so your profile looks polished from day
+                    one.
+                  </p>
+                  <p>
+                    Upgrade to <strong>Mana</strong> or <strong>Moana</strong> to
+                    upload your own custom branding.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1 text-emerald-800">
+                  <p>
+                    Upload your own logo and banners to fully match your brand
+                    across your profile, cards, and featured sections.
+                  </p>
+                  <p>
+                    Until you upload your own images, your starter branding can be
+                    used as a fallback.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Image Guide */}
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-        <div className="flex items-start gap-3">
-          <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-600" />
-          <div className="text-sm">
-            <h4 className="mb-2 font-semibold text-slate-900">
-              Image upload guide
-            </h4>
-            <div className="space-y-1 text-slate-700">
-              <p>
-                <strong>Logo:</strong> 200×200px
-              </p>
-              <p>
-                <strong>Desktop banner:</strong> 1200×300px
-              </p>
-              <p>
-                <strong>Mobile banner:</strong> 400×160px
-              </p>
-              <p className="pt-1 text-xs text-slate-500">
-                PNG or JPG up to 5MB
-              </p>
-              <p className="pt-1 text-xs text-slate-500">
-                {isVaka
-                  ? "These sizes are used for your starter branding."
-                  : "For best results, upload images close to these sizes."}
-              </p>
+        {/* Image Guide */}
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-600" />
+            <div className="text-sm">
+              <h4 className="mb-2 font-semibold text-slate-900">
+                Image upload guide
+              </h4>
+              <div className="space-y-1 text-slate-700">
+                <p>
+                  <strong>Logo:</strong> 200×200px
+                </p>
+                <p>
+                  <strong>Desktop banner:</strong> 1200×300px
+                </p>
+                <p>
+                  <strong>Mobile banner:</strong> 400×160px
+                </p>
+                <p className="pt-1 text-xs text-slate-500">
+                  PNG or JPG up to 5MB
+                </p>
+                <p className="pt-1 text-xs text-slate-500">
+                  {isVaka
+                    ? "These sizes are used for your starter branding."
+                    : "For best results, upload images close to these sizes."}
+                </p>
+              </div>
             </div>
           </div>
         </div>
