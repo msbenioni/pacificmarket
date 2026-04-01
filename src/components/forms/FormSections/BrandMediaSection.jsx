@@ -392,18 +392,24 @@ function UploadCard({
         {hasImage ? (
           <div className="relative inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
             {bannerType === 'desktop' ? (
-              <DesktopBannerPreview 
-                bannerUrl={desktopBannerUrl}
-                businessName={businessName}
-                className="!h-32 !w-64"
-              />
+              <>
+                {console.log("🔍 UploadCard desktop:", { desktopBannerUrl, displayUrl, businessName })}
+                <DesktopBannerPreview 
+                  bannerUrl={desktopBannerUrl}
+                  businessName={businessName}
+                  className="!h-32 !w-64"
+                />
+              </>
             ) : bannerType === 'mobile' ? (
-              <MobileBannerPreview 
-                bannerUrl={desktopBannerUrl}
-                mobileBannerUrl={mobileBannerUrl}
-                businessName={businessName}
-                className="!h-24 !w-48 !rounded-t-[12px]"
-              />
+              <>
+                {console.log("🔍 UploadCard mobile:", { mobileBannerUrl, displayUrl, businessName })}
+                <MobileBannerPreview 
+                  bannerUrl={desktopBannerUrl}
+                  mobileBannerUrl={mobileBannerUrl}
+                  businessName={businessName}
+                  className="!h-24 !w-48 !rounded-t-[12px]"
+                />
+              </>
             ) : (
               <img
                 src={displayUrl}

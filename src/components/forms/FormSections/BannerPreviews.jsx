@@ -13,6 +13,9 @@ export function DesktopBannerPreview({
   businessName = "Business Name",
   className = "" 
 }) {
+  // Debug logging to see what URL we're getting
+  console.log("🖼️ DesktopBannerPreview:", { bannerUrl, businessName });
+  
   // Show uploaded banner if exists, otherwise show fallback
   const hasBanner = isPersistentMediaUrl(bannerUrl, { allowRootRelative: false });
 
@@ -47,6 +50,9 @@ export function MobileBannerPreview({
   businessName = "Business Name",
   className = "" 
 }) {
+  // Debug logging to see what URLs we're getting
+  console.log("📱 MobileBannerPreview:", { bannerUrl, mobileBannerUrl, businessName });
+  
   // Show uploaded mobile banner if exists, otherwise show fallback
   const displayUrl = isPersistentMediaUrl(mobileBannerUrl, { allowRootRelative: false })
     ? mobileBannerUrl
