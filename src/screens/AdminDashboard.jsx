@@ -64,6 +64,7 @@ export default function AdminDashboard() {
     businesses,
     setBusinesses: () => {}, // This will be handled by the hook internally
     editingBusinessId,
+    setEditingBusinessId,
     setDraftBusiness,
     cancelEditingBusiness,
     resetCreateForm,
