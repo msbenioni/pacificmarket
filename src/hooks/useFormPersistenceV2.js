@@ -9,45 +9,13 @@ import {
   markFormAsDiscarded,
   FormMetadata 
 } from '@/utils/formPersistenceStorage';
-import { generateFormKey, FormKeyOptions } from '@/utils/formPersistenceKeys';
-
-export interface UseFormPersistenceV2Options {
-  formKey: string;
-  initialData: any;
-  mode?: 'create' | 'edit';
-  businessId?: string;
-  onSaveSuccess?: () => void;
-  onSaveFailure?: (error: any) => void;
-}
-
-export interface UseFormPersistenceV2Return {
-  // Form state
-  formData: any;
-  setFormData: (data: any) => void;
-  
-  // Form updates
-  updateFormData: (updates: any) => void;
-  updateField: (field: string, value: any) => void;
-  
-  // Persistence control
-  discardDraft: () => void;
-  clearPersistedData: () => void;
-  
-  // State queries
-  hasUnsavedChanges: () => boolean;
-  isRestored: boolean;
-  metadata: FormMetadata | null;
-  
-  // Actions
-  markSaveSuccess: () => void;
-  markSaveFailure: (error: any) => void;
-}
+import { generateFormKey } from '@/utils/formPersistenceKeys';
 
 /**
  * Consolidated form persistence hook
  * Single source of truth for all form persistence behavior
  */
-export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseFormPersistenceV2Return {
+export function useFormPersistenceV2(options) {
   const { 
     formKey, 
     initialData, 
@@ -58,9 +26,9 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
   } = options;
   
   // State management
-  const [formData, setFormData] = useState<any>(initialData);
+  const [formData, setFormData] = useState(initialData);
   const [isRestored, setIsRestored] = useState(false);
-  const [metadata, setMetadata] = useState<FormMetadata | null>(null);
+  const [metadata, setMetadata] = useState(null);
   
   // Refs to prevent duplicate operations
   const initializedRef = useRef(false);
@@ -79,7 +47,7 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
         throw new Error('businessId is required for edit mode');
       }
       
-      const keyOptions: FormKeyOptions = { mode, businessId: businessId || undefined };
+      const keyOptions = { mode, businessId: businessId || undefined };
       const key = generateFormKey(keyOptions);
       
       console.log(`🔑 Generated stable form key: ${key} (mode: ${mode}, businessId: ${businessId})`);
@@ -149,7 +117,7 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
       return;
     }
     
-    const metadata: Partial<FormMetadata> = {
+    const metadata = {
       mode,
       businessId,
     };
@@ -159,13 +127,13 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
   }, [formData, stableFormKey, initialData, isRestored, mode, businessId]);
   
   // Update form data
-  const updateFormData = useCallback((updates: any) => {
-    setFormData((prev: any) => ({ ...prev, ...updates }));
+  const updateFormData = useCallback((updates) => {
+    setFormData((prev) => ({ ...prev, ...updates }));
   }, []);
   
   // Update specific field
-  const updateField = useCallback((field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  const updateField = useCallback((field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
   
   // Check if form has unsaved changes
@@ -237,7 +205,7 @@ export function useFormPersistenceV2(options: UseFormPersistenceV2Options): UseF
   }, [stableFormKey, clearPersistedData, onSaveSuccess]);
   
   // Mark save failure
-  const markSaveFailure = useCallback((error: any) => {
+  const markSaveFailure = useCallback((error) => {
     console.log(`❌ Marking save failure for ${stableFormKey}:`, error);
     // Don't clear data on failure - keep the draft
     onSaveFailure?.(error);
