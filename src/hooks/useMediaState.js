@@ -22,13 +22,18 @@ export function useMediaState({ file, persistedUrl, removeFlag = false }) {
       return;
     }
 
-    if (file) {
-      // Create object URL for local file preview
-      const newUrl = URL.createObjectURL(file);
-      setPreviewUrl(newUrl);
-      
-      // Cleanup function to revoke object URL
-      return () => URL.revokeObjectURL(newUrl);
+    if (file && file instanceof File) {
+      try {
+        // Create object URL for local file preview
+        const newUrl = URL.createObjectURL(file);
+        setPreviewUrl(newUrl);
+        
+        // Cleanup function to revoke object URL
+        return () => URL.revokeObjectURL(newUrl);
+      } catch (error) {
+        console.error("Failed to create object URL for file:", error);
+        setPreviewUrl("");
+      }
     } else {
       // Use persisted/starter URL if no local file and not marked for removal
       const displayUrl = isPersistentMediaUrl(persistedUrl, { allowRootRelative: true })
