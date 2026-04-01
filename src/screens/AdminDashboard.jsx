@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
@@ -21,7 +21,7 @@ import { useAdminClaimActions } from "@/hooks/admin/useAdminClaimActions";
  * - Renders the main dashboard content
  */
 
-export default function AdminDashboard() {
+function AdminDashboardWithSearchParams() {
   const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -139,5 +139,13 @@ export default function AdminDashboard() {
       />
       {DialogComponent}
     </>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div>Loading admin dashboard...</div>}>
+      <AdminDashboardWithSearchParams />
+    </Suspense>
   );
 }
