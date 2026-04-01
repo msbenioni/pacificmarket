@@ -74,12 +74,12 @@ export function useFormPersistenceV2(options) {
       console.log(`  - baseline key: ${baseline}`, localStorage.getItem(baseline) ? 'EXISTS' : 'EMPTY');
       console.log(`  - discardMarker key: ${discardMarker}`, localStorage.getItem(discardMarker) ? 'EXISTS' : 'EMPTY');
       
-      // If there's old data but no discard marker, it might be from before our fix
-      // Force clear it to ensure clean state
-      if (localStorage.getItem(formData) && !localStorage.getItem(discardMarker)) {
-        console.log(`🧹 DETECTED OLD CREATE DATA - Force clearing to ensure clean state`);
+      // Only force clear if there's data but no metadata (indicates very old data from before our fix)
+      // If metadata exists, it's a legitimate draft from our current system
+      if (localStorage.getItem(formData) && !localStorage.getItem(metadata)) {
+        console.log(`🧹 DETECTED LEGACY CREATE DATA (no metadata) - Force clearing to ensure clean state`);
         clearAllFormPersistence(stableFormKey);
-        console.log(`✅ Old create data force cleared`);
+        console.log(`✅ Legacy create data force cleared`);
       }
     }
     
@@ -135,6 +135,7 @@ export function useFormPersistenceV2(options) {
     
     // Don't save if data equals initial data and no previous draft existed
     if (!isRestored && JSON.stringify(formData) === JSON.stringify(initialData)) {
+      console.log(`🚫 Autosave skipped: form equals initial data and no previous draft`);
       return;
     }
     
@@ -144,7 +145,7 @@ export function useFormPersistenceV2(options) {
     };
     
     saveFormData(stableFormKey, formData, metadata);
-    console.log(`💾 Auto-saved form data for ${stableFormKey}`);
+    console.log(`💾 Auto-saved form data for ${stableFormKey} (mode: ${mode})`);
   }, [formData, stableFormKey, initialData, isRestored, mode, businessId]);
   
   // Update form data
