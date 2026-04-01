@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, ExternalLink } from "lucide-react";
 import { BUSINESS_STATUS, getCountryDisplayName, getIndustryDisplayName, getTierDisplayName } from "@/constants/unifiedConstants";
 import { getBadgeStyles } from "@/components/admin/helpers/adminFormatting";
 import { getLogoUrl } from "@/utils/bannerUtils";
@@ -9,7 +9,7 @@ import AdminStatusBadge from "../AdminStatusBadge";
  * Renders a single business row in the desktop table
  */
 
-export default function BusinessTableRow({ business, isEditing, onEdit, onDelete, onApprove, onReject }) {
+export default function BusinessTableRow({ business, isEditing, onEdit, onDelete, onApprove, onReject, onViewProfile }) {
   return (
     <tr className="hover:bg-gray-50">
       <td className="px-4 py-4">
@@ -71,6 +71,14 @@ export default function BusinessTableRow({ business, isEditing, onEdit, onDelete
 
       <td className="px-4 py-4 text-right">
         <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => onViewProfile(business)}
+            className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+          >
+            <ExternalLink className="h-3 w-3" />
+            View Profile
+          </button>
+          
           <button
             onClick={onEdit}
             className="text-blue-600 hover:text-blue-800 text-sm font-medium"

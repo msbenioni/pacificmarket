@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Gift, Users, Clock } from "lucide-react";
+import { CheckCircle, XCircle, Gift, Users, Clock, ExternalLink } from "lucide-react";
 
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import {
@@ -25,6 +25,7 @@ export default function AdminBusinessMobileCard({
   savingEdit,
   onApplyReferralReward,
   applyingReferralReward,
+  onViewProfile,
 }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -132,6 +133,14 @@ export default function AdminBusinessMobileCard({
             </button>
           </>
         )}
+
+        <button
+          onClick={() => onViewProfile(business)}
+          className={`inline-flex min-h-[40px] items-center gap-1 rounded-lg border px-3 py-2 text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-colors`}
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          View Profile
+        </button>
 
         <button
           onClick={onEdit}

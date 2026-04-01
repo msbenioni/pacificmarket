@@ -84,6 +84,10 @@ export default function BusinessesTab({
                 onSave={businessActions.saveBusiness}
                 onCancel={businessActions.cancelEditingBusiness}
                 savingEdit={savingEdit}
+                onViewProfile={(business) => {
+                  // Navigate to the business profile page
+                  window.open(`/BusinessProfile?handle=${business.business_handle || business.id}`, '_blank');
+                }}
               />
             ))}
           </div>
@@ -106,6 +110,10 @@ export default function BusinessesTab({
             savingEdit={savingEdit}
             onApprove={(business) => businessActions.updateStatus(business, "active")}
             onReject={(business) => businessActions.updateStatus(business, "rejected")}
+            onViewProfile={(business) => {
+              // Navigate to the business profile page
+              window.open(`/BusinessProfile?handle=${business.business_handle || business.id}`, '_blank');
+            }}
           />
         </>
       )}

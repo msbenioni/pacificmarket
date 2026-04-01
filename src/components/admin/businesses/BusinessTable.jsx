@@ -18,6 +18,7 @@ export default function BusinessTable({
   savingEdit,
   onApprove,
   onReject,
+  onViewProfile,
 }) {
   return (
     <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white lg:block">
@@ -51,6 +52,7 @@ export default function BusinessTable({
                 onDelete={() => onDelete(business.id)}
                 onApprove={() => onApprove(business)}
                 onReject={() => onReject(business)}
+                onViewProfile={onViewProfile}
               />
               {editingBusinessId === business.id && (
                 <BusinessEditRow
