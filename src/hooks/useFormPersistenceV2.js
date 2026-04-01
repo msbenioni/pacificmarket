@@ -62,12 +62,12 @@ export function useFormPersistenceV2(options) {
     if (initializedRef.current) return;
     initializedRef.current = true;
     
-    console.log(`🔧 Initializing form persistence for ${stableFormKey}`);
+    console.log(`🔧 Initializing form persistence for ${stableFormKey} (mode: ${mode})`);
     
     const { data: storedData, metadata: storedMetadata, isRestored: wasRestored } = loadFormData(stableFormKey);
     
     if (wasRestored && storedData) {
-      console.log(`📝 Restored form data for ${stableFormKey}`);
+      console.log(`📝 Restored form data for ${stableFormKey} (mode: ${mode})`);
       setFormData(storedData);
       setIsRestored(true);
       setMetadata(storedMetadata);
@@ -75,7 +75,7 @@ export function useFormPersistenceV2(options) {
       // Auto-hide restore notification after 5 seconds
       setTimeout(() => setIsRestored(false), 5000);
     } else {
-      console.log(`🆕 Using initial data for ${stableFormKey}`);
+      console.log(`🆕 Using clean initial data for ${stableFormKey} (mode: ${mode})`);
       setFormData(initialData);
       setIsRestored(false);
       setMetadata(null);
@@ -84,10 +84,13 @@ export function useFormPersistenceV2(options) {
     // Set baseline after initialization
     if (!baselineSetRef.current) {
       baselineSetRef.current = true;
-      const baselineData = wasRestored && storedData ? storedData : initialData;
+      // For create mode, always use clean initial data as baseline
+      // For edit mode, use restored data or initial data
+      const baselineData = mode === 'create' ? initialData : (wasRestored && storedData ? storedData : initialData);
       saveBaselineData(stableFormKey, baselineData);
+      console.log(`📊 Baseline set for ${stableFormKey} (mode: ${mode})`);
     }
-  }, [stableFormKey, initialData]);
+  }, [stableFormKey, initialData, mode]);
   
   // Auto-save form data changes
   useEffect(() => {
@@ -140,39 +143,63 @@ export function useFormPersistenceV2(options) {
     return checkUnsavedChanges(stableFormKey, formData);
   }, [stableFormKey, formData]);
   
-  // Discard draft (cancel behavior)
-  const discardDraft = useCallback(() => {
-    console.log(`🗑️ DISCARD DRAFT STARTED for ${stableFormKey}`);
+  // Discard draft (cancel behavior) - async for proper cleanup
+  const discardDraft = useCallback(async () => {
+    console.log(`🗑️ DISCARD DRAFT STARTED for ${stableFormKey} (mode: ${mode})`);
     
     // Set discard flag to suppress autosave
     isDiscardingRef.current = true;
     
-    // Mark as discarded to prevent immediate restore
-    markFormAsDiscarded(stableFormKey);
-    console.log(`✅ Discard marker set for ${stableFormKey}`);
+    // For CREATE mode: permanent deletion of all persistence data
+    if (mode === 'create') {
+      console.log(`🔥 CREATE MODE: Performing permanent deletion of all persistence data`);
+      
+      // Clear ALL persistence data (including discard marker) - this is authoritative
+      clearAllFormPersistence(stableFormKey);
+      console.log(`✅ ALL persistence data permanently deleted for create form ${stableFormKey}`);
+      
+      // Reset form to clean initial data
+      setFormData(initialData);
+      setIsRestored(false);
+      setMetadata(null);
+      console.log(`✅ Create form state reset to clean initial data`);
+      
+      // Reset baseline to clean initial data
+      saveBaselineData(stableFormKey, initialData);
+      console.log(`✅ Create baseline reset to clean initial data`);
+      
+    } else {
+      // For EDIT mode: use discard marker for race condition protection
+      console.log(`🔧 EDIT MODE: Using discard marker for race protection`);
+      
+      // Mark as discarded to prevent immediate restore
+      markFormAsDiscarded(stableFormKey);
+      console.log(`✅ Discard marker set for edit form ${stableFormKey}`);
+      
+      // Clear draft data ONLY (preserves discard marker for race protection)
+      clearDraftData(stableFormKey);
+      console.log(`✅ Edit draft data cleared (discard marker preserved)`);
+      
+      // Reset form to initial data
+      setFormData(initialData);
+      setIsRestored(false);
+      setMetadata(null);
+      console.log(`✅ Edit form state reset`);
+      
+      // Reset baseline
+      saveBaselineData(stableFormKey, initialData);
+      console.log(`✅ Edit baseline reset`);
+    }
     
-    // Clear draft data ONLY (preserves discard marker)
-    clearDraftData(stableFormKey);
-    console.log(`✅ Draft data cleared for ${stableFormKey} (discard marker preserved)`);
+    // Wait a moment to ensure cleanup is complete before navigation
+    await new Promise(resolve => setTimeout(resolve, 100));
     
-    // Reset form to initial data
-    setFormData(initialData);
-    setIsRestored(false);
-    setMetadata(null);
-    console.log(`✅ Form state reset for ${stableFormKey}`);
-    
-    // Reset baseline
-    saveBaselineData(stableFormKey, initialData);
-    console.log(`✅ Baseline reset for ${stableFormKey}`);
-    
-    // Clear discard flag after a short delay
-    setTimeout(() => {
-      isDiscardingRef.current = false;
-      console.log(`🔓 Discard flag cleared for ${stableFormKey}`);
-    }, 1000);
+    // Clear discard flag
+    isDiscardingRef.current = false;
+    console.log(`🔓 Discard flag cleared for ${stableFormKey}`);
     
     console.log(`🎉 DRAFT DISCARD COMPLETED for ${stableFormKey}`);
-  }, [stableFormKey, initialData]);
+  }, [stableFormKey, initialData, mode]);
   
   // Clear persisted data (after successful save)
   const clearPersistedData = useCallback(() => {

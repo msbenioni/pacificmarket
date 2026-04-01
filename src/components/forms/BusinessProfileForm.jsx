@@ -823,13 +823,20 @@ export default function BusinessProfileForm({
   });
 
   // Handle cancel with confirmation for unsaved changes
-  const handleCancel = () => {
+  const handleCancel = async () => {
     console.log(`❌ Cancel clicked. Has unsaved: ${hasUnsavedChanges()}`);
     if (hasUnsavedChanges()) {
       if (confirm("You have unsaved changes. Are you sure you want to cancel? Your draft will be discarded.")) {
         console.log(`🗑️ Discarding draft for ${mode} mode`);
-        discardDraft();
-        onCancel();
+        try {
+          await discardDraft();
+          console.log(`✅ Draft discard completed, navigating away`);
+          onCancel();
+        } catch (error) {
+          console.error(`❌ Error during discard:`, error);
+          // Still navigate even if discard fails
+          onCancel();
+        }
       }
     } else {
       console.log(`🗑️ No unsaved changes, proceeding with cancel`);
