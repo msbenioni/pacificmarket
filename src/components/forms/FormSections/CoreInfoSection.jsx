@@ -20,36 +20,56 @@ export default function CoreInfoSection({
     }
   };
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div>
-        <label className={labelCls}>Business Name *</label>
-        <input
-          type="text"
-          value={form.business_name || ""}
-          onChange={(e) => handleNameChange(e.target.value)}
-          className={`${inputCls} ${fieldErrors.business_name ? 'border-red-500 focus:border-red-500' : ''}`}
-          placeholder="Enter your business name"
-          required
-        />
-        {fieldErrors.business_name && (
-          <p className="mt-1 text-xs text-red-600">{fieldErrors.business_name}</p>
-        )}
+    <div className="space-y-4 sm:space-y-6">
+      {/* First Row: Business Name, Handle, Role */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label className={labelCls}>Business Name *</label>
+          <input
+            type="text"
+            value={form.business_name || ""}
+            onChange={(e) => handleNameChange(e.target.value)}
+            className={`${inputCls} ${fieldErrors.business_name ? 'border-red-500 focus:border-red-500' : ''}`}
+            placeholder="Enter your business name"
+            required
+          />
+          {fieldErrors.business_name && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.business_name}</p>
+          )}
+        </div>
+
+        <div>
+          <label className={labelCls}>Business Handle</label>
+          <input
+            type="text"
+            value={form.business_handle || ""}
+            onChange={(e) => handleInputChange("business_handle", e.target.value)}
+            className={`${inputCls} ${fieldErrors.business_handle ? 'border-red-500 focus:border-red-500' : ''}`}
+            placeholder="unique-business-handle"
+          />
+          {fieldErrors.business_handle && (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.business_handle}</p>
+          )}
+        </div>
+
+        <div>
+          <label className={labelCls}>Your Role</label>
+          <select
+            value={form.role || ""}
+            onChange={(e) => handleInputChange("role", e.target.value)}
+            className={selectCls}
+          >
+            <option value="">Select your role</option>
+            <option value="owner">Business Owner</option>
+            <option value="manager">Manager</option>
+            <option value="employee">Employee</option>
+            <option value="partner">Partner</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
       </div>
 
-      <div>
-        <label className={labelCls}>Business Handle</label>
-        <input
-          type="text"
-          value={form.business_handle || ""}
-          onChange={(e) => handleInputChange("business_handle", e.target.value)}
-          className={`${inputCls} ${fieldErrors.business_handle ? 'border-red-500 focus:border-red-500' : ''}`}
-          placeholder="unique-business-handle"
-        />
-        {fieldErrors.business_handle && (
-          <p className="mt-1 text-xs text-red-600">{fieldErrors.business_handle}</p>
-        )}
-      </div>
-
+      {/* Second Row: Tagline (full width) */}
       <div>
         <label className={labelCls}>Tagline</label>
         <input
@@ -61,6 +81,7 @@ export default function CoreInfoSection({
         />
       </div>
 
+      {/* Third Row: Description (full width) */}
       <div>
         <label className={labelCls}>Business Description *</label>
         <textarea
@@ -74,22 +95,6 @@ export default function CoreInfoSection({
         {fieldErrors.description && (
           <p className="mt-1 text-xs text-red-600">{fieldErrors.description}</p>
         )}
-      </div>
-
-      <div>
-        <label className={labelCls}>Your Role</label>
-        <select
-          value={form.role || ""}
-          onChange={(e) => handleInputChange("role", e.target.value)}
-          className={selectCls}
-        >
-          <option value="">Select your role</option>
-          <option value="owner">Business Owner</option>
-          <option value="manager">Manager</option>
-          <option value="employee">Employee</option>
-          <option value="partner">Partner</option>
-          <option value="other">Other</option>
-        </select>
       </div>
     </div>
   );
