@@ -35,6 +35,25 @@ const inferFileExtension = (file) => {
   return "bin";
 };
 
+const inferContentType = (file) => {
+  // Use file.type if available, otherwise infer from extension
+  if (file?.type && file.type !== "") {
+    return file.type;
+  }
+  
+  const extension = inferFileExtension(file);
+  const contentTypeMap = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'webp': 'image/webp',
+    'svg': 'image/svg+xml',
+    'gif': 'image/gif',
+  };
+  
+  return contentTypeMap[extension] || 'application/octet-stream';
+};
+
 export const sanitizeBusinessMediaPayload = (
   payload = {},
   { allowRootRelative = false } = {}
@@ -77,7 +96,7 @@ export const uploadBusinessMediaFile = async ({ supabase, businessId, field, fil
     .upload(filePath, file, {
       upsert: true,
       cacheControl: "3600",
-      contentType: file?.type,
+      contentType: inferContentType(file),
     });
 
   if (uploadError) {
