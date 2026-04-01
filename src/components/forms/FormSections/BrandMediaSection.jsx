@@ -452,15 +452,6 @@ function UploadCard({
             {statusInfo.detail ? (
               <p className="text-xs text-slate-500">{statusInfo.detail}</p>
             ) : null}
-
-            {/* Upload/Replace Button */}
-            <label
-              htmlFor={inputId}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-              <Upload className="h-4 w-4" />
-              {hasImage ? `Choose new ${label.toLowerCase()}` : `Upload ${label.toLowerCase()}`}
-            </label>
           </div>
         )}
       </div>
