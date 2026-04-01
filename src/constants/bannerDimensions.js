@@ -48,7 +48,7 @@ export const BANNER_DIMENSIONS = {
 // Helper function to get consistent help text
 export const getBannerHelpText = (type) => {
   const dimensions = type === 'desktop' ? BANNER_DIMENSIONS.DESKTOP : BANNER_DIMENSIONS.MOBILE;
-  return `${dimensions.recommendedSize} recommended. Preview below shows how it will crop on site.`;
+  return `${dimensions.recommendedSize} recommended.`;
 };
 
 // Helper function to get consistent guide text
