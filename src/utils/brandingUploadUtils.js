@@ -36,7 +36,7 @@ const inferFileExtension = (file) => {
 };
 
 const inferContentType = (file) => {
-  // Use file.type if available, otherwise infer from extension
+  // Use file.type if available and not empty, otherwise infer from extension
   if (file?.type && file.type !== "") {
     return file.type;
   }
@@ -50,6 +50,11 @@ const inferContentType = (file) => {
     'svg': 'image/svg+xml',
     'gif': 'image/gif',
   };
+  
+  // If file.type is empty but we have a valid extension, use the mapping
+  if (!file?.type && extension && contentTypeMap[extension]) {
+    return contentTypeMap[extension];
+  }
   
   return contentTypeMap[extension] || 'application/octet-stream';
 };
@@ -90,6 +95,15 @@ export const uploadBusinessMediaFile = async ({ supabase, businessId, field, fil
   const businessSegment = sanitizePathSegment(businessId);
   const extension = inferFileExtension(file);
   const filePath = `${slot.folder}/${businessSegment}-${Date.now()}.${extension}`;
+  
+  // Debug logging to see what we're working with
+  console.log(`🔍 Uploading ${field}:`, {
+    fileName: file?.name,
+    fileType: file?.type,
+    extension,
+    inferredContentType: inferContentType(file),
+    filePath
+  });
 
   const { error: uploadError } = await supabase.storage
     .from(MEDIA_BUCKET)
@@ -100,6 +114,7 @@ export const uploadBusinessMediaFile = async ({ supabase, businessId, field, fil
     });
 
   if (uploadError) {
+    console.error(`❌ Upload failed for ${field}:`, uploadError);
     throw uploadError;
   }
 
