@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/AuthContext";
+import { useEffect, useState } from "react";
 
 /**
  * Hook for admin authentication and access control
@@ -7,8 +7,18 @@ import { useAuth } from "@/lib/AuthContext";
  */
 export function useAdminAccess() {
   const { user, loading: authLoading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('admin-role-verified') === 'true';
+    }
+    return false;
+  });
+  const [checkingAdmin, setCheckingAdmin] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('admin-role-verified') !== 'true';
+    }
+    return true;
+  });
 
   /**
    * Check if the user has admin role in the profiles table
@@ -52,6 +62,9 @@ export function useAdminAccess() {
         setCheckingAdmin(true);
         const adminStatus = await checkIsAdmin(user);
         setIsAdmin(adminStatus);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('admin-role-verified', adminStatus ? 'true' : 'false');
+        }
       } catch (error) {
         console.error("Error checking admin status:", error);
         setIsAdmin(false);

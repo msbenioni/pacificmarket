@@ -15305,3 +15305,161 @@ Standard error response format when a request fails to process.
   "error": "Failed to process natural language prompt"
 }
 ```
+--------------------------------
+
+### Interact After Scraping
+
+Source: https://docs.firecrawl.dev/features/interact
+
+Interact with a page you've already scraped by sending prompts or running code against the live browser session. Enables multi-step workflows like navigating directories, clicking pagination, filling search forms, and extracting data across multiple pages.
+
+#### How It Works
+
+1. Scrape a URL with `POST /v2/scrape`. Response includes `scrapeId` in `data.metadata.scrapeId`.
+2. Interact by calling `POST /v2/scrape/{scrapeId}/interact` with a `prompt` or Playwright `code`.
+3. Stop the session with `DELETE /v2/scrape/{scrapeId}/interact` when done.
+
+#### Endpoints
+- **Execute Interact**: `POST /v2/scrape/{scrapeId}/interact`
+- **Stop Interact**: `DELETE /v2/scrape/{scrapeId}/interact`
+
+#### Quick Start (Node.js)
+
+```javascript
+import Firecrawl from '@mendable/firecrawl-js';
+const firecrawl = new Firecrawl({ apiKey: "fc-YOUR-API-KEY" });
+
+// 1. Scrape a page
+const result = await firecrawl.scrapeUrl("https://www.amazon.com", { formats: ["markdown"] });
+const scrapeId = result.metadata.scrapeId;
+
+// 2. Interact via prompt
+const response = await firecrawl.interact(scrapeId, { prompt: "Search for iPhone 16 Pro Max" });
+console.log(response.output);
+
+// 3. Stop the session
+await firecrawl.stopInteraction(scrapeId);
+```
+
+#### Quick Start (Python)
+
+```python
+from firecrawl import Firecrawl
+app = Firecrawl(api_key="fc-YOUR-API-KEY")
+
+# 1. Scrape a page
+result = app.scrape("https://www.amazon.com", formats=["markdown"])
+scrape_id = result.metadata.scrape_id
+
+# 2. Interact via prompt
+app.interact(scrape_id, prompt="Search for iPhone 16 Pro Max")
+response = app.interact(scrape_id, prompt="Click on the first result and tell me the price")
+print(response.output)
+
+# 3. Stop the session
+app.stop_interaction(scrape_id)
+```
+
+#### Interact via Prompting
+
+```python
+response = app.interact(scrape_id, prompt="What are the customer reviews saying about battery life?")
+print(response.output)
+```
+
+Tip: Keep prompts small and focused for best results.
+
+#### Running Code (Playwright)
+
+A `page` object is available in the session.
+
+**Node.js:**
+```javascript
+response = await firecrawl.interact(scrapeId, {
+  code: 
+    await page.click('#next-page');
+    await page.waitForLoadState('networkidle');
+    const title = await page.title();
+    const content = await page. + "" + $eval('.article-body', el => el.textContent);
+    JSON.stringify({ title, content });
+  
+});
+```
+
+**Python:**
+```python
+response = app.interact(scrape_id, code="""
+    import json
+    await page.click('#load-more')
+    await page.wait_for_load_state('networkidle')
+    items = await page.query_selector_all('.item')
+    data = [await item.text_content() for item in items]
+    print(json.dumps(data))
+""", language="python")
+```
+
+**Bash (agent-browser):**
+```bash
+# Snapshot to see interactive elements
+agent-browser snapshot -i
+# Output: @e1 [input] "Search..." / @e2 [button] "Search"
+# Interact with refs
+agent-browser fill @e1 "firecrawl" && agent-browser click @e2
+```
+
+agent-browser commands: snapshot, click @e1, fill @e1 "text", type @e1 "text", press Enter, scroll down 500, get text @e1, get url, wait @e1, find text "X" click, eval "js code"
+
+#### Persistent Profiles
+
+Use `profile` to persist browser state (cookies, localStorage) across sessions:
+
+```python
+# Session 1: Log in and save state
+result = app.scrape("https://app.example.com/login", formats=["markdown"],
+    profile={"name": "my-app", "save_changes": True})
+scrape_id = result.metadata.scrape_id
+app.interact(scrape_id, prompt="Fill in credentials, then click Login")
+app.stop_interaction(scrape_id)
+
+# Session 2: Already logged in
+result = app.scrape("https://app.example.com/dashboard", formats=["markdown"],
+    profile={"name": "my-app", "save_changes": True})
+```
+
+#### Request Body
+
+| Parameter | Type   | Description                                              |
+|-----------|--------|----------------------------------------------------------|
+| prompt    | string | Natural language instruction (use this OR code)          |
+| code      | string | Playwright/Python/Bash code (use this OR prompt)         |
+| language  | string | "node" (default), "python", or "bash" (only with code)  |
+| timeout   | number | Timeout in seconds (default: 30)                         |
+
+#### Response Fields
+
+| Field                   | Description                                   |
+|-------------------------|-----------------------------------------------|
+| success                 | true if successful                            |
+| liveViewUrl             | URL to watch session                          |
+| interactiveLiveViewUrl  | URL to control session                        |
+| output                  | AI response text (when using prompt)          |
+| stdout                  | Standard output (when using code)             |
+| result                  | Return value (when using code)                |
+| stderr                  | Error output                                  |
+| exitCode                | 0 for success                                 |
+| killed                  | true if session was terminated                |
+
+#### When to Use What
+
+| Feature          | Best For                                          |
+|-----------------|---------------------------------------------------|
+| Search          | Finding URLs across the web                       |
+| Scrape          | Getting content from known URLs (1 credit/page)   |
+| Interact        | Multi-step workflows on a single site             |
+| Browser Sandbox | Full browser automation with CDP                  |
+
+#### Pricing
+
+- **Code-only** (no prompt) — 2 credits per session minute
+- **With AI prompts** — 7 credits per session minute
+- **Scrape** — billed separately (1 credit per scrape)

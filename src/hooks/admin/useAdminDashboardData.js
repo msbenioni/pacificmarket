@@ -1,14 +1,35 @@
-import { useState, useCallback, useEffect } from "react";
 import { getAdminBusinesses } from "@/lib/supabase/queries/businesses";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * Hook for loading and managing admin dashboard data
  * Handles businesses and claims data loading
  */
 export function useAdminDashboardData(user) {
-  const [businesses, setBusinesses] = useState([]);
-  const [claims, setClaims] = useState([]);
-  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [businesses, setBusinesses] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem('admin-businesses');
+        return cached ? JSON.parse(cached) : [];
+      } catch { return []; }
+    }
+    return [];
+  });
+  const [claims, setClaims] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem('admin-claims');
+        return cached ? JSON.parse(cached) : [];
+      } catch { return []; }
+    }
+    return [];
+  });
+  const [dashboardLoading, setDashboardLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !sessionStorage.getItem('admin-businesses');
+    }
+    return true;
+  });
 
   /**
    * Load admin dashboard data from the database
@@ -55,8 +76,16 @@ export function useAdminDashboardData(user) {
         claimsCount: claimsRes.data?.length || 0
       });
 
-      setBusinesses(businessesRes.data || []);
-      setClaims(claimsRes.data || []);
+      const bizData = businessesRes.data || [];
+      const claimsData = claimsRes.data || [];
+      setBusinesses(bizData);
+      setClaims(claimsData);
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem('admin-businesses', JSON.stringify(bizData));
+          sessionStorage.setItem('admin-claims', JSON.stringify(claimsData));
+        } catch { /* sessionStorage full — ignore */ }
+      }
     } catch (error) {
       console.error("❌ Error loading admin data:", error);
       throw error; // Re-throw to let calling components handle the error

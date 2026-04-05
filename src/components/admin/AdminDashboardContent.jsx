@@ -39,7 +39,12 @@ export default function AdminDashboardContent({
   const router = useRouter();
 
   // Local UI state (excluding editing state which is handled by parent)
-  const [activeTab, setActiveTab] = useState("businesses");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('admin-active-tab') || 'businesses';
+    }
+    return 'businesses';
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -64,6 +69,9 @@ export default function AdminDashboardContent({
   // Handle tab change
   const handleTabChange = (newTab) => {
     setActiveTab(newTab);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('admin-active-tab', newTab);
+    }
     businessActions.cancelEditingBusiness();
   };
 
