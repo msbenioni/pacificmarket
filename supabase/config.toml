@@ -1,0 +1,56 @@
+# A string used to distinguish different Supabase projects on the same host.
+project_id = "pacific-discovery-network"
+
+[api]
+# Port to use for the API URL.
+port = 54321
+# Schemas to expose in your API. Tables, views and functions in this schema will get API
+# endpoints. public and storage are always included.
+schemas = ["public", "storage", "graphql_public"]
+# Extra schemas to add to the search_path of every request.
+extra_search_path = ["public", "extensions"]
+# The maximum number of rows returns from a view, table, or function.
+# Limits the number of rows in the result set. Use null for no limit.
+max_rows = 1000
+
+[db]
+# Port to use for the local database URL.
+port = 54322
+# Port used by db diff command to initialize the shadow database.
+shadow_port = 54320
+# The database major version to use. Valid versions are "15" and "16".
+major_version = "15"
+
+[studio]
+# Port to use for Supabase Studio.
+port = 54323
+
+# Email testing server. Emails sent with the local dev setup are not actually sent - 
+# they are displayed in the email testing server UI.
+[inbucket]
+port = 54324
+
+[storage]
+# The maximum file size allowed for image uploads.
+file_size_limit = "5MiB"
+# The allowed MIME types for image uploads.
+allowed_mime_types = ["image/png", "image/jpeg", "image/gif", "image/webp"]
+
+[auth]
+# How long tokens are valid, after which they need to be refreshed.
+jwt_expiry = "3600s"
+# How long tokens are valid, after which they are no longer accepted.
+refresh_token_rotation_enabled = true
+# Allow/disallow new user signups to your project.
+enable_signup = true
+# Allow/disallow anonymous sign-ins to your project.
+enable_anonymous_sign_ins = false
+# Allow/disalllow phone number auth.
+enable_phone_signup = true
+
+[edge_runtime]
+enabled = true
+inspector_port = 8083
+
+[analytics]
+enabled = false

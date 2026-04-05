@@ -1,0 +1,66 @@
+const { FlatCompat } = require('@eslint/eslintrc');
+const js = require('@eslint/js');
+const path = require('path');
+
+const project = path.resolve(__dirname, './jsconfig.json');
+
+const compat = new FlatCompat({
+  baseConfig: js.configs.recommended,
+  resolvePluginsRelativeTo: __dirname,
+});
+
+module.exports = [
+  ...compat.extends('next/core-web-vitals'),
+  {
+    rules: {
+      // React/JSX rules
+      'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
+      
+      // TypeScript rules
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      
+      // General rules
+      'no-console': 'warn',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      
+      // Import rules
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index'
+          ],
+          'newlines-between': 'always'
+        }
+      ]
+    },
+    languageOptions: {
+      ecmaVersion: 2021,
+      sourceType: 'module',
+      globals: {
+        browser: true,
+        es2021: true,
+        node: true
+      }
+    },
+    settings: {
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project
+        }
+      }
+    }
+  }
+];

@@ -1,14 +1,5 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import PortalShell from "@/components/portal/PortalShell";
-import HeroStandard from "@/components/shared/HeroStandard";
-import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import AdminFiltersBar from "@/components/admin/AdminFiltersBar";
 import AdminTabsBar from "@/components/admin/AdminTabsBar";
-import BusinessesTab from "./tabs/BusinessesTab";
-import ClaimsTab from "./tabs/ClaimsTab";
-import PresentationsTab from "./PresentationsTab";
-import EmailMarketingDashboard from "../admindashboard/EmailMarketingDashboard";
 import {
   TABS,
   emptyBusinessForm,
@@ -17,9 +8,19 @@ import {
   primaryButtonCls,
   secondaryButtonCls,
 } from "@/components/admin/constants/adminDashboardConstants";
+import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
+import PortalShell from "@/components/portal/PortalShell";
+import HeroStandard from "@/components/shared/HeroStandard";
 import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
-import { createExecutiveStats } from "@/utils/admin/adminStats";
 import { exportBusinessesToCSV } from "@/utils/admin/adminExport";
+import { createExecutiveStats } from "@/utils/admin/adminStats";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import EmailMarketingDashboard from "../admindashboard/EmailMarketingDashboard";
+import { ClientListManager } from "./ClientListManager";
+import PresentationsTab from "./PresentationsTab";
+import BusinessesTab from "./tabs/BusinessesTab";
+import ClaimsTab from "./tabs/ClaimsTab";
 
 /**
  * Main admin dashboard content component
@@ -36,7 +37,7 @@ export default function AdminDashboardContent({
   showCreateForm = false,
 }) {
   const router = useRouter();
-  
+
   // Local UI state (excluding editing state which is handled by parent)
   const [activeTab, setActiveTab] = useState("businesses");
   const [searchQuery, setSearchQuery] = useState("");
@@ -185,6 +186,8 @@ export default function AdminDashboardContent({
                   claimActions={claimActions}
                 />
               )}
+
+              {activeTab === "client-discovery" && <ClientListManager />}
 
               {activeTab === "presentations" && <PresentationsTab />}
 
