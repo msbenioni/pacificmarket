@@ -17,6 +17,7 @@ import { createExecutiveStats } from "@/utils/admin/adminStats";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import EmailMarketingDashboard from "../admindashboard/EmailMarketingDashboard";
+import SpotlightGenerator from "../social-generator/SpotlightGenerator";
 import { ClientListManager } from "./ClientListManager";
 import PresentationsTab from "./PresentationsTab";
 import BusinessesTab from "./tabs/BusinessesTab";
@@ -200,6 +201,10 @@ export default function AdminDashboardContent({
               {activeTab === "presentations" && <PresentationsTab />}
 
               {activeTab === "email" && <EmailMarketingDashboard />}
+
+              {activeTab === "spotlight" && (
+                <SpotlightGenerator businesses={businesses} />
+              )}
             </div>
           </div>
         </div>

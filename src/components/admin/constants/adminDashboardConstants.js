@@ -1,5 +1,5 @@
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
-import { Building2, Mail, Presentation, Search, Shield } from "lucide-react";
+import { Building2, Mail, Presentation, Search, Shield, Sparkles } from "lucide-react";
 
 export const TABS = [
   {
@@ -34,6 +34,12 @@ export const TABS = [
     label: "Email Marketing",
     icon: Mail,
     color: "text-blue-600",
+  },
+  {
+    id: "spotlight",
+    label: "Spotlight",
+    icon: Sparkles,
+    color: "text-amber-500",
   },
 ];
 
