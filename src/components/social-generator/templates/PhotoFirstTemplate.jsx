@@ -8,7 +8,8 @@ import { Globe, Mail, MapPin } from "lucide-react";
 export default function PhotoFirstTemplate({ data, format = 'square', accentColor = '#0a1628', showBadge = true }) {
   const isPortrait = format === 'portrait';
   const height = isPortrait ? 1350 : 1080;
-  const photoHeight = isPortrait ? 650 : 500;
+  const bannerHeight = isPortrait ? 140 : 120;
+  const photoHeight = isPortrait ? 650 - bannerHeight : 500 - bannerHeight;
 
   return (
     <div
@@ -22,6 +23,56 @@ export default function PhotoFirstTemplate({ data, format = 'square', accentColo
         color: '#ffffff',
       }}
     >
+      {/* PDN Banner Section */}
+      <div style={{
+        height: isPortrait ? 140 : 120,
+        background: 'rgba(0,0,0,0.15)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 60px',
+        position: 'relative',
+        zIndex: 20,
+      }}>
+        {/* PDN Logo */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+        }}>
+          <div style={{
+            width: 180,
+            height: 80,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <img
+              src="/pm_logo.png"
+              alt="Pacific Discovery Network"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              crossOrigin="anonymous"
+            />
+          </div>
+        </div>
+
+        {/* Presents Badge */}
+        <div style={{
+          background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+          padding: '12px 32px',
+          borderRadius: 100,
+          fontSize: 28,
+          fontWeight: 700,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          boxShadow: '0 8px 24px rgba(245, 158, 11, 0.3)',
+          transform: 'rotate(-2deg)',
+        }}>
+          Presents
+        </div>
+      </div>
       {/* Photo / Banner area */}
       <div style={{
         width: '100%',
@@ -182,23 +233,6 @@ export default function PhotoFirstTemplate({ data, format = 'square', accentColo
         </div>
       </div>
 
-      {/* Footer */}
-      {showBadge && (
-        <div style={{
-          padding: '20px 80px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: 'rgba(0,0,0,0.2)',
-        }}>
-          <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '0.05em', opacity: 0.8 }}>
-            PACIFIC DISCOVERY NETWORK
-          </span>
-          <span style={{ fontSize: 16, opacity: 0.6 }}>
-            pacificdiscoverynetwork.com
-          </span>
-        </div>
-      )}
     </div>
   );
 }
