@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
  * Handles checking if the current user has admin privileges
  */
 export function useAdminAccess() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isLoadingAuth: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(() => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('admin-role-verified') === 'true';
@@ -23,7 +23,7 @@ export function useAdminAccess() {
   /**
    * Check if the user has admin role in the profiles table
    */
-  async function checkIsAdmin(user) {
+  const checkIsAdmin = async (user) => {
     if (!user) return false;
 
     try {
@@ -55,15 +55,34 @@ export function useAdminAccess() {
       if (!user) {
         setIsAdmin(false);
         setCheckingAdmin(false);
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('admin-role-verified');
+        }
         return;
       }
 
       try {
+        const cached =
+          typeof window !== 'undefined'
+            ? sessionStorage.getItem('admin-role-verified')
+            : null;
+
+        if (cached === 'true') {
+          setIsAdmin(true);
+          setCheckingAdmin(false);
+          return;
+        }
+
         setCheckingAdmin(true);
+
         const adminStatus = await checkIsAdmin(user);
         setIsAdmin(adminStatus);
+
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem('admin-role-verified', adminStatus ? 'true' : 'false');
+          sessionStorage.setItem(
+            'admin-role-verified',
+            adminStatus ? 'true' : 'false'
+          );
         }
       } catch (error) {
         console.error("Error checking admin status:", error);

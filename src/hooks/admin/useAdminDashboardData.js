@@ -40,8 +40,11 @@ export function useAdminDashboardData(user) {
       return;
     }
 
-    console.log("📋 Loading admin dashboard data...");
-    setDashboardLoading(true);
+    // Only show loading spinner if we don't have cached data already displayed
+    const hasCached = typeof window !== 'undefined' && sessionStorage.getItem('admin-businesses');
+    if (!hasCached) {
+      setDashboardLoading(true);
+    }
 
     try {
       const { getSupabase } = await import("@/lib/supabase/client");

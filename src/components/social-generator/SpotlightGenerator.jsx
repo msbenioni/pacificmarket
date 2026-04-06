@@ -5,14 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { exportToPng } from "@/lib/social-generator/exportSpotlight";
 import { Download, Eye, RefreshCw, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import LogoFirstTemplate from "./templates/LogoFirstTemplate";
-import PhotoFirstTemplate from "./templates/PhotoFirstTemplate";
+import { TEMPLATE_OPTIONS } from "./templateOptions";
+import EditorialSpotlightTemplate from "./templates/EditorialSpotlightTemplate";
+import PromoSpotlightTemplate from "./templates/PromoSpotlightTemplate";
+import StorySpotlightTemplate from "./templates/StorySpotlightTemplate";
 
 // Preset accent colours
 const ACCENT_PRESETS = [
@@ -43,7 +44,7 @@ export default function SpotlightGenerator({ businesses = [] }) {
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const containerWidth = entry.contentRect.width;
-        setPreviewScale(containerWidth / 1080);
+        setPreviewScale(Math.min(containerWidth / 1080, 1));
       }
     });
     observer.observe(container);
@@ -54,10 +55,9 @@ export default function SpotlightGenerator({ businesses = [] }) {
   const [selectedBusinessId, setSelectedBusinessId] = useState("");
 
   // Template settings
-  const [template, setTemplate] = useState("logo-first");
+  const [template, setTemplate] = useState("editorial");
   const [format, setFormat] = useState("square");
   const [accentColor, setAccentColor] = useState("#0a1628");
-  const [showBadge, setShowBadge] = useState(true);
 
   // Editable fields (auto-filled from selected business, user can override)
   const [editData, setEditData] = useState({
@@ -144,7 +144,20 @@ export default function SpotlightGenerator({ businesses = [] }) {
     ...editData,
   };
 
-  const TemplateComponent = template === "photo-first" ? PhotoFirstTemplate : LogoFirstTemplate;
+  // Get the appropriate template component
+  const getTemplateComponent = () => {
+    switch (template) {
+      case 'promo':
+        return PromoSpotlightTemplate;
+      case 'story':
+        return StorySpotlightTemplate;
+      case 'editorial':
+      default:
+        return EditorialSpotlightTemplate;
+    }
+  };
+
+  const TemplateComponent = getTemplateComponent();
 
   // Active businesses with names for the selector
   const activeBiz = businesses
@@ -196,19 +209,28 @@ export default function SpotlightGenerator({ businesses = [] }) {
               <CardTitle className="text-base">Template Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <Label>Template</Label>
+                <Select value={template} onValueChange={setTemplate}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TEMPLATE_OPTIONS.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        <div>
+                          <div className="font-medium">{option.name}</div>
+                          <div className="text-xs text-muted-foreground">{option.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {TEMPLATE_OPTIONS.find(opt => opt.id === template)?.platforms?.join(', ')} • {TEMPLATE_OPTIONS.find(opt => opt.id === template)?.useCase}
+                </p>
+              </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Template</Label>
-                  <Select value={template} onValueChange={setTemplate}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="logo-first">Logo First</SelectItem>
-                      <SelectItem value="photo-first">Photo First</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div>
                   <Label>Format</Label>
                   <Select value={format} onValueChange={setFormat}>
@@ -248,11 +270,6 @@ export default function SpotlightGenerator({ businesses = [] }) {
                 </div>
               </div>
 
-              {/* Badge toggle */}
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-badge">Show PDN Badge</Label>
-                <Switch id="show-badge" checked={showBadge} onCheckedChange={setShowBadge} />
-              </div>
             </CardContent>
           </Card>
 
@@ -372,7 +389,6 @@ export default function SpotlightGenerator({ businesses = [] }) {
                       data={templateData}
                       format={format}
                       accentColor={accentColor}
-                      showBadge={showBadge}
                     />
                   </div>
                 </div>
@@ -381,6 +397,6 @@ export default function SpotlightGenerator({ businesses = [] }) {
           </Card>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

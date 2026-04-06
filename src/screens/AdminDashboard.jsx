@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
-import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import AdminAccessGate from "@/components/admin/AdminAccessGate";
 import AdminDashboardContent from "@/components/admin/AdminDashboardContent";
+import { useToast } from "@/components/ui/use-toast";
 import { useAdminAccess } from "@/hooks/admin/useAdminAccess";
-import { useAdminDashboardData } from "@/hooks/admin/useAdminDashboardData";
 import { useAdminBusinessActions } from "@/hooks/admin/useAdminBusinessActions";
 import { useAdminClaimActions } from "@/hooks/admin/useAdminClaimActions";
+import { useAdminDashboardData } from "@/hooks/admin/useAdminDashboardData";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 /**
  * Admin Dashboard - Refactored Page Component
@@ -22,7 +22,7 @@ import { useAdminClaimActions } from "@/hooks/admin/useAdminClaimActions";
  */
 
 function AdminDashboardWithSearchParams() {
-  const { confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
+  const { confirm: _confirm, confirmDestructive, DialogComponent } = useConfirmDialog();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -101,7 +101,12 @@ function AdminDashboardWithSearchParams() {
     showError,
   });
 
-  // Show access gate if not authenticated or not admin
+  // If we have cached admin access + cached data, skip the loading gate
+  // to prevent a visible blink when returning to the page.
+  // Auth will verify in the background; if it fails, the deny gate catches it.
+  const hasCachedAccess = isAdmin && !checkingAdmin && !dashboardLoading;
+
+  // Show access gate if auth finished and user isn't admin
   if (!authLoading && (!user || !isAdmin)) {
     return (
       <AdminAccessGate
@@ -113,8 +118,8 @@ function AdminDashboardWithSearchParams() {
     );
   }
 
-  // Show loading state while checking access or loading data
-  if (authLoading || checkingAdmin || dashboardLoading) {
+  // Show loading state only when we have NO cached state to display
+  if ((authLoading || checkingAdmin || dashboardLoading) && !hasCachedAccess) {
     return (
       <AdminAccessGate
         authLoading={authLoading}

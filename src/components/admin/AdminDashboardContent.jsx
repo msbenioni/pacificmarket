@@ -1,12 +1,12 @@
 import AdminFiltersBar from "@/components/admin/AdminFiltersBar";
 import AdminTabsBar from "@/components/admin/AdminTabsBar";
 import {
-  TABS,
-  emptyBusinessForm,
-  filterButtonCls,
-  mobileButtonCls,
-  primaryButtonCls,
-  secondaryButtonCls,
+    TABS,
+    emptyBusinessForm,
+    filterButtonCls,
+    mobileButtonCls,
+    primaryButtonCls,
+    secondaryButtonCls,
 } from "@/components/admin/constants/adminDashboardConstants";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import PortalShell from "@/components/portal/PortalShell";
@@ -15,9 +15,9 @@ import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import { exportBusinessesToCSV } from "@/utils/admin/adminExport";
 import { createExecutiveStats } from "@/utils/admin/adminStats";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import EmailMarketingDashboard from "../admindashboard/EmailMarketingDashboard";
-import SpotlightGenerator from "../social-generator/SpotlightGenerator";
+import WelcomeStoryGenerator from "../social-generator/WelcomeStoryGenerator";
 import { ClientListManager } from "./ClientListManager";
 import PresentationsTab from "./PresentationsTab";
 import BusinessesTab from "./tabs/BusinessesTab";
@@ -57,12 +57,6 @@ export default function AdminDashboardContent({
   const [claimsFilter, setClaimsFilter] = useState("all");
   const [businessesFilter, setBusinessesFilter] = useState("active");
 
-  // Fix hydration mismatch
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   // Calculate executive stats
   const executiveStats = createExecutiveStats(businesses, claims);
   const activeFilterCount = Object.values(filters).filter((v) => v !== "").length;
@@ -92,10 +86,6 @@ export default function AdminDashboardContent({
   const handleExportCSV = () => {
     exportBusinessesToCSV(businesses);
   };
-
-  if (!isClient) {
-    return null; // Prevent hydration mismatch
-  }
 
   return (
     <PortalShell>
@@ -171,6 +161,7 @@ export default function AdminDashboardContent({
               secondaryButtonCls={secondaryButtonCls}
             />
             <div className="p-4">
+              {/* Data-driven tabs: re-render from props, safe to conditionally mount */}
               {activeTab === "businesses" && (
                 <BusinessesTab
                   businesses={businesses}
@@ -196,15 +187,23 @@ export default function AdminDashboardContent({
                 />
               )}
 
-              {activeTab === "client-discovery" && <ClientListManager />}
+              {/* Stateful tabs: keep mounted to preserve in-progress work.
+                  Hidden via CSS display:none so React state survives tab switches. */}
+              <div style={{ display: activeTab === "client-discovery" ? "block" : "none" }}>
+                <ClientListManager />
+              </div>
 
-              {activeTab === "presentations" && <PresentationsTab />}
+              <div style={{ display: activeTab === "presentations" ? "block" : "none" }}>
+                <PresentationsTab />
+              </div>
 
-              {activeTab === "email" && <EmailMarketingDashboard />}
+              <div style={{ display: activeTab === "email" ? "block" : "none" }}>
+                <EmailMarketingDashboard />
+              </div>
 
-              {activeTab === "spotlight" && (
-                <SpotlightGenerator businesses={businesses} />
-              )}
+              <div style={{ display: activeTab === "spotlight" ? "block" : "none" }}>
+                <WelcomeStoryGenerator businesses={businesses} />
+              </div>
             </div>
           </div>
         </div>

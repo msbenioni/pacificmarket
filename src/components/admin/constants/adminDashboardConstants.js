@@ -37,7 +37,7 @@ export const TABS = [
   },
   {
     id: "spotlight",
-    label: "Spotlight",
+    label: "Welcome Story",
     icon: Sparkles,
     color: "text-amber-500",
   },
