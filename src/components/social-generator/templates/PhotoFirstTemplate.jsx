@@ -5,7 +5,7 @@ import { Globe, Mail, MapPin } from "lucide-react";
  * Large banner/photo at top, business info overlay at bottom
  * Designed for 1080x1080 (square) or 1080x1350 (portrait) social posts
  */
-export default function PhotoFirstTemplate({ data, format = 'square', accentColor = '#0a1628', showBadge = true }) {
+export default function PhotoFirstTemplate({ data, format = 'square', accentColor = '#0a1628', _showBadge = true }) {
   const isPortrait = format === 'portrait';
   const height = isPortrait ? 1350 : 1080;
   const bannerHeight = isPortrait ? 140 : 120;

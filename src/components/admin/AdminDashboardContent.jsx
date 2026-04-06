@@ -29,10 +29,10 @@ import ClaimsTab from "./tabs/ClaimsTab";
  */
 
 export default function AdminDashboardContent({
-  user,
+  _user,
   businesses,
   claims,
-  dashboardLoading,
+  _dashboardLoading,
   businessActions,
   claimActions,
   showCreateForm = false,
