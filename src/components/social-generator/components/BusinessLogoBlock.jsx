@@ -3,8 +3,14 @@
  * Displays business logo with fallback to initials
  */
 
-import React from 'react';
-import { PDN_BRANDING } from '../config/branding';
+
+// Inline branding config to avoid import caching issues
+const BRANDING = {
+  colors: {
+    primary: '#0a1628',
+    light: '#f8fafc'
+  }
+};
 
 export default function BusinessLogoBlock({ 
   logoUrl,
@@ -22,8 +28,8 @@ export default function BusinessLogoBlock({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: showBorder ? `2px solid ${PDN_BRANDING.colors.light}` : 'none',
-    backgroundColor: PDN_BRANDING.colors.light,
+    border: showBorder ? `2px solid ${BRANDING.colors.light}` : 'none',
+    backgroundColor: BRANDING.colors.light,
     position: 'relative'
   };
   
@@ -37,7 +43,7 @@ export default function BusinessLogoBlock({
   const fallbackStyle = {
     fontSize: Math.min(size.width, size.height) * 0.3,
     fontWeight: 600,
-    color: PDN_BRANDING.colors.primary,
+    color: BRANDING.colors.primary,
     textAlign: 'center',
     lineHeight: 1
   };

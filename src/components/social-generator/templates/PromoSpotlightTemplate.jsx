@@ -67,7 +67,7 @@ export default function PromoSpotlightTemplate({
           letterSpacing: '0.05em',
           textTransform: 'uppercase',
         }}>
-          Now on PDN
+          Now on Pacific Discovery Network
         </div>
       </div>
 
@@ -205,7 +205,7 @@ export default function PromoSpotlightTemplate({
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
           }}>
-            Discover on PDN
+            Discover on Pacific Discovery Network
           </span>
           <ArrowRight size={24} style={{ strokeWidth: 3 }} />
         </div>

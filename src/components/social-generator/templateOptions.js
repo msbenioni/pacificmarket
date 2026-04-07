@@ -1,5 +1,5 @@
 /**
- * Template options for PDN Social Asset Generator
+ * Template options for Pacific Discovery Network Social Asset Generator
  * Defines the 3 distinct social-ready template variants
  */
 

@@ -1,9 +1,9 @@
 /**
- * PDN Branding Configuration
+ * Pacific Discovery Network Branding Configuration
  * Centralized branding assets and styles for welcome story generator
  */
 
-export const PDN_BRANDING = {
+export const PACIFIC_DISCOVERY_NETWORK_BRANDING = {
   // Logo assets
   logos: {
     primary: '/pm_logo.png', // Main PDN logo
@@ -77,18 +77,18 @@ export const WELCOME_THEMES = {
     name: 'Clean',
     description: 'Minimal and professional',
     background: '#ffffff',
-    accentColor: PDN_BRANDING.colors.primary,
-    textColor: PDN_BRANDING.colors.text.primary,
-    secondaryTextColor: PDN_BRANDING.colors.text.secondary
+    accentColor: PACIFIC_DISCOVERY_NETWORK_BRANDING.colors.primary,
+    textColor: PACIFIC_DISCOVERY_NETWORK_BRANDING.colors.text.primary,
+    secondaryTextColor: PACIFIC_DISCOVERY_NETWORK_BRANDING.colors.text.secondary
   },
   
   ocean: {
     name: 'Ocean',
     description: 'Pacific-inspired blues',
     background: '#f0f9ff',
-    accentColor: PDN_BRANDING.colors.accent,
-    textColor: PDN_BRANDING.colors.primary,
-    secondaryTextColor: PDN_BRANDING.colors.text.secondary
+    accentColor: PACIFIC_DISCOVERY_NETWORK_BRANDING.colors.accent,
+    textColor: PACIFIC_DISCOVERY_NETWORK_BRANDING.colors.primary,
+    secondaryTextColor: PACIFIC_DISCOVERY_NETWORK_BRANDING.colors.text.secondary
   },
   
   warm: {
@@ -123,8 +123,12 @@ export function getTheme(themeName = 'clean') {
 export const DEFAULT_CONFIG = {
   theme: 'clean',
   format: 'square',
-  accentColor: PDN_BRANDING.colors.primary,
+  accentColor: PACIFIC_DISCOVERY_NETWORK_BRANDING.colors.primary,
   showPdnBranding: true,
   logoSize: { width: 180, height: 80 },
-  cornerRadius: PDN_BRANDING.borderRadius.lg
+  cornerRadius: PACIFIC_DISCOVERY_NETWORK_BRANDING.borderRadius.lg
 };
+
+// Backward compatibility alias for dev server caching
+export const PDN_BRANDING = PACIFIC_DISCOVERY_NETWORK_BRANDING;
+

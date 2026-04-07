@@ -6,6 +6,7 @@
 
 import SlideFrame from '../components/SlideFrame';
 import { getTheme } from '../config/branding';
+import { generateCoverKicker } from '../utils/editorialHelpers';
 
 export default function WelcomeCoverSlide({ 
   data, 
@@ -115,6 +116,29 @@ export default function WelcomeCoverSlide({
       background={borderColor}
       padding={0}
     >
+      {/* Editorial kicker */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '24px',
+          left: '24px',
+          zIndex: 20,
+        }}
+      >
+        <div
+          style={{
+            fontSize: '12px',
+            fontWeight: 700,
+            letterSpacing: '1.5px',
+            textTransform: 'uppercase',
+            color: 'rgba(255, 255, 255, 0.9)',
+            textShadow: '0 1px 3px rgba(0,0,0,0.3)'
+          }}
+        >
+          {generateCoverKicker(data.businessName)}
+        </div>
+      </div>
+
       {/* 2×2 Image Grid with colored border/gap */}
       <div
         style={{

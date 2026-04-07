@@ -1,5 +1,5 @@
 import { BUSINESS_STATUS } from "@/constants/unifiedConstants";
-import { Building2, Mail, Presentation, Search, Shield, Sparkles } from "lucide-react";
+import { Building2, Mail, Presentation, Shield, Sparkles } from "lucide-react";
 
 export const TABS = [
   {
@@ -15,13 +15,6 @@ export const TABS = [
     icon: Shield,
     color: "text-blue-600",
     filterType: "claims",
-  },
-  {
-    id: "client-discovery",
-    label: "Client Discovery",
-    icon: Search,
-    color: "text-blue-600",
-    filterType: "client-discovery",
   },
   {
     id: "presentations",

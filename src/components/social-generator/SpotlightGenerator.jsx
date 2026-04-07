@@ -128,7 +128,7 @@ export default function SpotlightGenerator({ businesses = [] }) {
 
     setIsExporting(true);
     try {
-      const filename = `pdn-spotlight-${(editData.business_name || "business").toLowerCase().replace(/\s+/g, "-")}-${format}`;
+      const filename = `pacific-discovery-network-spotlight-${(editData.business_name || "business").toLowerCase().replace(/\s+/g, "-")}-${format}`;
       await exportToPng(previewRef.current, filename);
       toast({ title: "Downloaded!", description: `${filename}.png saved` });
     } catch (err) {

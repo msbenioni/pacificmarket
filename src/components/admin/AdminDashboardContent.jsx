@@ -1,12 +1,12 @@
 import AdminFiltersBar from "@/components/admin/AdminFiltersBar";
 import AdminTabsBar from "@/components/admin/AdminTabsBar";
 import {
-    TABS,
-    emptyBusinessForm,
-    filterButtonCls,
-    mobileButtonCls,
-    primaryButtonCls,
-    secondaryButtonCls,
+  TABS,
+  emptyBusinessForm,
+  filterButtonCls,
+  mobileButtonCls,
+  primaryButtonCls,
+  secondaryButtonCls,
 } from "@/components/admin/constants/adminDashboardConstants";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import PortalShell from "@/components/portal/PortalShell";
@@ -15,10 +15,9 @@ import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import { exportBusinessesToCSV } from "@/utils/admin/adminExport";
 import { createExecutiveStats } from "@/utils/admin/adminStats";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from 'react';
 import EmailMarketingDashboard from "../admindashboard/EmailMarketingDashboard";
 import WelcomeStoryGenerator from "../social-generator/WelcomeStoryGenerator";
-import { ClientListManager } from "./ClientListManager";
 import PresentationsTab from "./PresentationsTab";
 import BusinessesTab from "./tabs/BusinessesTab";
 import ClaimsTab from "./tabs/ClaimsTab";
@@ -38,6 +37,11 @@ export default function AdminDashboardContent({
   showCreateForm = false,
 }) {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Local UI state (excluding editing state which is handled by parent)
   const [activeTab, setActiveTab] = useState(() => {
@@ -57,8 +61,8 @@ export default function AdminDashboardContent({
   const [claimsFilter, setClaimsFilter] = useState("all");
   const [businessesFilter, setBusinessesFilter] = useState("active");
 
-  // Calculate executive stats
-  const executiveStats = createExecutiveStats(businesses, claims);
+  // Calculate executive stats - only on client
+  const _executiveStats = isClient ? createExecutiveStats(businesses, claims) : [];
   const activeFilterCount = Object.values(filters).filter((v) => v !== "").length;
 
   // Handle tab change
@@ -94,10 +98,28 @@ export default function AdminDashboardContent({
         title="Pacific Discovery Network Registry"
         subtitle="Administrative control center for business listings"
         description=""
-        showStats={true}
-        stats={executiveStats}
+        showStats={false}
+        stats={[]}
         actions={null}
       />
+
+      {/* Executive stats - only render on client to prevent hydration mismatch */}
+      {isClient && _executiveStats.length > 0 && (
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {_executiveStats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className={`text-2xl font-bold ${stat.color || "text-gray-900"}`}>
+                    {stat.value}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="min-h-screen bg-[#f8f9fc]">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
@@ -189,9 +211,6 @@ export default function AdminDashboardContent({
 
               {/* Stateful tabs: keep mounted to preserve in-progress work.
                   Hidden via CSS display:none so React state survives tab switches. */}
-              <div style={{ display: activeTab === "client-discovery" ? "block" : "none" }}>
-                <ClientListManager />
-              </div>
 
               <div style={{ display: activeTab === "presentations" ? "block" : "none" }}>
                 <PresentationsTab />

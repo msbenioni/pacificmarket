@@ -35,7 +35,7 @@ const SLIDE_COMPONENTS = [
 ];
 
 /**
- * PDN Welcome Story Generator
+ * Pacific Discovery Network Welcome Story Generator
  * Creates 4-slide welcome stories for newly listed businesses.
  * All UI state is persisted via useSessionState so switching tabs or
  * navigating away and returning restores the exact working context.
@@ -183,7 +183,7 @@ export default function WelcomeStoryGenerator({ businesses = [] }) {
         <div className="flex items-center gap-3">
           <Sparkles className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold">PDN Welcome Story Generator</h1>
+            <h1 className="text-2xl font-bold">Pacific Discovery Network Welcome Story Generator</h1>
             <p className="text-muted-foreground">Create 4-slide welcome stories for newly listed businesses</p>
           </div>
         </div>

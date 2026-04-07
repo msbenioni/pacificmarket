@@ -3,8 +3,6 @@
  * Consistent PDN branding header for slides
  */
 
-import React from 'react';
-import { PDN_BRANDING } from '../config/branding';
 
 export default function PdnBrandHeader({ 
   variant = 'subtle', // 'subtle', 'prominent', 'minimal'
@@ -47,7 +45,7 @@ export default function PdnBrandHeader({
       text: {
         fontSize: 14,
         fontWeight: 600,
-        color: PDN_BRANDING.colors.primary
+        color: BRANDING.colors.primary
       },
       logo: {
         width: logoSize.width,
@@ -80,11 +78,11 @@ export default function PdnBrandHeader({
     <div style={style.container}>
       {variant !== 'minimal' && (
         <span style={style.text}>
-          {variant === 'prominent' ? 'Pacific Discovery Network' : 'PDN'}
+          {variant === 'prominent' ? 'Pacific Discovery Network' : 'Pacific Discovery Network'}
         </span>
       )}
       <img
-        src={PDN_BRANDING.logos.primary}
+        src={BRANDING.logos.primary}
         alt="Pacific Discovery Network"
         style={style.logo}
       />

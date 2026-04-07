@@ -3,7 +3,6 @@
  * Creates a collage layout from multiple business images
  */
 
-import { PDN_BRANDING } from '../config/branding';
 
 export default function ImageCollage({ 
   images,
@@ -24,11 +23,11 @@ export default function ImageCollage({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: `2px dashed ${PDN_BRANDING.colors.text.muted}`
+          border: `2px dashed ${BRANDING.colors.text.muted}`
         }}
         className={className}
       >
-        <span style={{ color: PDN_BRANDING.colors.text.muted, fontSize: 14 }}>
+        <span style={{ color: BRANDING.colors.text.muted, fontSize: 14 }}>
           No images available
         </span>
       </div>

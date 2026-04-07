@@ -42,7 +42,7 @@ export async function POST(request) {
       industry: biz.category || 'Other',
       status: 'pending',
       social_links: biz.social_media || {},
-      source: 'firecrawl_discovery',
+      source: 'admin_import',
       visibility_tier: 'free',
     }));
 
