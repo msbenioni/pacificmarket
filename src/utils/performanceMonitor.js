@@ -113,13 +113,17 @@ export function initializePerformanceMonitoring() {
   });
 
   // Monitor Core Web Vitals
-  if ('web-vitals' in window) {
+  try {
     import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
       getCLS(console.log);
       getFID(console.log);
       getFCP(console.log);
       getLCP(console.log);
       getTTFB(console.log);
+    }).catch(() => {
+      // web-vitals not available, skip monitoring
     });
+  } catch (error) {
+    // web-vitals not available, skip monitoring
   }
 }

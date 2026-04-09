@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   poweredByHeader: false,
   images: {
     remotePatterns: [
@@ -78,16 +77,7 @@ const nextConfig = {
         ]
       },
       {
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
-          }
-        ]
-      },
-      {
-        source: '/(.*\\.(png|jpg|jpeg|gif|ico|svg|webp|avif))',
+        source: '/images/(.*)',
         headers: [
           {
             key: 'Cache-Control',
