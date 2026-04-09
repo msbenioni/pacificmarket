@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { AlertCircle, Search, CheckCircle, MapPin, Briefcase } from "lucide-react";
 import { BUSINESS_STATUS, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
+import { AlertCircle, Briefcase, CheckCircle, MapPin, Search } from "lucide-react";
+import { useEffect, useState } from "react";
 
 function getCountryLabel(value) {
   const match = COUNTRIES.find((item) => item.value === value);
@@ -128,6 +128,7 @@ export default function BusinessSearch({
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder={placeholder}
             className="w-full min-h-[44px] rounded-xl border border-gray-200 bg-white pl-10 pr-4 py-3 text-sm text-[#0a1628] placeholder:text-gray-400 focus:outline-none focus:border-[#0d4f4f] focus:ring-2 focus:ring-[#0d4f4f]/10"
+            suppressHydrationWarning
           />
         </div>
       </div>

@@ -44,9 +44,9 @@ export function useAdminClaimActions({ user, loadAdminData, setClaims, showSucce
         )
       );
 
-      // Step 3: If approved, update business ownership
+      // Step 3: If approved, update business ownership and send notification
       if (newStatus === "approved") {
-        console.log("🔐 Updating business ownership for approved claim...");
+        console.log("Updating business ownership for approved claim...");
         
         const { error: ownershipError } = await supabase
           .from("businesses")
@@ -61,12 +61,55 @@ export function useAdminClaimActions({ user, loadAdminData, setClaims, showSucce
           .eq("id", claim.business_id);
 
         if (ownershipError) {
-          console.error("❌ Business ownership update failed:", ownershipError);
+          console.error("Business ownership update failed:", ownershipError);
           // Don't throw here - claim was updated successfully, just log the business update failure
           showError('Claim approved but business ownership update failed', 
             `Claim status changed to ${newStatus}, but business ownership could not be updated: ${ownershipError.message}`);
         } else {
-          console.log("✅ Business ownership updated successfully");
+          console.log("Business ownership updated successfully");
+        }
+
+        // Step 3b: Send approval notification to claimant (non-blocking)
+        try {
+          // Get business details for notification
+          const { data: business } = await supabase
+            .from("businesses")
+            .select("business_name, business_handle, city, country")
+            .eq("id", claim.business_id)
+            .single();
+
+          // Get claimant user details
+          const { data: claimant } = await supabase.auth.admin.getUserById(claim.user_id);
+
+          if (business && claimant?.user) {
+            console.log("Sending claim approval notification to:", claimant.user.email);
+            
+            const response = await fetch("/api/notifications/claim-approved", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                businessData: {
+                  ...business,
+                  name: business.business_name,
+                },
+                claimantData: {
+                  name: claimant.user.user_metadata?.display_name || claimant.user.email?.split('@')[0],
+                  email: claimant.user.email,
+                },
+              }),
+            });
+
+            if (response.ok) {
+              console.log("Claim approval notification sent successfully");
+            } else {
+              console.error("Failed to send claim approval notification:", await response.text());
+            }
+          } else {
+            console.error("Missing business or claimant data for notification");
+          }
+        } catch (notificationError) {
+          console.error("Error sending claim approval notification:", notificationError);
+          // Don't throw - the claim was approved successfully
         }
       }
 

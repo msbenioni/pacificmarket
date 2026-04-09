@@ -5,7 +5,7 @@
  */
 
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
-import { generateMobileBanner, generateBusinessLogo } from "./businessImageGenerator";
+import { generateBusinessLogo, generateMobileBanner } from "./businessImageGenerator";
 
 const getFirstDisplayableMediaUrl = (...candidates) => {
   for (const candidate of candidates) {
@@ -87,8 +87,8 @@ export function getLogoUrl(business) {
     }
   }
 
-  // No static fallback - return null for text fallback
-  return null;
+  // Third priority: fallback to PDN logo
+  return "/pm_logo.png";
 }
 
 /**

@@ -289,7 +289,20 @@ const getEmailTemplate = (type, data) => {
           <p style="margin: 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
         `,
         bodyHtml: `
-          The business can now continue building a stronger presence and trusted visibility on Pacific Discovery Network.
+          <p style="margin: 0 0 12px 0;">Congratulations! As the verified owner of <strong>${data.businessName}</strong>, you now have full control to manage and grow your business presence on Pacific Discovery Network.</p>
+          
+          <p style="margin: 0 0 12px 0;"><strong>What you can do now:</strong></p>
+          <ul style="padding-left: 20px; margin: 0 0 12px 0;">
+            <li>Update your business information, photos, and descriptions</li>
+            <li>Manage your business profile and contact details</li>
+            <li>Upgrade to premium plans for enhanced visibility</li>
+            <li>Generate professional social media content</li>
+            <li>Track your business performance and analytics</li>
+          </ul>
+          
+          <p style="margin: 0 0 12px 0;">Log in to your Business Portal to start managing your business listing and take advantage of all available features.</p>
+          
+          <p style="margin: 0;">Thank you for being part of the Pacific Discovery Network community!</p>
         `,
       }),
     },
@@ -536,7 +549,7 @@ export const notifyClaimApproved = (businessData, claimantData) =>
     businessName: businessData.name,
     claimantName: claimantData.name,
     claimantEmail: claimantData.email,
-  });
+  }, [claimantData.email]);
 
 export const notifyClaimRejected = (businessData, claimantData, reason) =>
   sendNotification(NOTIFICATION_TYPES.CLAIM_REJECTED, {
