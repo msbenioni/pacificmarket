@@ -1,21 +1,20 @@
-import Link from "next/link";
-import Image from "next/image";
 import { createPageUrl } from "@/utils";
 import {
-  Shield,
-  Globe,
-  BookOpen,
-  Users,
-  ArrowRight,
-  FileText,
-  Search,
-  Award,
-  Sparkles,
-  Hammer,
-  Store,
-  HeartHandshake,
+    ArrowRight,
+    Award,
+    BookOpen,
+    FileText,
+    Globe,
+    Hammer,
+    HeartHandshake,
+    Search,
+    Shield,
+    Sparkles,
+    Store,
+    Users,
 } from "lucide-react";
-import HeroStandard from "@/components/shared/HeroStandard";
+import Link from "next/link";
+import HeroStandard from "../components/shared/HeroStandard";
 
 export default function About() {
   const principles = [
@@ -196,12 +195,10 @@ export default function About() {
             <div className="relative">
               <div className="rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.10)]">
                 <div className="relative h-[300px] sm:h-[420px] w-full">
-                  <Image
+                  <img
                     src="/why_we_built_this.png"
                     alt="Pacific legacy and enterprise"
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
@@ -274,12 +271,10 @@ export default function About() {
 
             <div className="order-1 lg:order-2 flex justify-center">
               <div className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] lg:w-[400px] lg:h-[400px] rounded-[28px] overflow-hidden border border-gray-200 bg-white shadow-[0_20px_60px_rgba(10,22,40,0.08)]">
-                <Image
+                <img
                   src="/craft.png"
                   alt="Pacific founders craft"
-                  fill
-                  sizes="(max-width: 640px) 300px, (max-width: 1024px) 350px, 400px"
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>
@@ -350,12 +345,10 @@ export default function About() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
             <div className="group flex flex-col items-center space-y-6">
               <div className="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] lg:w-[350px] lg:h-[350px] rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
-                <Image
+                <img
                   src="/jasmin.png"
                   alt="Jasmin Benioni"
-                  fill
-                  sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 350px"
-                  className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
               </div>
 
@@ -391,12 +384,10 @@ export default function About() {
 
             <div className="group flex flex-col items-center space-y-6">
               <div className="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] lg:w-[350px] lg:h-[350px] rounded-[28px] overflow-hidden border border-gray-200 bg-[#fbfcff] shadow-[0_16px_50px_rgba(10,22,40,0.08)] hover:shadow-[0_24px_70px_rgba(10,22,40,0.12)] transition-all">
-                <Image
+                <img
                   src="/daniel.png"
                   alt="Daniel Maine"
-                  fill
-                  sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 350px"
-                  className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
               </div>
 
