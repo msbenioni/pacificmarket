@@ -2,13 +2,13 @@
 
 import { createPageUrl } from "@/utils";
 import {
-    ChevronDown,
-    Home,
-    LogOut,
-    Menu,
-    Shield,
-    User,
-    X,
+  ChevronDown,
+  Home,
+  LogOut,
+  Menu,
+  Shield,
+  User,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -42,7 +42,7 @@ export default function Layout({ children, currentPageName }) {
               .single();
 
             profileData = data;
-          } catch (profileError) {
+          } catch {
             console.log("Profile not found for new user:", user.id);
           }
 
@@ -135,21 +135,56 @@ export default function Layout({ children, currentPageName }) {
               {/* Desktop Nav */}
               <nav className="hidden lg:flex items-center gap-8">
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.page}
-                    href={createPageUrl(link.page)}
-                    className={`text-sm font-medium transition-colors ${
-                      isActive(link.page)
-                        ? isTransparent
-                          ? "text-white"
-                          : "text-[#0d4f4f]"
-                        : isTransparent
-                        ? "text-white/90 hover:text-white"
-                        : "text-gray-500 hover:text-[#0a1628]"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
+                  <div key={link.page} className="relative group">
+                    {link.isDropdown ? (
+                      <>
+                        <button
+                          className={`text-sm font-medium transition-colors flex items-center gap-1 ${
+                            isActive(link.page)
+                              ? isTransparent
+                                ? "text-white"
+                                : "text-[#0d4f4f]"
+                              : isTransparent
+                              ? "text-white/90 hover:text-white"
+                              : "text-gray-500 hover:text-[#0a1628]"
+                          }`}
+                        >
+                          {link.label}
+                          <ChevronDown className="w-3 h-3" />
+                        </button>
+                        
+                        {/* Dropdown Menu */}
+                        <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          {link.dropdownItems.map((item, index) => (
+                            <a
+                              key={index}
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                            >
+                              {item.label}
+                            </a>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <Link
+                        href={createPageUrl(link.page)}
+                        className={`text-sm font-medium transition-colors ${
+                          isActive(link.page)
+                            ? isTransparent
+                              ? "text-white"
+                              : "text-[#0d4f4f]"
+                            : isTransparent
+                            ? "text-white/90 hover:text-white"
+                            : "text-gray-500 hover:text-[#0a1628]"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </div>
                 ))}
               </nav>
 
@@ -475,6 +510,34 @@ export default function Layout({ children, currentPageName }) {
                       </Link>
                     </li>
                   ))}
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-3">
+                  Community
+                </h4>
+                <ul className="space-y-2">
+                  <li>
+                    <a
+                      href="https://facebook.com/YOUR_FACEBOOK_PAGE"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-400 text-sm hover:text-white transition-colors"
+                    >
+                      View Listings
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://facebook.com/YOUR_FACEBOOK_GROUP"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-400 text-sm hover:text-white transition-colors"
+                    >
+                      Join Discussion
+                    </a>
+                  </li>
                 </ul>
               </div>
 

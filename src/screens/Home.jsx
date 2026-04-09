@@ -1,21 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { getHomepageBusinesses } from "@/lib/supabase/queries/businesses";
 import { createPageUrl } from "@/utils";
 import {
-  ArrowRight,
-  CheckCircle,
-  Globe,
-  Shield,
-  Star,
-  Compass,
-  Award,
-  ChevronRight,
+    ArrowRight,
+    Award,
+    CheckCircle,
+    ChevronRight,
+    Compass,
+    Globe,
+    Shield,
+    Star,
 } from "lucide-react";
-import { getHomepageBusinesses } from "@/lib/supabase/queries/businesses";
-import StatsBar from "../components/home/StatsBar";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import FeaturedSpotlight from "../components/home/FeaturedSpotlight";
+import StatsBar from "../components/home/StatsBar";
+import CommunitySection from "../components/shared/CommunitySection";
 import HeroHomepage from "../components/shared/HeroHomepage";
 import ToolsHomepageSnippet from "../components/ToolsHomepageSnippet";
 
@@ -160,6 +161,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Community Section */}
+      <CommunitySection />
 
       {/* CTA Section */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8">
