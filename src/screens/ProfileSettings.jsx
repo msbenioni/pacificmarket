@@ -1,31 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import PortalShell from "@/components/portal/PortalShell";
+import HeroStandard from "@/components/shared/HeroStandard";
+import { useToast } from "@/components/ui/toast/ToastProvider";
+import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { createPageUrl } from "@/utils";
+import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
 import {
-  Lock,
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronDown,
   Eye,
   EyeOff,
-  User,
-  Save,
-  ArrowRight,
-  Users,
-  Shield,
-  AlertCircle,
+  Lock,
   Plus,
-  ChevronDown,
+  Save,
+  Shield,
+  User,
   UserCircle2,
-  Check,
-  ArrowLeft,
+  Users,
 } from "lucide-react";
-import { isAdmin as checkIsAdmin } from "@/utils/roleHelpers";
-import { useToast } from "@/components/ui/toast/ToastProvider";
-import { useConfirmDialog } from "@/hooks/useConfirmDialog";
-import PortalShell from "@/components/portal/PortalShell";
-import { COUNTRIES, LANGUAGES } from "@/constants/unifiedConstants";
-import HeroStandard from "@/components/shared/HeroStandard";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Premium accordion component with badge support
 function InsightsAccordionSection({
@@ -227,14 +227,24 @@ export default function ProfileSettings() {
         let parsedCulturalIdentity = [];
         if (profileData?.cultural_identity) {
           try {
+            // Handle different formats: JSON string, array, or string with braces
             if (Array.isArray(profileData.cultural_identity)) {
               parsedCulturalIdentity = profileData.cultural_identity;
-            } else {
-              parsedCulturalIdentity = JSON.parse(
-                profileData.cultural_identity
-                  .replace(/^{/, "[")
-                  .replace(/}$/, "]")
-              );
+            } else if (typeof profileData.cultural_identity === 'string') {
+              const raw = profileData.cultural_identity.trim();
+              if (raw.startsWith('[') && raw.endsWith(']')) {
+                // JSON array format: ["samoa","new-zealand"]
+                parsedCulturalIdentity = JSON.parse(raw);
+              } else if (raw.startsWith('{') && raw.endsWith('}')) {
+                // Brace format: {Samoan}
+                parsedCulturalIdentity = raw
+                  .slice(1, -1)
+                  .split(',')
+                  .map(item => item.replace(/^"(.*)"$/, '$1').trim());
+              } else {
+                // Fallback: treat as single value
+                parsedCulturalIdentity = [raw];
+              }
             }
           } catch (error) {
             console.error(
@@ -590,7 +600,7 @@ export default function ProfileSettings() {
         .update({
           city,
           country,
-          cultural_identity: culturalIdentity,
+          cultural_identity: JSON.stringify(culturalIdentity),
           languages_spoken: languagesSpoken,
         })
         .eq("id", user.id);

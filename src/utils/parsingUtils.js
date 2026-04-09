@@ -30,13 +30,25 @@ export function resolveCanonicalLabel(value) {
   const cleaned = cleanToken(value);
   if (!cleaned) return "";
 
+  // First try exact match in labels
   const exactMatch = ALL_VALID_LABELS.find((item) => item === cleaned);
   if (exactMatch) return exactMatch;
 
+  // Try case-insensitive match in labels
   const caseInsensitiveMatch = ALL_VALID_LABELS.find(
     (item) => item.toLowerCase() === cleaned.toLowerCase()
   );
   if (caseInsensitiveMatch) return caseInsensitiveMatch;
+
+  // If not found in labels, try to find country by value and return its label
+  const countryByValue = COUNTRIES.find((c) => c.value === cleaned);
+  if (countryByValue) return countryByValue.label;
+
+  // Try case-insensitive country value match
+  const countryByValueCaseInsensitive = COUNTRIES.find(
+    (c) => c.value.toLowerCase() === cleaned.toLowerCase()
+  );
+  if (countryByValueCaseInsensitive) return countryByValueCaseInsensitive.label;
 
   return cleaned;
 }
