@@ -20,7 +20,9 @@
     "scheduler:run": "powershell -ExecutionPolicy Bypass -File scripts/pdn-scheduler.ps1",
     "scheduler:test": "powershell -ExecutionPolicy Bypass -File scripts/pdn-scheduler.ps1 -ForceRun:$true",
     "db:migrate": "powershell -ExecutionPolicy Bypass -File scripts/supabase-migrate-fixed.ps1",
-    "client:discover": "curl -X POST http://localhost:3000/api/client-discovery -H 'Content-Type: application/json' -d '{\"action\": \"run_discovery\"}'"
+    "client:discover": "curl -X POST http://localhost:3000/api/client-discovery -H 'Content-Type: application/json' -d '{\"action\": \"run_discovery\"}'",
+    "analyze": "npm run build && npx @next/bundle-analyzer",
+    "analyze:bundle": "node scripts/analyze-bundle.js"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",

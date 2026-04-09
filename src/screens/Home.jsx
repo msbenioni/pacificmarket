@@ -20,7 +20,8 @@ import CommunitySection from "../components/shared/CommunitySection";
 import HeroHomepage from "../components/shared/HeroHomepage";
 import ToolsHomepageSnippet from "../components/ToolsHomepageSnippet";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Revalidate every hour
+export const dynamic = "force-static";
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);

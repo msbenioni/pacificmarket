@@ -36,12 +36,16 @@ import { PORTAL_TABS, getTabStatus } from "@/constants/portalTabs";
 
 // Custom hooks
 import { useBusinessOperations } from "@/hooks/useBusinessOperations";
-import { useBusinessPortalData } from "@/hooks/useBusinessPortalData";
+import { useBusinessPortalDataOptimized } from "@/hooks/useBusinessPortalDataOptimized";
 import { usePortalState } from "@/hooks/usePortalState";
 import { useProfileCompletion } from "@/hooks/useProfileCompletion";
+import { usePerformanceMonitor } from "@/utils/performanceMonitor";
 
 export default function BusinessPortal() {
   const searchParams = useSearchParams();
+  
+  // Performance monitoring
+  usePerformanceMonitor('BusinessPortal');
   
   // Check for claim flow parameters
   const claimParam = searchParams.get('claim');
@@ -58,7 +62,7 @@ export default function BusinessPortal() {
     insightSnapshots,
     loading,
     refetchPortalData,
-  } = useBusinessPortalData();
+  } = useBusinessPortalDataOptimized();
 
   // Profile completion check
   const {
@@ -166,7 +170,6 @@ export default function BusinessPortal() {
         break;
       case "addBusiness":
         return await handleAddBusiness(data);
-        return result;
       case "save":
         try {
           const result = await saveBusiness(data);
