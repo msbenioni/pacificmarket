@@ -1,19 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import {
-  Menu,
-  X,
-  ChevronDown,
-  User,
-  LogOut,
-  Home,
-  Shield,
+    ChevronDown,
+    Home,
+    LogOut,
+    Menu,
+    Shield,
+    User,
+    X,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import CookieConsent from "../shared/CookieConsent";
 
 export default function Layout({ children, currentPageName }) {
@@ -123,14 +122,12 @@ export default function Layout({ children, currentPageName }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href={createPageUrl("Home")} className="flex items-center group">
-              <Image
+              <img
                 src={isTransparent ? "/pm_logo.png" : "/pm_logo_dark.png"}
                 alt="Pacific Discovery Network"
                 width={160}
                 height={64}
                 className="h-16 w-40 transition-opacity duration-300"
-                priority={false}
-                loading="eager"
               />
             </Link>
 
@@ -353,14 +350,12 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <Link href={createPageUrl("Home")} className="inline-block">
-                  <Image
+                  <img
                     src="/pm_logo.png"
                     alt="Pacific Discovery Network"
                     width={160}
                     height={64}
                     className="h-14 w-auto"
-                    priority={false}
-                    loading="eager"
                   />
                 </Link>
 
@@ -442,14 +437,12 @@ export default function Layout({ children, currentPageName }) {
               <div className="sm:col-span-2">
                 <Link href={createPageUrl("Home")} className="inline-block">
                   <div className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
-                    <Image
+                    <img
                       src="/pm_logo.png"
                       alt="Pacific Discovery Network"
                       width={120}
                       height={48}
                       className="h-12 w-30 sm:h-16 sm:w-40"
-                      priority={false}
-                      loading="eager"
                     />
                   </div>
                 </Link>
