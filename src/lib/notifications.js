@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
 import { createPageUrl } from "@/utils";
+import nodemailer from "nodemailer";
 
 // Create SMTP transporter using Google Workspace
 const createTransporter = () => {
@@ -423,14 +423,27 @@ const getEmailTemplate = (type, data) => {
 // Main notification function
 export const sendNotification = async (type, data, recipients = null) => {
   try {
+    console.log("=== NOTIFICATION DEBUG ===");
+    console.log("Type:", type);
+    console.log("Data:", data);
+    console.log("Recipients:", recipients);
+    console.log("SMTP_HOST:", process.env.SMTP_HOST);
+    console.log("SMTP_USER:", process.env.SMTP_USER);
+    console.log("SMTP_FROM_EMAIL:", process.env.SMTP_FROM_EMAIL);
+    console.log("ADMIN_NOTIFICATION_EMAIL:", process.env.ADMIN_NOTIFICATION_EMAIL);
+
     const template = getEmailTemplate(type, data);
 
     if (!template) {
       throw new Error(`No template found for notification type: ${type}`);
     }
 
+    console.log("Template found:", template.subject);
+
     const transporter = createTransporter();
     const toEmails = recipients || [process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_FROM_EMAIL];
+
+    console.log("Sending to emails:", toEmails);
 
     const emailPromises = toEmails.map((email) =>
       transporter.sendMail({
@@ -444,9 +457,13 @@ export const sendNotification = async (type, data, recipients = null) => {
 
     await Promise.all(emailPromises);
 
+    console.log("Emails sent successfully");
     return { success: true, message: "Notifications sent successfully" };
   } catch (error) {
-    console.error("Notification error:", error);
+    console.error("=== NOTIFICATION ERROR ===");
+    console.error("Error details:", error);
+    console.error("Error message:", error.message);
+    console.error("Stack trace:", error.stack);
     return { success: false, error: error.message };
   }
 };
@@ -532,6 +549,13 @@ export const notifyClaimRejected = (businessData, claimantData, reason) =>
 export const notifyUserCreated = (userData) =>
   sendNotification(NOTIFICATION_TYPES.USER_CREATED, {
     userName: userData.name || userData.email,
+    userEmail: userData.email,
+    userId: userData.id,
+  });
+
+export const notifyUserSignedUp = (userData) =>
+  sendNotification(NOTIFICATION_TYPES.USER_CREATED, {
+    userName: userData.displayName || userData.email,
     userEmail: userData.email,
     userId: userData.id,
   });

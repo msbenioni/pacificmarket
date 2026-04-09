@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 function CustomerPortalContent() {
   const router = useRouter();
@@ -156,6 +156,21 @@ function CustomerPortalContent() {
       if (!authData?.user?.id) {
         throw new Error("User account creation failed - no user ID returned");
       }
+
+      // Send admin notification for new user signup (non-blocking)
+      fetch("/api/notifications/user-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userData: {
+            id: authData.user.id,
+            email: email.trim().toLowerCase(),
+            displayName: displayName.trim(),
+          }
+        }),
+      }).catch((error) => {
+        console.error("Failed to send admin notification:", error);
+      });
 
       // Update existing profile with auth user id and clear invitation
       const { error: profileError } = await supabase

@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { notifyBusinessAdded } from "@/lib/notifications";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,27 +8,14 @@ const supabase = createClient(
 
 export async function POST(request) {
   try {
-    const { businessId, userId } = await request.json();
+    const { businessData, userData } = await request.json();
     
-    // Get business and user details
-    const { data: business } = await supabase
-      .from('businesses')
-      .select('*')
-      .eq('id', businessId)
-      .single();
-      
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (!business || !user) {
-      return Response.json({ error: 'Business or user not found' }, { status: 404 });
+    if (!businessData || !userData) {
+      return Response.json({ error: 'Missing required data' }, { status: 400 });
     }
     
-    // Send notification
-    const notificationResult = await notifyBusinessAdded(business, user);
+    // Send notification using the provided data
+    const notificationResult = await notifyBusinessAdded(businessData, userData);
     
     if (notificationResult.success) {
       return Response.json({ 

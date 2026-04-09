@@ -1,5 +1,5 @@
-import { notifyClaimSubmitted } from "@/lib/notifications";
 import { createClient } from "@supabase/supabase-js";
+import { notifyUserSignedUp } from "@/lib/notifications";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,19 +8,19 @@ const supabase = createClient(
 
 export async function POST(request) {
   try {
-    const { claimData, businessData, userData } = await request.json();
+    const { userData } = await request.json();
     
-    if (!claimData || !businessData || !userData) {
-      return Response.json({ error: 'Missing required data' }, { status: 400 });
+    if (!userData) {
+      return Response.json({ error: 'Missing user data' }, { status: 400 });
     }
     
     // Send notification using the provided data
-    const notificationResult = await notifyClaimSubmitted(businessData, userData, claimData.claim_type);
+    const notificationResult = await notifyUserSignedUp(userData);
     
     if (notificationResult.success) {
       return Response.json({ 
         success: true, 
-        message: 'Claim submitted notification sent successfully' 
+        message: 'User signup notification sent successfully' 
       });
     } else {
       return Response.json({ 
@@ -30,7 +30,7 @@ export async function POST(request) {
     }
     
   } catch (error) {
-    console.error('Claim submitted notification error:', error);
+    console.error('User signup notification error:', error);
     return Response.json({ 
       error: 'Internal server error', 
       message: error.message 
