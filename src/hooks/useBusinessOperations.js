@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { getSupabase } from "@/lib/supabase/client";
-import {
-  prepareBusinessBrandingPayload,
-} from "@/utils/brandingUploadUtils";
-import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
-import { deleteBusiness, createBusiness } from "@/lib/supabase/queries/businesses";
-import { sanitizeBusinessPayload, validateBusinessData, isBusinessHandleAvailable } from "@/utils/dataTransformers";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
+import { getSupabase } from "@/lib/supabase/client";
+import { createBusiness, deleteBusiness } from "@/lib/supabase/queries/businesses";
+import {
+    prepareBusinessBrandingPayload,
+} from "@/utils/brandingUploadUtils";
+import { createBusinessWithBranding } from "@/utils/businessCreationWithBranding";
+import { sanitizeBusinessPayload, validateBusinessData } from "@/utils/dataTransformers";
+import { useState } from "react";
 
 export function useBusinessOperations(refetchPortalData) {
   const { toast } = useToast();
@@ -231,13 +231,31 @@ export function useBusinessOperations(refetchPortalData) {
     if (!businessId) return;
 
     try {
-      const error = await deleteBusiness(businessId);
-      if (error) throw error;
+      console.log("Attempting to delete business:", businessId);
+      const result = await deleteBusiness(businessId);
+      console.log("Delete result:", result);
+      
+      if (result.error) {
+        console.error("Database error:", result.error);
+        throw result.error;
+      }
 
+      console.log("Business deleted successfully, refreshing data...");
       await refetchPortalData();
       setDeleteConfirmBusiness(null);
+      
+      toast({
+        title: "Business Deleted",
+        description: "The business has been successfully deleted.",
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error deleting business:", error);
+      toast({
+        title: "Error",
+        description: `Failed to delete business: ${error.message || 'Unknown error'}`,
+        variant: "error",
+      });
     }
   };
 

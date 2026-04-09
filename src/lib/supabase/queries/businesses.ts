@@ -3,7 +3,7 @@
  * Centralized query logic to eliminate duplication and ensure consistency
  */
 
-import type { Business, BusinessUpdate, BusinessCreate, ReferralBusinessOption } from '../../../types/business';
+import type { BusinessCreate, BusinessUpdate, ReferralBusinessOption } from '../../../types/business';
 
 // Explicit field selection for performance and consistency
 const BUSINESS_PUBLIC_FIELDS = `
@@ -493,10 +493,12 @@ export async function deleteBusiness(id: string) {
   const { getSupabase } = await import('../client');
   const supabase = getSupabase();
 
-  return supabase
+  const { data, error } = await supabase
     .from('businesses')
     .delete()
     .eq('id', id);
+
+  return { data, error };
 }
 
 /**

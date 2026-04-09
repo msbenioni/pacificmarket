@@ -1,41 +1,42 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { createPageUrl } from "@/utils";
-import { CheckCircle, UserCircle2, AlertCircle, ArrowRight, ChevronRight } from "lucide-react";
-import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
-import HeroStandard from "../components/shared/HeroStandard";
+import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
+import PortalShell from "@/components/portal/PortalShell";
+import { portalUI } from "@/components/portal/portalUI";
+import {
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalWrapper,
+} from "@/components/shared/ModalWrapper";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 import {
   SUBSCRIPTION_TIER,
   getTierDisplayName,
 } from "@/constants/unifiedConstants";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
-import { ClaimAddBusinessModal } from "@/components/onboarding/ClaimAddBusinessModal";
-import {
-  ModalWrapper,
-  ModalHeader,
-  ModalContent,
-  ModalFooter,
-} from "@/components/shared/ModalWrapper";
-import { getBusinessOwnerName } from "@/utils/businessHelpers";
-import PortalShell from "@/components/portal/PortalShell";
-import { portalUI } from "@/components/portal/portalUI";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { useToast } from "@/components/ui/toast/ToastProvider";
+import { createPageUrl } from "@/utils";
+import { getBusinessOwnerName } from "@/utils/businessHelpers";
+import { canAccessBusinessFeatures } from "@/utils/roleHelpers";
+import { AlertCircle, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import DeleteConfirmModal from "../components/shared/DeleteConfirmModal";
+import HeroStandard from "../components/shared/HeroStandard";
 
 // New tab components
 import BusinessesTab from "@/components/portal/BusinessesTab";
-import ClaimsTab from "@/components/portal/ClaimsTab";
 import BusinessToolsTab from "@/components/portal/BusinessToolsTab";
+import ClaimsTab from "@/components/portal/ClaimsTab";
 
 // New constants
 import { PORTAL_TABS, getTabStatus } from "@/constants/portalTabs";
 
 // Custom hooks
-import { useBusinessPortalData } from "@/hooks/useBusinessPortalData";
 import { useBusinessOperations } from "@/hooks/useBusinessOperations";
+import { useBusinessPortalData } from "@/hooks/useBusinessPortalData";
 import { usePortalState } from "@/hooks/usePortalState";
 import { useProfileCompletion } from "@/hooks/useProfileCompletion";
 
@@ -61,20 +62,23 @@ export default function BusinessPortal() {
 
   // Profile completion check
   const {
-    isCheckingProfile,
-    profileIncomplete,
-    profileData,
-    getProfileCompletionStatus,
+    _isCheckingProfile,
+    _profileIncomplete,
+    _profileData,
+    _getProfileCompletionStatus,
     isProfileComplete
   } = useProfileCompletion(user);
 
+  
   const {
     editingBusinessId,
     draftBusiness,
     savingEdit,
-    startEditingBusiness,
-    updateDraftBusiness,
-    cancelEditingBusiness,
+    deleteConfirmBusiness,
+    setDeleteConfirmBusiness,
+    _startEditingBusiness,
+    _updateDraftBusiness,
+    _cancelEditingBusiness,
     saveBusiness,
     handleDeleteBusiness,
     handleAddBusiness,
@@ -97,9 +101,9 @@ export default function BusinessPortal() {
     setAddOwnerModal,
     closeAddOwnerModal,
     setNewOwnerForm,
-    setAddingOwner,
-    setInsightsLoading,
-    setInsightsProgress,
+    _setAddingOwner,
+    _setInsightsLoading,
+    _setInsightsProgress,
   } = usePortalState();
 
   const { createCheckoutSession, loading: checkoutLoading } = useStripeCheckout();
@@ -122,11 +126,7 @@ export default function BusinessPortal() {
     }
   }, [isClaimFlow, user, loading, businessName]);
 
-  const {
-    onboardingStatus,
-    loading: onboardingLoading,
-    refetch: refetchOnboardingStatus,
-  } = useOnboardingStatus();
+  const { onboardingStatus, loading: onboardingLoading, refetch: _refetchOnboardingStatus } = useOnboardingStatus();
 
   // Create onboarding status for EmptyState
   const enhancedOnboardingStatus = {
@@ -134,16 +134,7 @@ export default function BusinessPortal() {
     needsProfile: !isProfileComplete
   };
 
-  // Handle add business success/cancel
-  const handleAddBusinessSuccess = async (createdBusiness) => {
-    // Close add-business UI
-    setShowAddBusiness(false);
-    // Refresh portal data to show the new business
-    await refetchPortalData();
-    // Return the created business for the callback chain
-    return createdBusiness;
-  };
-
+  
   const handleAddBusinessCancel = () => {
     setShowAddBusiness(false);
   };
@@ -168,13 +159,13 @@ export default function BusinessPortal() {
   const handleBusinessAction = async (action, businessId, data) => {
     switch (action) {
       case "delete":
-        handleDeleteBusiness(businessId);
+        setDeleteConfirmBusiness(businessId);
         break;
       case "addOwner":
         setAddOwnerModal(businessId);
         break;
       case "addBusiness":
-        const result = await handleAddBusiness(data);
+        return await handleAddBusiness(data);
         return result;
       case "save":
         try {
@@ -396,6 +387,16 @@ export default function BusinessPortal() {
             closeClaimAddModal();
             refetchPortalData();
           }}
+        />
+      )}
+
+      {deleteConfirmBusiness && (
+        <DeleteConfirmModal
+          isOpen={!!deleteConfirmBusiness}
+          onClose={() => setDeleteConfirmBusiness(null)}
+          onConfirm={() => handleDeleteBusiness(deleteConfirmBusiness)}
+          businessName={businesses.find(b => b.id === deleteConfirmBusiness)?.business_name || "Business"}
+          isLoading={savingEdit}
         />
       )}
 

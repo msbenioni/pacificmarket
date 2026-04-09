@@ -1,18 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import {
-  CheckCircle,
-  ChevronDown,
-  Eye,
-  Trash2,
-  AlertTriangle,
-} from "lucide-react";
+import { BUSINESS_STATUS_OPTIONS, COUNTRIES, INDUSTRIES, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 import { createPageUrl } from "@/utils";
 import { getLogoUrl } from '@/utils/bannerUtils';
+import {
+    AlertTriangle,
+    CheckCircle,
+    ChevronDown,
+    Eye,
+    Trash2,
+} from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import BusinessProfileForm from "../forms/BusinessProfileForm";
-import { BUSINESS_STATUS_OPTIONS, COUNTRIES, INDUSTRIES, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
 
 // Helper function to convert country slug to readable name
 function getCountryDisplayName(countrySlug) {
@@ -268,6 +268,9 @@ export default function BusinessCard({
           )}
         </div>
       )}
+
+      {/* Delete Section */}
+      <DangerSection onDelete={onDelete} />
     </div>
   );
 }
