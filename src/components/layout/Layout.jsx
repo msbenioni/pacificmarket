@@ -61,7 +61,7 @@ export default function Layout({ children, currentPageName }) {
         } else {
           setUser(null);
         }
-      } catch (error) {
+      } catch {
         setUser(null);
       }
     };
