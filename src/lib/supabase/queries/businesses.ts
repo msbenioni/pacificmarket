@@ -303,6 +303,25 @@ export async function getBusinessById(id: string) {
   return business;
 }
 
+export async function getBusinessByHandle(handle: string) {
+  // Import getSupabase dynamically
+  const { getSupabase } = await import('../client');
+  const supabase = getSupabase();
+
+  const { data, error } = await supabase
+    .from('businesses')
+    .select(BUSINESS_PUBLIC_FIELDS)
+    .eq('business_handle', handle)
+    .single();
+
+  if (error) {
+    console.error('Business query error:', error);
+    return null;
+  }
+
+  return data;
+}
+
 /**
  * Get businesses owned by a specific user
  */
