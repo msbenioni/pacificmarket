@@ -1,5 +1,6 @@
-import { pagesConfig } from "@/pages.config";
 import Layout from "@/components/layout/Layout";
+import { getPublicBusinesses } from "@/lib/supabase/queries/businesses";
+import PacificBusinessesClient from "./PacificBusinessesClient";
 
 export const metadata = {
   title: "Pacific Businesses Directory",
@@ -12,13 +13,16 @@ export const metadata = {
   }
 };
 
-export default function PacificBusinessesPage() {
-  const { Pages } = pagesConfig;
-  const PacificBusinessesPage = Pages["PacificBusinesses"];
+export default async function PacificBusinessesPage() {
+  // Server-side data fetching with caching
+  const businesses = await getPublicBusinesses({ limit: 100 });
 
   return (
     <Layout currentPageName="PacificBusinesses">
-      <PacificBusinessesPage />
+      <PacificBusinessesClient initialBusinesses={businesses.data || []} />
     </Layout>
   );
 }
+
+// Enable ISR for dynamic content
+export const revalidate = 300; // Revalidate every 5 minutes
