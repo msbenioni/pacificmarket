@@ -39,7 +39,7 @@ const nextConfig = {
         source: '/businesses',
         destination: '/PacificBusinesses',
         permanent: true,
-      }
+      },
     ];
   },
   

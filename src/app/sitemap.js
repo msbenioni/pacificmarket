@@ -118,7 +118,7 @@ export default async function sitemap() {
     // Dynamic business pages
     getHomepageBusinesses({ limit: 100 }).then(({ data }) => 
       data?.map(business => ({
-        url: `https://pacificdiscoverynetwork.com/BusinessProfile?handle=${business.business_handle}`,
+        url: `https://pacificdiscoverynetwork.com/BusinessProfile/${business.business_handle}`,
         lastModified: new Date(business.updated_at),
         changeFrequency: 'weekly',
         priority: 0.7,

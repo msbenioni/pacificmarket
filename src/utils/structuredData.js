@@ -33,7 +33,7 @@ export const localBusinessSchema = (business) => ({
   "@type": "LocalBusiness",
   "name": business.business_name,
   "description": business.description || "",
-  "url": `https://pacificdiscoverynetwork.com/business/${business.business_handle}`,
+  "url": `https://pacificdiscoverynetwork.com/BusinessProfile/${business.business_handle}`,
   "logo": business.logo_url,
   "image": business.banner_url,
   "address": {

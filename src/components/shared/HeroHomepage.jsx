@@ -19,13 +19,12 @@ export default function HeroHomepage({
   secondaryCtaHref = createPageUrl("Registry"),
 }) {
   const router = useRouter();
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [_selectedBusiness, setSelectedBusiness] = useState(null);
 
   const handleBusinessSelect = (business) => {
     setSelectedBusiness(business);
     router.push(
-      createPageUrl("BusinessProfile") +
-        `?handle=${business.business_handle || business.id}`
+      `/BusinessProfile/${business.business_handle || business.id}`
     );
   };
 

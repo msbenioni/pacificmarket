@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
-import { createPageUrl } from "@/utils";
-import { CheckCircle, MapPin, Star, ChevronRight, ChevronLeft, Mail, Globe, Instagram, Facebook, Linkedin, Twitter, Youtube, Video, Speech } from "lucide-react";
 import ContactModal from "@/components/profile/ContactModal";
-import { useBusinessCulturalData } from "@/hooks/useBusinessCulturalData";
-import { getCountryDisplayName, getIndustryDisplayName, formatDisplayList } from "@/utils/displayHelpers";
 import { IdentityFlagRow } from "@/components/shared/FlagIcon";
+import { useBusinessCulturalData } from "@/hooks/useBusinessCulturalData";
+import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
+import { formatDisplayList, getCountryDisplayName, getIndustryDisplayName } from "@/utils/displayHelpers";
+import { CheckCircle, ChevronLeft, ChevronRight, Facebook, Globe, Instagram, Linkedin, Mail, MapPin, Speech, Star, Twitter, Video, Youtube } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 const WINDOW_SIZE = 4;
 
-function hourKeyUTC() {
+function _hourKeyUTC() {
   return Math.floor(Date.now() / (1000 * 60 * 60));
 }
 
@@ -369,7 +368,7 @@ function SpotlightPanel({ b, index, total, onPrev, onNext }) {
 
               <div className="mt-5 flex flex-col sm:flex-row gap-3">
                 <Link
-                  href={createPageUrl("BusinessProfile") + `?handle=${b?.business_handle || b?.id}`}
+                  href={`/BusinessProfile/${b?.business_handle || b?.id}`}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#c9a84c] hover:bg-[#b8973b] text-[#0a1628] font-extrabold px-5 py-3 transition-all"
                 >
                   View Profile <ChevronRight className="w-4 h-4" />
@@ -412,8 +411,8 @@ export default function FeaturedSpotlight({ businesses = [] }) {
 
   useEffect(() => {
     // Calculate hour only on client
-    const hourKey = Math.floor(Date.now() / (1000 * 60 * 60));
-    setHourlyWindowIndex(hourKey % windows);
+    const _hourKey = Math.floor(Date.now() / (1000 * 60 * 60));
+    setHourlyWindowIndex(_hourKey % windows);
   }, [windows]);
 
   const [windowIndex, setWindowIndex] = useState(0);

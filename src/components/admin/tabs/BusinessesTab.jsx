@@ -1,14 +1,14 @@
-import { useMemo } from "react";
-import { Building2 } from "lucide-react";
 import AdminBusinessMobileCard from "@/components/admin/AdminBusinessMobileCard";
+import {
+    filterBusinesses,
+    getBusinessesEmptyMessage,
+    getBusinessesFilterOptions,
+} from "@/utils/admin/adminFilters";
+import { Building2 } from "lucide-react";
+import { useMemo } from "react";
 import AdminEmptyState from "../AdminEmptyState";
 import AdminTabFilterBar from "../AdminTabFilterBar";
 import BusinessTable from "../businesses/BusinessTable";
-import {
-  filterBusinesses,
-  getBusinessesFilterOptions,
-  getBusinessesEmptyMessage,
-} from "@/utils/admin/adminFilters";
 
 /**
  * Businesses tab component
@@ -37,11 +37,12 @@ export default function BusinessesTab({
   }, [businesses]);
 
   // Create business by ID map for efficient lookups
-  const businessById = useMemo(() => {
-    return businesses.reduce((acc, business) => {
-      acc[business.id] = business;
-      return acc;
-    }, {});
+  const _businessById = useMemo(() => {
+    const map = {};
+    businesses.forEach(b => {
+      map[b.id] = b;
+    });
+    return map;
   }, [businesses]);
 
   
@@ -86,7 +87,7 @@ export default function BusinessesTab({
                 savingEdit={savingEdit}
                 onViewProfile={(business) => {
                   // Navigate to the business profile page
-                  window.open(`/BusinessProfile?handle=${business.business_handle || business.id}`, '_blank');
+                  window.open(`/BusinessProfile/${business.business_handle || business.id}`, '_blank');
                 }}
               />
             ))}
@@ -112,7 +113,7 @@ export default function BusinessesTab({
             onReject={(business) => businessActions.updateStatus(business, "rejected")}
             onViewProfile={(business) => {
               // Navigate to the business profile page
-              window.open(`/BusinessProfile?handle=${business.business_handle || business.id}`, '_blank');
+              window.open(`/BusinessProfile/${business.business_handle || business.id}`, '_blank');
             }}
           />
         </>

@@ -1,9 +1,10 @@
-import { notFound } from 'next/navigation';
+import Layout from '@/components/layout/Layout';
 import { getBusinessByHandle } from '@/lib/supabase/queries/businesses';
+import { notFound } from 'next/navigation';
 import BusinessProfileClient from './BusinessProfileClient';
 
 export default async function BusinessProfilePage({ params }) {
-  const { handle } = params;
+  const { handle } = await params;
 
   if (!handle) {
     notFound();
@@ -17,7 +18,11 @@ export default async function BusinessProfilePage({ params }) {
       notFound();
     }
 
-    return <BusinessProfileClient business={business} />;
+    return (
+      <Layout currentPageName="BusinessProfile">
+        <BusinessProfileClient business={business} />
+      </Layout>
+    );
   } catch (error) {
     console.error('Error loading business profile:', error);
     notFound();

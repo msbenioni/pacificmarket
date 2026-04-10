@@ -1,7 +1,6 @@
 "use client";
 
 import { BUSINESS_STATUS_OPTIONS, COUNTRIES, INDUSTRIES, SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
-import { createPageUrl } from "@/utils";
 import { getLogoUrl } from '@/utils/bannerUtils';
 import {
     AlertTriangle,
@@ -15,7 +14,7 @@ import { useMemo, useState } from "react";
 import BusinessProfileForm from "../forms/BusinessProfileForm";
 
 // Helper function to convert country slug to readable name
-function getCountryDisplayName(countrySlug) {
+function _getCountryDisplayName(countrySlug) {
   if (!countrySlug) return "";
   
   const country = COUNTRIES.find(c => c.value === countrySlug);
@@ -36,7 +35,7 @@ function getBusinessStatusDisplayName(status) {
   return businessStatus ? businessStatus.label : status;
 }
 
-function MainStepSection({
+function _MainStepSection({
   title,
   step,
   summary,
@@ -47,7 +46,7 @@ function MainStepSection({
   isFirst = false,
 }) {
   return (
-    <div className={`${!isFirst ? "border-t border-slate-100" : ""}`}>
+    <div className={`${isFirst ? "" : "border-t border-slate-100"}`}>
       <button
         type="button"
         onClick={onToggle}
@@ -114,27 +113,22 @@ export default function BusinessCard({
   business,
   draftBusiness,
   savingEdit,
-  insightsSubmitting,
   tierInfo,
   isEditing,
-  onEdit,
   onCancel,
   onDraftChange,
   onSave,
   onDelete,
-  onInsightsSubmit,
   onUpgrade
 }) {
-  const [isBusinessOpen, setIsBusinessOpen] = useState(false);
   const [openMainStep, setOpenMainStep] = useState(null);
 
-  const viewListingHref =
-    createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`;
+  const viewListingHref = `/BusinessProfile/${business.business_handle || business.id}`;
 
-  const summaryText = useMemo(() => {
+  const _summaryText = useMemo(() => {
     return (
       business.tagline ||
-      `${business.city || ""}${business.city && business.country ? ", " : ""}${getCountryDisplayName(business.country) || ""}${business.industry ? ` · ${getIndustryDisplayName(business.industry)}` : ""}` ||
+      `${business.city || ""}${business.city && business.country ? ", " : ""}${_getCountryDisplayName(business.country) || ""}${business.industry ? ` · ${getIndustryDisplayName(business.industry)}` : ""}` ||
       "Business record available to manage"
     );
   }, [business]);

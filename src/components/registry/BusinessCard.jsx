@@ -1,9 +1,8 @@
-import Link from "next/link";
-import { createPageUrl } from "@/utils";
-import { CheckCircle, ArrowUpRight, MapPin, Speech } from "lucide-react";
-import { getLogoUrl } from "@/utils/bannerUtils";
 import { useBusinessCulturalData } from "@/hooks/useBusinessCulturalData";
-import { getCountryLabel, getIndustryLabel, formatDisplayList } from "@/utils/displayHelpers";
+import { getLogoUrl } from "@/utils/bannerUtils";
+import { formatDisplayList, getCountryLabel, getIndustryLabel } from "@/utils/displayHelpers";
+import { ArrowUpRight, CheckCircle, MapPin, Speech } from "lucide-react";
+import Link from "next/link";
 import { IdentityFlagRow } from "../shared/FlagIcon";
 
 export default function BusinessCard({ business, view = "grid" }) {
@@ -16,9 +15,7 @@ export default function BusinessCard({ business, view = "grid" }) {
     resolved: culturalData?.culturalIdentitiesRaw,
   });
 
-  const href =
-    createPageUrl("BusinessProfile") +
-    `?handle=${business.business_handle || business.id}`;
+  const href = `/BusinessProfile/${business.business_handle || business.id}`;
 
   const industryLabel = getIndustryLabel(business.industry);
   const countryLabel = getCountryLabel(business.country);

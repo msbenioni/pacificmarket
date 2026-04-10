@@ -1,25 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import {
-  CheckCircle,
-  ChevronDown,
-  ChevronRight,
-  Edit3,
-  Trash2,
-  Users,
-  Upload,
-  ImagePlus,
-  Sparkles,
-  Eye,
-} from "lucide-react";
+import { COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
 import { createPageUrl } from "@/utils";
 import { getBannerUrl, getLogoUrl } from '@/utils/bannerUtils';
-import { BUSINESS_STATUS, COUNTRIES, INDUSTRIES } from "@/constants/unifiedConstants";
+import {
+    CheckCircle,
+    ChevronDown,
+    ChevronRight,
+    Edit3,
+    Eye,
+    ImagePlus,
+    Sparkles,
+    Trash2,
+    Upload,
+    Users,
+} from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 // Helper function to convert country slug to readable name
-function getCountryDisplayName(countrySlug) {
+function _getCountryDisplayName(countrySlug) {
   if (!countrySlug) return "";
   
   const country = COUNTRIES.find(c => c.value === countrySlug);
@@ -53,8 +53,7 @@ export default function PortalBusinessCard({
   const logoInputId = `logo-upload-${business.id}`;
   const bannerInputId = `banner-upload-${business.id}`;
 
-  const viewListingHref =
-    createPageUrl("BusinessProfile") + `?handle=${business.business_handle || business.id}`;
+  const viewListingHref = `/BusinessProfile/${business.business_handle || business.id}`;
 
   const bannerUrl = getBannerUrl(business);
 
