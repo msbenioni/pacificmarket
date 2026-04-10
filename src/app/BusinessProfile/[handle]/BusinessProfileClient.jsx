@@ -71,25 +71,41 @@ export default function BusinessProfileClient({ business: initialBusiness }) {
       icon: Instagram,
       label: "Instagram",
       value: business.social_links?.instagram,
-      href: business.social_links?.instagram
-        ? `https://instagram.com/${business.social_links.instagram.replace("@", "")}`
-        : "",
+      href: business.social_links?.instagram?.startsWith("http")
+        ? business.social_links.instagram
+        : business.social_links?.instagram
+          ? `https://instagram.com/${business.social_links.instagram.replace("@", "")}`
+          : "",
     },
     {
       icon: Facebook,
       label: "Facebook",
       value: business.social_links?.facebook,
-      href: business.social_links?.facebook
-        ? `https://facebook.com/${business.social_links.facebook.replace("@", "")}`
-        : "",
+      href: business.social_links?.facebook?.startsWith("http")
+        ? business.social_links.facebook
+        : business.social_links?.facebook
+          ? `https://facebook.com/${business.social_links.facebook.replace("@", "")}`
+          : "",
     },
     {
       icon: Linkedin,
       label: "LinkedIn",
       value: business.social_links?.linkedin,
-      href: business.social_links?.linkedin
-        ? `https://linkedin.com/company/${business.social_links.linkedin}`
-        : "",
+      href: (() => {
+        const linkedinValue = business.social_links?.linkedin;
+        let href = "";
+        if (linkedinValue?.startsWith("http")) {
+          href = linkedinValue;
+        } else if (linkedinValue) {
+          href = `https://linkedin.com/company/${linkedinValue}`;
+        }
+        console.log("LinkedIn URL Debug:", { 
+          rawValue: linkedinValue, 
+          generatedHref: href,
+          businessName: business.business_name 
+        });
+        return href;
+      })(),
     },
     {
       icon: Music2,
