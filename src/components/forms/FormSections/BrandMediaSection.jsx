@@ -1,9 +1,9 @@
-import { Upload, X, Info, Crown } from "lucide-react";
+import { getBannerGuideText, getBannerHelpText } from "@/constants/bannerDimensions";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
-import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { useMediaState } from "@/hooks/useMediaState";
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
+import { Crown, Info, Upload, X } from "lucide-react";
 import { DesktopBannerPreview, MobileBannerPreview } from "./BannerPreviews";
-import { getBannerHelpText, getBannerGuideText } from "@/constants/bannerDimensions";
 import ImagePreview from "./ImagePreview";
 
 export default function BrandMediaSection({
@@ -178,49 +178,53 @@ export default function BrandMediaSection({
           </div>
 
           {/* Banner Previews */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-3">
               <div className="mb-2">
                 <label className={labelCls}>Starter desktop banner</label>
               </div>
 
-              {bannerMediaState.hasImage ? (
-                <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-                  <img
-                    src={bannerMediaState.displayUrl}
-                    alt="Starter desktop banner"
-                    className="h-32 w-64 rounded-xl object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="flex h-32 w-64 items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-xs text-slate-500">
-                  No desktop banner yet
-                </div>
-              )}
+              <div className="flex justify-center">
+                {bannerMediaState.hasImage ? (
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+                    <img
+                      src={bannerMediaState.displayUrl}
+                      alt="Starter desktop banner"
+                      className="h-32 w-64 rounded-xl object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-32 w-64 items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-xs text-slate-500">
+                    No desktop banner yet
+                  </div>
+                )}
+              </div>
 
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="text-xs text-slate-500 text-center">
                 {getBannerGuideText('desktop')}. Used in the business registry.
               </p>
             </div>
 
-            <div>
+            <div className="space-y-3">
               <div className="mb-2">
                 <label className={labelCls}>Starter mobile banner</label>
               </div>
 
-              {mobileBannerMediaState.hasImage ? (
-                <div className="inline-block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-                  <img
-                    src={mobileBannerMediaState.displayUrl}
-                    alt="Starter mobile banner"
-                    className="h-24 w-48 rounded-xl object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="flex h-24 w-48 items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-xs text-slate-500">
-                  No mobile banner yet
-                </div>
-              )}
+              <div className="flex justify-center">
+                {mobileBannerMediaState.hasImage ? (
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+                    <img
+                      src={mobileBannerMediaState.displayUrl}
+                      alt="Starter mobile banner"
+                      className="h-24 w-48 rounded-xl object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-24 w-48 items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-xs text-slate-500">
+                    No mobile banner yet
+                  </div>
+                )}
+              </div>
 
               <p className="mt-2 text-xs text-slate-500">
                 {getBannerGuideText('mobile')}. Used for business cards and homepage features.

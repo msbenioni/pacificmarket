@@ -46,6 +46,7 @@ export type Business = {
   business_structure: string | null;
   year_started: number | null;
   business_stage: string | null;
+  team_size_band: string | null;
   is_business_registered: boolean;
 
   // Founder information
