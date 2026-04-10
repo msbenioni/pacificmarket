@@ -1,22 +1,21 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
-import {
-  Building2,
-  ImageIcon,
-  MapPin,
-  Lightbulb,
-  Share2,
-  Phone,
-  Shield,
-} from "lucide-react";
-import { transformBusinessFormData } from "@/utils/businessDataTransformer";
-import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import { SUBSCRIPTION_TIER } from "@/constants/unifiedConstants";
-import { VISIBILITY_TIER } from "@/constants/visibilityConstants";
-import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults.js";
 import { useFormPersistenceV2 } from "@/hooks/useFormPersistenceV2.js";
+import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import { generateFormKey } from "@/utils/formPersistenceKeys.js";
+import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
+import {
+    Building2,
+    ImageIcon,
+    Lightbulb,
+    MapPin,
+    Phone,
+    Share2,
+    Shield,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults.js";
 
 // Helper function to generate business handle from name
 function slugifyHandle(value = "") {
@@ -29,16 +28,15 @@ function slugifyHandle(value = "") {
 }
 
 // Import section components
-import CoreInfoSection from "./FormSections/CoreInfoSection";
+import AdminVisibilitySection from "./FormSections/AdminVisibilitySection";
 import BrandMediaSection from "./FormSections/BrandMediaSection";
-import LocationSection from "./FormSections/LocationSection";
 import BusinessOverviewSection from "./FormSections/BusinessOverviewSection";
 import CommunitySection from "./FormSections/CommunitySection";
-import SocialMediaSection from "./FormSections/SocialMediaSection";
 import ContactDetailsSection from "./FormSections/ContactDetailsSection";
-import AdminVisibilitySection from "./FormSections/AdminVisibilitySection";
-import { ReferralDropdown } from "./ReferralDropdown";
-import { inputCls, textareaCls, selectCls, labelCls, mandatoryLabelCls, helperCls, sectionErrorCls, sectionWarningCls, FormSection } from "./shared/FormComponents";
+import CoreInfoSection from "./FormSections/CoreInfoSection";
+import LocationSection from "./FormSections/LocationSection";
+import SocialMediaSection from "./FormSections/SocialMediaSection";
+import { helperCls, inputCls, labelCls, sectionErrorCls, selectCls, textareaCls } from "./shared/FormComponents";
 
 // Form Sections Configuration
 const SECTIONS = [
@@ -205,11 +203,11 @@ export default function BusinessProfileForm({
     if (mode === "create" || !initialData) {
       return {
         ...baseData,
-        ...(initialData || {}),
+        ...initialData,
         // Deep merge for nested objects
         social_links: {
           ...BUSINESS_FORM_DEFAULTS.social_links,
-          ...(initialData?.social_links || {}),
+          ...initialData?.social_links,
         },
       };
     }
@@ -221,7 +219,7 @@ export default function BusinessProfileForm({
       // Deep merge for nested objects
       social_links: {
         ...BUSINESS_FORM_DEFAULTS.social_links,
-        ...(initialData?.social_links || {}),
+        ...initialData?.social_links,
       },
     };
   }, [mode, initialData, subscriptionTier]);

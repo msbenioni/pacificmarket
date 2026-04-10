@@ -69,17 +69,18 @@ export function getHeroBannerUrl(business) {
 }
 
 /**
- * Get logo URL with proper hierarchy (saved business logo → generated logo → fallback)
+ * Get logo URL with proper hierarchy (saved business logo -> generated logo)
  * @param {Object} business - Business object containing logo URL and business name
- * @returns {string} Logo URL (saved URL first, then generated, then static fallback)
+ * @returns {string} Logo URL (saved URL first, then generated)
  */
 export function getLogoUrl(business) {
   // First priority: saved/persisted logo URL.
-  if (isPersistentMediaUrl(business?.logo_url, { allowRootRelative: true })) {
+  // Check for any non-empty logo URL (Supabase storage URLs are HTTP/HTTPS)
+  if (business?.logo_url && business.logo_url.trim() !== "") {
     return business.logo_url;
   }
 
-  // Second priority: generated logo from business name
+  // Second priority: generated logo from business name (always generate if no saved logo)
   if (business?.business_name) {
     const generatedLogo = generateBusinessLogo(business.business_name);
     if (generatedLogo) {
@@ -87,8 +88,8 @@ export function getLogoUrl(business) {
     }
   }
 
-  // Third priority: fallback to PDN logo
-  return "/pm_logo.png";
+  // No fallback - return null to handle gracefully
+  return null;
 }
 
 /**
