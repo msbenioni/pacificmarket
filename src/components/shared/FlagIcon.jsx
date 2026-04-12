@@ -1,8 +1,7 @@
-import React from "react";
-import { Globe } from "lucide-react";
-import { DISPLAY_TO_FLAG_COUNTRY, COUNTRY_FLAG_CODES } from "@/constants/unifiedConstants";
-import { resolveCanonicalLabel, parseIdentities, dedupe } from "@/utils/parsingUtils";
 import { FLAG_CONFIG } from "@/constants/flagConfig";
+import { COUNTRY_FLAG_CODES, DISPLAY_TO_FLAG_COUNTRY } from "@/constants/unifiedConstants";
+import { dedupe, parseIdentities, resolveCanonicalLabel } from "@/utils/parsingUtils";
+import { Globe } from "lucide-react";
 
 /**
  * Get canonical display label for an identity
@@ -239,17 +238,13 @@ export function IdentityFlagRow({
 }
 
 // Export all flag utilities for backward compatibility
-export { 
-  getDisplayLabel, 
-  getFlagCountry, 
-  getFlagCode, 
-  getFlagAssetUrl, 
-  getFlagItems, 
-  getFlagItemsWithOverflow 
+export {
+    getDisplayLabel, getFlagAssetUrl, getFlagCode, getFlagCountry, getFlagItems,
+    getFlagItemsWithOverflow
 };
 
 // Export shared components for backward compatibility
-export { FlagVisual, FlagOverflowIndicator };
+    export { FlagOverflowIndicator, FlagVisual };
 
 export default function FlagIcon({
   identity,

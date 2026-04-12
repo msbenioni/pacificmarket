@@ -7,8 +7,8 @@
  */
 
 // Import unified parsing functions and constants
-import { parseIdentities, dedupe } from "@/utils/parsingUtils";
 import { getCountryDisplayName } from "@/constants/unifiedConstants";
+import { dedupe, parseIdentities } from "@/utils/parsingUtils";
 
 /**
  * Get resolved cultural and language data for a business
