@@ -119,6 +119,7 @@ function AdminDashboardWithSearchParams() {
   }
 
   // Show loading state only when we have NO cached state to display
+  // Always render AdminAccessGate during loading to prevent hydration mismatch
   if ((authLoading || checkingAdmin || dashboardLoading) && !hasCachedAccess) {
     return (
       <AdminAccessGate

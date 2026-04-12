@@ -4,8 +4,8 @@
  * Business Banner Component - renders persisted banner media when available,
  * with resilient text fallback for missing/corrupt media.
  */
-import { useState } from 'react';
 import { isPersistentMediaUrl } from '@/utils/mediaUrlUtils';
+import { useState } from 'react';
 
 export default function BusinessBanner({ business, className = "" }) {
   const [imageError, setImageError] = useState(false);
@@ -24,9 +24,9 @@ export default function BusinessBanner({ business, className = "" }) {
       };
     }
     
-    // For saved banner media, use a more generous aspect ratio to reduce cropping.
+    // For saved banner media, use heights that match 1920x224 banner dimensions
     return {
-      height: 'h-32 sm:h-40 md:h-48 lg:h-56', // Taller, more flexible height
+      height: 'h-32 sm:h-40 md:h-48 lg:h-56', // 128px -> 160px -> 192px -> 224px
       className: 'relative bg-gray-100'
     };
   };
@@ -57,7 +57,7 @@ export default function BusinessBanner({ business, className = "" }) {
             <img
               src={defaultImgSrc}
               alt={`${business.business_name} banner`}
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-contain object-center bg-gray-100"
               onError={() => setImageError(true)}
             />
           </picture>

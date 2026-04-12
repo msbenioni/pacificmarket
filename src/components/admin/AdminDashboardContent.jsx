@@ -1,12 +1,12 @@
 import AdminFiltersBar from "@/components/admin/AdminFiltersBar";
 import AdminTabsBar from "@/components/admin/AdminTabsBar";
 import {
-  TABS,
-  emptyBusinessForm,
-  filterButtonCls,
-  mobileButtonCls,
-  primaryButtonCls,
-  secondaryButtonCls,
+    TABS,
+    emptyBusinessForm,
+    filterButtonCls,
+    mobileButtonCls,
+    primaryButtonCls,
+    secondaryButtonCls,
 } from "@/components/admin/constants/adminDashboardConstants";
 import BusinessProfileForm from "@/components/forms/BusinessProfileForm";
 import PortalShell from "@/components/portal/PortalShell";
@@ -44,12 +44,15 @@ export default function AdminDashboardContent({
   }, []);
 
   // Local UI state (excluding editing state which is handled by parent)
-  const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('admin-active-tab') || 'businesses';
+  const [activeTab, setActiveTab] = useState('businesses');
+
+  // Load active tab from localStorage on client side only
+  useEffect(() => {
+    const savedTab = localStorage.getItem('admin-active-tab');
+    if (savedTab) {
+      setActiveTab(savedTab);
     }
-    return 'businesses';
-  });
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -68,11 +71,15 @@ export default function AdminDashboardContent({
   // Handle tab change
   const handleTabChange = (newTab) => {
     setActiveTab(newTab);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('admin-active-tab', newTab);
-    }
     businessActions.cancelEditingBusiness();
   };
+
+  // Save active tab to localStorage when it changes
+  useEffect(() => {
+    if (activeTab) {
+      localStorage.setItem('admin-active-tab', activeTab);
+    }
+  }, [activeTab]);
 
   // Handle create form navigation
   const handleCreateBusiness = () => {

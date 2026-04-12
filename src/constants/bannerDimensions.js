@@ -9,11 +9,11 @@
 export const BANNER_DIMENSIONS = {
   // Canonical stored asset sizes
   DESKTOP: {
-    width: 1200,
-    height: 300,
-    aspectRatio: '1200:300',
-    recommendedSize: '1200×300px',
-    description: 'Desktop banner for business registry pages'
+    width: 1920,
+    height: 224,
+    aspectRatio: '1920:224',
+    recommendedSize: '1920×224px',
+    description: 'Desktop banner for business registry pages (16:7 aspect ratio)'
   },
   
   MOBILE: {
