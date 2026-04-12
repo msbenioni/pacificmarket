@@ -6,13 +6,11 @@ import { transformBusinessFormData } from "@/utils/businessDataTransformer";
 import { generateFormKey } from "@/utils/formPersistenceKeys.js";
 import { isPersistentMediaUrl } from "@/utils/mediaUrlUtils";
 import {
-    Building2,
-    ImageIcon,
-    Lightbulb,
-    MapPin,
-    Phone,
-    Share2,
-    Shield,
+  Building2,
+  ImageIcon,
+  MapPin,
+  Share2,
+  Shield,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BUSINESS_FORM_DEFAULTS } from "./businessFormDefaults.js";
@@ -38,67 +36,6 @@ import LocationSection from "./FormSections/LocationSection";
 import SocialMediaSection from "./FormSections/SocialMediaSection";
 import { helperCls, inputCls, labelCls, sectionErrorCls, selectCls, textareaCls } from "./shared/FormComponents";
 
-// Form Sections Configuration
-const SECTIONS = [
-  {
-    key: "core",
-    label: "Core Business Info",
-    icon: Building2,
-    description: "Public-facing name, handle, and descriptions",
-  },
-  {
-    key: "location",
-    label: "Location & Operations",
-    icon: MapPin,
-    description: "Business location and industry classification",
-  },
-  {
-    key: "overview",
-    label: "Business Overview",
-    icon: Building2,
-    description: "Year started, structure, team size, and business operations",
-  },
-  {
-    key: "community",
-    label: "Community & Impact",
-    icon: Lightbulb,
-    description: "Collaboration interests, mentorship, and community engagement",
-  },
-  {
-    key: "social",
-    label: "Social Media & Web",
-    icon: Share2,
-    description: "Website and social media profiles",
-  },
-  {
-    key: "contact",
-    label: "Contact Details",
-    icon: Phone,
-    description: "Contact information for customer inquiries",
-  },
-  {
-    key: "referral",
-    label: "Referral",
-    icon: Building2,
-    description: "Business referral information",
-  },
-  {
-    key: "brand",
-    label: "Brand & Media",
-    icon: ImageIcon,
-    description: "Logo, banner, and visual assets",
-  },
-];
-
-// Admin-only sections (added conditionally)
-const ADMIN_SECTIONS = [
-  {
-    key: "admin",
-    label: "Admin Controls",
-    icon: Shield,
-    description: "Visibility and administrative settings",
-  },
-];
 
 export default function BusinessProfileForm({
   title = "Business Profile",
@@ -109,8 +46,7 @@ export default function BusinessProfileForm({
   saving = false,
   mode = "create",
   showAdminFields = false,
-  subscriptionTier = SUBSCRIPTION_TIER.VAKA,
-  onUpgrade = null
+  _subscriptionTier = SUBSCRIPTION_TIER.VAKA,
 }) {
   // Wizard state
   const [currentStep, setCurrentStep] = useState(0);
@@ -187,43 +123,7 @@ export default function BusinessProfileForm({
   // Get current step data
   const currentStepData = wizardSteps[currentStep];
   
-  // Debug logging to track current step
-  console.log(`🔍 Current Step: ${currentStep + 1} of ${wizardSteps.length} (${currentStepData.label})`);
-  console.log(`🔍 Next button should show: ${currentStep > 0 && currentStep < wizardSteps.length - 1}`);
-  console.log(`🔍 Save button should show: ${currentStep === wizardSteps.length - 1}`);
-  console.log(`🔍 showAdminFields: ${showAdminFields}`);
   
-  // Prepare initial data with proper merging
-  const initialFormData = useMemo(() => {
-    const baseData = {
-      ...BUSINESS_FORM_DEFAULTS,
-      subscription_tier: subscriptionTier,
-    };
-    
-    if (mode === "create" || !initialData) {
-      return {
-        ...baseData,
-        ...initialData,
-        // Deep merge for nested objects
-        social_links: {
-          ...BUSINESS_FORM_DEFAULTS.social_links,
-          ...initialData?.social_links,
-        },
-      };
-    }
-    
-    // For edit mode, merge server data with defaults
-    return {
-      ...baseData,
-      ...initialData,
-      // Deep merge for nested objects
-      social_links: {
-        ...BUSINESS_FORM_DEFAULTS.social_links,
-        ...initialData?.social_links,
-      },
-    };
-  }, [mode, initialData, subscriptionTier]);
-
   // Generate stable form key using centralized utility
   const formKey = useMemo(() => {
     try {
@@ -243,11 +143,9 @@ export default function BusinessProfileForm({
   // Use the new consolidated persistence hook
   const {
     formData: form,
-    setFormData: setForm,
     updateFormData,
     updateField,
     discardDraft,
-    clearPersistedData,
     hasUnsavedChanges,
     isRestored,
     markSaveSuccess,
@@ -259,7 +157,7 @@ export default function BusinessProfileForm({
     initialData: initialData || BUSINESS_FORM_DEFAULTS,
     mode,
     businessId,
-    onSaveSuccess: (saveResult) => {
+    onSaveSuccess: () => {
       console.log(`✅ Save success handled for ${mode} mode`);
     },
     onSaveFailure: (error) => {
@@ -268,8 +166,6 @@ export default function BusinessProfileForm({
   });
 
   const [submitting, setSubmitting] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [savingSection, setSavingSection] = useState(null);
   const [errors, setErrors] = useState({ submit: undefined, fields: {} });
   const saveSuccessTimeoutRef = useRef(null);
 
@@ -281,17 +177,6 @@ export default function BusinessProfileForm({
   // }, [subscriptionTier, form.subscription_tier, updateField]);
 
   // Section Management
-  const toggleSection = (sectionKey) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(sectionKey)) {
-        next.delete(sectionKey);
-      } else {
-        next.add(sectionKey);
-      }
-      return next;
-    });
-  };
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -465,7 +350,7 @@ export default function BusinessProfileForm({
     }
   };
 
-  const performSave = async ({ saveAll = false, errorMessage }) => {
+  const performSave = async ({ errorMessage }) => {
     console.log("🚀 performSave called");
     setSubmitting(true);
     setErrors({ submit: undefined, fields: {} });
@@ -772,17 +657,6 @@ export default function BusinessProfileForm({
   };
 
   // Save Handlers
-  const saveSection = async (sectionKey) => {
-    setSavingSection(sectionKey);
-    try {
-      await performSave({
-        saveAll: false,
-        errorMessage: "Failed to save section. Please try again.",
-      });
-    } finally {
-      setSavingSection(null);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

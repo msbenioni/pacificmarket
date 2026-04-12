@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { LayoutGrid, List, SlidersHorizontal, X, Search } from "lucide-react";
 import BusinessCard from "@/components/registry/BusinessCard";
 import RegistryFilters from "@/components/registry/RegistryFilters";
 import HeroStandard from "@/components/shared/HeroStandard";
+import { LayoutGrid, Search, SlidersHorizontal, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
@@ -14,13 +14,15 @@ const SORT_OPTIONS = [
 ];
 
 export default function PacificBusinessesClient({ initialBusinesses }) {
-  const [businesses, setBusinesses] = useState(initialBusinesses);
+  const businesses = initialBusinesses ?? [];
   const [view, setView] = useState("grid");
   const [sort, setSort] = useState("featured");
   const [showFilters, setShowFilters] = useState(false);
   const defaultFilters = { search: "", country: "", industry: "", cultural_identity: "" };
   const [filters, setFilters] = useState(defaultFilters);
   const [draftFilters, setDraftFilters] = useState(defaultFilters);
+
+  const hasInitialData = Array.isArray(initialBusinesses);
 
   // Optimized filtering with memoization
   const filtered = useMemo(() => {
@@ -89,7 +91,11 @@ export default function PacificBusinessesClient({ initialBusinesses }) {
       <HeroStandard
         badge="Discover"
         title="Discover Pacific Businesses"
-        subtitle={`${businesses.length} business${businesses.length !== 1 ? "es" : ""} available to explore`}
+        subtitle={
+          hasInitialData
+            ? `${businesses.length} business${businesses.length !== 1 ? "es" : ""} available to explore`
+            : "Loading businesses..."
+        }
         description="Browse verified Pacific Island businesses and discover unique products, services, and cultural experiences from across the Pacific Islands."
         actions={null}
       />
